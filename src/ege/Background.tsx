@@ -21,12 +21,12 @@ export const Background: React.FC = () => {
     >
       <AbsoluteFill
         style={{
-          background: `radial-gradient(1100px 700px at ${18 + drift * 6}% ${12 + drift * 5}%, ${COLORS.blob1}88 0%, transparent 62%)`,
+          background: `radial-gradient(900px 900px at ${16 + drift * 8}% ${10 + drift * 4}%, ${COLORS.blob1}88 0%, transparent 62%)`,
         }}
       />
       <AbsoluteFill
         style={{
-          background: `radial-gradient(900px 640px at ${86 - drift * 7}% ${88 - drift * 6}%, ${COLORS.blob2}cc 0%, transparent 60%)`,
+          background: `radial-gradient(820px 820px at ${88 - drift * 9}% ${90 - drift * 5}%, ${COLORS.blob2}cc 0%, transparent 60%)`,
         }}
       />
 
@@ -34,9 +34,9 @@ export const Background: React.FC = () => {
       <AbsoluteFill
         style={{
           backgroundImage: `linear-gradient(${COLORS.blueLine}22 1px, transparent 1px), linear-gradient(90deg, ${COLORS.blueLine}22 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-          maskImage: "radial-gradient(circle at 50% 50%, black 20%, transparent 78%)",
-          WebkitMaskImage: "radial-gradient(circle at 50% 50%, black 20%, transparent 78%)",
+          backgroundSize: "72px 72px",
+          maskImage: "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",
+          WebkitMaskImage: "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",
           opacity: 0.5,
         }}
       />

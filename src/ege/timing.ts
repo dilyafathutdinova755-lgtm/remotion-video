@@ -67,13 +67,14 @@ export const READING_FRAMES = WORD_FRAMES.reduce((a, b) => a + b, 0);
 export const READ_DELAY = sec(1.2);
 
 export const SCENES = {
-  title: sec(4.5),
+  title: sec(6),
   problem: READ_DELAY + READING_FRAMES + sec(1.6),
-  timer: sec(7),
+  timer: sec(8),
   solution1: sec(13),
   solution2: sec(11.5),
-  solution3: sec(13.5),
+  solution3: sec(14),
   answer: sec(6.5),
+  outro: sec(6),
 } as const;
 
 export const TOTAL_FRAMES = Object.values(SCENES).reduce((a, b) => a + b, 0);

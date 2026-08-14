@@ -1,8 +1,8 @@
-import { AbsoluteFill, Series } from "remotion";
+import { AbsoluteFill, Sequence, Series } from "remotion";
 import { Background } from "./Background";
 import { Watermark } from "./Watermark";
 import { FontGate } from "./FontGate";
-import { SCENES } from "./timing";
+import { SCENES, TOTAL_FRAMES } from "./timing";
 import { TitleScene } from "./scenes/TitleScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { TimerScene } from "./scenes/TimerScene";
@@ -10,12 +10,14 @@ import { SolutionOne } from "./scenes/SolutionOne";
 import { SolutionTwo } from "./scenes/SolutionTwo";
 import { SolutionThree } from "./scenes/SolutionThree";
 import { AnswerScene } from "./scenes/AnswerScene";
+import { OutroScene } from "./scenes/OutroScene";
 
 /**
- * Ролик «Задача 10, профильная математика».
+ * Ролик «Задача 10, профильная математика», вертикальный 9:16.
  *
- * Фон и плашка «ЕГЭ тренажёр» живут вне Series, поэтому не мигают
- * на стыках сцен — меняется только содержимое.
+ * Фон живёт вне Series, поэтому не мигает на стыках сцен — меняется
+ * только содержимое. Плашка в углу висит до финального экрана, где её
+ * заменяет большая иконка приложения.
  */
 export const EgeVideo: React.FC = () => (
   <FontGate>
@@ -44,9 +46,14 @@ export const EgeVideo: React.FC = () => (
         <Series.Sequence durationInFrames={SCENES.answer}>
           <AnswerScene />
         </Series.Sequence>
+        <Series.Sequence durationInFrames={SCENES.outro}>
+          <OutroScene />
+        </Series.Sequence>
       </Series>
 
-      <Watermark />
+      <Sequence durationInFrames={TOTAL_FRAMES - SCENES.outro}>
+        <Watermark />
+      </Sequence>
     </AbsoluteFill>
   </FontGate>
 );

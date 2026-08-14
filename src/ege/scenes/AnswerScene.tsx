@@ -1,10 +1,10 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { Reveal, V, FormulaCard } from "../MathBits";
-import { COLORS, FONTS } from "../theme";
+import { COLORS, FONTS, PAD } from "../theme";
 
 export const AnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
   // Ответ появляется с упругим «хлопком»
   const pop = spring({
@@ -14,16 +14,39 @@ export const AnswerScene: React.FC = () => {
     durationInFrames: 40,
   });
 
+  const out = interpolate(frame, [durationInFrames - 14, durationInFrames], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 140px" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 44 }}>
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        padding: `0 ${PAD}px`,
+        opacity: out,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 40,
+          width: "100%",
+        }}
+      >
         <Reveal at={0}>
           <div
             style={{
-              fontFamily: FONTS.body,
-              fontSize: 44,
+              fontFamily: FONTS.display,
+              fontWeight: 300,
+              fontSize: 40,
               color: COLORS.textMuted,
               textAlign: "center",
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
             }}
           >
             Футболка дороже кепки на
@@ -31,7 +54,7 @@ export const AnswerScene: React.FC = () => {
         </Reveal>
 
         <Reveal at={14}>
-          <FormulaCard style={{ fontSize: 56, fontWeight: 600 }}>
+          <FormulaCard style={{ fontSize: 50, fontWeight: 600 }}>
             <V>x</V>
             <span style={{ margin: "0 14px" }}>−</span>
             <V>y</V>
@@ -47,12 +70,13 @@ export const AnswerScene: React.FC = () => {
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            gap: 30,
-            padding: "30px 72px",
-            borderRadius: 28,
+            gap: 4,
+            padding: "38px 78px",
+            borderRadius: 32,
             background: COLORS.blue,
-            boxShadow: "0 22px 60px rgba(29,78,216,0.32)",
+            boxShadow: "0 24px 64px rgba(29,78,216,0.34)",
             opacity: interpolate(pop, [0, 0.4], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
@@ -62,37 +86,39 @@ export const AnswerScene: React.FC = () => {
         >
           <span
             style={{
-              fontFamily: FONTS.head,
-              fontWeight: 700,
-              fontSize: 44,
+              fontFamily: FONTS.display,
+              fontWeight: 300,
+              fontSize: 38,
               color: "#bcd4ff",
-              letterSpacing: "0.14em",
+              letterSpacing: "0.26em",
               textTransform: "uppercase",
             }}
           >
             Ответ
           </span>
-          <span
-            style={{
-              fontFamily: FONTS.head,
-              fontWeight: 800,
-              fontSize: 108,
-              color: "#fff",
-              lineHeight: 1,
-            }}
-          >
-            285
-          </span>
-          <span
-            style={{
-              fontFamily: FONTS.body,
-              fontWeight: 500,
-              fontSize: 44,
-              color: "#dbe7ff",
-            }}
-          >
-            рублей
-          </span>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 26 }}>
+            <span
+              style={{
+                fontFamily: FONTS.head,
+                fontWeight: 800,
+                fontSize: 132,
+                color: "#fff",
+                lineHeight: 1.1,
+              }}
+            >
+              285
+            </span>
+            <span
+              style={{
+                fontFamily: FONTS.body,
+                fontWeight: 300,
+                fontSize: 44,
+                color: "#dbe7ff",
+              }}
+            >
+              рублей
+            </span>
+          </div>
         </div>
 
         <Reveal at={110}>
@@ -100,19 +126,20 @@ export const AnswerScene: React.FC = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 16,
-              padding: "16px 34px",
+              gap: 14,
+              padding: "16px 32px",
               borderRadius: 999,
               background: COLORS.okBg,
               border: `2px solid ${COLORS.ok}33`,
               fontFamily: FONTS.body,
-              fontSize: 34,
+              fontWeight: 300,
+              fontSize: 32,
               color: COLORS.ok,
-              fontWeight: 500,
+              textAlign: "center",
             }}
           >
-            <span style={{ fontSize: 30 }}>✓</span>
-            Проверка: 3&nbsp;·&nbsp;165 = 495, это ровно 55% от 2&nbsp;·&nbsp;450 = 900
+            <span>✓</span>
+            3&nbsp;·&nbsp;165 = 495 — ровно 55% от 2&nbsp;·&nbsp;450 = 900
           </div>
         </Reveal>
       </div>

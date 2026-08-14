@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
-import { COLORS } from "./theme";
+import { COLORS, PAD } from "./theme";
 import { SceneHeading } from "./MathBits";
 
 /** Общая рамка для сцен решения: заголовок сверху, контент под ним. */
@@ -20,8 +20,9 @@ export const SolutionLayout: React.FC<{
   return (
     <AbsoluteFill
       style={{
-        padding: "150px 130px 90px",
-        justifyContent: "flex-start",
+        // Контент центрируем по вертикали, иначе в 9:16 снизу зияет пустота
+        padding: `220px ${PAD}px 120px`,
+        justifyContent: "center",
         opacity: out,
       }}
     >
@@ -30,7 +31,7 @@ export const SolutionLayout: React.FC<{
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 30,
+          gap: 26,
           color: COLORS.text,
         }}
       >
@@ -45,7 +46,7 @@ export const Brace: React.FC<{ height: number; color?: string }> = ({
   height,
   color = COLORS.blue,
 }) => {
-  const w = 30;
+  const w = 28;
   const h = height;
   const d = [
     `M ${w} 2`,
@@ -67,22 +68,22 @@ export const Brace: React.FC<{ height: number; color?: string }> = ({
 /** Строка рассуждения с маркером-точкой. */
 export const Line: React.FC<{ children: React.ReactNode; size?: number }> = ({
   children,
-  size = 42,
+  size = 40,
 }) => (
   <div
     style={{
       display: "flex",
       alignItems: "baseline",
-      gap: 18,
+      gap: 16,
       fontSize: size,
-      lineHeight: 1.5,
+      lineHeight: 1.45,
       fontWeight: 400,
     }}
   >
     <span
       style={{
-        width: 12,
-        height: 12,
+        width: 11,
+        height: 11,
         borderRadius: 999,
         background: COLORS.blueSoft,
         flexShrink: 0,

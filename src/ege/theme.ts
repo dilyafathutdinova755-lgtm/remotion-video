@@ -19,8 +19,7 @@ export const COLORS = {
   text: "#152741",
   textMuted: "#5b7395",
 
-  // Подсветка слов при «чтении»
-  readBg: "#dce9fb",
+  // Подсветка слова, которое читают прямо сейчас
   activeBg: "#a9cbfa",
 
   card: "rgba(255,255,255,0.72)",
@@ -28,15 +27,27 @@ export const COLORS = {
 
   ok: "#0f7b52",
   okBg: "#dbf3e7",
+
+  // Иконка приложения
+  logoFrom: "#2b7bff",
+  logoTo: "#0a52dc",
 } as const;
 
 export const FONTS = {
+  /** Montserrat — жирные заголовки. */
   head: '"Montserrat", "DejaVu Sans", sans-serif',
+  /** Inter — основной текст и формулы. */
   body: '"Inter", "DejaVu Sans", sans-serif',
+  /** Oswald — узкие вытянутые надписи: плашки, подписи, «ОТВЕТ». */
+  display: '"Oswald", "Montserrat", "DejaVu Sans", sans-serif',
 } as const;
 
+/** Вертикальный формат 9:16 под Shorts / Reels / TikTok. */
 export const VIDEO = {
-  width: 1920,
-  height: 1080,
+  width: 1080,
+  height: 1920,
   fps: 30,
 } as const;
+
+/** Боковые поля, за которые контент не заходит. */
+export const PAD = 68;

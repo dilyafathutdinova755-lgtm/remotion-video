@@ -1,5 +1,6 @@
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
-import { COLORS, FONTS } from "./theme";
+import { COLORS, FONTS, PAD } from "./theme";
+import { AppLogo } from "./AppLogo";
 
 /**
  * Плашка «ЕГЭ тренажёр» в правом верхнем углу. Появляется в начале
@@ -7,45 +8,42 @@ import { COLORS, FONTS } from "./theme";
  */
 export const Watermark: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
   const enter = spring({ frame: frame - 8, fps, config: { damping: 200 }, durationInFrames: 25 });
-  const opacity = interpolate(enter, [0, 1], [0, 1]);
+  // Уходит перед финальным экраном, чтобы не дублировать большую иконку
+  const leave = interpolate(frame, [durationInFrames - 18, durationInFrames], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const opacity = interpolate(enter, [0, 1], [0, 1]) * leave;
   const shift = interpolate(enter, [0, 1], [26, 0]);
 
   return (
     <div
       style={{
         position: "absolute",
-        top: 46,
-        right: 56,
+        top: 52,
+        right: PAD,
         display: "flex",
         alignItems: "center",
-        gap: 12,
-        padding: "12px 24px",
+        gap: 14,
+        padding: "10px 22px 10px 12px",
         borderRadius: 999,
-        background: "rgba(255,255,255,0.78)",
+        background: "rgba(255,255,255,0.82)",
         border: `1.5px solid ${COLORS.cardBorder}`,
         boxShadow: "0 6px 22px rgba(18,51,110,0.10)",
         opacity,
         transform: `translateX(${shift}px)`,
       }}
     >
-      <div
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: 999,
-          background: COLORS.blue,
-          boxShadow: `0 0 0 5px ${COLORS.blue}22`,
-        }}
-      />
+      <AppLogo size={54} compact />
       <span
         style={{
-          fontFamily: FONTS.head,
-          fontWeight: 700,
-          fontSize: 27,
-          letterSpacing: "0.16em",
+          fontFamily: FONTS.display,
+          fontWeight: 500,
+          fontSize: 30,
+          letterSpacing: "0.13em",
           textTransform: "uppercase",
           color: COLORS.deep,
         }}

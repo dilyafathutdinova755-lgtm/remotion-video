@@ -20,20 +20,25 @@ export const SolutionOne: React.FC = () => (
     <Reveal at={120}>
       <Line>
         Значит, стоимость трёх кепок составляет{" "}
-        <span style={{ color: COLORS.blue, fontWeight: 700 }}>55%</span> от стоимости двух футболок:
+        <span style={{ color: COLORS.blue, fontWeight: 600 }}>55%</span> от стоимости двух футболок:
       </Line>
     </Reveal>
 
-    <Reveal at={185} style={{ display: "flex", alignItems: "center", gap: 40, marginTop: 18 }}>
-      <FormulaCard style={{ fontSize: 54, fontWeight: 600 }}>
+    <Reveal
+      at={185}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18, marginTop: 16 }}
+    >
+      <FormulaCard style={{ fontSize: 52, fontWeight: 600 }}>
         3<V>y</V>
         <span style={{ margin: "0 16px" }}>=</span>
         0,55&nbsp;·&nbsp;2<V>x</V>
       </FormulaCard>
 
-      <span style={{ fontSize: 52, color: COLORS.blueSoft, fontFamily: FONTS.head }}>⟹</span>
+      <span style={{ fontSize: 44, color: COLORS.blueSoft, fontFamily: FONTS.head, lineHeight: 1 }}>
+        ⇩
+      </span>
 
-      <FormulaCard accent style={{ fontSize: 54, fontWeight: 600 }}>
+      <FormulaCard accent style={{ fontSize: 52, fontWeight: 600 }}>
         <V>y</V>
         <span style={{ margin: "0 16px" }}>=</span>
         <Frac num="11" den="30" />

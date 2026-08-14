@@ -1,18 +1,33 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { COLORS, FONTS } from "../theme";
+import { COLORS, FONTS, PAD } from "../theme";
+import { AppLogo } from "../AppLogo";
 
 export const TitleScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  const rise = spring({ frame: frame - 6, fps, config: { damping: 200 }, durationInFrames: 30 });
-  const sub = spring({ frame: frame - 22, fps, config: { damping: 200 }, durationInFrames: 28 });
-  const line = spring({ frame: frame - 16, fps, config: { damping: 200 }, durationInFrames: 34 });
+  const at = (delay: number, duration = 28) =>
+    spring({ frame: frame - delay, fps, config: { damping: 200 }, durationInFrames: duration });
 
-  // Мягкий уход в конце сцены
+  const logo = spring({
+    frame: frame - 4,
+    fps,
+    config: { damping: 14, mass: 0.8, stiffness: 120 },
+    durationInFrames: 40,
+  });
+  const app = at(20);
+  const line = at(34, 34);
+  const title = at(40);
+  const sub = at(56);
+
   const out = interpolate(frame, [durationInFrames - 14, durationInFrames], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
+  });
+
+  const lift = (s: number, d = 28) => ({
+    opacity: interpolate(s, [0, 1], [0, 1]),
+    transform: `translateY(${interpolate(s, [0, 1], [d, 0])}px)`,
   });
 
   return (
@@ -20,21 +35,71 @@ export const TitleScene: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
+        padding: `0 ${PAD}px`,
         opacity: out,
-        padding: "0 160px",
+        textAlign: "center",
       }}
     >
-      <div style={{ textAlign: "center", maxWidth: 1480 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div
           style={{
+            opacity: interpolate(logo, [0, 0.4], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            }),
+            transform: `scale(${interpolate(logo, [0, 1], [0.7, 1])})`,
+          }}
+        >
+          <AppLogo size={286} />
+        </div>
+
+        <div style={{ ...lift(app, 22), marginTop: 46 }}>
+          <div
+            style={{
+              fontFamily: FONTS.body,
+              fontWeight: 300,
+              fontSize: 40,
+              color: COLORS.textMuted,
+              letterSpacing: "0.01em",
+            }}
+          >
+            Решаем задачу из приложения
+          </div>
+          <div
+            style={{
+              fontFamily: FONTS.display,
+              fontWeight: 500,
+              fontSize: 66,
+              color: COLORS.blue,
+              letterSpacing: "0.09em",
+              textTransform: "uppercase",
+              marginTop: 8,
+            }}
+          >
+            ЕГЭ тренажёр
+          </div>
+        </div>
+
+        <div
+          style={{
+            height: 6,
+            borderRadius: 999,
+            background: `linear-gradient(90deg, ${COLORS.blue}, ${COLORS.blueSoft})`,
+            margin: "52px 0",
+            width: interpolate(line, [0, 1], [0, 300]),
+            opacity: 0.9,
+          }}
+        />
+
+        <div
+          style={{
+            ...lift(title, 34),
             fontFamily: FONTS.head,
             fontWeight: 800,
-            fontSize: 108,
-            lineHeight: 1.08,
+            fontSize: 86,
+            lineHeight: 1.12,
             color: COLORS.deep,
             letterSpacing: "-0.02em",
-            opacity: interpolate(rise, [0, 1], [0, 1]),
-            transform: `translateY(${interpolate(rise, [0, 1], [40, 0])}px)`,
           }}
         >
           Решение задачи{" "}
@@ -42,8 +107,8 @@ export const TitleScene: React.FC = () => {
             style={{
               color: COLORS.blue,
               background: "#e6efff",
-              borderRadius: 22,
-              padding: "0 22px",
+              borderRadius: 20,
+              padding: "0 20px",
               display: "inline-block",
             }}
           >
@@ -53,24 +118,12 @@ export const TitleScene: React.FC = () => {
 
         <div
           style={{
-            height: 7,
-            borderRadius: 999,
-            background: `linear-gradient(90deg, ${COLORS.blue}, ${COLORS.blueSoft})`,
-            margin: "38px auto 34px",
-            width: interpolate(line, [0, 1], [0, 420]),
-            opacity: 0.9,
-          }}
-        />
-
-        <div
-          style={{
+            ...lift(sub, 22),
             fontFamily: FONTS.body,
-            fontWeight: 500,
-            fontSize: 52,
+            fontWeight: 300,
+            fontSize: 42,
             color: COLORS.textMuted,
-            letterSpacing: "-0.005em",
-            opacity: interpolate(sub, [0, 1], [0, 1]),
-            transform: `translateY(${interpolate(sub, [0, 1], [24, 0])}px)`,
+            marginTop: 26,
           }}
         >
           в ЕГЭ по профильной математике

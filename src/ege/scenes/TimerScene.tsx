@@ -1,8 +1,9 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { COLORS, FONTS } from "../theme";
+import { COLORS, FONTS, PAD } from "../theme";
+import { ProblemText, ProblemCard, Pill } from "../ProblemText";
 import { sec } from "../timing";
 
-const LEAD_IN = sec(1); // появление круга
+const LEAD_IN = sec(1); // круг успевает появиться
 const COUNT = sec(5); // сами 5 секунд
 
 export const TimerScene: React.FC = () => {
@@ -10,6 +11,7 @@ export const TimerScene: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
 
   const enter = spring({ frame, fps, config: { damping: 200 }, durationInFrames: 24 });
+  const cta = spring({ frame: frame - 18, fps, config: { damping: 200 }, durationInFrames: 28 });
   const out = interpolate(frame, [durationInFrames - 16, durationInFrames], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -29,55 +31,58 @@ export const TimerScene: React.FC = () => {
     config: { damping: 12, mass: 0.5, stiffness: 180 },
     durationInFrames: fps,
   });
-  const digitScale = frame < LEAD_IN ? 1 : interpolate(pop, [0, 1], [1.22, 1]);
+  const digitScale = frame < LEAD_IN ? 1 : interpolate(pop, [0, 1], [1.2, 1]);
 
-  const R = 188;
+  const R = 124;
   const C = 2 * Math.PI * R;
-  const ringProgress = remaining / COUNT;
 
   return (
     <AbsoluteFill
       style={{
         justifyContent: "center",
         alignItems: "center",
+        padding: `0 ${PAD}px`,
         opacity: out,
       }}
     >
       <div
         style={{
+          width: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           opacity: interpolate(enter, [0, 1], [0, 1]),
-          transform: `scale(${interpolate(enter, [0, 1], [0.9, 1])})`,
+          transform: `translateY(${interpolate(enter, [0, 1], [24, 0])}px)`,
         }}
       >
-        <div
-          style={{
-            fontFamily: FONTS.head,
-            fontWeight: 700,
-            fontSize: 54,
-            color: COLORS.deep,
-            marginBottom: 54,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          Попробуйте решить сами
+        {/* Условие остаётся перед глазами, пока идёт отсчёт */}
+        <div style={{ width: "100%" }}>
+          <Pill>Подумайте сами</Pill>
+          <ProblemCard padding={40}>
+            <ProblemText size={40} />
+          </ProblemCard>
         </div>
 
-        <div style={{ position: "relative", width: 440, height: 440 }}>
-          <svg width={440} height={440} style={{ transform: "rotate(-90deg)" }}>
-            <circle cx={220} cy={220} r={R} fill="rgba(255,255,255,0.7)" stroke="#dbe6f6" strokeWidth={20} />
+        <div style={{ position: "relative", width: 292, height: 292, marginTop: 56 }}>
+          <svg width={292} height={292} style={{ transform: "rotate(-90deg)" }}>
             <circle
-              cx={220}
-              cy={220}
+              cx={146}
+              cy={146}
+              r={R}
+              fill="rgba(255,255,255,0.75)"
+              stroke="#dbe6f6"
+              strokeWidth={16}
+            />
+            <circle
+              cx={146}
+              cy={146}
               r={R}
               fill="none"
               stroke={COLORS.blue}
-              strokeWidth={20}
+              strokeWidth={16}
               strokeLinecap="round"
               strokeDasharray={C}
-              strokeDashoffset={C * (1 - ringProgress)}
+              strokeDashoffset={C * (1 - remaining / COUNT)}
             />
           </svg>
 
@@ -93,10 +98,11 @@ export const TimerScene: React.FC = () => {
             {finished ? (
               <span
                 style={{
-                  fontFamily: FONTS.head,
-                  fontWeight: 800,
-                  fontSize: 76,
+                  fontFamily: FONTS.display,
+                  fontWeight: 500,
+                  fontSize: 62,
                   color: COLORS.blue,
+                  letterSpacing: "0.04em",
                 }}
               >
                 Время!
@@ -106,7 +112,7 @@ export const TimerScene: React.FC = () => {
                 style={{
                   fontFamily: FONTS.head,
                   fontWeight: 800,
-                  fontSize: 200,
+                  fontSize: 140,
                   color: COLORS.deep,
                   transform: `scale(${digitScale})`,
                   lineHeight: 1,
@@ -120,14 +126,49 @@ export const TimerScene: React.FC = () => {
 
         <div
           style={{
-            fontFamily: FONTS.body,
-            fontWeight: 500,
-            fontSize: 38,
-            color: COLORS.textMuted,
             marginTop: 52,
+            display: "flex",
+            alignItems: "center",
+            gap: 22,
+            padding: "26px 40px",
+            borderRadius: 26,
+            background: "#eaf2ff",
+            border: `2px solid ${COLORS.blueSoft}55`,
+            boxShadow: "0 12px 34px rgba(18,51,110,0.10)",
+            opacity: interpolate(cta, [0, 1], [0, 1]),
+            transform: `translateY(${interpolate(cta, [0, 1], [22, 0])}px)`,
           }}
         >
-          5 секунд на размышление
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 56,
+              height: 56,
+              borderRadius: 999,
+              background: COLORS.blue,
+              flexShrink: 0,
+            }}
+          >
+            {/* Значок паузы */}
+            <span style={{ display: "flex", gap: 7 }}>
+              <span style={{ width: 7, height: 24, borderRadius: 2, background: "#fff" }} />
+              <span style={{ width: 7, height: 24, borderRadius: 2, background: "#fff" }} />
+            </span>
+          </span>
+          <span
+            style={{
+              fontFamily: FONTS.body,
+              fontWeight: 500,
+              fontSize: 38,
+              lineHeight: 1.3,
+              color: COLORS.deep,
+            }}
+          >
+            Ставь на паузу и пиши свой ответ
+            <br />в комментарии
+          </span>
         </div>
       </div>
     </AbsoluteFill>

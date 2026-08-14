@@ -86,7 +86,7 @@ export const FormulaCard: React.FC<{
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "20px 40px",
+      padding: "18px 34px",
       borderRadius: 20,
       background: accent ? "#eaf2ff" : COLORS.card,
       border: `2px solid ${accent ? COLORS.blueSoft + "66" : COLORS.cardBorder}`,
@@ -102,20 +102,20 @@ export const FormulaCard: React.FC<{
 
 /** Заголовок сцены решения: номер шага + подпись. */
 export const SceneHeading: React.FC<{ step: string; title: string }> = ({ step, title }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 46 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 40 }}>
     <div
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: 62,
-        height: 62,
-        borderRadius: 18,
+        width: 58,
+        height: 58,
+        borderRadius: 17,
         background: COLORS.blue,
         color: "#fff",
         fontFamily: FONTS.head,
         fontWeight: 800,
-        fontSize: 32,
+        fontSize: 30,
         boxShadow: "0 8px 22px rgba(29,78,216,0.30)",
       }}
     >
@@ -123,11 +123,11 @@ export const SceneHeading: React.FC<{ step: string; title: string }> = ({ step, 
     </div>
     <div
       style={{
-        fontFamily: FONTS.head,
-        fontWeight: 700,
-        fontSize: 44,
+        fontFamily: FONTS.display,
+        fontWeight: 400,
+        fontSize: 50,
         color: COLORS.deep,
-        letterSpacing: "-0.01em",
+        letterSpacing: "0.02em",
       }}
     >
       {title}
