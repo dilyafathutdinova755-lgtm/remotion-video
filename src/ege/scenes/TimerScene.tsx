@@ -1,5 +1,5 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { COLORS, FONTS, PAD } from "../theme";
+import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
 import { sec } from "../timing";
 
@@ -41,7 +41,7 @@ export const TimerScene: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
-        padding: `0 ${PAD}px`,
+        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
         opacity: out,
       }}
     >
@@ -63,7 +63,7 @@ export const TimerScene: React.FC = () => {
           </ProblemCard>
         </div>
 
-        <div style={{ position: "relative", width: 292, height: 292, marginTop: 56 }}>
+        <div style={{ position: "relative", width: 292, height: 292, marginTop: 42 }}>
           <svg width={292} height={292} style={{ transform: "rotate(-90deg)" }}>
             <circle
               cx={146}
@@ -126,7 +126,7 @@ export const TimerScene: React.FC = () => {
 
         <div
           style={{
-            marginTop: 52,
+            marginTop: 40,
             display: "flex",
             alignItems: "center",
             gap: 22,

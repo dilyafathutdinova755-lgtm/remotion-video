@@ -1,5 +1,5 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { COLORS, FONTS, PAD } from "../theme";
+import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { AppLogo } from "../AppLogo";
 
 /** Финальный экран: иконка приложения и призыв скачать. */
@@ -16,9 +16,8 @@ export const OutroScene: React.FC = () => {
   const at = (delay: number) =>
     spring({ frame: frame - delay, fps, config: { damping: 200 }, durationInFrames: 28 });
 
-  const name = at(22);
-  const cta = at(38);
-  const link = at(54);
+  const cta = at(26);
+  const link = at(44);
 
   const lift = (s: number, d = 26) => ({
     opacity: interpolate(s, [0, 1], [0, 1]),
@@ -33,7 +32,7 @@ export const OutroScene: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
-        padding: `0 ${PAD}px`,
+        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
         textAlign: "center",
       }}
     >
@@ -50,21 +49,7 @@ export const OutroScene: React.FC = () => {
           <AppLogo size={320} />
         </div>
 
-        <div
-          style={{
-            ...lift(name, 22),
-            fontFamily: FONTS.display,
-            fontWeight: 500,
-            fontSize: 72,
-            color: COLORS.deep,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            marginTop: 52,
-          }}
-        >
-          ЕГЭ тренажёр
-        </div>
-
+        {/* Название приложения не дублируем — оно уже есть на самой иконке */}
         <div
           style={{
             ...lift(cta, 26),
@@ -73,7 +58,7 @@ export const OutroScene: React.FC = () => {
             fontSize: 78,
             color: COLORS.blue,
             letterSpacing: "-0.015em",
-            marginTop: 40,
+            marginTop: 62,
           }}
         >
           Скачивай бесплатно

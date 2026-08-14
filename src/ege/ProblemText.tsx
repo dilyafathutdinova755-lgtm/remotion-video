@@ -62,12 +62,12 @@ export const ProblemText: React.FC<{
       display: "flex",
       flexWrap: "wrap",
       alignItems: "center",
-      rowGap: size * 0.3,
+      rowGap: size * 0.16,
       columnGap: 2,
       fontFamily: FONTS.body,
       fontWeight: 400,
       fontSize: size,
-      lineHeight: 1.34,
+      lineHeight: 1.2,
       color: COLORS.text,
     }}
   >

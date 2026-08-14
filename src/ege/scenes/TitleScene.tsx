@@ -1,5 +1,5 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { COLORS, FONTS, PAD } from "../theme";
+import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { AppLogo } from "../AppLogo";
 
 export const TitleScene: React.FC = () => {
@@ -35,7 +35,7 @@ export const TitleScene: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
-        padding: `0 ${PAD}px`,
+        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
         opacity: out,
         textAlign: "center",
       }}

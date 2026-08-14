@@ -1,6 +1,6 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { Reveal, V, FormulaCard } from "../MathBits";
-import { COLORS, FONTS, PAD } from "../theme";
+import { COLORS, FONTS, PAD, SAFE } from "../theme";
 
 export const AnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -24,7 +24,7 @@ export const AnswerScene: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "center",
-        padding: `0 ${PAD}px`,
+        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
         opacity: out,
       }}
     >
@@ -33,7 +33,7 @@ export const AnswerScene: React.FC = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 40,
+          gap: 30,
           width: "100%",
         }}
       >
@@ -59,9 +59,9 @@ export const AnswerScene: React.FC = () => {
             <span style={{ margin: "0 14px" }}>−</span>
             <V>y</V>
             <span style={{ margin: "0 18px" }}>=</span>
-            450
-            <span style={{ margin: "0 14px" }}>−</span>
-            165
+            19<V>t</V>
+            <span style={{ margin: "0 18px" }}>=</span>
+            19&nbsp;·&nbsp;15
             <span style={{ margin: "0 18px" }}>=</span>
             <span style={{ color: COLORS.blue, fontWeight: 700 }}>285</span>
           </FormulaCard>
@@ -139,7 +139,7 @@ export const AnswerScene: React.FC = () => {
             }}
           >
             <span>✓</span>
-            3&nbsp;·&nbsp;165 = 495 — ровно 55% от 2&nbsp;·&nbsp;450 = 900
+            <V>x</V> = 450, <V>y</V> = 165: &nbsp;3&nbsp;·&nbsp;165 = 495 = 0,55&nbsp;·&nbsp;900
           </div>
         </Reveal>
       </div>

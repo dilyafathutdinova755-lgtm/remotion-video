@@ -23,7 +23,8 @@ export const Watermark: React.FC = () => {
     <div
       style={{
         position: "absolute",
-        top: 52,
+        // Ниже шапки Reels/Shorts — иначе интерфейс перекрывает надпись
+        top: 232,
         right: PAD,
         display: "flex",
         alignItems: "center",

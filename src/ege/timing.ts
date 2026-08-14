@@ -70,10 +70,9 @@ export const SCENES = {
   title: sec(6),
   problem: READ_DELAY + READING_FRAMES + sec(1.6),
   timer: sec(8),
-  solution1: sec(13),
-  solution2: sec(11.5),
-  solution3: sec(14),
-  answer: sec(6.5),
+  solution1: sec(10),
+  solution2: sec(12.5),
+  answer: sec(7),
   outro: sec(6),
 } as const;
 

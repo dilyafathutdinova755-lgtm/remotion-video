@@ -8,7 +8,6 @@ import { ProblemScene } from "./scenes/ProblemScene";
 import { TimerScene } from "./scenes/TimerScene";
 import { SolutionOne } from "./scenes/SolutionOne";
 import { SolutionTwo } from "./scenes/SolutionTwo";
-import { SolutionThree } from "./scenes/SolutionThree";
 import { AnswerScene } from "./scenes/AnswerScene";
 import { OutroScene } from "./scenes/OutroScene";
 
@@ -39,9 +38,6 @@ export const EgeVideo: React.FC = () => (
         </Series.Sequence>
         <Series.Sequence durationInFrames={SCENES.solution2}>
           <SolutionTwo />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.solution3}>
-          <SolutionThree />
         </Series.Sequence>
         <Series.Sequence durationInFrames={SCENES.answer}>
           <AnswerScene />

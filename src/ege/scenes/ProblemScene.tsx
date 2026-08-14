@@ -1,5 +1,5 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { COLORS, PAD } from "../theme";
+import { COLORS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
 import { READ_DELAY, READING_FRAMES } from "../timing";
 
@@ -23,7 +23,7 @@ export const ProblemScene: React.FC = () => {
       style={{
         justifyContent: "center",
         alignItems: "flex-start",
-        padding: `0 ${PAD}px`,
+        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
         opacity: out,
       }}
     >

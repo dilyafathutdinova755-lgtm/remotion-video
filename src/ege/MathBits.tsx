@@ -75,6 +75,21 @@ export const Reveal: React.FC<{
   );
 };
 
+/** Стрелка перехода между формулами — в вертикали смотрит вниз. */
+export const Down: React.FC = () => (
+  <span
+    style={{
+      fontSize: 38,
+      color: COLORS.blueSoft,
+      fontFamily: FONTS.head,
+      lineHeight: 1,
+      textAlign: "center",
+    }}
+  >
+    ⇩
+  </span>
+);
+
 /** Карточка с формулой — белая подложка со синей рамкой. */
 export const FormulaCard: React.FC<{
   children: React.ReactNode;

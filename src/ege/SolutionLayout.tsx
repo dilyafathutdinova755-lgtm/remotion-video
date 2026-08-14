@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
-import { COLORS, PAD } from "./theme";
+import { COLORS, PAD, SAFE } from "./theme";
 import { SceneHeading } from "./MathBits";
 
 /** Общая рамка для сцен решения: заголовок сверху, контент под ним. */
@@ -20,8 +20,8 @@ export const SolutionLayout: React.FC<{
   return (
     <AbsoluteFill
       style={{
-        // Контент центрируем по вертикали, иначе в 9:16 снизу зияет пустота
-        padding: `220px ${PAD}px 120px`,
+        // Центрируем внутри безопасной зоны, а не по всему кадру
+        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
         justifyContent: "center",
         opacity: out,
       }}
@@ -31,7 +31,7 @@ export const SolutionLayout: React.FC<{
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 26,
+          gap: 18,
           color: COLORS.text,
         }}
       >
@@ -76,7 +76,7 @@ export const Line: React.FC<{ children: React.ReactNode; size?: number }> = ({
       alignItems: "baseline",
       gap: 16,
       fontSize: size,
-      lineHeight: 1.45,
+      lineHeight: 1.28,
       fontWeight: 400,
     }}
   >
