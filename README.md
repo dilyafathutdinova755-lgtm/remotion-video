@@ -1,54 +1,60 @@
-# Remotion video
+# ЕГЭ тренажёр — видеоразбор задачи 10
 
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
+Ролик на [Remotion](https://remotion.dev): разбор задачи 10 профильного ЕГЭ по
+математике (про кепки и футболки). Бело-синее оформление, без озвучки.
 
-Welcome to your Remotion project!
+## Структура ролика
 
-## Commands
+Композиция `Task10` — 1920×1080, 30 fps, 2172 кадра (1:12).
 
-**Install Dependencies**
+| Сцена | Длительность | Что происходит |
+| --- | --- | --- |
+| Титры | 4,5 с | Заголовок «Решение задачи 10 в ЕГЭ по профильной математике» |
+| Условие | ~16,4 с | Текст задачи, слова подсвечиваются по мере чтения |
+| Таймер | 7 с | Отсчёт 5 секунд на самостоятельное решение |
+| Решение 1 | 13 с | Обозначения, первое уравнение `y = 11x/30` |
+| Решение 2 | 11,5 с | Второе уравнение `3x − 2y = 1020`, система |
+| Решение 3 | 13,5 с | Подстановка, `x = 450`, `y = 165` |
+| Ответ | 6,5 с | `x − y = 285` и проверка |
 
-```console
+Плашка «ЕГЭ тренажёр» и фон живут вне `<Series>`, поэтому не мигают на стыках сцен.
+
+## Разработка
+
+```bash
 npm i
+npm run dev      # студия Remotion
+npm run lint     # eslint + tsc
 ```
 
-**Start Preview**
+Ключевые файлы:
 
-```console
-npm run dev
+- `src/ege/timing.ts` — весь тайминг. Длительность сцены с условием считается
+  из массива слов: каждое слово подсвечивается пропорционально своей длине,
+  поэтому текст можно править, не пересчитывая кадры руками.
+- `src/ege/theme.ts` — палитра и шрифты.
+- `src/ege/scenes/` — по файлу на сцену.
+- `src/ege/fontFaces.ts` — сгенерированный список `@font-face`; правится не руками,
+  а перегенерацией из Google Fonts.
+
+## Шрифты
+
+Montserrat и Inter (подмножества «кириллица + латиница») лежат в `public/fonts`
+и подключаются через `staticFile()` в `src/ege/FontGate.tsx`. Локальные копии
+нужны, чтобы рендер не зависел от сети, а `FontGate` придерживает рендер через
+`delayRender()`, пока шрифты не загрузятся — иначе первые кадры выходят
+системным шрифтом.
+
+## Рендер
+
+```bash
+npx remotion render Task10 out/zadacha-10.mp4 --crf=17
 ```
 
-**Render video**
+Если окружение не может скачать Chrome Headless Shell (например, хост
+`remotion.media` закрыт политикой egress), укажите уже установленный браузер:
 
-```console
-npx remotion render
+```bash
+npx remotion render Task10 out/zadacha-10.mp4 \
+  --browser-executable=/путь/к/headless_shell
 ```
-
-**Upgrade Remotion**
-
-```console
-npx remotion upgrade
-```
-
-## Docs
-
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
-
-## Help
-
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
-
-## Issues
-
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
-
-## License
-
-Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
