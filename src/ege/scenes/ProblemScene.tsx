@@ -1,11 +1,13 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { COLORS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
-import { READ_DELAY, READING_FRAMES } from "../timing";
+import { useTask } from "../TaskContext";
+import { READ_DELAY, buildReading } from "../timing";
 
 export const ProblemScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
+  const task = useTask();
 
   const enter = spring({ frame: frame - 4, fps, config: { damping: 200 }, durationInFrames: 26 });
   const out = interpolate(frame, [durationInFrames - 16, durationInFrames], [1, 0], {
@@ -13,7 +15,8 @@ export const ProblemScene: React.FC = () => {
     extrapolateRight: "clamp",
   });
 
-  const progress = interpolate(frame, [READ_DELAY, READ_DELAY + READING_FRAMES], [0, 1], {
+  const reading = buildReading(task.tokens);
+  const progress = interpolate(frame, [READ_DELAY, READ_DELAY + reading.total], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -36,13 +39,13 @@ export const ProblemScene: React.FC = () => {
       >
         <Pill>Задача</Pill>
 
-        <ProblemCard padding={48}>
-          <ProblemText size={52} />
+        <ProblemCard padding={44}>
+          <ProblemText tokens={task.tokens} size={task.problemSize} animateStickers />
 
           {/* Индикатор чтения */}
           <div
             style={{
-              marginTop: 42,
+              marginTop: 38,
               height: 8,
               borderRadius: 999,
               background: "#e2ebf8",

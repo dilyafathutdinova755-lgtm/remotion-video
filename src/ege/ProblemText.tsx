@@ -1,32 +1,55 @@
 import { COLORS, FONTS } from "./theme";
-import { PROBLEM_WORDS } from "./timing";
+import { Sticker } from "./Sticker";
+import { isSticker, type Token } from "./tasks/types";
+import { buildReading } from "./timing";
 
 /**
  * Текст задачи. Слова разложены отдельными span-ами: так строки ровно
  * переносятся по ширине карточки.
+ *
+ * С `animateStickers` наклейки всплывают по ходу чтения; без него всё
+ * показано сразу — так условие выглядит на сцене с таймером.
  */
-export const ProblemText: React.FC<{ size: number }> = ({ size }) => (
-  <div
-    style={{
-      display: "flex",
-      flexWrap: "wrap",
-      alignItems: "center",
-      rowGap: size * 0.16,
-      columnGap: 2,
-      fontFamily: FONTS.body,
-      fontWeight: 400,
-      fontSize: size,
-      lineHeight: 1.2,
-      color: COLORS.text,
-    }}
-  >
-    {PROBLEM_WORDS.map((w, i) => (
-      <span key={`${w}-${i}`} style={{ padding: "2px 10px" }}>
-        {w}
-      </span>
-    ))}
-  </div>
-);
+export const ProblemText: React.FC<{
+  tokens: Token[];
+  size: number;
+  animateStickers?: boolean;
+}> = ({ tokens, size, animateStickers = false }) => {
+  const { starts } = buildReading(tokens);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        rowGap: size * 0.16,
+        columnGap: 2,
+        fontFamily: FONTS.body,
+        fontWeight: 400,
+        fontSize: size,
+        lineHeight: 1.2,
+        color: COLORS.text,
+      }}
+    >
+      {tokens.map((t, i) =>
+        isSticker(t) ? (
+          <Sticker
+            key={`s-${i}`}
+            emoji={t.emoji}
+            label={t.label}
+            size={size}
+            at={animateStickers ? starts[i] : -1}
+          />
+        ) : (
+          <span key={`w-${i}`} style={{ padding: "2px 10px" }}>
+            {t}
+          </span>
+        ),
+      )}
+    </div>
+  );
+};
 
 /** Белая карточка, в которой живёт условие. */
 export const ProblemCard: React.FC<{

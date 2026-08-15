@@ -2,54 +2,64 @@ import { AbsoluteFill, Sequence, Series } from "remotion";
 import { Background } from "./Background";
 import { Watermark } from "./Watermark";
 import { FontGate } from "./FontGate";
-import { SCENES, TOTAL_FRAMES } from "./timing";
+import { TaskProvider } from "./TaskContext";
+import { buildScenes, totalFrames } from "./timing";
+import type { TaskDef } from "./tasks/types";
 import { TitleScene } from "./scenes/TitleScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { TimerScene } from "./scenes/TimerScene";
-import { SolutionOne } from "./scenes/SolutionOne";
-import { SolutionTwo } from "./scenes/SolutionTwo";
 import { AnswerScene } from "./scenes/AnswerScene";
 import { OutroScene } from "./scenes/OutroScene";
 
 /**
- * Ролик «Задача 10, профильная математика», вертикальный 9:16.
+ * Ролик-разбор задачи, вертикальный 9:16.
  *
- * Фон живёт вне Series, поэтому не мигает на стыках сцен — меняется
- * только содержимое. Плашка в углу висит до финального экрана, где её
- * заменяет большая иконка приложения.
+ * Все сцены, кроме решения, общие для любых задач и берут данные из
+ * TaskProvider. Сцены решения приходят из описания задачи — математика
+ * у каждой своя, обобщать её смысла нет.
+ *
+ * Фон живёт вне Series, поэтому не мигает на стыках сцен. Плашка в углу
+ * висит до финального экрана, где её заменяет большая иконка приложения.
  */
-export const EgeVideo: React.FC = () => (
-  <FontGate>
-    <AbsoluteFill>
-      <Background />
+export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
+  const scenes = buildScenes(task);
 
-      <Series>
-        <Series.Sequence durationInFrames={SCENES.title}>
-          <TitleScene />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.problem}>
-          <ProblemScene />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.timer}>
-          <TimerScene />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.solution1}>
-          <SolutionOne />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.solution2}>
-          <SolutionTwo />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.answer}>
-          <AnswerScene />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={SCENES.outro}>
-          <OutroScene />
-        </Series.Sequence>
-      </Series>
+  return (
+    <FontGate>
+      <TaskProvider value={task}>
+        <AbsoluteFill>
+          <Background />
 
-      <Sequence durationInFrames={TOTAL_FRAMES - SCENES.outro}>
-        <Watermark />
-      </Sequence>
-    </AbsoluteFill>
-  </FontGate>
-);
+          <Series>
+            <Series.Sequence durationInFrames={scenes.title}>
+              <TitleScene />
+            </Series.Sequence>
+            <Series.Sequence durationInFrames={scenes.problem}>
+              <ProblemScene />
+            </Series.Sequence>
+            <Series.Sequence durationInFrames={scenes.timer}>
+              <TimerScene />
+            </Series.Sequence>
+
+            {task.solutions.map(({ Component }, i) => (
+              <Series.Sequence key={i} durationInFrames={scenes.solutions[i]}>
+                <Component />
+              </Series.Sequence>
+            ))}
+
+            <Series.Sequence durationInFrames={scenes.answer}>
+              <AnswerScene />
+            </Series.Sequence>
+            <Series.Sequence durationInFrames={scenes.outro}>
+              <OutroScene />
+            </Series.Sequence>
+          </Series>
+
+          <Sequence durationInFrames={totalFrames(task) - scenes.outro}>
+            <Watermark />
+          </Sequence>
+        </AbsoluteFill>
+      </TaskProvider>
+    </FontGate>
+  );
+};

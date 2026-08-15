@@ -1,6 +1,7 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
+import { useTask } from "../TaskContext";
 import { sec } from "../timing";
 
 const LEAD_IN = sec(1); // круг успевает появиться
@@ -9,6 +10,7 @@ const COUNT = sec(5); // сами 5 секунд
 export const TimerScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
+  const task = useTask();
 
   const enter = spring({ frame, fps, config: { damping: 200 }, durationInFrames: 24 });
   const cta = spring({ frame: frame - 18, fps, config: { damping: 200 }, durationInFrames: 28 });
@@ -59,7 +61,7 @@ export const TimerScene: React.FC = () => {
         <div style={{ width: "100%" }}>
           <Pill>Подумайте сами</Pill>
           <ProblemCard padding={40}>
-            <ProblemText size={40} />
+            <ProblemText tokens={task.tokens} size={task.timerSize} />
           </ProblemCard>
         </div>
 

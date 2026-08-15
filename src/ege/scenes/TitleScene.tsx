@@ -1,10 +1,12 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { AppLogo } from "../AppLogo";
+import { useTask } from "../TaskContext";
 
 export const TitleScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
+  const task = useTask();
 
   const at = (delay: number, duration = 28) =>
     spring({ frame: frame - delay, fps, config: { damping: 200 }, durationInFrames: duration });
@@ -112,7 +114,7 @@ export const TitleScene: React.FC = () => {
               display: "inline-block",
             }}
           >
-            10
+            {task.number}
           </span>
         </div>
 

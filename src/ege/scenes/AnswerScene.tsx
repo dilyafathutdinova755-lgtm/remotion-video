@@ -1,10 +1,12 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { Reveal, V, FormulaCard } from "../MathBits";
+import { Reveal, FormulaCard } from "../MathBits";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
+import { useTask } from "../TaskContext";
 
 export const AnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
+  const task = useTask();
 
   // Ответ появляется с упругим «хлопком»
   const pop = spring({
@@ -49,21 +51,13 @@ export const AnswerScene: React.FC = () => {
               textTransform: "uppercase",
             }}
           >
-            Футболка дороже кепки на
+            {task.answerLead}
           </div>
         </Reveal>
 
         <Reveal at={14}>
           <FormulaCard style={{ fontSize: 50, fontWeight: 600 }}>
-            <V>x</V>
-            <span style={{ margin: "0 14px" }}>−</span>
-            <V>y</V>
-            <span style={{ margin: "0 18px" }}>=</span>
-            19<V>t</V>
-            <span style={{ margin: "0 18px" }}>=</span>
-            19&nbsp;·&nbsp;15
-            <span style={{ margin: "0 18px" }}>=</span>
-            <span style={{ color: COLORS.blue, fontWeight: 700 }}>285</span>
+            {task.answerFormula}
           </FormulaCard>
         </Reveal>
 
@@ -106,7 +100,7 @@ export const AnswerScene: React.FC = () => {
                 lineHeight: 1.1,
               }}
             >
-              285
+              {task.answer}
             </span>
             <span
               style={{
@@ -116,7 +110,7 @@ export const AnswerScene: React.FC = () => {
                 color: "#dbe7ff",
               }}
             >
-              рублей
+              {task.unit}
             </span>
           </div>
         </div>
@@ -139,7 +133,7 @@ export const AnswerScene: React.FC = () => {
             }}
           >
             <span>✓</span>
-            <V>x</V> = 450, <V>y</V> = 165: &nbsp;3&nbsp;·&nbsp;165 = 495 = 0,55&nbsp;·&nbsp;900
+            {task.check}
           </div>
         </Reveal>
       </div>

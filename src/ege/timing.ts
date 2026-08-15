@@ -1,79 +1,81 @@
 /**
  * Тайминг ролика. Все длительности — в кадрах при 30 fps.
  *
- * Длительность сцены с условием считается из самих слов: каждое слово
- * подсвечивается ровно столько, сколько его читают, поэтому суммарная
- * длина сцены выводится из массива слов, а не задаётся руками.
+ * Длительность сцены с условием не задаётся руками, а считается из самого
+ * текста: каждому слову отводится время пропорционально его длине. Поэтому
+ * условие можно править, не пересчитывая кадры.
  */
 
 import { VIDEO } from "./theme";
+import { isSticker, type TaskDef, type Token } from "./tasks/types";
 
 export const sec = (s: number) => Math.round(s * VIDEO.fps);
 
-/** Условие задачи, разбитое на слова для «караоке»-подсветки. */
-export const PROBLEM_WORDS = [
-  "Цена",
-  "трёх",
-  "кепок",
-  "меньше",
-  "цены",
-  "двух",
-  "футболок",
-  "на",
-  "45%.",
-  "Разница",
-  "в",
-  "стоимости",
-  "между",
-  "тремя",
-  "футболками",
-  "и",
-  "двумя",
-  "кепками",
-  "составляет",
-  "1020",
-  "рублей.",
-  "Найдите,",
-  "на",
-  "сколько",
-  "рублей",
-  "футболка",
-  "дороже",
-  "кепки.",
-] as const;
-
 /**
- * Сколько кадров держится подсветка на слове: короткие служебные слова
- * пробегаются быстро, длинные — дольше. Плюс небольшая пауза на знаках
- * препинания, как при настоящем чтении.
+ * Сколько кадров нужно на слово: короткие служебные пробегаются быстро,
+ * длинные — дольше. Плюс небольшая пауза на знаках препинания.
  */
 export const wordFrames = (word: string): number => {
   const letters = word.replace(/[^0-9A-Za-zА-Яа-яЁё%]/g, "").length;
-  const pause = /[.,]$/.test(word) ? 5 : 0;
+  const pause = /[.,?!]$/.test(word) ? 5 : 0;
   return Math.round(7 + letters * 1.25) + pause;
 };
 
-export const WORD_FRAMES = PROBLEM_WORDS.map(wordFrames);
+/** Стикер занимает немного времени — ровно чтобы успеть «прилипнуть». */
+const STICKER_FRAMES = 9;
 
-/** Кадр начала подсветки каждого слова, относительно начала чтения. */
-export const WORD_STARTS = WORD_FRAMES.reduce<number[]>((acc, d, i) => {
-  acc.push(i === 0 ? 0 : acc[i - 1] + WORD_FRAMES[i - 1]);
-  return acc;
-}, []);
-
-export const READING_FRAMES = WORD_FRAMES.reduce((a, b) => a + b, 0);
+export const tokenFrames = (t: Token): number =>
+  isSticker(t) ? STICKER_FRAMES : wordFrames(t);
 
 /** Пауза перед началом чтения — чтобы текст успел появиться. */
 export const READ_DELAY = sec(1.2);
 
-export const SCENES = {
+export type Reading = {
+  /** Кадр появления каждого токена, от начала сцены. */
+  starts: number[];
+  /** Сколько кадров занимает всё прочтение. */
+  total: number;
+};
+
+export const buildReading = (tokens: Token[]): Reading => {
+  const frames = tokens.map(tokenFrames);
+  const starts: number[] = [];
+  let acc = READ_DELAY;
+
+  for (const f of frames) {
+    starts.push(acc);
+    acc += f;
+  }
+
+  return { starts, total: acc - READ_DELAY };
+};
+
+export type Scenes = {
+  title: number;
+  problem: number;
+  timer: number;
+  solutions: number[];
+  answer: number;
+  outro: number;
+};
+
+export const buildScenes = (task: TaskDef): Scenes => ({
   title: sec(6),
-  problem: READ_DELAY + READING_FRAMES + sec(1.6),
+  problem: READ_DELAY + buildReading(task.tokens).total + sec(1.6),
   timer: sec(8),
-  solution1: sec(10),
-  solution2: sec(12.5),
+  solutions: task.solutions.map((s) => sec(s.seconds)),
   answer: sec(7),
   outro: sec(6),
-} as const;
+});
 
-export const TOTAL_FRAMES = Object.values(SCENES).reduce((a, b) => a + b, 0);
+export const totalFrames = (task: TaskDef): number => {
+  const s = buildScenes(task);
+  return (
+    s.title +
+    s.problem +
+    s.timer +
+    s.solutions.reduce((a, b) => a + b, 0) +
+    s.answer +
+    s.outro
+  );
+};
