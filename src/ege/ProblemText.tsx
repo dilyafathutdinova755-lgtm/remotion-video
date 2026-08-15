@@ -1,12 +1,12 @@
 import { COLORS, FONTS } from "./theme";
-import { isSticker, type Token } from "./tasks/types";
+import { isCue, type Token } from "./tasks/types";
 
 /**
  * Текст задачи. Слова разложены отдельными span-ами: так строки ровно
  * переносятся по ширине карточки.
  *
- * Иллюстрации из массива токенов здесь пропускаются — их рисует
- * <StickerStage> под карточкой, чтобы не рвать текст дырами.
+ * Подсказки из массива токенов здесь пропускаются — их рисует
+ * <StickerCues> в нижней части кадра, чтобы не рвать текст дырами.
  */
 export const ProblemText: React.FC<{
   tokens: Token[];
@@ -27,7 +27,7 @@ export const ProblemText: React.FC<{
     }}
   >
     {tokens.map((t, i) =>
-      isSticker(t) ? null : (
+      isCue(t) ? null : (
         <span key={`w-${i}`} style={{ padding: "2px 10px" }}>
           {t}
         </span>

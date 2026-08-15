@@ -1,18 +1,27 @@
 import type { ReactNode } from "react";
 
+/** Векторные иллюстрации из src/ege/Art.tsx. */
+export type ArtName = "worker" | "order" | "duo" | "question";
+
 /**
- * Иллюстрация к куску условия. В тексте не рисуется — всплывает на полке
- * под карточкой, когда чтение доходит до этого места.
+ * Подсказка к куску условия. В тексте не рисуется — всплывает крупно
+ * в нижней части кадра, когда чтение доходит до этого места.
  *
- * Эмодзи несколько, чтобы количество отражало условие: «двое рабочих» —
- * это две наклейки, а не одна.
+ * Либо картинки (несколько, чтобы количество отражало условие: «двое
+ * рабочих» — две фигурки), либо просто число: часы и минуты картинкой
+ * не изобразить, циферблат тут только мешает.
  */
-export type StickerGroup = { emojis: string[]; label: string };
+export type Cue =
+  | { art: ArtName[]; label: string }
+  | { number: string; unit: string; label: string };
 
-/** Кусок условия: слово или привязка иллюстрации к этому месту текста. */
-export type Token = string | StickerGroup;
+/** Кусок условия: слово или привязка подсказки к этому месту текста. */
+export type Token = string | Cue;
 
-export const isSticker = (t: Token): t is StickerGroup => typeof t !== "string";
+export const isCue = (t: Token): t is Cue => typeof t !== "string";
+
+export const isNumberCue = (c: Cue): c is { number: string; unit: string; label: string } =>
+  "number" in c;
 
 /** Сцена решения: сколько секунд держится и что рисует. */
 export type SolutionScene = {

@@ -7,7 +7,7 @@
  */
 
 import { VIDEO } from "./theme";
-import { isSticker, type TaskDef, type Token } from "./tasks/types";
+import { isCue, type TaskDef, type Token } from "./tasks/types";
 
 export const sec = (s: number) => Math.round(s * VIDEO.fps);
 
@@ -21,11 +21,11 @@ export const wordFrames = (word: string): number => {
   return Math.round(7 + letters * 1.25) + pause;
 };
 
-/** Стикер занимает немного времени — ровно чтобы успеть «прилипнуть». */
-const STICKER_FRAMES = 9;
+/** Подсказка занимает немного времени — ровно чтобы успеть появиться. */
+const CUE_FRAMES = 9;
 
 export const tokenFrames = (t: Token): number =>
-  isSticker(t) ? STICKER_FRAMES : wordFrames(t);
+  isCue(t) ? CUE_FRAMES : wordFrames(t);
 
 /** Пауза перед началом чтения — чтобы текст успел появиться. */
 export const READ_DELAY = sec(1.2);

@@ -1,6 +1,6 @@
 import { SolutionLayout, Line } from "../SolutionLayout";
 import { Reveal, FormulaCard, Down } from "../MathBits";
-import { Emoji } from "../Emoji";
+import { Art } from "../Art";
 import { COLORS } from "../theme";
 
 export const SolutionOne: React.FC = () => (
@@ -21,16 +21,18 @@ export const SolutionOne: React.FC = () => (
       style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 8 }}
     >
       <FormulaCard style={{ fontSize: 46, fontWeight: 600 }}>
-        <Emoji size={50}>👷</Emoji>
-        <span style={{ margin: "0 20px" }}>—</span>1 часть в час
+        <Art name="worker" size={62} plate={false} />
+        <span style={{ margin: "0 22px" }}>—</span>1 часть в час
       </FormulaCard>
 
       <Down />
 
       <FormulaCard accent style={{ fontSize: 46, fontWeight: 600 }}>
-        <Emoji size={50}>👷</Emoji>
-        <Emoji size={50}>👷</Emoji>
-        <span style={{ margin: "0 20px" }}>—</span>2 части в час
+        <span style={{ display: "flex", gap: 8 }}>
+          <Art name="worker" size={62} plate={false} />
+          <Art name="worker" size={62} plate={false} />
+        </span>
+        <span style={{ margin: "0 22px" }}>—</span>2 части в час
       </FormulaCard>
     </Reveal>
   </SolutionLayout>

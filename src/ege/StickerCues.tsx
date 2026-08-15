@@ -1,23 +1,58 @@
 import { useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { EMOJI_FONT } from "./Emoji";
-import { isSticker, type StickerGroup, type Token } from "./tasks/types";
+import { Art } from "./Art";
+import { COLORS, FONTS } from "./theme";
+import { isCue, isNumberCue, type Cue as CueData, type Token } from "./tasks/types";
 
-/** Сколько кадров смайлик держится, если следующий ещё нескоро. */
+/** Сколько кадров подсказка держится, если следующая ещё нескоро. */
 const HOLD = 78;
-/** Зазор между уходом одного смайлика и появлением следующего. */
+/** Зазор между уходом одной подсказки и появлением следующей. */
 const GAP = 8;
-/** Последний висит подольше — после него текста уже нет. */
+/** Последняя висит подольше — после неё текста уже нет. */
 const LAST_HOLD = 110;
 
-/** Высота зоны под карточкой. Фиксирована, чтобы вёрстка не дёргалась. */
-const ZONE_HEIGHT = 260;
+/** Высота зоны под подсказки. Фиксирована, чтобы вёрстка не дёргалась. */
+const ZONE_HEIGHT = 250;
+const ART_SIZE = 190;
 
-const Cue: React.FC<{
-  group: StickerGroup;
-  from: number;
-  to: number;
-  size: number;
-}> = ({ group, from, to, size }) => {
+/** Крупное число вместо картинки — для часов и прочих величин. */
+const NumberPlate: React.FC<{ value: string; unit: string }> = ({ value, unit }) => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "baseline",
+      gap: 14,
+      padding: "0 46px",
+      height: ART_SIZE,
+      borderRadius: 48,
+      background: "#e8f1fd",
+      justifyContent: "center",
+    }}
+  >
+    <span
+      style={{
+        fontFamily: FONTS.head,
+        fontWeight: 800,
+        fontSize: 118,
+        lineHeight: 1.5,
+        color: COLORS.blue,
+      }}
+    >
+      {value}
+    </span>
+    <span
+      style={{
+        fontFamily: FONTS.display,
+        fontWeight: 300,
+        fontSize: 48,
+        color: COLORS.textMuted,
+      }}
+    >
+      {unit}
+    </span>
+  </div>
+);
+
+const Cue: React.FC<{ cue: CueData; from: number; to: number }> = ({ cue, from, to }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -29,6 +64,8 @@ const Cue: React.FC<{
   // Вне своего окна не рисуем вовсе
   if (frame < from - 2 || frame > to + 2) return null;
 
+  const items = isNumberCue(cue) ? [null] : cue.art;
+
   return (
     <div
       style={{
@@ -37,11 +74,11 @@ const Cue: React.FC<{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: size * 0.24,
+        gap: 26,
       }}
     >
-      {group.emojis.map((emoji, n) => {
-        // Внутри группы смайлики влетают друг за другом
+      {items.map((art, n) => {
+        // Внутри группы картинки влетают друг за другом
         const s = spring({
           frame: frame - from - n * 5,
           fps,
@@ -50,28 +87,30 @@ const Cue: React.FC<{
         });
 
         return (
-          <span
+          <div
             key={n}
             role="img"
-            aria-label={group.label}
+            aria-label={cue.label}
             style={{
-              fontFamily: EMOJI_FONT,
-              fontSize: size,
-              lineHeight: 1,
-              filter: "drop-shadow(0 14px 26px rgba(18,51,110,0.22))",
-              opacity: interpolate(s, [0, 0.4], [0, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              }) * leave,
+              filter: "drop-shadow(0 16px 30px rgba(18,51,110,0.16))",
+              opacity:
+                interpolate(s, [0, 0.4], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                }) * leave,
               transform: [
-                `scale(${interpolate(s, [0, 1], [0.55, 1]) * interpolate(leave, [0, 1], [0.88, 1])})`,
-                `rotate(${interpolate(s, [0, 1], [n % 2 ? 12 : -12, 0])}deg)`,
-                `translateY(${interpolate(leave, [0, 1], [-26, 0])}px)`,
+                `scale(${interpolate(s, [0, 1], [0.6, 1]) * interpolate(leave, [0, 1], [0.9, 1])})`,
+                `rotate(${interpolate(s, [0, 1], [n % 2 ? 9 : -9, 0])}deg)`,
+                `translateY(${interpolate(leave, [0, 1], [-22, 0])}px)`,
               ].join(" "),
             }}
           >
-            {emoji}
-          </span>
+            {art === null ? (
+              <NumberPlate value={(cue as { number: string }).number} unit={(cue as { unit: string }).unit} />
+            ) : (
+              <Art name={art} size={ART_SIZE} />
+            )}
+          </div>
         );
       })}
     </div>
@@ -79,28 +118,24 @@ const Cue: React.FC<{
 };
 
 /**
- * Смайлики-иллюстрации в нижней части кадра.
+ * Подсказки-иллюстрации в нижней части кадра.
  *
- * Каждая группа всплывает ровно на своём куске условия и уходит до того,
- * как появится следующая, — на экране всегда не больше одной. Момент
- * появления берётся из позиции группы в массиве токенов.
+ * Каждая всплывает ровно на своём куске условия и уходит до того, как
+ * появится следующая, — на экране всегда не больше одной. Момент появления
+ * берётся из позиции подсказки в массиве токенов.
  */
 export const StickerCues: React.FC<{
   tokens: Token[];
   starts: number[];
-  size?: number;
-}> = ({ tokens, starts, size = 150 }) => {
-  const groups = tokens.flatMap((t, i) => (isSticker(t) ? [{ group: t, at: starts[i] }] : []));
+}> = ({ tokens, starts }) => {
+  const cues = tokens.flatMap((t, i) => (isCue(t) ? [{ cue: t, at: starts[i] }] : []));
 
   return (
     <div style={{ position: "relative", height: ZONE_HEIGHT }}>
-      {groups.map((g, i) => {
-        const next = groups[i + 1];
-        const to = next
-          ? Math.min(g.at + HOLD, next.at - GAP)
-          : g.at + LAST_HOLD;
-
-        return <Cue key={i} group={g.group} from={g.at} to={to} size={size} />;
+      {cues.map((c, i) => {
+        const next = cues[i + 1];
+        const to = next ? Math.min(c.at + HOLD, next.at - GAP) : c.at + LAST_HOLD;
+        return <Cue key={i} cue={c.cue} from={c.at} to={to} />;
       })}
     </div>
   );
