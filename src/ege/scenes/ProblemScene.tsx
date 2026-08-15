@@ -1,6 +1,7 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { COLORS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
+import { StickerStage } from "../StickerStage";
 import { useTask } from "../TaskContext";
 import { READ_DELAY, buildReading } from "../timing";
 
@@ -40,7 +41,7 @@ export const ProblemScene: React.FC = () => {
         <Pill>Задача</Pill>
 
         <ProblemCard padding={44}>
-          <ProblemText tokens={task.tokens} size={task.problemSize} animateStickers />
+          <ProblemText tokens={task.tokens} size={task.problemSize} />
 
           {/* Индикатор чтения */}
           <div
@@ -62,6 +63,11 @@ export const ProblemScene: React.FC = () => {
             />
           </div>
         </ProblemCard>
+
+        {/* Иллюстрации всплывают в свободной зоне под карточкой */}
+        <div style={{ marginTop: 40 }}>
+          <StickerStage tokens={task.tokens} starts={reading.starts} />
+        </div>
       </div>
     </AbsoluteFill>
   );

@@ -1,13 +1,27 @@
 import type { ReactNode } from "react";
 
 /**
- * Кусок условия: либо слово, либо стикер-иллюстрация, вставленный
- * прямо в текст.
+ * Иллюстрация к куску условия. В тексте не рисуется — всплывает на полке
+ * под карточкой, когда чтение доходит до этого места.
+ *
+ * Эмодзи несколько, чтобы количество отражало условие: «двое рабочих» —
+ * это две наклейки, а не одна.
  */
-export type Token = string | { emoji: string; label: string };
+export type StickerGroup = {
+  emojis: string[];
+  label: string;
+  /**
+   * Короткая подпись под наклейками. Нужна там, где картинка сама по себе
+   * неоднозначна: циферблаты «8 часов» и «4 часа» на мелком размере
+   * неотличимы друг от друга.
+   */
+  caption?: string;
+};
 
-export const isSticker = (t: Token): t is { emoji: string; label: string } =>
-  typeof t !== "string";
+/** Кусок условия: слово или привязка иллюстрации к этому месту текста. */
+export type Token = string | StickerGroup;
+
+export const isSticker = (t: Token): t is StickerGroup => typeof t !== "string";
 
 /** Сцена решения: сколько секунд держится и что рисует. */
 export type SolutionScene = {
