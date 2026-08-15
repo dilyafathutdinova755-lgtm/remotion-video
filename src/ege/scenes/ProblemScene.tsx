@@ -37,7 +37,7 @@ export const ProblemScene: React.FC = () => {
         <Pill>Задача</Pill>
 
         <ProblemCard padding={48}>
-          <ProblemText size={52} readStart={READ_DELAY} />
+          <ProblemText size={52} />
 
           {/* Индикатор чтения */}
           <div

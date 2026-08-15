@@ -19,9 +19,6 @@ export const COLORS = {
   text: "#152741",
   textMuted: "#5b7395",
 
-  // Подсветка слова, которое читают прямо сейчас
-  activeBg: "#a9cbfa",
-
   card: "rgba(255,255,255,0.72)",
   cardBorder: "rgba(29,78,216,0.16)",
 
