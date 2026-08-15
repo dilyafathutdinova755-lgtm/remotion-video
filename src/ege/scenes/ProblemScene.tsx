@@ -1,7 +1,7 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { COLORS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
-import { StickerStage } from "../StickerStage";
+import { StickerCues } from "../StickerCues";
 import { useTask } from "../TaskContext";
 import { READ_DELAY, buildReading } from "../timing";
 
@@ -64,9 +64,9 @@ export const ProblemScene: React.FC = () => {
           </div>
         </ProblemCard>
 
-        {/* Иллюстрации всплывают в свободной зоне под карточкой */}
+        {/* Смайлики всплывают в нижней части кадра, каждый на своём куске текста */}
         <div style={{ marginTop: 40 }}>
-          <StickerStage tokens={task.tokens} starts={reading.starts} />
+          <StickerCues tokens={task.tokens} starts={reading.starts} />
         </div>
       </div>
     </AbsoluteFill>

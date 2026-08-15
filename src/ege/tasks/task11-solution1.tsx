@@ -1,6 +1,6 @@
 import { SolutionLayout, Line } from "../SolutionLayout";
 import { Reveal, FormulaCard, Down } from "../MathBits";
-import { Emoji } from "../Sticker";
+import { Emoji } from "../Emoji";
 import { COLORS } from "../theme";
 
 export const SolutionOne: React.FC = () => (

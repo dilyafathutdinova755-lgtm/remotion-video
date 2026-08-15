@@ -7,16 +7,7 @@ import type { ReactNode } from "react";
  * Эмодзи несколько, чтобы количество отражало условие: «двое рабочих» —
  * это две наклейки, а не одна.
  */
-export type StickerGroup = {
-  emojis: string[];
-  label: string;
-  /**
-   * Короткая подпись под наклейками. Нужна там, где картинка сама по себе
-   * неоднозначна: циферблаты «8 часов» и «4 часа» на мелком размере
-   * неотличимы друг от друга.
-   */
-  caption?: string;
-};
+export type StickerGroup = { emojis: string[]; label: string };
 
 /** Кусок условия: слово или привязка иллюстрации к этому месту текста. */
 export type Token = string | StickerGroup;
