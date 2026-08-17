@@ -1,7 +1,19 @@
 import type { ReactNode } from "react";
 
 /** Векторные иллюстрации из src/ege/Art.tsx. */
-export type ArtName = "worker" | "order" | "duo" | "question";
+export type ArtName =
+  | "worker"
+  | "order"
+  | "duo"
+  | "question"
+  | "pipe"
+  | "gear"
+  | "ship"
+  | "car"
+  | "moto"
+  | "flask"
+  | "bike"
+  | "speed";
 
 /**
  * Подсказка к куску условия. В тексте не рисуется — всплывает крупно
