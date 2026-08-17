@@ -37,9 +37,11 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
             <Series.Sequence durationInFrames={scenes.problem}>
               <ProblemScene />
             </Series.Sequence>
-            <Series.Sequence durationInFrames={scenes.timer}>
-              <TimerScene />
-            </Series.Sequence>
+            {scenes.timer > 0 ? (
+              <Series.Sequence durationInFrames={scenes.timer}>
+                <TimerScene />
+              </Series.Sequence>
+            ) : null}
 
             {task.solutions.map(({ Component }, i) => (
               <Series.Sequence key={i} durationInFrames={scenes.solutions[i]}>

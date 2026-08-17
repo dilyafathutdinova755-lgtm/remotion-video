@@ -68,14 +68,20 @@ export const instructionFrames = (task: TaskDef): number =>
 export const problemReadingFrames = (task: TaskDef): number =>
   instructionFrames(task) + buildReading(task.tokens).total;
 
-export const buildScenes = (task: TaskDef): Scenes => ({
-  title: sec(6),
-  problem: READ_DELAY + problemReadingFrames(task) + sec(1.6),
-  timer: sec(8),
-  solutions: task.solutions.map((s) => sec(s.seconds)),
-  answer: sec(7),
-  outro: sec(6),
-});
+export const buildScenes = (task: TaskDef): Scenes => {
+  const withTimer = task.showTimer !== false;
+
+  return {
+    title: sec(6),
+    // Без таймера условие больше нигде не показывается — даём дочитать
+    problem:
+      READ_DELAY + problemReadingFrames(task) + (withTimer ? sec(1.6) : sec(3)),
+    timer: withTimer ? sec(8) : 0,
+    solutions: task.solutions.map((s) => sec(s.seconds)),
+    answer: sec(task.answerSeconds ?? 7),
+    outro: sec(6),
+  };
+};
 
 export const totalFrames = (task: TaskDef): number => {
   const s = buildScenes(task);
