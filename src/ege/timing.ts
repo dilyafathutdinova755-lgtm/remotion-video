@@ -76,8 +76,8 @@ export const buildScenes = (task: TaskDef): Scenes => {
   const withTimer = task.showTimer !== false;
 
   return {
-    // Хук-кадр по ТЗ: 0-2 секунды, не заставка
-    title: sec(2.6),
+    // Открывающий кадр: вопрос-хук вместо заставки
+    title: sec(4),
     // Без таймера условие больше нигде не показывается — даём дочитать
     problem:
       READ_DELAY + problemReadingFrames(task) + (withTimer ? sec(1.6) : sec(3)),

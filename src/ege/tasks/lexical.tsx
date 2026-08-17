@@ -45,6 +45,7 @@ export const makeLexTask = (spec: LexSpec): TaskDef => {
     id: spec.id,
     number: 6,
     subject: "в ЕГЭ по русскому языку",
+    hook: removing ? "Найдёшь лишнее слово?" : "Найдёшь ошибку?",
     titleNoun: "Решение задания",
     pillLabel: "Задание",
     instruction: removing ? REMOVE : REPLACE,
