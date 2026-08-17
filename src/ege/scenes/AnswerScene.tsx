@@ -147,8 +147,8 @@ export const AnswerScene: React.FC = () => {
             }}
           >
             <span style={{ flexShrink: 0 }}>✓</span>
-            {/* Один flex-элемент: иначе жирный зачин отрывается в свою колонку */}
-            <span style={{ textAlign: "left" }}>{task.check}</span>
+            {/* Один flex-элемент: иначе зачин отрывается в свою колонку */}
+            <div style={{ textAlign: "left", lineHeight: 1.4 }}>{task.check}</div>
           </div>
         </Reveal>
       </div>

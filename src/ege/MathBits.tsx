@@ -106,6 +106,7 @@ export const FormulaCard: React.FC<{
       // Длинные фрагменты переносятся внутри карточки — строки должны
       // вставать по центру, а не липнуть к левому краю
       textAlign: "center",
+      lineHeight: 1.12,
       padding: "18px 34px",
       borderRadius: 20,
       background: accent ? "#eaf2ff" : COLORS.card,
