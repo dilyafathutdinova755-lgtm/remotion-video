@@ -1,5 +1,10 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+} from "remotion";
 import { COLORS, PAD, SAFE } from "./theme";
 import { SceneHeading } from "./MathBits";
 
@@ -12,10 +17,15 @@ export const SolutionLayout: React.FC<{
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 
-  const out = interpolate(frame, [durationInFrames - 15, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const out = interpolate(
+    frame,
+    [durationInFrames - 15, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <AbsoluteFill
@@ -60,7 +70,13 @@ export const Brace: React.FC<{ height: number; color?: string }> = ({
 
   return (
     <svg width={w} height={h} style={{ flexShrink: 0 }}>
-      <path d={d} fill="none" stroke={color} strokeWidth={4} strokeLinecap="round" />
+      <path
+        d={d}
+        fill="none"
+        stroke={color}
+        strokeWidth={4}
+        strokeLinecap="round"
+      />
     </svg>
   );
 };

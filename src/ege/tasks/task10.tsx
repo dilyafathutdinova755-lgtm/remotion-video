@@ -69,7 +69,8 @@ export const task10: TaskDef = {
   unit: "рублей",
   check: (
     <>
-      <V>x</V> = 450, <V>y</V> = 165: &nbsp;3&nbsp;·&nbsp;165 = 495 = 0,55&nbsp;·&nbsp;900
+      <V>x</V> = 450, <V>y</V> = 165: &nbsp;3&nbsp;·&nbsp;165 = 495 =
+      0,55&nbsp;·&nbsp;900
     </>
   ),
 };

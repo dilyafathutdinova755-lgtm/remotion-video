@@ -1,4 +1,10 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  spring,
+  interpolate,
+} from "remotion";
 import { Reveal, FormulaCard } from "../MathBits";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { useTask } from "../TaskContext";
@@ -16,10 +22,15 @@ export const AnswerScene: React.FC = () => {
     durationInFrames: 40,
   });
 
-  const out = interpolate(frame, [durationInFrames - 14, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const out = interpolate(
+    frame,
+    [durationInFrames - 14, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <AbsoluteFill

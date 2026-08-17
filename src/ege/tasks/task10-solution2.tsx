@@ -6,20 +6,25 @@ export const SolutionTwo: React.FC = () => (
   <SolutionLayout step="2" title="Вводим коэффициент">
     <Reveal at={0}>
       <Line>
-        Из 30<V>y</V> = 11<V>x</V> следует <V>x</V> : <V>y</V> = 30 : 11, поэтому <V>x</V> = 30
+        Из 30<V>y</V> = 11<V>x</V> следует <V>x</V> : <V>y</V> = 30 : 11,
+        поэтому <V>x</V> = 30
         <V>t</V>, <V>y</V> = 11<V>t</V>.
       </Line>
     </Reveal>
 
     <Reveal at={60}>
-      <Line>
-        Разница между тремя футболками и двумя кепками — 1020 рублей:
-      </Line>
+      <Line>Разница между тремя футболками и двумя кепками — 1020 рублей:</Line>
     </Reveal>
 
     <Reveal
       at={110}
-      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 8 }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        marginTop: 8,
+      }}
     >
       <FormulaCard style={{ fontSize: 50, fontWeight: 600 }}>
         3<V>x</V>
@@ -46,7 +51,8 @@ export const SolutionTwo: React.FC = () => (
 
     <Reveal at={250} style={{ marginTop: 8 }}>
       <Line>
-        Осталось найти разницу: <V>x</V> − <V>y</V> = 30<V>t</V> − 11<V>t</V> = 19<V>t</V>.
+        Осталось найти разницу: <V>x</V> − <V>y</V> = 30<V>t</V> − 11<V>t</V> =
+        19<V>t</V>.
       </Line>
     </Reveal>
   </SolutionLayout>

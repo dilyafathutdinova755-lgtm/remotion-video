@@ -4,7 +4,9 @@ import { COLORS, FONTS } from "./theme";
 
 /** Математическая переменная: курсив, синий акцент. */
 export const V: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span style={{ fontStyle: "italic", fontWeight: 600, color: COLORS.blue }}>{children}</span>
+  <span style={{ fontStyle: "italic", fontWeight: 600, color: COLORS.blue }}>
+    {children}
+  </span>
 );
 
 /** Обыкновенная дробь, набранная в две строки с чертой. */
@@ -116,8 +118,13 @@ export const FormulaCard: React.FC<{
 );
 
 /** Заголовок сцены решения: номер шага + подпись. */
-export const SceneHeading: React.FC<{ step: string; title: string }> = ({ step, title }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 40 }}>
+export const SceneHeading: React.FC<{ step: string; title: string }> = ({
+  step,
+  title,
+}) => (
+  <div
+    style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 40 }}
+  >
     <div
       style={{
         display: "flex",

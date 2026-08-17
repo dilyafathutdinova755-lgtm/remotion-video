@@ -13,13 +13,20 @@ export const SolutionOne: React.FC = () => (
     <Reveal at={50}>
       <Line>
         Три кепки дешевле двух футболок на 45%, значит 3<V>y</V> — это{" "}
-        <span style={{ color: COLORS.blue, fontWeight: 600 }}>55%</span> от 2<V>x</V>:
+        <span style={{ color: COLORS.blue, fontWeight: 600 }}>55%</span> от 2
+        <V>x</V>:
       </Line>
     </Reveal>
 
     <Reveal
       at={110}
-      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 8 }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        marginTop: 8,
+      }}
     >
       <FormulaCard style={{ fontSize: 52, fontWeight: 600 }}>
         3<V>y</V>

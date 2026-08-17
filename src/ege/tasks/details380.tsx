@@ -1,6 +1,6 @@
 import { V, Frac } from "../MathBits";
 import { makeSolution, line, card, arrow } from "../Solution";
-import { w, art, num, question } from "./dsl";
+import { w } from "./dsl";
 import type { TaskDef } from "./types";
 
 /**
@@ -13,14 +13,10 @@ export const details380: TaskDef = {
 
   tokens: [
     ...w("Заказ на 380 деталей"),
-    num("380", "деталей"),
     ...w("первый рабочий выполняет на 1 час быстрее, чем второй."),
-    art(["worker", "worker"], "двое рабочих"),
     ...w(
       "Сколько деталей в час делает первый рабочий, если известно, что он за час делает на 1 деталь больше?",
     ),
-    art(["gear"], "детали"),
-    question(),
   ],
   problemSize: 50,
   timerSize: 36,
@@ -35,13 +31,21 @@ export const details380: TaskDef = {
         items: [
           line(
             <>
-              Пусть первый делает <V>x</V> деталей в час, тогда второй — <V>x</V> − 1.
+              Пусть первый делает <V>x</V> деталей в час, тогда второй —{" "}
+              <V>x</V> − 1.
             </>,
           ),
           line(<>На весь заказ второй тратит на час больше:</>),
           card(
             <>
-              <Frac num="380" den={<><V>x</V> − 1</>} />
+              <Frac
+                num="380"
+                den={
+                  <>
+                    <V>x</V> − 1
+                  </>
+                }
+              />
               <span style={{ margin: "0 14px" }}>−</span>
               <Frac num="380" den={<V>x</V>} />
               <span style={{ margin: "0 16px" }}>=</span>1
@@ -86,7 +90,8 @@ export const details380: TaskDef = {
             <>
               D = 1521, √D = 39
               <span style={{ margin: "0 20px" }}>⟹</span>
-              <V>x</V> = <span style={{ color: "#1d4ed8", fontWeight: 700 }}>20</span>
+              <V>x</V> ={" "}
+              <span style={{ color: "#1d4ed8", fontWeight: 700 }}>20</span>
             </>,
             { accent: true, size: 44 },
           ),

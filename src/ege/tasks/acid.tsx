@@ -1,6 +1,6 @@
 import { V } from "../MathBits";
 import { makeSolution, line, card, arrow } from "../Solution";
-import { w, art, num, question } from "./dsl";
+import { w } from "./dsl";
 import type { TaskDef } from "./types";
 
 /**
@@ -13,17 +13,15 @@ export const acid: TaskDef = {
 
   tokens: [
     ...w("Имеется два сосуда."),
-    art(["flask", "flask"], "два сосуда"),
     ...w("Первый содержит 60 кг,"),
-    num("60", "кг"),
     ...w("а второй — 20 кг растворов кислоты различной концентрации."),
-    num("20", "кг"),
-    ...w("Если эти растворы смешать, то получится раствор, содержащий 30% кислоты."),
-    num("30", "%"),
-    ...w("Если же смешать равные массы этих растворов, то получится раствор, содержащий 45% кислоты."),
-    num("45", "%"),
+    ...w(
+      "Если эти растворы смешать, то получится раствор, содержащий 30% кислоты.",
+    ),
+    ...w(
+      "Если же смешать равные массы этих растворов, то получится раствор, содержащий 45% кислоты.",
+    ),
     ...w("Сколько процентов кислоты содержится в первом сосуде?"),
-    question(),
   ],
   problemSize: 44,
   timerSize: 32,
@@ -89,7 +87,8 @@ export const acid: TaskDef = {
             <>
               2<V>x</V> = 30
               <span style={{ margin: "0 20px" }}>⟹</span>
-              <V>x</V> = <span style={{ color: "#1d4ed8", fontWeight: 700 }}>15</span>
+              <V>x</V> ={" "}
+              <span style={{ color: "#1d4ed8", fontWeight: 700 }}>15</span>
             </>,
             { accent: true, size: 44 },
           ),

@@ -13,7 +13,10 @@ export type SolutionItem =
   | { kind: "card"; content: ReactNode; accent: boolean; size: number }
   | { kind: "arrow" };
 
-export const line = (content: ReactNode): SolutionItem => ({ kind: "line", content });
+export const line = (content: ReactNode): SolutionItem => ({
+  kind: "line",
+  content,
+});
 
 export const card = (
   content: ReactNode,
@@ -43,7 +46,10 @@ export const makeSolution = (spec: SolutionSpec): React.FC => {
   const count = anchors.filter(Boolean).length;
 
   const frames = sec(spec.seconds);
-  const gap = Math.min(Math.max(Math.round((frames - TAIL) / Math.max(count - 1, 1)), 34), 68);
+  const gap = Math.min(
+    Math.max(Math.round((frames - TAIL) / Math.max(count - 1, 1)), 34),
+    68,
+  );
 
   // Кадр появления каждого пункта
   let anchorIndex = -1;
@@ -69,14 +75,25 @@ export const makeSolution = (spec: SolutionSpec): React.FC => {
         }
         if (it.kind === "arrow") {
           return (
-            <Reveal key={i} at={at[i]} style={{ display: "flex", justifyContent: "center" }}>
+            <Reveal
+              key={i}
+              at={at[i]}
+              style={{ display: "flex", justifyContent: "center" }}
+            >
               <Down />
             </Reveal>
           );
         }
         return (
-          <Reveal key={i} at={at[i]} style={{ display: "flex", justifyContent: "center" }}>
-            <FormulaCard accent={it.accent} style={{ fontSize: it.size, fontWeight: 600 }}>
+          <Reveal
+            key={i}
+            at={at[i]}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            <FormulaCard
+              accent={it.accent}
+              style={{ fontSize: it.size, fontWeight: 600 }}
+            >
               {it.content}
             </FormulaCard>
           </Reveal>

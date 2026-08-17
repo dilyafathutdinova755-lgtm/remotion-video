@@ -1,4 +1,9 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+} from "remotion";
 import { COLORS } from "./theme";
 
 /**
@@ -35,8 +40,10 @@ export const Background: React.FC = () => {
         style={{
           backgroundImage: `linear-gradient(${COLORS.blueLine}22 1px, transparent 1px), linear-gradient(90deg, ${COLORS.blueLine}22 1px, transparent 1px)`,
           backgroundSize: "72px 72px",
-          maskImage: "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",
-          WebkitMaskImage: "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",
+          maskImage:
+            "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",
           opacity: 0.5,
         }}
       />

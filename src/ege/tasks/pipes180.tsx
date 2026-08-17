@@ -1,6 +1,6 @@
 import { V, Frac } from "../MathBits";
 import { makeSolution, line, card, arrow } from "../Solution";
-import { w, art, num, question } from "./dsl";
+import { w } from "./dsl";
 import type { TaskDef } from "./types";
 
 /**
@@ -12,13 +12,13 @@ export const pipes180: TaskDef = {
   number: 10,
 
   tokens: [
-    ...w("Первая труба пропускает на 8 литров воды в минуту меньше, чем вторая."),
-    art(["pipe"], "две трубы"),
-    ...w("Сколько литров воды в минуту пропускает первая труба, если резервуар объёмом 180 литров"),
-    num("180", "литров"),
+    ...w(
+      "Первая труба пропускает на 8 литров воды в минуту меньше, чем вторая.",
+    ),
+    ...w(
+      "Сколько литров воды в минуту пропускает первая труба, если резервуар объёмом 180 литров",
+    ),
     ...w("она заполняет на 8 минут дольше, чем вторая?"),
-    num("8", "минут"),
-    question(),
   ],
   problemSize: 48,
   timerSize: 35,
@@ -33,15 +33,25 @@ export const pipes180: TaskDef = {
         items: [
           line(
             <>
-              Пусть первая труба даёт <V>x</V> литров в минуту, тогда вторая — <V>x</V> + 8.
+              Пусть первая труба даёт <V>x</V> литров в минуту, тогда вторая —{" "}
+              <V>x</V> + 8.
             </>,
           ),
-          line(<>Один и тот же резервуар первая наполняет на 8 минут дольше:</>),
+          line(
+            <>Один и тот же резервуар первая наполняет на 8 минут дольше:</>,
+          ),
           card(
             <>
               <Frac num="180" den={<V>x</V>} />
               <span style={{ margin: "0 14px" }}>−</span>
-              <Frac num="180" den={<><V>x</V> + 8</>} />
+              <Frac
+                num="180"
+                den={
+                  <>
+                    <V>x</V> + 8
+                  </>
+                }
+              />
               <span style={{ margin: "0 16px" }}>=</span>8
             </>,
             { size: 48 },
@@ -82,7 +92,8 @@ export const pipes180: TaskDef = {
             <>
               D = 784, √D = 28
               <span style={{ margin: "0 20px" }}>⟹</span>
-              <V>x</V> = <span style={{ color: "#1d4ed8", fontWeight: 700 }}>10</span>
+              <V>x</V> ={" "}
+              <span style={{ color: "#1d4ed8", fontWeight: 700 }}>10</span>
             </>,
             { accent: true, size: 44 },
           ),

@@ -1,4 +1,10 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  spring,
+  interpolate,
+} from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
 import { useTask } from "../TaskContext";
@@ -12,12 +18,27 @@ export const TimerScene: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
   const task = useTask();
 
-  const enter = spring({ frame, fps, config: { damping: 200 }, durationInFrames: 24 });
-  const cta = spring({ frame: frame - 18, fps, config: { damping: 200 }, durationInFrames: 28 });
-  const out = interpolate(frame, [durationInFrames - 16, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+  const enter = spring({
+    frame,
+    fps,
+    config: { damping: 200 },
+    durationInFrames: 24,
   });
+  const cta = spring({
+    frame: frame - 18,
+    fps,
+    config: { damping: 200 },
+    durationInFrames: 28,
+  });
+  const out = interpolate(
+    frame,
+    [durationInFrames - 16, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   const elapsed = Math.min(Math.max(frame - LEAD_IN, 0), COUNT);
   const remaining = COUNT - elapsed;
@@ -65,7 +86,14 @@ export const TimerScene: React.FC = () => {
           </ProblemCard>
         </div>
 
-        <div style={{ position: "relative", width: 292, height: 292, marginTop: 42 }}>
+        <div
+          style={{
+            position: "relative",
+            width: 292,
+            height: 292,
+            marginTop: 42,
+          }}
+        >
           <svg width={292} height={292} style={{ transform: "rotate(-90deg)" }}>
             <circle
               cx={146}
@@ -155,8 +183,22 @@ export const TimerScene: React.FC = () => {
           >
             {/* Значок паузы */}
             <span style={{ display: "flex", gap: 7 }}>
-              <span style={{ width: 7, height: 24, borderRadius: 2, background: "#fff" }} />
-              <span style={{ width: 7, height: 24, borderRadius: 2, background: "#fff" }} />
+              <span
+                style={{
+                  width: 7,
+                  height: 24,
+                  borderRadius: 2,
+                  background: "#fff",
+                }}
+              />
+              <span
+                style={{
+                  width: 7,
+                  height: 24,
+                  borderRadius: 2,
+                  background: "#fff",
+                }}
+              />
             </span>
           </span>
           <span

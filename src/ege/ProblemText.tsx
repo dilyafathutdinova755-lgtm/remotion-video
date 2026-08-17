@@ -1,12 +1,10 @@
 import { COLORS, FONTS } from "./theme";
-import { isCue, type Token } from "./tasks/types";
+import type { Token } from "./tasks/types";
 
 /**
  * Текст задачи. Слова разложены отдельными span-ами: так строки ровно
  * переносятся по ширине карточки.
  *
- * Подсказки из массива токенов здесь пропускаются — их рисует
- * <StickerCues> в нижней части кадра, чтобы не рвать текст дырами.
  */
 export const ProblemText: React.FC<{
   tokens: Token[];
@@ -26,13 +24,11 @@ export const ProblemText: React.FC<{
       color: COLORS.text,
     }}
   >
-    {tokens.map((t, i) =>
-      isCue(t) ? null : (
-        <span key={`w-${i}`} style={{ padding: "2px 10px" }}>
-          {t}
-        </span>
-      ),
-    )}
+    {tokens.map((t, i) => (
+      <span key={`w-${i}`} style={{ padding: "2px 10px" }}>
+        {t}
+      </span>
+    ))}
   </div>
 );
 

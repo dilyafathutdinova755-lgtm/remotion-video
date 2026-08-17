@@ -10,12 +10,22 @@ export const Watermark: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  const enter = spring({ frame: frame - 8, fps, config: { damping: 200 }, durationInFrames: 25 });
-  // Уходит перед финальным экраном, чтобы не дублировать большую иконку
-  const leave = interpolate(frame, [durationInFrames - 18, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+  const enter = spring({
+    frame: frame - 8,
+    fps,
+    config: { damping: 200 },
+    durationInFrames: 25,
   });
+  // Уходит перед финальным экраном, чтобы не дублировать большую иконку
+  const leave = interpolate(
+    frame,
+    [durationInFrames - 18, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
   const opacity = interpolate(enter, [0, 1], [0, 1]) * leave;
   const shift = interpolate(enter, [0, 1], [26, 0]);
 

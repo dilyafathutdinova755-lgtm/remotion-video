@@ -1,4 +1,10 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  spring,
+  interpolate,
+} from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { AppLogo } from "../AppLogo";
 import { useTask } from "../TaskContext";
@@ -9,7 +15,12 @@ export const TitleScene: React.FC = () => {
   const task = useTask();
 
   const at = (delay: number, duration = 28) =>
-    spring({ frame: frame - delay, fps, config: { damping: 200 }, durationInFrames: duration });
+    spring({
+      frame: frame - delay,
+      fps,
+      config: { damping: 200 },
+      durationInFrames: duration,
+    });
 
   const logo = spring({
     frame: frame - 4,
@@ -22,10 +33,15 @@ export const TitleScene: React.FC = () => {
   const title = at(40);
   const sub = at(56);
 
-  const out = interpolate(frame, [durationInFrames - 14, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const out = interpolate(
+    frame,
+    [durationInFrames - 14, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   const lift = (s: number, d = 28) => ({
     opacity: interpolate(s, [0, 1], [0, 1]),
@@ -42,7 +58,13 @@ export const TitleScene: React.FC = () => {
         textAlign: "center",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <div
           style={{
             opacity: interpolate(logo, [0, 0.4], [0, 1], {

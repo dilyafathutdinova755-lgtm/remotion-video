@@ -1,7 +1,12 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  spring,
+  interpolate,
+} from "remotion";
 import { COLORS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
-import { StickerCues } from "../StickerCues";
 import { useTask } from "../TaskContext";
 import { READ_DELAY, buildReading } from "../timing";
 
@@ -10,17 +15,32 @@ export const ProblemScene: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
   const task = useTask();
 
-  const enter = spring({ frame: frame - 4, fps, config: { damping: 200 }, durationInFrames: 26 });
-  const out = interpolate(frame, [durationInFrames - 16, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+  const enter = spring({
+    frame: frame - 4,
+    fps,
+    config: { damping: 200 },
+    durationInFrames: 26,
   });
+  const out = interpolate(
+    frame,
+    [durationInFrames - 16, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   const reading = buildReading(task.tokens);
-  const progress = interpolate(frame, [READ_DELAY, READ_DELAY + reading.total], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const progress = interpolate(
+    frame,
+    [READ_DELAY, READ_DELAY + reading.total],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <AbsoluteFill
@@ -63,11 +83,6 @@ export const ProblemScene: React.FC = () => {
             />
           </div>
         </ProblemCard>
-
-        {/* Смайлики всплывают в нижней части кадра, каждый на своём куске текста */}
-        <div style={{ marginTop: 40 }}>
-          <StickerCues tokens={task.tokens} starts={reading.starts} />
-        </div>
       </div>
     </AbsoluteFill>
   );

@@ -1,4 +1,10 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  spring,
+  interpolate,
+} from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { AppLogo } from "../AppLogo";
 
@@ -14,7 +20,12 @@ export const OutroScene: React.FC = () => {
     durationInFrames: 40,
   });
   const at = (delay: number) =>
-    spring({ frame: frame - delay, fps, config: { damping: 200 }, durationInFrames: 28 });
+    spring({
+      frame: frame - delay,
+      fps,
+      config: { damping: 200 },
+      durationInFrames: 28,
+    });
 
   const cta = at(26);
   const link = at(44);
@@ -36,7 +47,13 @@ export const OutroScene: React.FC = () => {
         textAlign: "center",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <div
           style={{
             opacity: interpolate(logo, [0, 0.4], [0, 1], {

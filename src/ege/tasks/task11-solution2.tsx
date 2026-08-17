@@ -8,12 +8,13 @@ export const SolutionTwo: React.FC = () => (
       <Line>За первые 4 часа рабочий в одиночку сделал 4 части. Осталось:</Line>
     </Reveal>
 
-    <Reveal at={50} style={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+    <Reveal
+      at={50}
+      style={{ display: "flex", justifyContent: "center", marginTop: 4 }}
+    >
       <FormulaCard style={{ fontSize: 48, fontWeight: 600 }}>
-        8
-        <span style={{ margin: "0 14px" }}>−</span>4
-        <span style={{ margin: "0 16px" }}>=</span>
-        4 части
+        8<span style={{ margin: "0 14px" }}>−</span>4
+        <span style={{ margin: "0 16px" }}>=</span>4 части
       </FormulaCard>
     </Reveal>
 
@@ -23,20 +24,23 @@ export const SolutionTwo: React.FC = () => (
 
     <Reveal
       at={175}
-      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 4 }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 12,
+        marginTop: 4,
+      }}
     >
       <FormulaCard style={{ fontSize: 48, fontWeight: 600 }}>
-        4
-        <span style={{ margin: "0 14px" }}>:</span>2
-        <span style={{ margin: "0 16px" }}>=</span>
-        2 часа
+        4<span style={{ margin: "0 14px" }}>:</span>2
+        <span style={{ margin: "0 16px" }}>=</span>2 часа
       </FormulaCard>
 
       <Down />
 
       <FormulaCard accent style={{ fontSize: 48, fontWeight: 600 }}>
-        4
-        <span style={{ margin: "0 14px" }}>+</span>2
+        4<span style={{ margin: "0 14px" }}>+</span>2
         <span style={{ margin: "0 16px" }}>=</span>
         <span style={{ color: COLORS.blue, fontWeight: 700 }}>6 часов</span>
       </FormulaCard>
