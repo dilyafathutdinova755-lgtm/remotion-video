@@ -5,10 +5,10 @@ import {
   spring,
   interpolate,
 } from "remotion";
-import { COLORS, PAD, SAFE } from "../theme";
+import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill } from "../ProblemText";
 import { useTask } from "../TaskContext";
-import { READ_DELAY, buildReading } from "../timing";
+import { READ_DELAY, problemReadingFrames } from "../timing";
 
 export const ProblemScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -31,10 +31,9 @@ export const ProblemScene: React.FC = () => {
     },
   );
 
-  const reading = buildReading(task.tokens);
   const progress = interpolate(
     frame,
-    [READ_DELAY, READ_DELAY + reading.total],
+    [READ_DELAY, READ_DELAY + problemReadingFrames(task)],
     [0, 1],
     {
       extrapolateLeft: "clamp",
@@ -58,9 +57,23 @@ export const ProblemScene: React.FC = () => {
           transform: `translateY(${interpolate(enter, [0, 1], [30, 0])}px)`,
         }}
       >
-        <Pill>Задача</Pill>
+        <Pill>{task.pillLabel ?? "Задача"}</Pill>
 
         <ProblemCard padding={44}>
+          {task.instruction ? (
+            <div
+              style={{
+                fontFamily: FONTS.body,
+                fontWeight: 300,
+                fontSize: task.problemSize * 0.62,
+                lineHeight: 1.3,
+                color: COLORS.textMuted,
+                marginBottom: 26,
+              }}
+            >
+              {task.instruction}
+            </div>
+          ) : null}
           <ProblemText tokens={task.tokens} size={task.problemSize} />
 
           {/* Индикатор чтения */}

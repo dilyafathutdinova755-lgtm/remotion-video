@@ -120,13 +120,15 @@ export const TitleScene: React.FC = () => {
             ...lift(title, 34),
             fontFamily: FONTS.head,
             fontWeight: 800,
-            fontSize: 86,
+            // «Решение задания» длиннее «Решение задачи» — иначе номер
+            // срывается на вторую строку
+            fontSize: (task.titleNoun ?? "Решение задачи").length > 14 ? 74 : 86,
             lineHeight: 1.12,
             color: COLORS.deep,
             letterSpacing: "-0.02em",
           }}
         >
-          Решение задачи{" "}
+          {task.titleNoun ?? "Решение задачи"}{" "}
           <span
             style={{
               color: COLORS.blue,
@@ -150,7 +152,7 @@ export const TitleScene: React.FC = () => {
             marginTop: 26,
           }}
         >
-          в ЕГЭ по профильной математике
+          {task.subject ?? "в ЕГЭ по профильной математике"}
         </div>
       </div>
     </AbsoluteFill>

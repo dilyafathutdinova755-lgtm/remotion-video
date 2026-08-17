@@ -8,6 +8,7 @@ import {
 import { Reveal, FormulaCard } from "../MathBits";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { useTask } from "../TaskContext";
+import { answerFontSize } from "../tasks/types";
 
 export const AnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -106,23 +107,25 @@ export const AnswerScene: React.FC = () => {
               style={{
                 fontFamily: FONTS.head,
                 fontWeight: 800,
-                fontSize: 132,
+                fontSize: answerFontSize(task),
                 color: "#fff",
                 lineHeight: 1.1,
               }}
             >
               {task.answer}
             </span>
-            <span
-              style={{
-                fontFamily: FONTS.body,
-                fontWeight: 300,
-                fontSize: 44,
-                color: "#dbe7ff",
-              }}
-            >
-              {task.unit}
-            </span>
+            {task.unit ? (
+              <span
+                style={{
+                  fontFamily: FONTS.body,
+                  fontWeight: 300,
+                  fontSize: 44,
+                  color: "#dbe7ff",
+                }}
+              >
+                {task.unit}
+              </span>
+            ) : null}
           </div>
         </div>
 

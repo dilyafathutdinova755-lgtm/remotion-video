@@ -82,6 +82,20 @@ export const TimerScene: React.FC = () => {
         <div style={{ width: "100%" }}>
           <Pill>Подумайте сами</Pill>
           <ProblemCard padding={40}>
+            {task.instruction ? (
+              <div
+                style={{
+                  fontFamily: FONTS.body,
+                  fontWeight: 300,
+                  fontSize: task.timerSize * 0.66,
+                  lineHeight: 1.3,
+                  color: COLORS.textMuted,
+                  marginBottom: 20,
+                }}
+              >
+                {task.instruction}
+              </div>
+            ) : null}
             <ProblemText tokens={task.tokens} size={task.timerSize} />
           </ProblemCard>
         </div>

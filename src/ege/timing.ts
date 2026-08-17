@@ -55,9 +55,22 @@ export type Scenes = {
   outro: number;
 };
 
+/** Формулировку задания тоже надо успеть прочитать. */
+export const instructionFrames = (task: TaskDef): number =>
+  task.instruction
+    ? task.instruction
+        .trim()
+        .split(/\s+/)
+        .reduce((acc, word) => acc + wordFrames(word), 0)
+    : 0;
+
+/** Сколько кадров занимает прочтение всего, что есть на карточке. */
+export const problemReadingFrames = (task: TaskDef): number =>
+  instructionFrames(task) + buildReading(task.tokens).total;
+
 export const buildScenes = (task: TaskDef): Scenes => ({
   title: sec(6),
-  problem: READ_DELAY + buildReading(task.tokens).total + sec(1.6),
+  problem: READ_DELAY + problemReadingFrames(task) + sec(1.6),
   timer: sec(8),
   solutions: task.solutions.map((s) => sec(s.seconds)),
   answer: sec(7),
