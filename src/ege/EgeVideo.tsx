@@ -5,7 +5,7 @@ import { FontGate } from "./FontGate";
 import { TaskProvider } from "./TaskContext";
 import { buildScenes, totalFrames } from "./timing";
 import type { TaskDef } from "./tasks/types";
-import { TitleScene } from "./scenes/TitleScene";
+import { HookScene } from "./scenes/HookScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { TimerScene } from "./scenes/TimerScene";
 import { AnswerScene } from "./scenes/AnswerScene";
@@ -32,7 +32,7 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
 
           <Series>
             <Series.Sequence durationInFrames={scenes.title}>
-              <TitleScene />
+              <HookScene />
             </Series.Sequence>
             <Series.Sequence durationInFrames={scenes.problem}>
               <ProblemScene />

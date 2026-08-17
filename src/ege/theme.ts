@@ -1,42 +1,50 @@
 /**
- * Визуальные константы ролика: бело-синяя палитра, шрифты, размеры.
+ * Визуальные константы ролика.
+ *
+ * Палитра задана ТЗ. Главное отличие от прежней версии — карточка стала
+ * сплошной белой, а фон заметно плотнее: раньше полупрозрачная карточка
+ * почти сливалась с фоном и не добирала контраста по WCAG AA.
  */
 
 export const COLORS = {
-  // Фон: от белого к мягкому голубому
-  bgTop: "#ffffff",
-  bgBottom: "#dbe9fb",
-  blob1: "#bfd8f8",
-  blob2: "#e3edfd",
+  // Фон: сверху светлее, снизу плотнее
+  bgTop: "#EAF1FD",
+  bgBottom: "#DCE7FB",
+  blob1: "#cfe0fa",
+  blob2: "#e6eefc",
 
-  // Синие акценты
-  deep: "#12336e",
-  blue: "#1d4ed8",
-  blueSoft: "#3b82f6",
-  blueLine: "#93b8e8",
+  // Акценты
+  deep: "#0B2E8A",
+  blue: "#1652F0",
+  blueSoft: "#4F7FF5",
+  blueLine: "#A8BEEA",
 
   // Текст
-  text: "#152741",
-  textMuted: "#5b7395",
+  text: "#14213D",
+  textMuted: "#6B7A99",
 
-  card: "rgba(255,255,255,0.72)",
-  cardBorder: "rgba(29,78,216,0.16)",
+  // Карточка: сплошная белая, чтобы отделяться от фона
+  card: "#FFFFFF",
+  cardBorder: "rgba(11,46,138,0.10)",
 
-  ok: "#0f7b52",
-  okBg: "#dbf3e7",
+  ok: "#1E9E57",
+  okBg: "#E4F7EC",
+  success: "#2ECC71",
 
   // Иконка приложения
-  logoFrom: "#2b7bff",
-  logoTo: "#0a52dc",
+  logoFrom: "#3B7BFF",
+  logoTo: "#0B2E8A",
 } as const;
 
+/**
+ * Шрифт по ТЗ — Inter, Bold/SemiBold. Montserrat остался только внутри
+ * иконки приложения: логотип менять нельзя.
+ */
 export const FONTS = {
-  /** Montserrat — жирные заголовки. */
-  head: '"Montserrat", "DejaVu Sans", sans-serif',
-  /** Inter — основной текст и формулы. */
+  head: '"Inter", "DejaVu Sans", sans-serif',
   body: '"Inter", "DejaVu Sans", sans-serif',
-  /** Oswald — узкие вытянутые надписи: плашки, подписи, «ОТВЕТ». */
-  display: '"Oswald", "Montserrat", "DejaVu Sans", sans-serif',
+  display: '"Inter", "DejaVu Sans", sans-serif',
+  logo: '"Montserrat", "DejaVu Sans", sans-serif',
 } as const;
 
 /** Вертикальный формат 9:16 под Shorts / Reels / TikTok. */
@@ -50,11 +58,10 @@ export const VIDEO = {
 export const PAD = 68;
 
 /**
- * Безопасная зона: интерфейс Reels/Shorts перекрывает верх (шапка) и низ
- * (подпись, кнопки). Контент сцен центрируется внутри этой полосы, а не
- * по всему кадру, иначе его срезает.
+ * Безопасная зона по ТЗ: сверху 250 px, снизу 320 px. Контент сцен
+ * центрируется внутри этой полосы, а не по всему кадру.
  */
 export const SAFE = {
-  top: 330,
-  bottom: 420,
+  top: 260,
+  bottom: 330,
 } as const;

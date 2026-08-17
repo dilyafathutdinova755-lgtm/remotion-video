@@ -54,7 +54,7 @@ export const AppLogo: React.FC<{
     <span
       style={{
         position: "relative",
-        fontFamily: FONTS.head,
+        fontFamily: FONTS.logo,
         fontWeight: 800,
         fontSize: size * (compact ? 0.38 : 0.285),
         lineHeight: 1,
@@ -68,7 +68,7 @@ export const AppLogo: React.FC<{
       <span
         style={{
           position: "relative",
-          fontFamily: FONTS.head,
+          fontFamily: FONTS.logo,
           fontWeight: 700,
           fontSize: size * 0.112,
           lineHeight: 1,

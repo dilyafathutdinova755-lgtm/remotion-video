@@ -19,7 +19,7 @@ export const SolutionLayout: React.FC<{
 
   const out = interpolate(
     frame,
-    [durationInFrames - 15, durationInFrames],
+    [durationInFrames - 8, durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

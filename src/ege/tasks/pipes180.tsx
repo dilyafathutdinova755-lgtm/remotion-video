@@ -25,11 +25,11 @@ export const pipes180: TaskDef = {
 
   solutions: [
     {
-      seconds: 11,
+      seconds: 9,
       Component: makeSolution({
         step: "1",
         title: "Составляем уравнение",
-        seconds: 11,
+        seconds: 9,
         items: [
           line(
             <>
@@ -60,11 +60,11 @@ export const pipes180: TaskDef = {
       }),
     },
     {
-      seconds: 12,
+      seconds: 10,
       Component: makeSolution({
         step: "2",
         title: "Решаем уравнение",
-        seconds: 12,
+        seconds: 10,
         items: [
           line(
             <>

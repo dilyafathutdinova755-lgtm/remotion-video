@@ -27,11 +27,11 @@ export const ship200: TaskDef = {
 
   solutions: [
     {
-      seconds: 11.5,
+      seconds: 9.5,
       Component: makeSolution({
         step: "1",
         title: "Составляем уравнение",
-        seconds: 11.5,
+        seconds: 9.5,
         items: [
           line(
             <>
@@ -67,11 +67,11 @@ export const ship200: TaskDef = {
       }),
     },
     {
-      seconds: 12.5,
+      seconds: 10,
       Component: makeSolution({
         step: "2",
         title: "Решаем уравнение",
-        seconds: 12.5,
+        seconds: 10,
         items: [
           line(<>Приводим к общему знаменателю:</>),
           card(

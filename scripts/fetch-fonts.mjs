@@ -19,8 +19,7 @@ const FONT_DIR = join(ROOT, "public", "fonts");
 const CSS_URL =
   "https://fonts.googleapis.com/css2" +
   "?family=Montserrat:wght@300;600;700;800" +
-  "&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600" +
-  "&family=Oswald:wght@300;400;500" +
+  "&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600" +
   "&display=swap";
 
 // Только эти подмножества: greek/vietnamese/*-ext ролику не нужны
@@ -60,7 +59,7 @@ const ts = `import { staticFile } from "remotion";
 /**
  * СГЕНЕРИРОВАННЫЙ ФАЙЛ — правится через \`node scripts/fetch-fonts.mjs\`.
  *
- * Подмножества Montserrat / Inter / Oswald лежат в public/fonts. Правила
+ * Подмножества Montserrat (только логотип) и Inter лежат в public/fonts. Правила
  * собираются в рантайме через staticFile(): сборщик пытается резолвить
  * url() из обычного CSS сам и падает на несуществующем пути.
  */

@@ -28,11 +28,11 @@ export const motorcycle420: TaskDef = {
 
   solutions: [
     {
-      seconds: 12.5,
+      seconds: 10,
       Component: makeSolution({
         step: "1",
         title: "Составляем уравнения",
-        seconds: 12.5,
+        seconds: 10,
         items: [
           line(
             <>
@@ -67,11 +67,11 @@ export const motorcycle420: TaskDef = {
       }),
     },
     {
-      seconds: 13.5,
+      seconds: 11,
       Component: makeSolution({
         step: "2",
         title: "Решаем систему",
-        seconds: 13.5,
+        seconds: 11,
         items: [
           line(
             <>

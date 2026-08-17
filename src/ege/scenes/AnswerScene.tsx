@@ -1,5 +1,8 @@
 import {
   AbsoluteFill,
+  Audio,
+  Sequence,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -25,7 +28,7 @@ export const AnswerScene: React.FC = () => {
 
   const out = interpolate(
     frame,
-    [durationInFrames - 14, durationInFrames],
+    [durationInFrames - 8, durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",
@@ -42,6 +45,11 @@ export const AnswerScene: React.FC = () => {
         opacity: out,
       }}
     >
+      {/* Короткий «поп» ровно в момент появления плашки с ответом */}
+      <Sequence from={50}>
+        <Audio src={staticFile("pop.wav")} volume={0.8} />
+      </Sequence>
+
       <div
         style={{
           display: "flex",

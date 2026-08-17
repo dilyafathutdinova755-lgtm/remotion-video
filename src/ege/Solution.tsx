@@ -47,8 +47,8 @@ export const makeSolution = (spec: SolutionSpec): React.FC => {
 
   const frames = sec(spec.seconds);
   const gap = Math.min(
-    Math.max(Math.round((frames - TAIL) / Math.max(count - 1, 1)), 34),
-    68,
+    Math.max(Math.round((frames - TAIL) / Math.max(count - 1, 1)), 30),
+    56,
   );
 
   // Кадр появления каждого пункта

@@ -24,11 +24,11 @@ export const avgSpeed: TaskDef = {
 
   solutions: [
     {
-      seconds: 11.5,
+      seconds: 9.5,
       Component: makeSolution({
         step: "1",
         title: "Берём удобный путь",
-        seconds: 11.5,
+        seconds: 9.5,
         items: [
           line(
             <>
@@ -42,11 +42,11 @@ export const avgSpeed: TaskDef = {
       }),
     },
     {
-      seconds: 12.5,
+      seconds: 10,
       Component: makeSolution({
         step: "2",
         title: "Считаем среднюю",
-        seconds: 12.5,
+        seconds: 10,
         items: [
           line(<>Средняя скорость — это весь путь, делённый на всё время:</>),
           card(<>360 : 5 = 72 км/ч</>, { accent: true, size: 48 }),

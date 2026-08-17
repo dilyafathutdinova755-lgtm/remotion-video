@@ -19,11 +19,11 @@ export const ProblemScene: React.FC = () => {
     frame: frame - 4,
     fps,
     config: { damping: 200 },
-    durationInFrames: 26,
+    durationInFrames: 15,
   });
   const out = interpolate(
     frame,
-    [durationInFrames - 16, durationInFrames],
+    [durationInFrames - 8, durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

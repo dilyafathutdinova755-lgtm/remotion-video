@@ -32,11 +32,11 @@ export const cyclist70: TaskDef = {
 
   solutions: [
     {
-      seconds: 11.5,
+      seconds: 9.5,
       Component: makeSolution({
         step: "1",
         title: "Составляем уравнение",
-        seconds: 11.5,
+        seconds: 9.5,
         items: [
           line(
             <>
@@ -67,11 +67,11 @@ export const cyclist70: TaskDef = {
       }),
     },
     {
-      seconds: 13,
+      seconds: 10.5,
       Component: makeSolution({
         step: "2",
         title: "Решаем уравнение",
-        seconds: 13,
+        seconds: 10.5,
         items: [
           line(
             <>

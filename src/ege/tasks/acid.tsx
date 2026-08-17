@@ -28,11 +28,11 @@ export const acid: TaskDef = {
 
   solutions: [
     {
-      seconds: 12,
+      seconds: 10,
       Component: makeSolution({
         step: "1",
         title: "Составляем уравнения",
-        seconds: 12,
+        seconds: 10,
         items: [
           line(
             <>
@@ -62,11 +62,11 @@ export const acid: TaskDef = {
       }),
     },
     {
-      seconds: 12,
+      seconds: 10,
       Component: makeSolution({
         step: "2",
         title: "Решаем систему",
-        seconds: 12,
+        seconds: 10,
         items: [
           line(<>Первое уравнение делим на 20:</>),
           card(

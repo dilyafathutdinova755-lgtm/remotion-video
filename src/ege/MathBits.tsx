@@ -61,7 +61,7 @@ export const Reveal: React.FC<{
     frame: frame - at,
     fps,
     config: { damping: 200, mass: 0.7 },
-    durationInFrames: 22,
+    durationInFrames: 14,
   });
 
   return (

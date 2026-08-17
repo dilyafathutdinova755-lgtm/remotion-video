@@ -1,5 +1,8 @@
 import {
   AbsoluteFill,
+  Audio,
+  Sequence,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -22,17 +25,17 @@ export const TimerScene: React.FC = () => {
     frame,
     fps,
     config: { damping: 200 },
-    durationInFrames: 24,
+    durationInFrames: 15,
   });
   const cta = spring({
     frame: frame - 18,
     fps,
     config: { damping: 200 },
-    durationInFrames: 28,
+    durationInFrames: 15,
   });
   const out = interpolate(
     frame,
-    [durationInFrames - 16, durationInFrames],
+    [durationInFrames - 8, durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",
@@ -68,6 +71,11 @@ export const TimerScene: React.FC = () => {
         opacity: out,
       }}
     >
+      {/* Щелчки совпадают со сменой цифры: 5, 4, 3, 2, 1 */}
+      <Sequence from={LEAD_IN}>
+        <Audio src={staticFile("ticks.wav")} volume={0.45} />
+      </Sequence>
+
       <div
         style={{
           width: "100%",

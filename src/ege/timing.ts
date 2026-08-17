@@ -65,21 +65,27 @@ export const instructionFrames = (task: TaskDef): number =>
     : 0;
 
 /** Сколько кадров занимает прочтение всего, что есть на карточке. */
-export const problemReadingFrames = (task: TaskDef): number =>
-  instructionFrames(task) + buildReading(task.tokens).total;
+export const problemReadingFrames = (task: TaskDef): number => {
+  const raw = instructionFrames(task) + buildReading(task.tokens).total;
+  // Длинный текст глазами просматривают быстрее, чем короткий читают
+  const dense = task.tokens.length > 45 ? 0.86 : 1;
+  return Math.round(raw * dense);
+};
 
 export const buildScenes = (task: TaskDef): Scenes => {
   const withTimer = task.showTimer !== false;
 
   return {
-    title: sec(6),
+    // Хук-кадр по ТЗ: 0-2 секунды, не заставка
+    title: sec(2.6),
     // Без таймера условие больше нигде не показывается — даём дочитать
     problem:
       READ_DELAY + problemReadingFrames(task) + (withTimer ? sec(1.6) : sec(3)),
     timer: withTimer ? sec(8) : 0,
     solutions: task.solutions.map((s) => sec(s.seconds)),
     answer: sec(task.answerSeconds ?? 7),
-    outro: sec(6),
+    // CTA-карточка по ТЗ: 2-3 секунды
+    outro: sec(3),
   };
 };
 

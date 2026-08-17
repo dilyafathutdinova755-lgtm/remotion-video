@@ -17,18 +17,18 @@ export const OutroScene: React.FC = () => {
     frame: frame - 2,
     fps,
     config: { damping: 13, mass: 0.8, stiffness: 120 },
-    durationInFrames: 40,
+    durationInFrames: 26,
   });
   const at = (delay: number) =>
     spring({
       frame: frame - delay,
       fps,
       config: { damping: 200 },
-      durationInFrames: 28,
+      durationInFrames: 15,
     });
 
-  const cta = at(26);
-  const link = at(44);
+  const cta = at(14);
+  const link = at(26);
 
   const lift = (s: number, d = 26) => ({
     opacity: interpolate(s, [0, 1], [0, 1]),
@@ -63,7 +63,7 @@ export const OutroScene: React.FC = () => {
             transform: `scale(${interpolate(logo, [0, 1], [0.68, 1]) * pulse})`,
           }}
         >
-          <AppLogo size={320} />
+          <AppLogo size={230} />
         </div>
 
         {/* Название приложения не дублируем — оно уже есть на самой иконке */}
@@ -72,10 +72,10 @@ export const OutroScene: React.FC = () => {
             ...lift(cta, 26),
             fontFamily: FONTS.head,
             fontWeight: 800,
-            fontSize: 78,
+            fontSize: 68,
             color: COLORS.blue,
             letterSpacing: "-0.015em",
-            marginTop: 62,
+            marginTop: 40,
           }}
         >
           Скачивай бесплатно
@@ -87,7 +87,7 @@ export const OutroScene: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: 18,
-            marginTop: 34,
+            marginTop: 26,
             padding: "22px 44px",
             borderRadius: 999,
             background: "rgba(255,255,255,0.8)",
@@ -99,8 +99,21 @@ export const OutroScene: React.FC = () => {
             color: COLORS.text,
           }}
         >
-          <span style={{ fontSize: 38 }}>↑</span>
+          <span style={{ fontSize: 34 }}>↑</span>
           Ссылка в шапке профиля
+        </div>
+
+        <div
+          style={{
+            ...lift(link, 18),
+            marginTop: 22,
+            fontFamily: FONTS.body,
+            fontWeight: 600,
+            fontSize: 34,
+            color: COLORS.textMuted,
+          }}
+        >
+          Сохрани, чтобы не потерять
         </div>
       </div>
     </AbsoluteFill>

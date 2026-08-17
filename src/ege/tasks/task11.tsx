@@ -66,8 +66,8 @@ export const task11: TaskDef = {
   timerSize: 34,
 
   solutions: [
-    { seconds: 11, Component: SolutionOne },
-    { seconds: 13, Component: SolutionTwo },
+    { seconds: 9, Component: SolutionOne },
+    { seconds: 10.5, Component: SolutionTwo },
   ],
 
   answerLead: "На весь заказ потребовалось",
