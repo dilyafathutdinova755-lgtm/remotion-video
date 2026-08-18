@@ -13,6 +13,7 @@ import type { TaskDef } from "./types";
 export const cyclist70: TaskDef = {
   id: "Cyclist70",
   number: 10,
+  hook: "Здесь теряют балл в конце",
 
   tokens: [
     ...w(

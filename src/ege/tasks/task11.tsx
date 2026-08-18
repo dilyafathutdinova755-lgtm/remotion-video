@@ -12,6 +12,7 @@ import { SolutionTwo } from "./task11-solution2";
 export const task11: TaskDef = {
   id: "Task10Workers",
   number: 10,
+  hook: "Двое рабочих. За сколько?",
 
   tokens: [
     "Каждый",

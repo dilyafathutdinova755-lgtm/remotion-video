@@ -10,6 +10,7 @@ import type { TaskDef } from "./types";
 export const details380: TaskDef = {
   id: "Details380",
   number: 10,
+  hook: "380 деталей. Кто быстрее?",
 
   tokens: [
     ...w("Заказ на 380 деталей"),

@@ -1,8 +1,5 @@
 import {
   AbsoluteFill,
-  Audio,
-  Sequence,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -71,10 +68,6 @@ export const TimerScene: React.FC = () => {
         opacity: out,
       }}
     >
-      {/* Щелчки совпадают со сменой цифры: 5, 4, 3, 2, 1 */}
-      <Sequence from={LEAD_IN}>
-        <Audio src={staticFile("ticks.wav")} volume={0.45} />
-      </Sequence>
 
       <div
         style={{

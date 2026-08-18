@@ -1,8 +1,5 @@
 import {
   AbsoluteFill,
-  Audio,
-  Sequence,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -45,10 +42,6 @@ export const AnswerScene: React.FC = () => {
         opacity: out,
       }}
     >
-      {/* Короткий «поп» ровно в момент появления плашки с ответом */}
-      <Sequence from={50}>
-        <Audio src={staticFile("pop.wav")} volume={0.8} />
-      </Sequence>
 
       <div
         style={{

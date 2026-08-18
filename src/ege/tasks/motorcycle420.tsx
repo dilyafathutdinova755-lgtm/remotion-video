@@ -11,6 +11,7 @@ import type { TaskDef } from "./types";
 export const motorcycle420: TaskDef = {
   id: "Motorcycle420",
   number: 10,
+  hook: "Догонит и успеет вернуться?",
 
   tokens: [
     ...w("Расстояние между городами A и B равно 420 км."),

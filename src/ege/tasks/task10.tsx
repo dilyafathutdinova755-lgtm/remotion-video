@@ -12,6 +12,7 @@ import { SolutionTwo } from "./task10-solution2";
 export const task10: TaskDef = {
   id: "Task10",
   number: 10,
+  hook: "Решишь за 10 секунд?",
 
   tokens: [
     "Цена",

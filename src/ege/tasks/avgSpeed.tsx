@@ -12,6 +12,7 @@ import type { TaskDef } from "./types";
 export const avgSpeed: TaskDef = {
   id: "AvgSpeed",
   number: 10,
+  hook: "Средняя скорость — не 85",
 
   tokens: [
     ...w("Первую треть трассы автомобиль ехал со скоростью 90 км/ч,"),
