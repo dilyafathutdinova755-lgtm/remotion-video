@@ -8,6 +8,7 @@ import type { TaskDef } from "./tasks/types";
 import { HookScene } from "./scenes/HookScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { AnswerScene } from "./scenes/AnswerScene";
+import { ConceptScene } from "./scenes/ConceptScene";
 import { OutroScene } from "./scenes/OutroScene";
 
 /**
@@ -43,7 +44,8 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
             ))}
 
             <Series.Sequence durationInFrames={scenes.answer}>
-              <AnswerScene />
+              {/* У задания 19 по истории ответ — не значение, а два абзаца */}
+              {task.concept ? <ConceptScene /> : <AnswerScene />}
             </Series.Sequence>
             <Series.Sequence durationInFrames={scenes.outro}>
               <OutroScene />

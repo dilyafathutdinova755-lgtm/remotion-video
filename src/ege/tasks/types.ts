@@ -9,11 +9,8 @@ export type SolutionScene = {
   Component: React.FC;
 };
 
-/**
- * Полное описание задачи. Всё, что меняется от ролика к ролику, живёт
- * здесь; сцены забирают это из контекста и остаются общими.
- */
-export type TaskDef = {
+/** Всё, что есть у любой задачи независимо от того, чем она заканчивается. */
+type TaskCommon = {
   /** id композиции Remotion, например "Task10". */
   id: string;
   /** Номер задания в ЕГЭ. */
@@ -43,9 +40,12 @@ export type TaskDef = {
   /** Пошаговый разбор. У коротких заданий его может не быть вовсе. */
   solutions: SolutionScene[];
 
-  /** Длительность сцены ответа: если разбора нет, ей нужно больше времени. */
+  /** Длительность финальной сцены: если разбора нет, ей нужно больше времени. */
   answerSeconds?: number;
+};
 
+/** Ответ-значение: число или слово, которое вписывают в бланк. */
+type ValueAnswer = {
   /** Подводка над формулой ответа. */
   answerLead: string;
   answerFormula: ReactNode;
@@ -57,12 +57,33 @@ export type TaskDef = {
   answerSize?: number;
   /** Строчка проверки под ответом. */
   check: ReactNode;
+  concept?: undefined;
 };
+
+/**
+ * Ответ-текст: задание 19 по истории просит не значение, а два абзаца —
+ * смысл понятия и факт, который его конкретизирует.
+ */
+type ConceptAnswer = {
+  concept: {
+    definition: ReactNode;
+    fact: ReactNode;
+  };
+};
+
+/**
+ * Полное описание задачи. Всё, что меняется от ролика к ролику, живёт
+ * здесь; сцены забирают это из контекста и остаются общими.
+ */
+export type TaskDef = TaskCommon & (ValueAnswer | ConceptAnswer);
+
+/** Задача с ответом-значением: сцена ответа работает только с такими. */
+export type ValueTask = TaskCommon & ValueAnswer;
 
 /**
  * Кегль ответа: длинное слово вроде «преследовало» в 132 пункта не влезает
  * по ширине кадра, поэтому размер подбирается по числу знаков.
  */
-export const answerFontSize = (task: TaskDef): number =>
+export const answerFontSize = (task: ValueTask): number =>
   task.answerSize ??
   Math.min(132, Math.floor(1111 / Math.max(task.answer.length, 1)));

@@ -33,6 +33,9 @@ export const AnswerScene: React.FC = () => {
     },
   );
 
+  // Задания с ответом-текстом рисует ConceptScene, сюда они не доходят
+  if (task.concept) return null;
+
   return (
     <AbsoluteFill
       style={{
