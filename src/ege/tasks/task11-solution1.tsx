@@ -26,13 +26,13 @@ export const SolutionOne: React.FC = () => (
       }}
     >
       <FormulaCard style={{ fontSize: 46, fontWeight: 600 }}>
-        1 рабочий<span style={{ margin: "0 22px" }}>—</span>1 часть в час
+        1 рабочий<span style={{ margin: "0&nbsp;22px" }}>—</span>1 часть в час
       </FormulaCard>
 
       <Down />
 
       <FormulaCard accent style={{ fontSize: 46, fontWeight: 600 }}>
-        2 рабочих<span style={{ margin: "0 22px" }}>—</span>2 части в час
+        2 рабочих<span style={{ margin: "0&nbsp;22px" }}>—</span>2 части в час
       </FormulaCard>
     </Reveal>
   </SolutionLayout>

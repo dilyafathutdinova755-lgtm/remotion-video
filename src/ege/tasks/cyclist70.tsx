@@ -29,7 +29,6 @@ export const cyclist70: TaskDef = {
     ...w("Найдите скорость велосипедиста на пути из B в A."),
   ],
   problemSize: 40,
-  timerSize: 29,
 
   solutions: [
     {
@@ -51,7 +50,7 @@ export const cyclist70: TaskDef = {
           card(
             <>
               <Frac num="70" den={<V>v</V>} />
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <Frac
                 num="70"
                 den={
@@ -60,7 +59,7 @@ export const cyclist70: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 14px" }}>+</span>3
+              <span style={{ margin: "0&nbsp;14px" }}>+</span>3
             </>,
             { size: 46 },
           ),
@@ -81,16 +80,16 @@ export const cyclist70: TaskDef = {
           ),
           card(
             <>
-              <V>v</V>²<span style={{ margin: "0 12px" }}>+</span>3<V>v</V>
-              <span style={{ margin: "0 12px" }}>−</span>70
-              <span style={{ margin: "0 14px" }}>=</span>0
+              <V>v</V>²<span style={{ margin: "0&nbsp;12px" }}>+</span>3<V>v</V>
+              <span style={{ margin: "0&nbsp;12px" }}>−</span>70
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0
             </>,
           ),
           arrow(),
           card(
             <>
               D = 289, √D = 17
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>v</V> = 7
             </>,
             { size: 44 },

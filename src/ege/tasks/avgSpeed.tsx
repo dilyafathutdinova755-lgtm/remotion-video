@@ -21,7 +21,6 @@ export const avgSpeed: TaskDef = {
     ...w("Найдите среднюю скорость автомобиля на протяжении всего пути."),
   ],
   problemSize: 50,
-  timerSize: 36,
 
   solutions: [
     {

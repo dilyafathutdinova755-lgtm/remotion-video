@@ -23,7 +23,6 @@ export const alloys: TaskDef = {
     ...w("Найдите массу третьего сплава."),
   ],
   problemSize: 46,
-  timerSize: 34,
 
   solutions: [
     {
@@ -47,8 +46,9 @@ export const alloys: TaskDef = {
           card(
             <>
               0,4(<V>m</V> + 10)
-              <span style={{ margin: "0 12px" }}>+</span>0,25<V>m</V>
-              <span style={{ margin: "0 14px" }}>=</span>0,35(2<V>m</V> + 10)
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>0,25<V>m</V>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0,35(2<V>m</V> +
+              10)
             </>,
             { size: 40 },
           ),
@@ -66,9 +66,9 @@ export const alloys: TaskDef = {
           card(
             <>
               0,65<V>m</V>
-              <span style={{ margin: "0 12px" }}>+</span>4
-              <span style={{ margin: "0 14px" }}>=</span>0,7<V>m</V>
-              <span style={{ margin: "0 12px" }}>+</span>3,5
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>4
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0,7<V>m</V>
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>3,5
             </>,
             { size: 44 },
           ),
@@ -76,7 +76,7 @@ export const alloys: TaskDef = {
           card(
             <>
               0,05<V>m</V> = 0,5
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>m</V> = 10
             </>,
             { size: 44 },

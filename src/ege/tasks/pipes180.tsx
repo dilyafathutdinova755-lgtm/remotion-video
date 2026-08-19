@@ -22,7 +22,6 @@ export const pipes180: TaskDef = {
     ...w("она заполняет на 8 минут дольше, чем вторая?"),
   ],
   problemSize: 48,
-  timerSize: 35,
 
   solutions: [
     {
@@ -44,7 +43,7 @@ export const pipes180: TaskDef = {
           card(
             <>
               <Frac num="180" den={<V>x</V>} />
-              <span style={{ margin: "0 14px" }}>−</span>
+              <span style={{ margin: "0&nbsp;14px" }}>−</span>
               <Frac
                 num="180"
                 den={
@@ -53,7 +52,7 @@ export const pipes180: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 16px" }}>=</span>8
+              <span style={{ margin: "0&nbsp;16px" }}>=</span>8
             </>,
             { size: 48 },
           ),
@@ -75,24 +74,24 @@ export const pipes180: TaskDef = {
           card(
             <>
               1440
-              <span style={{ margin: "0 14px" }}>=</span>8<V>x</V>²
-              <span style={{ margin: "0 12px" }}>+</span>64<V>x</V>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>8<V>x</V>²
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>64<V>x</V>
             </>,
             { size: 44 },
           ),
           arrow(),
           card(
             <>
-              <V>x</V>²<span style={{ margin: "0 12px" }}>+</span>8<V>x</V>
-              <span style={{ margin: "0 12px" }}>−</span>180
-              <span style={{ margin: "0 14px" }}>=</span>0
+              <V>x</V>²<span style={{ margin: "0&nbsp;12px" }}>+</span>8<V>x</V>
+              <span style={{ margin: "0&nbsp;12px" }}>−</span>180
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0
             </>,
           ),
           arrow(),
           card(
             <>
               D = 784, √D = 28
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>10</span>
             </>,

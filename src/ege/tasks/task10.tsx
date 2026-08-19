@@ -45,7 +45,6 @@ export const task10: TaskDef = {
     "кепки.",
   ],
   problemSize: 52,
-  timerSize: 40,
 
   solutions: [
     { seconds: 10, Component: SolutionOne },
@@ -56,13 +55,13 @@ export const task10: TaskDef = {
   answerFormula: (
     <>
       <V>x</V>
-      <span style={{ margin: "0 14px" }}>−</span>
+      <span style={{ margin: "0&nbsp;14px" }}>−</span>
       <V>y</V>
-      <span style={{ margin: "0 18px" }}>=</span>
+      <span style={{ margin: "0&nbsp;18px" }}>=</span>
       19<V>t</V>
-      <span style={{ margin: "0 18px" }}>=</span>
+      <span style={{ margin: "0&nbsp;18px" }}>=</span>
       19&nbsp;·&nbsp;15
-      <span style={{ margin: "0 18px" }}>=</span>
+      <span style={{ margin: "0&nbsp;18px" }}>=</span>
       <span style={{ color: "#1d4ed8", fontWeight: 700 }}>285</span>
     </>
   ),

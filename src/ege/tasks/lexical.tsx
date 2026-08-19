@@ -35,7 +35,6 @@ type LexSpec = {
   /** Ответ — слово, которое выписывают. */
   answer: string;
   problemSize?: number;
-  timerSize?: number;
 };
 
 export const makeLexTask = (spec: LexSpec): TaskDef => {
@@ -52,10 +51,8 @@ export const makeLexTask = (spec: LexSpec): TaskDef => {
 
     tokens: w(spec.sentence),
     problemSize: spec.problemSize ?? 44,
-    timerSize: spec.timerSize ?? 32,
 
     // Считать тут нечего: ответ виден сразу, разбивать его на шаги незачем
-    showTimer: false,
     solutions: [],
     answerSeconds: 12,
 
@@ -63,7 +60,7 @@ export const makeLexTask = (spec: LexSpec): TaskDef => {
     answerFormula: (
       <>
         <span style={{ color: BAD }}>{spec.bad}</span>
-        <span style={{ margin: "0 20px", color: COLORS.blueLine }}>→</span>
+        <span style={{ margin: "0&nbsp;20px", color: COLORS.blueLine }}>→</span>
         <span style={{ color: COLORS.blue }}>{spec.good}</span>
       </>
     ),
@@ -93,7 +90,6 @@ export const lexPozhiloy = makeLexTask({
   ],
   answer: "пожилой",
   problemSize: 46,
-  timerSize: 34,
 });
 
 export const lexLeitmotiv = makeLexTask({
@@ -110,7 +106,6 @@ export const lexLeitmotiv = makeLexTask({
   ],
   answer: "главным",
   problemSize: 36,
-  timerSize: 26,
 });
 
 export const lexPresledovalo = makeLexTask({
@@ -127,13 +122,13 @@ export const lexPresledovalo = makeLexTask({
   ],
   answer: "преследовало",
   problemSize: 46,
-  timerSize: 34,
 });
 
 export const lexRoda = makeLexTask({
   id: "LexRoda",
   kind: "remove",
-  sentence: "На уроке истории России мы изучали правление династии рода Рюриковичей.",
+  sentence:
+    "На уроке истории России мы изучали правление династии рода Рюриковичей.",
   errorType: "Плеоназм",
   bad: "династия рода",
   good: "династия Рюриковичей",
@@ -143,7 +138,6 @@ export const lexRoda = makeLexTask({
   ],
   answer: "рода",
   problemSize: 50,
-  timerSize: 36,
 });
 
 export const lexProlivnoy = makeLexTask({
@@ -160,7 +154,6 @@ export const lexProlivnoy = makeLexTask({
   ],
   answer: "проливной",
   problemSize: 48,
-  timerSize: 35,
 });
 
 export const lexGovorit = makeLexTask({
@@ -177,7 +170,6 @@ export const lexGovorit = makeLexTask({
   ],
   answer: "говорить",
   problemSize: 48,
-  timerSize: 35,
 });
 
 export const lexOkazala = makeLexTask({
@@ -194,7 +186,6 @@ export const lexOkazala = makeLexTask({
   ],
   answer: "оказала",
   problemSize: 48,
-  timerSize: 35,
 });
 
 export const lexSvyoklu = makeLexTask({
@@ -211,7 +202,6 @@ export const lexSvyoklu = makeLexTask({
   ],
   answer: "свёклу",
   problemSize: 42,
-  timerSize: 30,
 });
 
 export const lexZaklyatym = makeLexTask({
@@ -228,7 +218,6 @@ export const lexZaklyatym = makeLexTask({
   ],
   answer: "заклятым",
   problemSize: 46,
-  timerSize: 34,
 });
 
 export const lexKamennye = makeLexTask({
@@ -245,7 +234,6 @@ export const lexKamennye = makeLexTask({
   ],
   answer: "каменные",
   problemSize: 46,
-  timerSize: 34,
 });
 
 export const LEXICAL_TASKS: TaskDef[] = [

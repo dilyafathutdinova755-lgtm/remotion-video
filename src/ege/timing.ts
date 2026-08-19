@@ -49,7 +49,6 @@ export const buildReading = (tokens: Token[]): Reading => {
 export type Scenes = {
   title: number;
   problem: number;
-  timer: number;
   solutions: number[];
   answer: number;
   outro: number;
@@ -73,15 +72,11 @@ export const problemReadingFrames = (task: TaskDef): number => {
 };
 
 export const buildScenes = (task: TaskDef): Scenes => {
-  const withTimer = task.showTimer !== false;
-
   return {
     // Открывающий кадр: вопрос-хук вместо заставки
     title: sec(4),
-    // Без таймера условие больше нигде не показывается — даём дочитать
-    problem:
-      READ_DELAY + problemReadingFrames(task) + (withTimer ? sec(1.6) : sec(3)),
-    timer: withTimer ? sec(8) : 0,
+    // Условие показывается один раз, поэтому даём его дочитать
+    problem: READ_DELAY + problemReadingFrames(task) + sec(3),
     solutions: task.solutions.map((s) => sec(s.seconds)),
     answer: sec(task.answerSeconds ?? 7),
     // CTA-карточка по ТЗ: 2-3 секунды
@@ -94,7 +89,6 @@ export const totalFrames = (task: TaskDef): number => {
   return (
     s.title +
     s.problem +
-    s.timer +
     s.solutions.reduce((a, b) => a + b, 0) +
     s.answer +
     s.outro

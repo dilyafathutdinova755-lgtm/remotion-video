@@ -24,7 +24,6 @@ export const ship200: TaskDef = {
     ),
   ],
   problemSize: 44,
-  timerSize: 32,
 
   solutions: [
     {
@@ -51,7 +50,7 @@ export const ship200: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 14px" }}>+</span>
+              <span style={{ margin: "0&nbsp;14px" }}>+</span>
               <Frac
                 num="200"
                 den={
@@ -60,7 +59,7 @@ export const ship200: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 16px" }}>=</span>30
+              <span style={{ margin: "0&nbsp;16px" }}>=</span>30
             </>,
             { size: 46 },
           ),
@@ -78,21 +77,22 @@ export const ship200: TaskDef = {
           card(
             <>
               6000
-              <span style={{ margin: "0 14px" }}>=</span>30(225 − <V>x</V>²)
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>30(225 − <V>x</V>
+              ²)
             </>,
             { size: 44 },
           ),
           arrow(),
           card(
             <>
-              225 − <V>x</V>²<span style={{ margin: "0 14px" }}>=</span>200
+              225 − <V>x</V>²<span style={{ margin: "0&nbsp;14px" }}>=</span>200
             </>,
           ),
           arrow(),
           card(
             <>
               <V>x</V>² = 25
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>5</span>
             </>,

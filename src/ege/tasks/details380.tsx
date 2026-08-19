@@ -20,7 +20,6 @@ export const details380: TaskDef = {
     ),
   ],
   problemSize: 50,
-  timerSize: 36,
 
   solutions: [
     {
@@ -47,9 +46,9 @@ export const details380: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 14px" }}>−</span>
+              <span style={{ margin: "0&nbsp;14px" }}>−</span>
               <Frac num="380" den={<V>x</V>} />
-              <span style={{ margin: "0 16px" }}>=</span>1
+              <span style={{ margin: "0&nbsp;16px" }}>=</span>1
             </>,
             { size: 48 },
           ),
@@ -71,8 +70,8 @@ export const details380: TaskDef = {
           card(
             <>
               380<V>x</V>
-              <span style={{ margin: "0 12px" }}>−</span>380(<V>x</V> − 1)
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;12px" }}>−</span>380(<V>x</V> − 1)
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <V>x</V>(<V>x</V> − 1)
             </>,
             { size: 44 },
@@ -80,17 +79,17 @@ export const details380: TaskDef = {
           arrow(),
           card(
             <>
-              <V>x</V>²<span style={{ margin: "0 12px" }}>−</span>
+              <V>x</V>²<span style={{ margin: "0&nbsp;12px" }}>−</span>
               <V>x</V>
-              <span style={{ margin: "0 12px" }}>−</span>380
-              <span style={{ margin: "0 14px" }}>=</span>0
+              <span style={{ margin: "0&nbsp;12px" }}>−</span>380
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0
             </>,
           ),
           arrow(),
           card(
             <>
               D = 1521, √D = 39
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>20</span>
             </>,

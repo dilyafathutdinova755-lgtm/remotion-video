@@ -64,7 +64,6 @@ export const task11: TaskDef = {
     "заказа?",
   ],
   problemSize: 46,
-  timerSize: 34,
 
   solutions: [
     { seconds: 9, Component: SolutionOne },
@@ -74,8 +73,8 @@ export const task11: TaskDef = {
   answerLead: "На весь заказ потребовалось",
   answerFormula: (
     <>
-      4<span style={{ margin: "0 16px" }}>+</span>2
-      <span style={{ margin: "0 18px" }}>=</span>
+      4<span style={{ margin: "0&nbsp;16px" }}>+</span>2
+      <span style={{ margin: "0&nbsp;18px" }}>=</span>
       <span style={{ color: "#1d4ed8", fontWeight: 700 }}>6</span>
       <span style={{ marginLeft: 16 }}>часов</span>
     </>

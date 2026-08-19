@@ -28,7 +28,6 @@ export const twoCars: TaskDef = {
     ),
   ],
   problemSize: 42,
-  timerSize: 30,
 
   solutions: [
     {
@@ -53,7 +52,7 @@ export const twoCars: TaskDef = {
           card(
             <>
               <Frac num="1" den={<V>x</V>} />
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <Frac
                 num="1"
                 den={
@@ -62,7 +61,7 @@ export const twoCars: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 14px" }}>+</span>
+              <span style={{ margin: "0&nbsp;14px" }}>+</span>
               <Frac num="1" den="156" />
             </>,
             { size: 46 },
@@ -80,16 +79,17 @@ export const twoCars: TaskDef = {
           line(<>Приводим к общему знаменателю и упрощаем:</>),
           card(
             <>
-              <V>x</V>²<span style={{ margin: "0 12px" }}>−</span>91<V>x</V>
-              <span style={{ margin: "0 12px" }}>+</span>2028
-              <span style={{ margin: "0 14px" }}>=</span>0
+              <V>x</V>²<span style={{ margin: "0&nbsp;12px" }}>−</span>91
+              <V>x</V>
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>2028
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0
             </>,
           ),
           arrow(),
           card(
             <>
               D = 169, √D = 13
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> = 52 или 39
             </>,
             { size: 42 },
@@ -98,7 +98,7 @@ export const twoCars: TaskDef = {
           card(
             <>
               по условию <V>x</V> &gt; 48
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>52</span>
             </>,

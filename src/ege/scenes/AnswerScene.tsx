@@ -42,7 +42,6 @@ export const AnswerScene: React.FC = () => {
         opacity: out,
       }}
     >
-
       <div
         style={{
           display: "flex",
@@ -149,7 +148,9 @@ export const AnswerScene: React.FC = () => {
           >
             <span style={{ flexShrink: 0 }}>✓</span>
             {/* Один flex-элемент: иначе зачин отрывается в свою колонку */}
-            <div style={{ textAlign: "left", lineHeight: 1.4 }}>{task.check}</div>
+            <div style={{ textAlign: "left", lineHeight: 1.4 }}>
+              {task.check}
+            </div>
           </div>
         </Reveal>
       </div>

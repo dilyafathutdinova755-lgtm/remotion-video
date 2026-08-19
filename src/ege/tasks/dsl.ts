@@ -5,4 +5,4 @@ import type { Token } from "./types";
  * прочтение), но выписывать каждое слово руками — верный способ насажать
  * опечаток. Поэтому текст пишется строкой, а разбивает его `w`.
  */
-export const w = (text: string): Token[] => text.trim().split(/\s+/);
+export const w = (text: string): Token[] => text.trim().split(/[ \t\r\n]+/);

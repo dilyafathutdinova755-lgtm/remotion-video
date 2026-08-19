@@ -30,9 +30,9 @@ export const SolutionOne: React.FC = () => (
     >
       <FormulaCard style={{ fontSize: 52, fontWeight: 600 }}>
         3<V>y</V>
-        <span style={{ margin: "0 16px" }}>=</span>
+        <span style={{ margin: "0&nbsp;16px" }}>=</span>
         0,55&nbsp;·&nbsp;2<V>x</V>
-        <span style={{ margin: "0 16px" }}>=</span>
+        <span style={{ margin: "0&nbsp;16px" }}>=</span>
         1,1<V>x</V>
       </FormulaCard>
 
@@ -40,7 +40,7 @@ export const SolutionOne: React.FC = () => (
 
       <FormulaCard accent style={{ fontSize: 52, fontWeight: 600 }}>
         30<V>y</V>
-        <span style={{ margin: "0 16px" }}>=</span>
+        <span style={{ margin: "0&nbsp;16px" }}>=</span>
         11<V>x</V>
       </FormulaCard>
     </Reveal>

@@ -45,10 +45,15 @@ export const HookScene: React.FC = () => {
   });
   const sub = at(20);
 
-  const out = interpolate(frame, [durationInFrames - 7, durationInFrames], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const out = interpolate(
+    frame,
+    [durationInFrames - 7, durationInFrames],
+    [1, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
+  );
 
   return (
     <AbsoluteFill

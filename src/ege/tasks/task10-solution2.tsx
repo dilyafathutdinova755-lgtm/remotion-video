@@ -28,11 +28,11 @@ export const SolutionTwo: React.FC = () => (
     >
       <FormulaCard style={{ fontSize: 50, fontWeight: 600 }}>
         3<V>x</V>
-        <span style={{ margin: "0 12px" }}>−</span>2<V>y</V>
-        <span style={{ margin: "0 14px" }}>=</span>
+        <span style={{ margin: "0&nbsp;12px" }}>−</span>2<V>y</V>
+        <span style={{ margin: "0&nbsp;14px" }}>=</span>
         90<V>t</V>
-        <span style={{ margin: "0 12px" }}>−</span>22<V>t</V>
-        <span style={{ margin: "0 14px" }}>=</span>
+        <span style={{ margin: "0&nbsp;12px" }}>−</span>22<V>t</V>
+        <span style={{ margin: "0&nbsp;14px" }}>=</span>
         68<V>t</V>
       </FormulaCard>
 
@@ -40,11 +40,11 @@ export const SolutionTwo: React.FC = () => (
 
       <FormulaCard accent style={{ fontSize: 52, fontWeight: 600 }}>
         68<V>t</V>
-        <span style={{ margin: "0 16px" }}>=</span>
+        <span style={{ margin: "0&nbsp;16px" }}>=</span>
         1020
-        <span style={{ margin: "0 26px", color: COLORS.blueLine }}>|</span>
+        <span style={{ margin: "0&nbsp;26px", color: COLORS.blueLine }}>|</span>
         <V>t</V>
-        <span style={{ margin: "0 16px" }}>=</span>
+        <span style={{ margin: "0&nbsp;16px" }}>=</span>
         <span style={{ color: COLORS.blue, fontWeight: 700 }}>15</span>
       </FormulaCard>
     </Reveal>

@@ -7,7 +7,6 @@ import { buildScenes, totalFrames } from "./timing";
 import type { TaskDef } from "./tasks/types";
 import { HookScene } from "./scenes/HookScene";
 import { ProblemScene } from "./scenes/ProblemScene";
-import { TimerScene } from "./scenes/TimerScene";
 import { AnswerScene } from "./scenes/AnswerScene";
 import { OutroScene } from "./scenes/OutroScene";
 
@@ -37,12 +36,6 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
             <Series.Sequence durationInFrames={scenes.problem}>
               <ProblemScene />
             </Series.Sequence>
-            {scenes.timer > 0 ? (
-              <Series.Sequence durationInFrames={scenes.timer}>
-                <TimerScene />
-              </Series.Sequence>
-            ) : null}
-
             {task.solutions.map(({ Component }, i) => (
               <Series.Sequence key={i} durationInFrames={scenes.solutions[i]}>
                 <Component />

@@ -25,7 +25,6 @@ export const motorcycle420: TaskDef = {
     ),
   ],
   problemSize: 42,
-  timerSize: 31,
 
   solutions: [
     {
@@ -44,8 +43,8 @@ export const motorcycle420: TaskDef = {
           card(
             <>
               <Frac num={<V>d</V>} den={<V>v</V>} />
-              <span style={{ margin: "0 14px" }}>=</span>1
-              <span style={{ margin: "0 12px" }}>+</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>1
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>
               <Frac num={<V>d</V>} den="80" />
             </>,
             { size: 46 },
@@ -58,8 +57,8 @@ export const motorcycle420: TaskDef = {
           card(
             <>
               <Frac num="420" den={<V>v</V>} />
-              <span style={{ margin: "0 14px" }}>=</span>1
-              <span style={{ margin: "0 12px" }}>+</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>1
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>
               <Frac num={<V>d</V>} den="40" />
             </>,
             { size: 46 },
@@ -82,21 +81,22 @@ export const motorcycle420: TaskDef = {
           ),
           card(
             <>
-              <V>d</V>²<span style={{ margin: "0 12px" }}>−</span>170<V>d</V>
-              <span style={{ margin: "0 12px" }}>−</span>16800
-              <span style={{ margin: "0 14px" }}>=</span>0
+              <V>d</V>²<span style={{ margin: "0&nbsp;12px" }}>−</span>170
+              <V>d</V>
+              <span style={{ margin: "0&nbsp;12px" }}>−</span>16800
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0
             </>,
             { size: 44 },
           ),
           arrow(),
-          card(<>D = 96 100, &nbsp; √D = 310</>),
+          card(<>D = 96&nbsp;100, &nbsp; √D = 310</>),
           arrow(),
           card(
             <>
               <V>d</V>
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <Frac num="170 + 310" den="2" />
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>240</span>
             </>,
             { accent: true },

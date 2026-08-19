@@ -39,14 +39,6 @@ export type TaskDef = {
   tokens: Token[];
   /** Кегль условия — длинные тексты набираем мельче, чтобы влезали. */
   problemSize: number;
-  /** Кегль условия на сцене с таймером. */
-  timerSize: number;
-
-  /**
-   * Пятисекундный таймер на размышление. У русского его нет: там не над
-   * чем считать, ответ идёт сразу за условием.
-   */
-  showTimer?: boolean;
 
   /** Пошаговый разбор. У коротких заданий его может не быть вовсе. */
   solutions: SolutionScene[];
@@ -72,4 +64,5 @@ export type TaskDef = {
  * по ширине кадра, поэтому размер подбирается по числу знаков.
  */
 export const answerFontSize = (task: TaskDef): number =>
-  task.answerSize ?? Math.min(132, Math.floor(1111 / Math.max(task.answer.length, 1)));
+  task.answerSize ??
+  Math.min(132, Math.floor(1111 / Math.max(task.answer.length, 1)));

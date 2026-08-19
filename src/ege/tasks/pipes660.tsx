@@ -23,7 +23,6 @@ export const pipes660: TaskDef = {
     ...w("чем вторая труба заполняет резервуар объёмом 570 литров?"),
   ],
   problemSize: 46,
-  timerSize: 34,
 
   solutions: [
     {
@@ -43,7 +42,7 @@ export const pipes660: TaskDef = {
           card(
             <>
               <Frac num="660" den={<V>x</V>} />
-              <span style={{ margin: "0 14px" }}>−</span>
+              <span style={{ margin: "0&nbsp;14px" }}>−</span>
               <Frac
                 num="570"
                 den={
@@ -52,7 +51,7 @@ export const pipes660: TaskDef = {
                   </>
                 }
               />
-              <span style={{ margin: "0 16px" }}>=</span>11
+              <span style={{ margin: "0&nbsp;16px" }}>=</span>11
             </>,
             { size: 48 },
           ),
@@ -73,20 +72,21 @@ export const pipes660: TaskDef = {
           ),
           card(
             <>
-              11<V>x</V>²<span style={{ margin: "0 12px" }}>−</span>2<V>x</V>
-              <span style={{ margin: "0 12px" }}>−</span>5280
-              <span style={{ margin: "0 14px" }}>=</span>0
+              11<V>x</V>²<span style={{ margin: "0&nbsp;12px" }}>−</span>2
+              <V>x</V>
+              <span style={{ margin: "0&nbsp;12px" }}>−</span>5280
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>0
             </>,
           ),
           arrow(),
-          card(<>D = 232 324, &nbsp; √D = 482</>),
+          card(<>D = 232&nbsp;324, &nbsp; √D = 482</>),
           arrow(),
           card(
             <>
               <V>x</V>
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <Frac num="2 + 482" den="22" />
-              <span style={{ margin: "0 14px" }}>=</span>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>22</span>
             </>,
             { accent: true },

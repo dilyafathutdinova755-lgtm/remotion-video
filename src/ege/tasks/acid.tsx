@@ -25,7 +25,6 @@ export const acid: TaskDef = {
     ...w("Сколько процентов кислоты содержится в первом сосуде?"),
   ],
   problemSize: 44,
-  timerSize: 32,
 
   solutions: [
     {
@@ -44,8 +43,8 @@ export const acid: TaskDef = {
           card(
             <>
               60<V>x</V>
-              <span style={{ margin: "0 12px" }}>+</span>20<V>y</V>
-              <span style={{ margin: "0 14px" }}>=</span>30 · 80
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>20<V>y</V>
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>30 · 80
             </>,
             { size: 44 },
           ),
@@ -53,9 +52,9 @@ export const acid: TaskDef = {
           card(
             <>
               <V>x</V>
-              <span style={{ margin: "0 12px" }}>+</span>
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>
               <V>y</V>
-              <span style={{ margin: "0 14px" }}>=</span>90
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>90
             </>,
             { size: 44 },
           ),
@@ -73,9 +72,9 @@ export const acid: TaskDef = {
           card(
             <>
               3<V>x</V>
-              <span style={{ margin: "0 12px" }}>+</span>
+              <span style={{ margin: "0&nbsp;12px" }}>+</span>
               <V>y</V>
-              <span style={{ margin: "0 14px" }}>=</span>120
+              <span style={{ margin: "0&nbsp;14px" }}>=</span>120
             </>,
           ),
           arrow(),
@@ -87,7 +86,7 @@ export const acid: TaskDef = {
           card(
             <>
               2<V>x</V> = 30
-              <span style={{ margin: "0 20px" }}>⟹</span>
+              <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
               <span style={{ color: "#1d4ed8", fontWeight: 700 }}>15</span>
             </>,
