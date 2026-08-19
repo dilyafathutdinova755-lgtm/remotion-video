@@ -18,6 +18,7 @@ import { cyclist70 } from "./ege/tasks/cyclist70";
 import { avgSpeed } from "./ege/tasks/avgSpeed";
 import { alloys } from "./ege/tasks/alloys";
 import { LEXICAL_TASKS } from "./ege/tasks/lexical";
+import { INFORMATICS_TASKS } from "./ege/tasks/informatics";
 
 /**
  * Композиции задаются описанием задачи из src/ege/tasks. Чтобы добавить
@@ -37,6 +38,7 @@ const TASKS: TaskDef[] = [
   avgSpeed,
   alloys,
   ...LEXICAL_TASKS,
+  ...INFORMATICS_TASKS,
 ];
 
 export const RemotionRoot: React.FC = () => (

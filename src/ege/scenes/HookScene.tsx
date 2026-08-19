@@ -13,6 +13,17 @@ import { useTask } from "../TaskContext";
  * текстом. Логотип никуда не делся — он остался плашкой в углу и на
  * финальном экране.
  */
+/**
+ * Короткая подпись предмета на плашке. Полное `subject` («в ЕГЭ по
+ * профильной математике») в плашку не влезает, поэтому берём одно слово.
+ */
+const examLabel = (subject?: string): string => {
+  if (!subject) return "профиль";
+  if (subject.includes("русск")) return "русский";
+  if (subject.includes("информатик")) return "информатика";
+  return "профиль";
+};
+
 export const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
@@ -93,7 +104,7 @@ export const HookScene: React.FC = () => {
             transform: `translateY(${interpolate(sub, [0, 1], [22, 0])}px)`,
           }}
         >
-          {task.subject?.includes("русск") ? "ЕГЭ · русский" : "ЕГЭ · профиль"}
+          ЕГЭ · {examLabel(task.subject)}
           <span style={{ opacity: 0.6 }}>·</span>
           задание {task.number}
         </div>
