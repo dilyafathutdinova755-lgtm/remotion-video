@@ -34,7 +34,6 @@ const makeConceptTask = (
   number: 19,
   subject: "в ЕГЭ по истории",
   hook: HOOK,
-  titleNoun: "Решение задания",
   pillLabel: "Задание",
   instruction: INSTRUCTION,
 

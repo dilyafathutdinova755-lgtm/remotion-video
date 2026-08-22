@@ -20,6 +20,7 @@ import { alloys } from "./ege/tasks/alloys";
 import { LEXICAL_TASKS } from "./ege/tasks/lexical";
 import { INFORMATICS_TASKS } from "./ege/tasks/informatics";
 import { HISTORY_TASKS } from "./ege/tasks/history";
+import { BASE_MATH_TASKS } from "./ege/tasks/basemath";
 
 /**
  * Композиции задаются описанием задачи из src/ege/tasks. Чтобы добавить
@@ -41,6 +42,7 @@ const TASKS: TaskDef[] = [
   ...LEXICAL_TASKS,
   ...INFORMATICS_TASKS,
   ...HISTORY_TASKS,
+  ...BASE_MATH_TASKS,
 ];
 
 export const RemotionRoot: React.FC = () => (

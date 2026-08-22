@@ -22,6 +22,7 @@ const examLabel = (subject?: string): string => {
   if (subject.includes("русск")) return "русский";
   if (subject.includes("информатик")) return "информатика";
   if (subject.includes("истори")) return "история";
+  if (subject.includes("базов")) return "база";
   return "профиль";
 };
 

@@ -25,7 +25,6 @@ const base = (id: string, hook: string, problemSize = 46) => ({
   subject: SUBJECT,
   hook,
   pillLabel: "Задание",
-  titleNoun: "Решение задания",
   problemSize,
   // Разбор пошаговый, как в математике, но листаем быстро — как в русском
   answerSeconds: 6,

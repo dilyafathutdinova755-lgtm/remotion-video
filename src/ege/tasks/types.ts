@@ -20,8 +20,6 @@ type TaskCommon = {
   subject?: string;
   /** Вопрос на хук-кадре в первые секунды ролика. */
   hook?: string;
-  /** «задачи» или «задания» в заголовке. */
-  titleNoun?: string;
   /** Надпись на плашке над условием. */
   pillLabel?: string;
 
