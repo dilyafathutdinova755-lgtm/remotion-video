@@ -21,24 +21,24 @@ export const Background: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        background: `linear-gradient(160deg, ${COLORS.bgTop} 0%, #f4f8fe 45%, ${COLORS.bgBottom} 100%)`,
+        background: `linear-gradient(160deg, ${COLORS.bgTop} 0%, ${COLORS.bgMid} 45%, ${COLORS.bgBottom} 100%)`,
       }}
     >
       <AbsoluteFill
         style={{
-          background: `radial-gradient(900px 900px at ${16 + drift * 8}% ${10 + drift * 4}%, ${COLORS.blob1}88 0%, transparent 62%)`,
+          background: `radial-gradient(900px 900px at ${16 + drift * 8}% ${10 + drift * 4}%, ${COLORS.blobA} 0%, transparent 62%)`,
         }}
       />
       <AbsoluteFill
         style={{
-          background: `radial-gradient(820px 820px at ${88 - drift * 9}% ${90 - drift * 5}%, ${COLORS.blob2}cc 0%, transparent 60%)`,
+          background: `radial-gradient(820px 820px at ${88 - drift * 9}% ${90 - drift * 5}%, ${COLORS.blobB} 0%, transparent 60%)`,
         }}
       />
 
       {/* Тонкая сетка «в клетку», как в тетради — очень слабая */}
       <AbsoluteFill
         style={{
-          backgroundImage: `linear-gradient(${COLORS.blueLine}22 1px, transparent 1px), linear-gradient(90deg, ${COLORS.blueLine}22 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(${COLORS.accentLine}22 1px, transparent 1px), linear-gradient(90deg, ${COLORS.accentLine}22 1px, transparent 1px)`,
           backgroundSize: "72px 72px",
           maskImage:
             "radial-gradient(ellipse 70% 50% at 50% 50%, black 10%, transparent 80%)",

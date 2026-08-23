@@ -16,7 +16,7 @@ const SUBJECT = "в ЕГЭ по информатике";
  * такой span становится отдельным флекс-элементом и пробелы вокруг него
  * схлопываются: содержимое приходится заворачивать в общий <span>.
  */
-const ACCENT = { color: COLORS.blue, fontWeight: 700 } as const;
+const ACCENT = { color: COLORS.accent, fontWeight: 700 } as const;
 
 /** Общая часть описания: предмет, номер задания, кегль условия. */
 const base = (id: string, hook: string, problemSize = 46) => ({

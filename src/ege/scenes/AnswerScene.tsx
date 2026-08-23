@@ -84,8 +84,8 @@ export const AnswerScene: React.FC = () => {
             gap: 4,
             padding: "38px 78px",
             borderRadius: 32,
-            background: COLORS.blue,
-            boxShadow: "0 24px 64px rgba(29,78,216,0.34)",
+            background: COLORS.accent,
+            boxShadow: `0 24px 64px ${COLORS.accentGlow}`,
             opacity: interpolate(pop, [0, 0.4], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
@@ -98,7 +98,7 @@ export const AnswerScene: React.FC = () => {
               fontFamily: FONTS.display,
               fontWeight: 300,
               fontSize: 38,
-              color: "#bcd4ff",
+              color: COLORS.onAccentMuted,
               letterSpacing: "0.26em",
               textTransform: "uppercase",
             }}
@@ -123,7 +123,7 @@ export const AnswerScene: React.FC = () => {
                   fontFamily: FONTS.body,
                   fontWeight: 300,
                   fontSize: 44,
-                  color: "#dbe7ff",
+                  color: COLORS.onAccentSoft,
                 }}
               >
                 {task.unit}
@@ -141,7 +141,7 @@ export const AnswerScene: React.FC = () => {
               padding: "16px 32px",
               borderRadius: 999,
               background: COLORS.okBg,
-              border: `2px solid ${COLORS.ok}33`,
+              border: `2px solid ${COLORS.okFaint}`,
               fontFamily: FONTS.body,
               fontWeight: 300,
               fontSize: 32,

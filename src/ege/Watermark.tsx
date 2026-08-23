@@ -43,7 +43,7 @@ export const Watermark: React.FC = () => {
         borderRadius: 999,
         background: "rgba(255,255,255,0.82)",
         border: `1.5px solid ${COLORS.cardBorder}`,
-        boxShadow: "0 6px 22px rgba(18,51,110,0.10)",
+        boxShadow: `0 6px 22px ${COLORS.shadow}`,
         opacity,
         transform: `translateX(${shift}px)`,
       }}

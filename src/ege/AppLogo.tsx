@@ -1,4 +1,4 @@
-import { COLORS, FONTS } from "./theme";
+import { FONTS, LOGO } from "./theme";
 
 /**
  * Иконка приложения «ЕГЭ тренажёр»: синий сквиркл с сеткой,
@@ -19,7 +19,7 @@ export const AppLogo: React.FC<{
       width: size,
       height: size,
       borderRadius: size * 0.235,
-      background: `linear-gradient(158deg, ${COLORS.logoFrom} 0%, #0d5ff2 52%, ${COLORS.logoTo} 100%)`,
+      background: `linear-gradient(158deg, ${LOGO.from} 0%, ${LOGO.mid} 52%, ${LOGO.to} 100%)`,
       boxShadow: `0 ${size * 0.055}px ${size * 0.15}px rgba(11,82,220,0.32)`,
       display: "flex",
       flexDirection: "column",

@@ -23,6 +23,7 @@ const examLabel = (subject?: string): string => {
   if (subject.includes("информатик")) return "информатика";
   if (subject.includes("истори")) return "история";
   if (subject.includes("базов")) return "база";
+  if (subject.includes("биолог")) return "биология";
   return "профиль";
 };
 
@@ -100,8 +101,8 @@ export const HookScene: React.FC = () => {
             gap: 16,
             padding: "16px 36px",
             borderRadius: 999,
-            background: COLORS.blue,
-            boxShadow: "0 14px 34px rgba(22,82,240,0.32)",
+            background: COLORS.accent,
+            boxShadow: `0 14px 34px ${COLORS.accentGlow}`,
             fontFamily: FONTS.body,
             fontWeight: 700,
             fontSize: 40,

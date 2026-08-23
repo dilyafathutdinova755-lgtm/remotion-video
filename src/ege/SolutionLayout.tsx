@@ -54,7 +54,7 @@ export const SolutionLayout: React.FC<{
 /** Фигурная скобка системы уравнений — рисуется вектором, чтобы не зависеть от шрифта. */
 export const Brace: React.FC<{ height: number; color?: string }> = ({
   height,
-  color = COLORS.blue,
+  color = COLORS.accent,
 }) => {
   const w = 28;
   const h = height;
@@ -101,7 +101,7 @@ export const Line: React.FC<{ children: React.ReactNode; size?: number }> = ({
         width: 11,
         height: 11,
         borderRadius: 999,
-        background: COLORS.blueSoft,
+        background: COLORS.accentSoft,
         flexShrink: 0,
         transform: "translateY(-4px)",
       }}

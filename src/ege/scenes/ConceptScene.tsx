@@ -29,7 +29,7 @@ const Block: React.FC<{
       borderRadius: 28,
       background,
       border: `2px solid ${border}`,
-      boxShadow: "0 14px 40px rgba(18,51,110,0.07)",
+      boxShadow: `0 14px 40px ${COLORS.shadow}`,
     }}
   >
     <div
@@ -96,7 +96,7 @@ export const ConceptScene: React.FC = () => {
         <Reveal at={0}>
           <Block
             label="Смысл понятия"
-            accent={COLORS.blue}
+            accent={COLORS.accent}
             background={COLORS.card}
             border={COLORS.cardBorder}
           >
@@ -109,7 +109,7 @@ export const ConceptScene: React.FC = () => {
             label="Факт"
             accent={COLORS.ok}
             background={COLORS.okBg}
-            border={`${COLORS.ok}33`}
+            border={`${COLORS.okFaint}`}
           >
             {task.concept.fact}
           </Block>

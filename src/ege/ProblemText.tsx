@@ -43,7 +43,7 @@ export const ProblemCard: React.FC<{
       borderRadius: 34,
       background: COLORS.card,
       border: `2px solid ${COLORS.cardBorder}`,
-      boxShadow: "0 22px 60px rgba(18,51,110,0.10)",
+      boxShadow: `0 22px 60px ${COLORS.shadow}`,
     }}
   >
     {children}
@@ -59,14 +59,14 @@ export const Pill: React.FC<{ children: React.ReactNode }> = ({ children }) => (
       marginBottom: 28,
       padding: "10px 28px",
       borderRadius: 999,
-      background: COLORS.blue,
+      background: COLORS.accent,
       color: "#fff",
       fontFamily: FONTS.display,
       fontWeight: 400,
       fontSize: 32,
       letterSpacing: "0.16em",
       textTransform: "uppercase",
-      boxShadow: "0 8px 24px rgba(29,78,216,0.26)",
+      boxShadow: `0 8px 24px ${COLORS.accentGlow}`,
     }}
   >
     {children}

@@ -73,7 +73,7 @@ export const OutroScene: React.FC = () => {
             fontFamily: FONTS.head,
             fontWeight: 800,
             fontSize: 68,
-            color: COLORS.blue,
+            color: COLORS.accent,
             letterSpacing: "-0.015em",
             marginTop: 40,
           }}
@@ -92,7 +92,7 @@ export const OutroScene: React.FC = () => {
             borderRadius: 999,
             background: "rgba(255,255,255,0.8)",
             border: `2px solid ${COLORS.cardBorder}`,
-            boxShadow: "0 14px 40px rgba(18,51,110,0.10)",
+            boxShadow: `0 14px 40px ${COLORS.shadow}`,
             fontFamily: FONTS.body,
             fontWeight: 300,
             fontSize: 42,

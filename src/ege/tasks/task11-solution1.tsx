@@ -7,7 +7,7 @@ export const SolutionOne: React.FC = () => (
     <Reveal at={0}>
       <Line>
         Один рабочий делает весь заказ за 8 часов. Примем заказ за{" "}
-        <span style={{ color: COLORS.blue, fontWeight: 600 }}>8 частей</span>.
+        <span style={{ color: COLORS.accent, fontWeight: 600 }}>8 частей</span>.
       </Line>
     </Reveal>
 

@@ -82,7 +82,7 @@ export const ProblemScene: React.FC = () => {
               marginTop: 38,
               height: 8,
               borderRadius: 999,
-              background: "#e2ebf8",
+              background: COLORS.track,
               overflow: "hidden",
             }}
           >
@@ -91,7 +91,7 @@ export const ProblemScene: React.FC = () => {
                 width: `${progress * 100}%`,
                 height: "100%",
                 borderRadius: 999,
-                background: `linear-gradient(90deg, ${COLORS.blueSoft}, ${COLORS.blue})`,
+                background: `linear-gradient(90deg, ${COLORS.accentSoft}, ${COLORS.accent})`,
               }}
             />
           </div>

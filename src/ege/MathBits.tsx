@@ -4,7 +4,7 @@ import { COLORS, FONTS } from "./theme";
 
 /** Математическая переменная: курсив, синий акцент. */
 export const V: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span style={{ fontStyle: "italic", fontWeight: 600, color: COLORS.blue }}>
+  <span style={{ fontStyle: "italic", fontWeight: 600, color: COLORS.accent }}>
     {children}
   </span>
 );
@@ -82,7 +82,7 @@ export const Down: React.FC = () => (
   <span
     style={{
       fontSize: 38,
-      color: COLORS.blueSoft,
+      color: COLORS.accentSoft,
       fontFamily: FONTS.head,
       lineHeight: 1,
       textAlign: "center",
@@ -109,9 +109,9 @@ export const FormulaCard: React.FC<{
       lineHeight: 1.12,
       padding: "18px 34px",
       borderRadius: 20,
-      background: accent ? "#eaf2ff" : COLORS.card,
-      border: `2px solid ${accent ? COLORS.blueSoft + "66" : COLORS.cardBorder}`,
-      boxShadow: "0 10px 30px rgba(18,51,110,0.08)",
+      background: accent ? COLORS.accentBg : COLORS.card,
+      border: `2px solid ${accent ? COLORS.accentFaint : COLORS.cardBorder}`,
+      boxShadow: `0 10px 30px ${COLORS.shadow}`,
       fontFamily: FONTS.body,
       color: COLORS.text,
       ...style,
@@ -137,12 +137,12 @@ export const SceneHeading: React.FC<{ step: string; title: string }> = ({
         width: 58,
         height: 58,
         borderRadius: 17,
-        background: COLORS.blue,
+        background: COLORS.accent,
         color: "#fff",
         fontFamily: FONTS.head,
         fontWeight: 800,
         fontSize: 30,
-        boxShadow: "0 8px 22px rgba(29,78,216,0.30)",
+        boxShadow: `0 8px 22px ${COLORS.accentGlow}`,
       }}
     >
       {step}

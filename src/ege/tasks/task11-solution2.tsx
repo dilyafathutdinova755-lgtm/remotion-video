@@ -42,7 +42,7 @@ export const SolutionTwo: React.FC = () => (
       <FormulaCard accent style={{ fontSize: 48, fontWeight: 600 }}>
         4<span style={{ margin: "0&nbsp;14px" }}>+</span>2
         <span style={{ margin: "0&nbsp;16px" }}>=</span>
-        <span style={{ color: COLORS.blue, fontWeight: 700 }}>6 часов</span>
+        <span style={{ color: COLORS.accent, fontWeight: 700 }}>6 часов</span>
       </FormulaCard>
     </Reveal>
   </SolutionLayout>

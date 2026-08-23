@@ -42,10 +42,12 @@ export const SolutionTwo: React.FC = () => (
         68<V>t</V>
         <span style={{ margin: "0&nbsp;16px" }}>=</span>
         1020
-        <span style={{ margin: "0&nbsp;26px", color: COLORS.blueLine }}>|</span>
+        <span style={{ margin: "0&nbsp;26px", color: COLORS.accentLine }}>
+          |
+        </span>
         <V>t</V>
         <span style={{ margin: "0&nbsp;16px" }}>=</span>
-        <span style={{ color: COLORS.blue, fontWeight: 700 }}>15</span>
+        <span style={{ color: COLORS.accent, fontWeight: 700 }}>15</span>
       </FormulaCard>
     </Reveal>
 

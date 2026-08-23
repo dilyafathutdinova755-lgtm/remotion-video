@@ -4,6 +4,7 @@ import { Watermark } from "./Watermark";
 import { FontGate } from "./FontGate";
 import { TaskProvider } from "./TaskContext";
 import { buildScenes, totalFrames } from "./timing";
+import { paletteFor, paletteVars } from "./theme";
 import type { TaskDef } from "./tasks/types";
 import { HookScene } from "./scenes/HookScene";
 import { ProblemScene } from "./scenes/ProblemScene";
@@ -27,7 +28,8 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
   return (
     <FontGate>
       <TaskProvider value={task}>
-        <AbsoluteFill>
+        {/* Палитра предмета — переменными на корне, дальше её видят все сцены */}
+        <AbsoluteFill style={paletteVars(paletteFor(task.subject))}>
           <Background />
 
           <Series>

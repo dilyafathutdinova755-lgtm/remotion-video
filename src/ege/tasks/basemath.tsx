@@ -14,7 +14,7 @@ import type { TaskDef } from "./types";
  */
 
 const SUBJECT = "в ЕГЭ по базовой математике";
-const ACCENT = { color: COLORS.blue, fontWeight: 700 } as const;
+const ACCENT = { color: COLORS.accent, fontWeight: 700 } as const;
 
 /** Общая часть описания: предмет, номер задания, кегль условия. */
 const base = (id: string, hook: string, problemSize = 48) => ({

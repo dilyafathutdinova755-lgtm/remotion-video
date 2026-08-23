@@ -59,8 +59,10 @@ export const makeLexTask = (spec: LexSpec): TaskDef => {
     answerFormula: (
       <>
         <span style={{ color: BAD }}>{spec.bad}</span>
-        <span style={{ margin: "0&nbsp;20px", color: COLORS.blueLine }}>→</span>
-        <span style={{ color: COLORS.blue }}>{spec.good}</span>
+        <span style={{ margin: "0&nbsp;20px", color: COLORS.accentLine }}>
+          →
+        </span>
+        <span style={{ color: COLORS.accent }}>{spec.good}</span>
       </>
     ),
     answer: spec.answer,
