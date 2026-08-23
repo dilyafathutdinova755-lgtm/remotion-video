@@ -22,8 +22,18 @@ const base = (id: string, hook: string, problemSize = 48) => ({
   hook,
   pillLabel: "Задание",
   problemSize,
-  answerSeconds: 6,
+  // Пояснение к ответу надо успеть прочитать
+  answerSeconds: 9,
 });
+
+/** Как пришли к ответу: коротко, по строке на мысль. */
+const why = (...lines: string[]) => (
+  <>
+    {lines.map((text, i) => (
+      <div key={i}>{text}</div>
+    ))}
+  </>
+);
 
 const step = (
   n: string,
@@ -64,7 +74,10 @@ export const snail: TaskDef = {
   answerFormula: <>2n = 24 → n = 12</>,
   answer: "12",
   unit: "хромосом",
-  check: <>при оплодотворении 12 + 12 снова дадут 24</>,
+  check: why(
+    "Соматическая клетка — двойной набор, гамета — половина от него.",
+    "24 : 2 = 12, а при оплодотворении 12 + 12 снова дадут 24.",
+  ),
 };
 
 export const erythrocyte: TaskDef = {
@@ -100,7 +113,10 @@ export const erythrocyte: TaskDef = {
   answerFormula: <>ядра нет → хромосом нет</>,
   answer: "0",
   unit: "хромосом",
-  check: <>46 было бы в любой другой соматической клетке, но не в эритроците</>,
+  check: why(
+    "Из 23 хромосом яйцеклетки следует, что в теле их 46.",
+    "Но зрелый эритроцит безъядерный, поэтому хромосом в нём нет вовсе.",
+  ),
 };
 
 export const pigeon: TaskDef = {
@@ -130,7 +146,10 @@ export const pigeon: TaskDef = {
   answerFormula: <>n = 8 → 2n = 16</>,
   answer: "16",
   unit: "хромосом",
-  check: <>яйцеклетка несёт ровно половину набора</>,
+  check: why(
+    "Яйцеклетка несёт половину набора, соматическая клетка — целый.",
+    "Значит 8 · 2 = 16.",
+  ),
 };
 
 export const fish: TaskDef = {
@@ -161,7 +180,10 @@ export const fish: TaskDef = {
   answerFormula: <>(18 + 1) · 2</>,
   answer: "38",
   unit: "хромосом",
-  check: <>ответ 36 получается, если забыть про половую хромосому</>,
+  check: why(
+    "В гамете 18 аутосом и ещё одна половая — всего 19 хромосом.",
+    "Плавник соматический, поэтому 19 · 2 = 38, а не 36.",
+  ),
 };
 
 export const crayfish: TaskDef = {
@@ -191,7 +213,10 @@ export const crayfish: TaskDef = {
   answerFormula: <>n = 58 → 2n = 116</>,
   answer: "116",
   unit: "хромосом",
-  check: <>нервная клетка не половая, значит набор полный</>,
+  check: why(
+    "Половая клетка несёт половину набора, нервная — целый.",
+    "Значит 58 · 2 = 116.",
+  ),
 };
 
 export const mammalSex: TaskDef = {
@@ -223,7 +248,10 @@ export const mammalSex: TaskDef = {
   answerFormula: <>60 = 58 аутосом + 2 половые</>,
   answer: "2",
   unit: "хромосомы",
-  check: <>число 60 здесь только для отвлечения: пара половых всегда одна</>,
+  check: why(
+    "Пол задаёт одна пара хромосом — XX или XY.",
+    "Пара всегда одна, поэтому 2; остальные 58 — аутосомы.",
+  ),
 };
 
 // --- подсчёты по ДНК и белку --------------------------------------------------
@@ -255,7 +283,10 @@ export const dnaNucleotides: TaskDef = {
   answerFormula: <>16 + 16 + 16 + 16</>,
   answer: "64",
   unit: "нуклеотидов",
-  check: <>правило комплементарности: А с Т, Г с Ц</>,
+  check: why(
+    "По комплементарности А = Т = 16 и Г = Ц = 16.",
+    "Четыре вида по 16 дают 64 нуклеотида.",
+  ),
 };
 
 export const peptide: TaskDef = {
@@ -285,7 +316,10 @@ export const peptide: TaskDef = {
   answerFormula: <>108 : 3</>,
   answer: "36",
   unit: "аминокислот",
-  check: <>иРНК одноцепочечная, удваивать ничего не надо</>,
+  check: why(
+    "Каждую аминокислоту задаёт триплет — три нуклеотида.",
+    "108 : 3 = 36; иРНК одноцепочечная, удваивать нечего.",
+  ),
 };
 
 export const matrixChain: TaskDef = {
@@ -315,7 +349,10 @@ export const matrixChain: TaskDef = {
   answerFormula: <>55 · 3</>,
   answer: "165",
   unit: "нуклеотидов",
-  check: <>330 получилось бы, если посчитать обе цепи ДНК</>,
+  check: why(
+    "На каждую аминокислоту приходится три нуклеотида: 55 · 3 = 165.",
+    "Спрашивали одну цепь — за обе вышло бы 330.",
+  ),
 };
 
 export const chargaff: TaskDef = {
@@ -347,7 +384,10 @@ export const chargaff: TaskDef = {
   answerFormula: <>(100 − 2 · 14) : 2</>,
   answer: "36",
   unit: "процентов",
-  check: <>правило Чаргаффа: А = Т, Г = Ц, а всё вместе даёт 100%</>,
+  check: why(
+    "По Чаргаффу Ц = Г = 14%, вместе это 28%.",
+    "На А и Т остаётся 72%, и делятся они поровну — по 36%.",
+  ),
 };
 
 export const BIOLOGY_TASKS: TaskDef[] = [
