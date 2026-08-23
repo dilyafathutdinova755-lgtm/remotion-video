@@ -10,7 +10,7 @@ import type { TaskDef } from "./types";
 export const pipes660: TaskDef = {
   id: "Pipes660",
   number: 10,
-  hook: "Решишь про две трубы?",
+  hook: ["Решишь про", "две трубы?"],
 
   tokens: [
     ...w(

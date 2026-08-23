@@ -17,6 +17,22 @@ import { useTask } from "../TaskContext";
  * Короткая подпись предмета на плашке. Полное `subject` («в ЕГЭ по
  * профильной математике») в плашку не влезает, поэтому берём одно слово.
  */
+/**
+ * Хук разбивается на строки там, где задумал автор, а не там, где кончилась
+ * ширина кадра: автоперенос оставлял на первой строке хвосты вроде «8. А».
+ */
+const hookLines = (hook?: string | string[]): string[] =>
+  Array.isArray(hook) ? hook : [hook ?? "Решишь за 10 секунд?"];
+
+/** Длинная строка набирается мельче, иначе перенос вернётся. */
+const hookFontSize = (lines: string[]): number => {
+  const longest = Math.max(...lines.map((l) => l.length));
+  if (longest <= 16) return 96;
+  if (longest <= 19) return 86;
+  if (longest <= 23) return 76;
+  return 66;
+};
+
 const examLabel = (subject?: string): string => {
   if (!subject) return "профиль";
   if (subject.includes("русск")) return "русский";
@@ -47,6 +63,7 @@ export const HookScene: React.FC = () => {
     durationInFrames: 20,
   });
   const sub = at(20);
+  const lines = hookLines(task.hook);
 
   const out = interpolate(
     frame,
@@ -80,8 +97,8 @@ export const HookScene: React.FC = () => {
           style={{
             fontFamily: FONTS.head,
             fontWeight: 800,
-            fontSize: 96,
-            lineHeight: 1.06,
+            fontSize: hookFontSize(lines),
+            lineHeight: 1.1,
             letterSpacing: "-0.025em",
             color: COLORS.text,
             opacity: interpolate(hook, [0, 0.4], [0, 1], {
@@ -91,7 +108,9 @@ export const HookScene: React.FC = () => {
             transform: `scale(${interpolate(hook, [0, 1], [0.82, 1])})`,
           }}
         >
-          {task.hook ?? "Решишь за 10 секунд?"}
+          {lines.map((text, i) => (
+            <div key={i}>{text}</div>
+          ))}
         </div>
 
         <div

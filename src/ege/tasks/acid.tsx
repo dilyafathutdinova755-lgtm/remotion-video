@@ -10,7 +10,7 @@ import type { TaskDef } from "./types";
 export const acid: TaskDef = {
   id: "Acid",
   number: 10,
-  hook: "Сколько кислоты в первом?",
+  hook: ["Сколько кислоты", "в первом?"],
 
   tokens: [
     ...w("Имеется два сосуда."),

@@ -12,7 +12,7 @@ import type { TaskDef } from "./types";
 export const alloys: TaskDef = {
   id: "Alloys",
   number: 10,
-  hook: "Два сплава. А масса третьего?",
+  hook: ["Два сплава", "А масса третьего?"],
 
   tokens: [
     ...w("Имеется два сплава."),

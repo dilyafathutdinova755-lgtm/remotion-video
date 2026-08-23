@@ -11,7 +11,7 @@ import type { TaskDef } from "./types";
 export const twoCars: TaskDef = {
   id: "TwoCars",
   number: 10,
-  hook: "Выехали вместе. Кто быстрее?",
+  hook: ["Выехали вместе", "Кто быстрее?"],
 
   tokens: [
     ...w("Из пункта A в пункт B одновременно выехали два автомобиля."),

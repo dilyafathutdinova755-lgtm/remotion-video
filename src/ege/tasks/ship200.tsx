@@ -10,7 +10,7 @@ import type { TaskDef } from "./types";
 export const ship200: TaskDef = {
   id: "Ship200",
   number: 10,
-  hook: "Найдёшь скорость течения?",
+  hook: ["Найдёшь скорость", "течения?"],
 
   tokens: [
     ...w("Теплоход проходит по течению реки до пункта назначения 200 км"),
