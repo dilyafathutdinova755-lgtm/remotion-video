@@ -6,7 +6,7 @@ import {
   interpolate,
 } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
-import { ProblemText, ProblemCard, Pill } from "../ProblemText";
+import { ProblemText, ProblemCard, Pill, OptionList } from "../ProblemText";
 import { useTask } from "../TaskContext";
 import { READ_DELAY, problemReadingFrames } from "../timing";
 
@@ -74,7 +74,11 @@ export const ProblemScene: React.FC = () => {
               {task.instruction}
             </div>
           ) : null}
-          <ProblemText tokens={task.tokens} size={task.problemSize} />
+          {task.options ? (
+            <OptionList options={task.options} size={task.problemSize} />
+          ) : (
+            <ProblemText tokens={task.tokens} size={task.problemSize} />
+          )}
 
           {/* Индикатор чтения */}
           <div

@@ -5,9 +5,9 @@
  * сплошной белой, а фон заметно плотнее: раньше полупрозрачная карточка
  * почти сливалась с фоном и не добирала контраста по WCAG AA.
  *
- * Цвета живут в CSS-переменных: их значение зависит от предмета (биология
- * бело-зелёная, остальные бело-синие), а компонентам знать об этом незачем.
- * Переменные выставляются один раз на корне ролика в EgeVideo.
+ * Цвета живут в CSS-переменных: палитру выбирает сама задача (биология
+ * зелёная, русский-7 розовый, остальные синие), а компонентам знать об этом
+ * незачем. Переменные выставляются один раз на корне ролика в EgeVideo.
  */
 
 /** Состав палитры одинаков у всех предметов, отличаются только значения. */
@@ -117,6 +117,40 @@ const GREEN: Palette = {
   okFaint: "rgba(24,107,69,0.20)",
 };
 
+/**
+ * Русский, задание 7. Розовый — самый светлый из трёх, поэтому акцент взят
+ * приглушённо-малиновым: пастельная роза на белом не читается.
+ */
+const PINK: Palette = {
+  bgTop: "#FDEFF3",
+  bgMid: "#fdf6f8",
+  bgBottom: "#F8E2EA",
+  blobA: "rgba(247,215,226,0.53)",
+  blobB: "rgba(252,236,241,0.80)",
+
+  deep: "#7A2144",
+  accent: "#B03A63",
+  accentSoft: "#D07C99",
+  accentFaint: "rgba(208,124,153,0.40)",
+  accentLine: "#E7BCCB",
+  accentBg: "#fbeef2",
+  track: "#f2dde4",
+  accentGlow: "rgba(176,58,99,0.22)",
+  onAccentMuted: "#f3cfdb",
+  onAccentSoft: "#fae5ec",
+
+  text: "#3A1F2A",
+  textMuted: "#8A6B76",
+
+  card: "#FFFFFF",
+  cardBorder: "rgba(122,33,68,0.10)",
+  shadow: "rgba(104,40,64,0.10)",
+
+  ok: "#9A2F57",
+  okBg: "#FBEAF0",
+  okFaint: "rgba(154,47,87,0.18)",
+};
+
 /** Иконка приложения — бренд, от предмета не зависит. */
 export const LOGO = {
   from: "#3B7BFF",
@@ -124,8 +158,16 @@ export const LOGO = {
   to: "#0B2E8A",
 } as const;
 
-export const paletteFor = (subject?: string): Palette =>
-  subject?.includes("биолог") ? GREEN : BLUE;
+export type PaletteName = "blue" | "green" | "pink";
+
+const PALETTES: Record<PaletteName, Palette> = {
+  blue: BLUE,
+  green: GREEN,
+  pink: PINK,
+};
+
+export const paletteFor = (name: PaletteName = "blue"): Palette =>
+  PALETTES[name];
 
 /** Значения палитры как CSS-переменные на корне ролика. */
 export const paletteVars = (palette: Palette): React.CSSProperties =>
@@ -171,3 +213,10 @@ export const SAFE = {
   top: 260,
   bottom: 330,
 } as const;
+
+/**
+ * Верх для сцен, где текст стоит прямо на фоне и прижат к верхней кромке.
+ * Одной безопасной зоны мало: на 232 px висит собственная плашка с логотипом,
+ * и подпись над ответом уезжала прямо под неё.
+ */
+export const SAFE_BELOW_BADGE = 400;

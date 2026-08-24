@@ -19,6 +19,7 @@ const base = (id: string, hook: string[], problemSize = 48) => ({
   id,
   number: 3,
   subject: SUBJECT,
+  palette: "green" as const,
   hook,
   pillLabel: "Задание",
   problemSize,

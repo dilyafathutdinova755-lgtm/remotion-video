@@ -5,11 +5,19 @@ import {
   spring,
   interpolate,
 } from "remotion";
-import { Reveal, FormulaCard } from "../MathBits";
-import { COLORS, FONTS, PAD, SAFE } from "../theme";
+import { Reveal } from "../MathBits";
+import { FlowLines } from "../FlowLines";
+import { COLORS, FONTS, PAD, SAFE, SAFE_BELOW_BADGE } from "../theme";
 import { useTask } from "../TaskContext";
 import { answerFontSize } from "../tasks/types";
 
+/**
+ * Финальная сцена: ответ и разбор.
+ *
+ * Ни ответ, ни пояснение не заперты в карточку — они стоят прямо на фоне,
+ * ответ сверху, пояснение под ним. Контент прижат к верхней безопасной зоне,
+ * чтобы шапка Reels не наехала на ответ, и ей же ограничен сверху.
+ */
 export const AnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
@@ -17,7 +25,7 @@ export const AnswerScene: React.FC = () => {
 
   // Ответ появляется с упругим «хлопком»
   const pop = spring({
-    frame: frame - 50,
+    frame: frame - 24,
     fps,
     config: { damping: 13, mass: 0.7, stiffness: 130 },
     durationInFrames: 40,
@@ -37,82 +45,62 @@ export const AnswerScene: React.FC = () => {
   if (task.concept) return null;
 
   return (
-    <AbsoluteFill
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        padding: `${SAFE.top}px ${PAD}px ${SAFE.bottom}px`,
-        opacity: out,
-      }}
-    >
-      <div
+    <AbsoluteFill style={{ opacity: out }}>
+      <FlowLines />
+
+      <AbsoluteFill
         style={{
-          display: "flex",
-          flexDirection: "column",
+          justifyContent: "flex-start",
           alignItems: "center",
-          gap: 30,
-          width: "100%",
+          padding: `${SAFE_BELOW_BADGE}px ${PAD}px ${SAFE.bottom}px`,
         }}
       >
-        <Reveal at={0}>
-          <div
-            style={{
-              fontFamily: FONTS.display,
-              fontWeight: 300,
-              fontSize: 40,
-              color: COLORS.textMuted,
-              textAlign: "center",
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-            }}
-          >
-            {task.answerLead}
-          </div>
-        </Reveal>
-
-        <Reveal at={14}>
-          <FormulaCard style={{ fontSize: 50, fontWeight: 600 }}>
-            {task.answerFormula}
-          </FormulaCard>
-        </Reveal>
-
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 4,
-            padding: "38px 78px",
-            borderRadius: 32,
-            background: COLORS.accent,
-            boxShadow: `0 24px 64px ${COLORS.accentGlow}`,
-            opacity: interpolate(pop, [0, 0.4], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
-            transform: `scale(${interpolate(pop, [0, 1], [0.72, 1])})`,
+            width: "100%",
+            textAlign: "center",
           }}
         >
-          <span
+          <Reveal at={0}>
+            <div
+              style={{
+                fontFamily: FONTS.display,
+                fontWeight: 400,
+                fontSize: 34,
+                color: COLORS.textMuted,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+              }}
+            >
+              {task.answerLead}
+            </div>
+          </Reveal>
+
+          <div
             style={{
-              fontFamily: FONTS.display,
-              fontWeight: 300,
-              fontSize: 38,
-              color: COLORS.onAccentMuted,
-              letterSpacing: "0.26em",
-              textTransform: "uppercase",
+              display: "flex",
+              alignItems: "baseline",
+              justifyContent: "center",
+              gap: 24,
+              marginTop: 22,
+              opacity: interpolate(pop, [0, 0.5], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }),
+              transform: `scale(${interpolate(pop, [0, 1], [0.86, 1])})`,
             }}
           >
-            Ответ
-          </span>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 26 }}>
             <span
               style={{
                 fontFamily: FONTS.head,
                 fontWeight: 800,
                 fontSize: answerFontSize(task),
-                color: "#fff",
-                lineHeight: 1.1,
+                lineHeight: 1.05,
+                letterSpacing: "-0.03em",
+                color: COLORS.deep,
               }}
             >
               {task.answer}
@@ -122,41 +110,58 @@ export const AnswerScene: React.FC = () => {
                 style={{
                   fontFamily: FONTS.body,
                   fontWeight: 300,
-                  fontSize: 44,
-                  color: COLORS.onAccentSoft,
+                  fontSize: 42,
+                  color: COLORS.accentSoft,
                 }}
               >
                 {task.unit}
               </span>
             ) : null}
           </div>
-        </div>
 
-        <Reveal at={110}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-              padding: "16px 32px",
-              borderRadius: 999,
-              background: COLORS.okBg,
-              border: `2px solid ${COLORS.okFaint}`,
-              fontFamily: FONTS.body,
-              fontWeight: 300,
-              fontSize: 32,
-              color: COLORS.ok,
-              textAlign: "center",
-            }}
-          >
-            <span style={{ flexShrink: 0 }}>✓</span>
-            {/* Один flex-элемент: иначе зачин отрывается в свою колонку */}
-            <div style={{ textAlign: "left", lineHeight: 1.4 }}>
+          <Reveal at={64}>
+            <div
+              style={{
+                fontFamily: FONTS.body,
+                fontWeight: 400,
+                fontSize: 36,
+                color: COLORS.accent,
+                marginTop: 14,
+              }}
+            >
+              {task.answerFormula}
+            </div>
+          </Reveal>
+
+          {/* Волосок вместо рамки: отделяет ответ от разбора, не запирая их */}
+          <Reveal at={92}>
+            <div
+              style={{
+                width: 180,
+                height: 3,
+                borderRadius: 999,
+                background: COLORS.accentLine,
+                margin: "54px 0 40px",
+              }}
+            />
+          </Reveal>
+
+          <Reveal at={104}>
+            <div
+              style={{
+                fontFamily: FONTS.body,
+                fontWeight: 300,
+                fontSize: 38,
+                lineHeight: 1.42,
+                color: COLORS.text,
+                maxWidth: 880,
+              }}
+            >
               {task.check}
             </div>
-          </div>
-        </Reveal>
-      </div>
+          </Reveal>
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

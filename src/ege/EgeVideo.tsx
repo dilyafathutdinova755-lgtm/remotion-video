@@ -29,7 +29,7 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
     <FontGate>
       <TaskProvider value={task}>
         {/* Палитра предмета — переменными на корне, дальше её видят все сцены */}
-        <AbsoluteFill style={paletteVars(paletteFor(task.subject))}>
+        <AbsoluteFill style={paletteVars(paletteFor(task.palette))}>
           <Background />
 
           <Series>

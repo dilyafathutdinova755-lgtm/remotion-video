@@ -64,7 +64,15 @@ export const instructionFrames = (task: TaskDef): number =>
     : 0;
 
 /** Сколько кадров занимает прочтение всего, что есть на карточке. */
+/** Появление списка вариантов: по строке за раз, читать их вслух не надо. */
+export const OPTION_STEP = 12;
+
 export const problemReadingFrames = (task: TaskDef): number => {
+  if (task.options) {
+    // Формулировку проговаривают, варианты только показывают
+    return instructionFrames(task) + task.options.length * OPTION_STEP;
+  }
+
   const raw = instructionFrames(task) + buildReading(task.tokens).total;
   // Длинный текст глазами просматривают быстрее, чем короткий читают
   const dense = task.tokens.length > 45 ? 0.86 : 1;
@@ -76,6 +84,7 @@ export const buildScenes = (task: TaskDef): Scenes => {
     // Открывающий кадр: вопрос-хук вместо заставки
     title: sec(4),
     // Условие показывается один раз, поэтому даём его дочитать
+    // Три секунды в конце — время подумать; отдельной сцены таймера нет
     problem: READ_DELAY + problemReadingFrames(task) + sec(3),
     solutions: task.solutions.map((s) => sec(s.seconds)),
     answer: sec(task.answerSeconds ?? 7),
