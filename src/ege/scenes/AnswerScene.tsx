@@ -119,19 +119,62 @@ export const AnswerScene: React.FC = () => {
             ) : null}
           </div>
 
-          <Reveal at={64}>
-            <div
-              style={{
-                fontFamily: FONTS.body,
-                fontWeight: 400,
-                fontSize: 36,
-                color: COLORS.accent,
-                marginTop: 14,
-              }}
-            >
-              {task.answerFormula}
-            </div>
-          </Reveal>
+          {task.answerFormula ? (
+            <Reveal at={64}>
+              <div
+                style={{
+                  fontFamily: FONTS.body,
+                  fontWeight: 400,
+                  fontSize: 36,
+                  color: COLORS.accent,
+                  marginTop: 14,
+                }}
+              >
+                {task.answerFormula}
+              </div>
+            </Reveal>
+          ) : null}
+
+          {task.wrongNote ? (
+            <Reveal at={64}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 10,
+                  marginTop: 30,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: FONTS.display,
+                    fontWeight: 400,
+                    fontSize: 25,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: COLORS.textMuted,
+                  }}
+                >
+                  Так — неверно
+                </span>
+                <span
+                  style={{
+                    fontFamily: FONTS.body,
+                    fontWeight: 300,
+                    fontSize: 33,
+                    lineHeight: 1.3,
+                    maxWidth: 760,
+                    color: COLORS.textMuted,
+                    textDecoration: "line-through",
+                    textDecorationThickness: 2,
+                  }}
+                >
+                  {task.wrongNote}
+                </span>
+              </div>
+            </Reveal>
+          ) : null}
 
           {/* Волосок вместо рамки: отделяет ответ от разбора, не запирая их */}
           <Reveal at={92}>

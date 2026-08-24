@@ -47,7 +47,7 @@ const makeFormTask = (spec: FormSpec): TaskDef => ({
   answerSeconds: 11,
 
   answerLead: "Правильно",
-  answerFormula: <>{spec.wrong}</>,
+  wrongNote: spec.wrong,
   answer: spec.answer,
   check: (
     <>
@@ -68,7 +68,7 @@ export const formDvuh = makeFormTask({
     "килограмм БАКЛАЖАНОВ",
     "выглядел ВЕСЕЛЕЕ",
   ],
-  wrong: "к ДВУХ тысячи…",
+  wrong: "к ДВУХ тысячи двадцать первому году",
   answer: "две",
   why: [
     "В составном порядковом числительном склоняется только последнее слово.",
@@ -87,7 +87,7 @@ export const formMolot = makeFormTask({
     "МЕЛИТЬ зерно на мельнице",
     "ПОСКОЛЬЗНУЛСЯ на льду",
   ],
-  wrong: "МЕЛИТЬ зерно",
+  wrong: "МЕЛИТЬ зерно на мельнице",
   answer: "молоть",
   why: [
     "Зерно мелют — от глагола «молоть».",
