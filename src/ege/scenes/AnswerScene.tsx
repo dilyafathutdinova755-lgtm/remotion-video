@@ -139,39 +139,18 @@ export const AnswerScene: React.FC = () => {
             <Reveal at={64}>
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 10,
-                  marginTop: 30,
+                  fontFamily: FONTS.body,
+                  fontWeight: 300,
+                  fontSize: 33,
+                  lineHeight: 1.3,
+                  maxWidth: 760,
+                  marginTop: 24,
+                  color: COLORS.textMuted,
+                  textDecoration: "line-through",
+                  textDecorationThickness: 2,
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: FONTS.display,
-                    fontWeight: 400,
-                    fontSize: 25,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    color: COLORS.textMuted,
-                  }}
-                >
-                  Так — неверно
-                </span>
-                <span
-                  style={{
-                    fontFamily: FONTS.body,
-                    fontWeight: 300,
-                    fontSize: 33,
-                    lineHeight: 1.3,
-                    maxWidth: 760,
-                    color: COLORS.textMuted,
-                    textDecoration: "line-through",
-                    textDecorationThickness: 2,
-                  }}
-                >
-                  {task.wrongNote}
-                </span>
+                {task.wrongNote}
               </div>
             </Reveal>
           ) : null}
