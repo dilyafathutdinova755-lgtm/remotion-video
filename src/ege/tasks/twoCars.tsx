@@ -1,4 +1,5 @@
 import { V, Frac } from "../MathBits";
+import { COLORS } from "../theme";
 import { makeSolution, line, card, arrow } from "../Solution";
 import { w } from "./dsl";
 import type { TaskDef } from "./types";
@@ -100,20 +101,22 @@ export const twoCars: TaskDef = {
               по условию <V>x</V> &gt; 48
               <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
-              <span style={{ color: "#1d4ed8", fontWeight: 700 }}>52</span>
+              <span style={{ color: COLORS.accent, fontWeight: 700 }}>52</span>
+              <span style={{ marginLeft: 14 }}>км/ч</span>
             </>,
             { accent: true, size: 42 },
+          ),
+          line(
+            <span style={{ color: COLORS.textMuted }}>
+              Проверка: на трассе 156 км оба тратят по 3 часа.
+            </span>,
           ),
         ],
       }),
     },
   ],
 
-  answerLead: "Скорость первого автомобиля",
-  answerFormula: (
-    <>156 : 52 = 3 ч&nbsp;&nbsp;и&nbsp;&nbsp;78 : 39 + 78 : 78 = 3 ч</>
-  ),
+  // Разбор уже привёл к ответу — отдельной сцены с повтором нет
+  answerRecap: false,
   answer: "52",
-  unit: "км/ч",
-  check: <>на трассе 156 км оба тратят по 3 часа</>,
 };

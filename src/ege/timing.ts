@@ -87,7 +87,8 @@ export const buildScenes = (task: TaskDef): Scenes => {
     // Три секунды в конце — время подумать; отдельной сцены таймера нет
     problem: READ_DELAY + problemReadingFrames(task) + sec(3),
     solutions: task.solutions.map((s) => sec(s.seconds)),
-    answer: sec(task.answerSeconds ?? 7),
+    // Разбор уже привёл к ответу — повторять его отдельной сценой незачем
+    answer: task.answerRecap === false ? 0 : sec(task.answerSeconds ?? 7),
     // CTA-карточка по ТЗ: 2-3 секунды
     outro: sec(3),
   };

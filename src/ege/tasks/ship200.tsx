@@ -1,4 +1,5 @@
 import { V, Frac } from "../MathBits";
+import { COLORS } from "../theme";
 import { makeSolution, line, card, arrow } from "../Solution";
 import { w } from "./dsl";
 import type { TaskDef } from "./types";
@@ -94,18 +95,23 @@ export const ship200: TaskDef = {
               <V>x</V>² = 25
               <span style={{ margin: "0&nbsp;20px" }}>⟹</span>
               <V>x</V> ={" "}
-              <span style={{ color: "#1d4ed8", fontWeight: 700 }}>5</span>
+              <span style={{ color: COLORS.accent, fontWeight: 700 }}>5</span>
+              <span style={{ marginLeft: 14 }}>км/ч</span>
             </>,
             { accent: true, size: 44 },
+          ),
+          line(
+            <span style={{ color: COLORS.textMuted }}>
+              Проверка: 200 : 20 + 200 : 10 = 30 часов в пути, плюс 10 часов
+              стоянки — те самые 40.
+            </span>,
           ),
         ],
       }),
     },
   ],
 
-  answerLead: "Скорость течения реки",
-  answerFormula: <>200 : 20 + 200 : 10 = 10 + 20 = 30 ч</>,
+  // Разбор уже привёл к ответу — отдельной сцены с повтором нет
+  answerRecap: false,
   answer: "5",
-  unit: "км/ч",
-  check: <>30 часов в пути и 10 часов стоянки — те самые 40</>,
 };

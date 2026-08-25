@@ -45,10 +45,12 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
               </Series.Sequence>
             ))}
 
-            <Series.Sequence durationInFrames={scenes.answer}>
-              {/* У задания 19 по истории ответ — не значение, а два абзаца */}
-              {task.concept ? <ConceptScene /> : <AnswerScene />}
-            </Series.Sequence>
+            {scenes.answer > 0 ? (
+              <Series.Sequence durationInFrames={scenes.answer}>
+                {/* У задания 19 по истории ответ — не значение, а два абзаца */}
+                {task.concept ? <ConceptScene /> : <AnswerScene />}
+              </Series.Sequence>
+            ) : null}
             <Series.Sequence durationInFrames={scenes.outro}>
               <OutroScene />
             </Series.Sequence>

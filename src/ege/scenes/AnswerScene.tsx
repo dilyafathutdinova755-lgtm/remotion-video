@@ -64,20 +64,22 @@ export const AnswerScene: React.FC = () => {
             textAlign: "center",
           }}
         >
-          <Reveal at={0}>
-            <div
-              style={{
-                fontFamily: FONTS.display,
-                fontWeight: 400,
-                fontSize: 34,
-                color: COLORS.textMuted,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-              }}
-            >
-              {task.answerLead}
-            </div>
-          </Reveal>
+          {task.answerLead ? (
+            <Reveal at={0}>
+              <div
+                style={{
+                  fontFamily: FONTS.display,
+                  fontWeight: 400,
+                  fontSize: 34,
+                  color: COLORS.textMuted,
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                }}
+              >
+                {task.answerLead}
+              </div>
+            </Reveal>
+          ) : null}
 
           <div
             style={{
