@@ -1,3 +1,4 @@
+import { f30 } from "../timing";
 import {
   AbsoluteFill,
   useCurrentFrame,
@@ -14,17 +15,17 @@ export const OutroScene: React.FC = () => {
   const { fps } = useVideoConfig();
 
   const logo = spring({
-    frame: frame - 2,
+    frame: frame - f30(2),
     fps,
     config: { damping: 13, mass: 0.8, stiffness: 120 },
-    durationInFrames: 26,
+    durationInFrames: f30(26),
   });
   const at = (delay: number) =>
     spring({
       frame: frame - delay,
       fps,
       config: { damping: 200 },
-      durationInFrames: 15,
+      durationInFrames: f30(15),
     });
 
   const cta = at(14);
@@ -36,7 +37,7 @@ export const OutroScene: React.FC = () => {
   });
 
   // Мягкая пульсация иконки после появления
-  const pulse = 1 + Math.sin(Math.max(frame - 40, 0) / 14) * 0.012;
+  const pulse = 1 + Math.sin(Math.max(frame - f30(40), 0) / f30(14)) * 0.012;
 
   return (
     <AbsoluteFill

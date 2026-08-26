@@ -1,3 +1,4 @@
+import { f30 } from "./timing";
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 import { COLORS, FONTS, PAD } from "./theme";
 import { AppLogo } from "./AppLogo";
@@ -11,15 +12,15 @@ export const Watermark: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
 
   const enter = spring({
-    frame: frame - 8,
+    frame: frame - f30(8),
     fps,
     config: { damping: 200 },
-    durationInFrames: 25,
+    durationInFrames: f30(25),
   });
   // Уходит перед финальным экраном, чтобы не дублировать большую иконку
   const leave = interpolate(
     frame,
-    [durationInFrames - 18, durationInFrames],
+    [durationInFrames - f30(18), durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

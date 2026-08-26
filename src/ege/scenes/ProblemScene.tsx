@@ -8,7 +8,7 @@ import {
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill, OptionList } from "../ProblemText";
 import { useTask } from "../TaskContext";
-import { READ_DELAY, problemReadingFrames } from "../timing";
+import { READ_DELAY, problemReadingFrames, f30 } from "../timing";
 
 export const ProblemScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -16,14 +16,14 @@ export const ProblemScene: React.FC = () => {
   const task = useTask();
 
   const enter = spring({
-    frame: frame - 4,
+    frame: frame - f30(4),
     fps,
     config: { damping: 200 },
-    durationInFrames: 15,
+    durationInFrames: f30(15),
   });
   const out = interpolate(
     frame,
-    [durationInFrames - 8, durationInFrames],
+    [durationInFrames - f30(8), durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

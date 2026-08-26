@@ -1,3 +1,4 @@
+import { f30 } from "../timing";
 import {
   AbsoluteFill,
   useCurrentFrame,
@@ -58,7 +59,7 @@ export const ConceptScene: React.FC = () => {
 
   const out = interpolate(
     frame,
-    [durationInFrames - 8, durationInFrames],
+    [durationInFrames - f30(8), durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

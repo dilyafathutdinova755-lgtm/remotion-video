@@ -1,3 +1,4 @@
+import { f30 } from "../timing";
 import {
   AbsoluteFill,
   useCurrentFrame,
@@ -25,15 +26,15 @@ export const AnswerScene: React.FC = () => {
 
   // Ответ появляется с упругим «хлопком»
   const pop = spring({
-    frame: frame - 24,
+    frame: frame - f30(24),
     fps,
     config: { damping: 13, mass: 0.7, stiffness: 130 },
-    durationInFrames: 40,
+    durationInFrames: f30(40),
   });
 
   const out = interpolate(
     frame,
-    [durationInFrames - 8, durationInFrames],
+    [durationInFrames - f30(8), durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

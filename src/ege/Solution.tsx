@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { SolutionLayout, Line } from "./SolutionLayout";
 import { Reveal, FormulaCard, Down } from "./MathBits";
-import { sec } from "./timing";
 
 /**
  * Сцены решения задаются данными, а не вёрсткой: на десяток роликов
@@ -37,7 +36,10 @@ export type SolutionSpec = {
   items: SolutionItem[];
 };
 
-/** Хвост в конце сцены: последний пункт должен повисеть, а не мелькнуть. */
+/**
+ * Хвост в конце сцены: последний пункт должен повисеть, а не мелькнуть.
+ * В кадрах при 30 fps — Reveal пересчитает их под текущую частоту сам.
+ */
 const TAIL = 80;
 
 export const makeSolution = (spec: SolutionSpec): React.FC => {
@@ -45,7 +47,9 @@ export const makeSolution = (spec: SolutionSpec): React.FC => {
   const anchors = spec.items.map((it) => it.kind !== "arrow");
   const count = anchors.filter(Boolean).length;
 
-  const frames = sec(spec.seconds);
+  // Reveal ждёт задержку в кадрах при 30 fps и пересчитывает её сам,
+  // поэтому и шаг между пунктами считаем в тех же единицах
+  const frames = Math.round(spec.seconds * 30);
   const gap = Math.min(
     Math.max(Math.round((frames - TAIL) / Math.max(count - 1, 1)), 30),
     56,

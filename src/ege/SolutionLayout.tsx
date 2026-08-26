@@ -1,3 +1,4 @@
+import { f30 } from "./timing";
 import React from "react";
 import {
   AbsoluteFill,
@@ -19,7 +20,7 @@ export const SolutionLayout: React.FC<{
 
   const out = interpolate(
     frame,
-    [durationInFrames - 8, durationInFrames],
+    [durationInFrames - f30(8), durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

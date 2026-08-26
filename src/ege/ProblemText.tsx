@@ -1,6 +1,6 @@
 import { useCurrentFrame, interpolate } from "remotion";
 import { COLORS, FONTS } from "./theme";
-import { READ_DELAY, OPTION_STEP } from "./timing";
+import { READ_DELAY, OPTION_STEP, f30 } from "./timing";
 import type { Token } from "./tasks/types";
 
 /**
@@ -90,7 +90,7 @@ export const OptionList: React.FC<{ options: string[]; size: number }> = ({
     <div style={{ display: "flex", flexDirection: "column", gap: size * 0.34 }}>
       {options.map((option, i) => {
         const at = READ_DELAY + i * OPTION_STEP;
-        const appear = interpolate(frame, [at, at + 10], [0, 1], {
+        const appear = interpolate(frame, [at, at + f30(10)], [0, 1], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });

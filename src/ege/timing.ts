@@ -12,13 +12,20 @@ import type { TaskDef, Token } from "./tasks/types";
 export const sec = (s: number) => Math.round(s * VIDEO.fps);
 
 /**
+ * Длительности анимаций подбирались на глаз при 30 fps и записаны в кадрах.
+ * При смене частоты их надо пересчитать, иначе всё пойдёт вдвое быстрее —
+ * включая скорость чтения условия, от которой зависит длина сцены.
+ */
+export const f30 = (frames: number) => Math.round((frames * VIDEO.fps) / 30);
+
+/**
  * Сколько кадров нужно на слово: короткие служебные пробегаются быстро,
  * длинные — дольше. Плюс небольшая пауза на знаках препинания.
  */
 export const wordFrames = (word: string): number => {
   const letters = word.replace(/[^0-9A-Za-zА-Яа-яЁё%]/g, "").length;
   const pause = /[.,?!]$/.test(word) ? 5 : 0;
-  return Math.round(7 + letters * 1.25) + pause;
+  return f30(Math.round(7 + letters * 1.25) + pause);
 };
 
 export const tokenFrames = (t: Token): number => wordFrames(t);
@@ -65,7 +72,7 @@ export const instructionFrames = (task: TaskDef): number =>
 
 /** Сколько кадров занимает прочтение всего, что есть на карточке. */
 /** Появление списка вариантов: по строке за раз, читать их вслух не надо. */
-export const OPTION_STEP = 12;
+export const OPTION_STEP = f30(12);
 
 export const problemReadingFrames = (task: TaskDef): number => {
   if (task.options) {

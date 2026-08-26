@@ -199,7 +199,7 @@ export const FONTS = {
 export const VIDEO = {
   width: 1080,
   height: 1920,
-  fps: 30,
+  fps: 60,
 } as const;
 
 /** Боковые поля, за которые контент не заходит. */

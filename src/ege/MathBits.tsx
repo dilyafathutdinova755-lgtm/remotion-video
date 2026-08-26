@@ -1,6 +1,7 @@
 import React from "react";
 import { useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { COLORS, FONTS } from "./theme";
+import { f30 } from "./timing";
 
 /** Математическая переменная: курсив, синий акцент. */
 export const V: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -58,10 +59,10 @@ export const Reveal: React.FC<{
   const { fps } = useVideoConfig();
 
   const s = spring({
-    frame: frame - at,
+    frame: frame - f30(at),
     fps,
     config: { damping: 200, mass: 0.7 },
-    durationInFrames: 14,
+    durationInFrames: f30(14),
   });
 
   return (

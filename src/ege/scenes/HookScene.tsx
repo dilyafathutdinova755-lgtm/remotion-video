@@ -1,3 +1,4 @@
+import { f30 } from "../timing";
 import {
   AbsoluteFill,
   useCurrentFrame,
@@ -53,21 +54,21 @@ export const HookScene: React.FC = () => {
       frame: frame - delay,
       fps,
       config: { damping: 200 },
-      durationInFrames: 15,
+      durationInFrames: f30(15),
     });
 
   const hook = spring({
-    frame: frame - 2,
+    frame: frame - f30(2),
     fps,
     config: { damping: 13, mass: 0.7, stiffness: 140 },
-    durationInFrames: 20,
+    durationInFrames: f30(20),
   });
   const sub = at(20);
   const lines = hookLines(task.hook);
 
   const out = interpolate(
     frame,
-    [durationInFrames - 7, durationInFrames],
+    [durationInFrames - f30(7), durationInFrames],
     [1, 0],
     {
       extrapolateLeft: "clamp",

@@ -1,5 +1,6 @@
 import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
 import { COLORS } from "./theme";
+import { f30 } from "./timing";
 
 /**
  * Плавные линии на фоне финальной сцены.
@@ -10,7 +11,7 @@ import { COLORS } from "./theme";
  */
 export const FlowLines: React.FC = () => {
   const frame = useCurrentFrame();
-  const drift = interpolate(frame, [0, 300], [0, 1], {
+  const drift = interpolate(frame, [0, f30(300)], [0, 1], {
     extrapolateRight: "clamp",
   });
 
