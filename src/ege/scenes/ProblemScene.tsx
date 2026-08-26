@@ -41,6 +41,31 @@ export const ProblemScene: React.FC = () => {
     durationInFrames: f30(20),
   });
 
+  // Список картинок делит сцену поровну и перетекает одна в другую
+  const icons = task.illustration
+    ? [task.illustration].flat()
+    : ([] as string[]);
+  const slot = icons.length > 0 ? durationInFrames / icons.length : 0;
+  const fade = f30(10);
+  const slotOpacity = (i: number) => {
+    if (icons.length === 1) return 1;
+    const start = i * slot;
+    const end = start + slot;
+    const first = i === 0;
+    const last = i === icons.length - 1;
+    return interpolate(
+      frame,
+      [
+        first ? -1 : start - fade,
+        first ? 0 : start + fade,
+        last ? durationInFrames : end - fade,
+        last ? durationInFrames + 1 : end + fade,
+      ],
+      [first ? 1 : 0, 1, 1, last ? 1 : 0],
+      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    );
+  };
+
   const progress = interpolate(
     frame,
     [READ_DELAY, READ_DELAY + problemReadingFrames(task)],
@@ -111,20 +136,37 @@ export const ProblemScene: React.FC = () => {
           </div>
         </ProblemCard>
 
-        {task.illustration ? (
+        {icons.length > 0 ? (
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
+              position: "relative",
+              height: 240,
               marginTop: 46,
               opacity: interpolate(illustration, [0, 1], [0, 1]),
               transform: `scale(${interpolate(illustration, [0, 1], [0.9, 1])})`,
             }}
           >
-            <Img
-              src={staticFile(`illustrations/${task.illustration}.png`)}
-              style={{ height: 240, width: "auto", objectFit: "contain" }}
-            />
+            {icons.map((name, i) => (
+              <div
+                key={name}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  justifyContent: "center",
+                  opacity: slotOpacity(i),
+                }}
+              >
+                <Img
+                  src={staticFile(`illustrations/${name}.png`)}
+                  style={{
+                    height: "100%",
+                    width: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            ))}
           </div>
         ) : null}
       </div>
