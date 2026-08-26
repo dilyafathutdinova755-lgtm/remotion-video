@@ -9,8 +9,6 @@ import { task10 } from "./ege/tasks/task10";
 import { task11 } from "./ege/tasks/task11";
 import { pipes660 } from "./ege/tasks/pipes660";
 import { details380 } from "./ege/tasks/details380";
-import { ship200 } from "./ege/tasks/ship200";
-import { twoCars } from "./ege/tasks/twoCars";
 import { motorcycle420 } from "./ege/tasks/motorcycle420";
 import { pipes180 } from "./ege/tasks/pipes180";
 import { acid } from "./ege/tasks/acid";
@@ -34,8 +32,6 @@ const TASKS: TaskDef[] = [
   task11,
   pipes660,
   details380,
-  ship200,
-  twoCars,
   motorcycle420,
   pipes180,
   acid,
