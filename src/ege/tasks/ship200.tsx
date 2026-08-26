@@ -24,6 +24,7 @@ export const ship200: TaskDef = {
       "а в пункт отправления теплоход возвращается через 40 часов после отплытия из него.",
     ),
   ],
+  illustration: "ship",
   problemSize: 44,
 
   solutions: [

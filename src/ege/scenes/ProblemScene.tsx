@@ -1,5 +1,7 @@
 import {
   AbsoluteFill,
+  Img,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   spring,
@@ -30,6 +32,14 @@ export const ProblemScene: React.FC = () => {
       extrapolateRight: "clamp",
     },
   );
+
+  // Картинка догоняет текст, а не встречает его
+  const illustration = spring({
+    frame: frame - f30(18),
+    fps,
+    config: { damping: 200 },
+    durationInFrames: f30(20),
+  });
 
   const progress = interpolate(
     frame,
@@ -100,6 +110,23 @@ export const ProblemScene: React.FC = () => {
             />
           </div>
         </ProblemCard>
+
+        {task.illustration ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 46,
+              opacity: interpolate(illustration, [0, 1], [0, 1]),
+              transform: `scale(${interpolate(illustration, [0, 1], [0.9, 1])})`,
+            }}
+          >
+            <Img
+              src={staticFile(`illustrations/${task.illustration}.png`)}
+              style={{ height: 240, width: "auto", objectFit: "contain" }}
+            />
+          </div>
+        ) : null}
       </div>
     </AbsoluteFill>
   );

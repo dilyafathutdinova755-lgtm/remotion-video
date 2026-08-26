@@ -28,6 +28,7 @@ export const twoCars: TaskDef = {
       "Найдите скорость первого автомобиля, если известно, что она больше 48 км/ч.",
     ),
   ],
+  illustration: "car",
   problemSize: 42,
 
   solutions: [
