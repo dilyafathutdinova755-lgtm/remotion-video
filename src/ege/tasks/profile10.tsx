@@ -1852,6 +1852,26 @@ export const mushrooms: TaskDef = {
   answer: "8,8",
 };
 
+const raspberryAudio: AudioSync = {
+  src: "audio/prof10-29.mp3",
+  totalSec: 55.88,
+  conditionSec: 6.96,
+  stepSec: [18.18, 29.21],
+  outroSec: 53.01,
+  stepBeats: { 1: { itemCounts: [2, 2], atSec: [14.23] } },
+};
+
+const raspberryStep2Items: SolutionItem[] = [
+  line(<>Малина потеряла 80% массы — осталось только 20 кг:</>),
+  card(<>20 − 15 = 5 кг воды</>, { size: 46 }),
+  ...finish(
+    <span>
+      5 : 20 = <span style={ACCENT}>25</span>%
+    </span>,
+    "Сухого вещества стало почти столько же, сколько всей массы — влажность резко упала.",
+  ),
+];
+
 export const raspberry: TaskDef = {
   ...base(
     "Prof10Raspberry",
@@ -1859,6 +1879,7 @@ export const raspberry: TaskDef = {
     "drop",
     42,
   ),
+  audioSync: raspberryAudio,
 
   tokens: w(
     "Свежая малина содержит 85% влаги. Во время сушки она теряет 80% от своей первоначальной массы. Какой стала влажность (в процентах) полученной сушёной малины?",
@@ -1869,22 +1890,49 @@ export const raspberry: TaskDef = {
       line(<>Влаги 85%, значит сухого вещества 15 кг — оно не меняется:</>),
       card(<>15% от 100 кг = 15 кг</>, { size: 46 }),
     ]),
-    step("2", "Считаем воду в остатке", 9.5, [
-      line(<>Малина потеряла 80% массы — осталось только 20 кг:</>),
-      card(<>20 − 15 = 5 кг воды</>, { size: 46 }),
-      ...finish(
-        <span>
-          5 : 20 = <span style={ACCENT}>25</span>%
-        </span>,
-        "Сухого вещества стало почти столько же, сколько всей массы — влажность резко упала.",
+    step(
+      "2",
+      "Считаем воду в остатке",
+      9.5,
+      raspberryStep2Items,
+      beatsToItemAt(
+        raspberryStep2Items,
+        raspberryAudio.stepBeats![1].itemCounts,
+        raspberryAudio.stepBeats![1].atSec,
       ),
-    ]),
+    ),
   ],
 
   answer: "25",
 };
 
 // --- партия 2: прогрессии -------------------------------------------------------
+
+const gravelTruckAudio: AudioSync = {
+  src: "audio/prof10-30.mp3",
+  totalSec: 66.12,
+  conditionSec: 8.12,
+  stepSec: [26.1, 46.48],
+  outroSec: 63.18,
+  stepBeats: { 1: { itemCounts: [2, 3], atSec: [8.98] } },
+};
+
+const gravelTruckStep2Items: SolutionItem[] = [
+  line(<>Делим на 4 и находим шаг прогрессии:</>),
+  card(
+    <>
+      15 = 8 + 7<V>d</V> ⟹ <V>d</V> = 1
+    </>,
+    { size: 42 },
+  ),
+  arrow(),
+  ...finish(
+    <span>
+      4 + 4 · 1 = <span style={ACCENT}>8</span> тонн
+    </span>,
+    "Пятый день — это первый день плюс четыре шага прогрессии.",
+  ),
+];
 
 export const gravelTruck: TaskDef = {
   ...base(
@@ -1893,6 +1941,7 @@ export const gravelTruck: TaskDef = {
     "truck",
     40,
   ),
+  audioSync: gravelTruckAudio,
 
   tokens: w(
     "Грузовик перевозит партию щебня массой 60 тонн, ежедневно увеличивая норму перевозки на одно и то же число тонн. Известно, что за первый день грузовик перевёз 4 тонны щебня, а вся работа была выполнена за 8 дней. Определите, сколько тонн щебня было перевезено за пятый день. Ответ дайте в тоннах.",
@@ -1913,22 +1962,17 @@ export const gravelTruck: TaskDef = {
         { size: 42 },
       ),
     ]),
-    step("2", "Находим шаг и день", 9, [
-      line(<>Делим на 4 и находим шаг прогрессии:</>),
-      card(
-        <>
-          15 = 8 + 7<V>d</V> ⟹ <V>d</V> = 1
-        </>,
-        { size: 42 },
+    step(
+      "2",
+      "Находим шаг и день",
+      9,
+      gravelTruckStep2Items,
+      beatsToItemAt(
+        gravelTruckStep2Items,
+        gravelTruckAudio.stepBeats![1].itemCounts,
+        gravelTruckAudio.stepBeats![1].atSec,
       ),
-      arrow(),
-      ...finish(
-        <span>
-          4 + 4 · 1 = <span style={ACCENT}>8</span> тонн
-        </span>,
-        "Пятый день — это первый день плюс четыре шага прогрессии.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "8",
