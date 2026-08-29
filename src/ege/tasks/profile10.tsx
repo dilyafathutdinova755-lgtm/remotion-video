@@ -801,6 +801,34 @@ export const raftBoat: TaskDef = {
   answer: "3",
 };
 
+const ship6048Audio: AudioSync = {
+  src: "audio/prof10-14.mp3",
+  totalSec: 77.32,
+  conditionSec: 8.44,
+  stepSec: [21.09, 39.83],
+  outroSec: 74.34,
+  stepBeats: { 1: { itemCounts: [4, 3], atSec: [21.34] } },
+};
+
+const ship6048Step2Items: SolutionItem[] = [
+  line(<>После общего знаменателя получаем квадратное уравнение:</>),
+  card(
+    <>
+      <V>v</V>² + 12<V>v</V> − 448 = 0
+    </>,
+    { size: 42 },
+  ),
+  arrow(),
+  card(<>D = 144 + 1792 = 1936, √D = 44</>, { size: 40 }),
+  arrow(),
+  ...finish(
+    <span>
+      <V>v</V> = <span style={ACCENT}>16</span> км/ч
+    </span>,
+    "Проверка: по течению 20 км/ч — 3 часа, против течения 12 км/ч — 4 часа. Разница ровно 1 час.",
+  ),
+];
+
 export const ship6048: TaskDef = {
   ...base(
     "Prof10Ship6048",
@@ -808,6 +836,7 @@ export const ship6048: TaskDef = {
     "river",
     42,
   ),
+  audioSync: ship6048Audio,
 
   tokens: w(
     "Теплоходу требуется на 1 час меньше, чтобы преодолеть 60 км по течению, чем 48 км против течения. Известно, что скорость течения составляет 4 км/ч. Найдите собственную скорость судна. Ответ дайте в км/ч.",
@@ -846,28 +875,55 @@ export const ship6048: TaskDef = {
         { size: 40 },
       ),
     ]),
-    step("2", "Решаем уравнение", 10.5, [
-      line(<>После общего знаменателя получаем квадратное уравнение:</>),
-      card(
-        <>
-          <V>v</V>² + 12<V>v</V> − 448 = 0
-        </>,
-        { size: 42 },
+    step(
+      "2",
+      "Решаем уравнение",
+      10.5,
+      ship6048Step2Items,
+      beatsToItemAt(
+        ship6048Step2Items,
+        ship6048Audio.stepBeats![1].itemCounts,
+        ship6048Audio.stepBeats![1].atSec,
       ),
-      arrow(),
-      card(<>D = 144 + 1792 = 1936, √D = 44</>, { size: 40 }),
-      arrow(),
-      ...finish(
-        <span>
-          <V>v</V> = <span style={ACCENT}>16</span> км/ч
-        </span>,
-        "Проверка: по течению 20 км/ч — 3 часа, против течения 12 км/ч — 4 часа. Разница ровно 1 час.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "16",
 };
+
+const boat3624Audio: AudioSync = {
+  src: "audio/prof10-15.mp3",
+  totalSec: 71.55,
+  conditionSec: 7.23,
+  stepSec: [20.23, 36.8],
+  outroSec: 68.52,
+  stepBeats: { 1: { itemCounts: [5, 3], atSec: [21.03] } },
+};
+
+const boat3624Step2Items: SolutionItem[] = [
+  line(<>Умножаем на оба знаменателя и раскрываем скобки:</>),
+  card(
+    <>
+      60<V>v</V> − 36 = 4<V>v</V>² − 36
+    </>,
+    { size: 40 },
+  ),
+  arrow(),
+  line(<>Минус 36 сокращается с обеих сторон:</>),
+  card(
+    <>
+      60<V>v</V> = 4<V>v</V>²
+    </>,
+    { size: 42 },
+  ),
+  arrow(),
+  ...finish(
+    <span>
+      <V>v</V> = <span style={ACCENT}>15</span> км/ч
+    </span>,
+    "Проверка: по течению 18 км/ч — 2 часа, против течения 12 км/ч — тоже 2 часа. Вместе 4.",
+  ),
+];
 
 export const boat3624: TaskDef = {
   ...base(
@@ -876,6 +932,7 @@ export const boat3624: TaskDef = {
     "ship",
     42,
   ),
+  audioSync: boat3624Audio,
 
   tokens: w(
     "Моторная лодка преодолела 36 км по течению и 24 км против течения, потратив на всю дистанцию 4 часа. Скорость течения — 3 км/ч. Найдите собственную скорость лодки. Ответ дайте в км/ч.",
@@ -913,30 +970,17 @@ export const boat3624: TaskDef = {
         { size: 40 },
       ),
     ]),
-    step("2", "Решаем уравнение", 10, [
-      line(<>Умножаем на оба знаменателя и раскрываем скобки:</>),
-      card(
-        <>
-          60<V>v</V> − 36 = 4<V>v</V>² − 36
-        </>,
-        { size: 40 },
+    step(
+      "2",
+      "Решаем уравнение",
+      10,
+      boat3624Step2Items,
+      beatsToItemAt(
+        boat3624Step2Items,
+        boat3624Audio.stepBeats![1].itemCounts,
+        boat3624Audio.stepBeats![1].atSec,
       ),
-      arrow(),
-      line(<>Минус 36 сокращается с обеих сторон:</>),
-      card(
-        <>
-          60<V>v</V> = 4<V>v</V>²
-        </>,
-        { size: 42 },
-      ),
-      arrow(),
-      ...finish(
-        <span>
-          <V>v</V> = <span style={ACCENT}>15</span> км/ч
-        </span>,
-        "Проверка: по течению 18 км/ч — 2 часа, против течения 12 км/ч — тоже 2 часа. Вместе 4.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "15",
@@ -1198,6 +1242,38 @@ export const twoWorkers: TaskDef = {
   answer: "4",
 };
 
+const ivanPetrAudio: AudioSync = {
+  src: "audio/prof10-20.mp3",
+  totalSec: 68.44,
+  conditionSec: 8.78,
+  stepSec: [24.24, 34.65],
+  outroSec: 65.52,
+  stepBeats: { 1: { itemCounts: [2, 2], atSec: [20.27] } },
+};
+
+const ivanPetrStep2Items: SolutionItem[] = [
+  line(
+    <>
+      Осталась половина. Вместе за час делают{" "}
+      <Frac num="1" den="4" /> + <Frac num="1" den="6" /> ={" "}
+      <Frac num="5" den="12" />:
+    </>,
+  ),
+  card(
+    <>
+      <Frac num="1" den="2" /> : <Frac num="5" den="12" />
+      <span style={{ margin: "0 14px" }}>=</span>1,2 ч
+    </>,
+    { size: 42 },
+  ),
+  ...finish(
+    <span>
+      2 + 1,2 = <span style={ACCENT}>3,2</span> часа
+    </span>,
+    "Проверка: 2 часа один плюс 1,2 часа вместе — доклад закончен ровно тогда.",
+  ),
+];
+
 export const ivanPetr: TaskDef = {
   ...base(
     "Prof10IvanPetr",
@@ -1205,6 +1281,7 @@ export const ivanPetr: TaskDef = {
     "gears",
     42,
   ),
+  audioSync: ivanPetrAudio,
 
   tokens: w(
     "Иван может написать доклад за 4 часа, а Пётр — за 6 часов. Сначала 2 часа работал Иван один, потом к нему подключился Пётр, и доклад был закончен вместе. Сколько всего часов был написан доклад? Ответ дайте в часах.",
@@ -1227,28 +1304,17 @@ export const ivanPetr: TaskDef = {
         { size: 42 },
       ),
     ]),
-    step("2", "Дописывают вместе", 9.5, [
-      line(
-        <>
-          Осталась половина. Вместе за час делают{" "}
-          <Frac num="1" den="4" /> + <Frac num="1" den="6" /> ={" "}
-          <Frac num="5" den="12" />:
-        </>,
+    step(
+      "2",
+      "Дописывают вместе",
+      9.5,
+      ivanPetrStep2Items,
+      beatsToItemAt(
+        ivanPetrStep2Items,
+        ivanPetrAudio.stepBeats![1].itemCounts,
+        ivanPetrAudio.stepBeats![1].atSec,
       ),
-      card(
-        <>
-          <Frac num="1" den="2" /> : <Frac num="5" den="12" />
-          <span style={{ margin: "0 14px" }}>=</span>1,2 ч
-        </>,
-        { size: 42 },
-      ),
-      ...finish(
-        <span>
-          2 + 1,2 = <span style={ACCENT}>3,2</span> часа
-        </span>,
-        "Проверка: 2 часа один плюс 1,2 часа вместе — доклад закончен ровно тогда.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "3,2",
@@ -1468,6 +1534,25 @@ export const alloyZinc: TaskDef = {
   answer: "7",
 };
 
+const acidWaterAudio: AudioSync = {
+  src: "audio/prof10-24.mp3",
+  totalSec: 39.55,
+  conditionSec: 6.79,
+  stepSec: [15.14, 25.82],
+  outroSec: 36.88,
+  stepBeats: { 1: { itemCounts: [1, 2], atSec: [9.06] } },
+};
+
+const acidWaterStep2Items: SolutionItem[] = [
+  line(<>Теперь его 120 + 80 = 200 г. Считаем долю кислоты:</>),
+  ...finish(
+    <span>
+      6 : 200 = <span style={ACCENT}>3</span>%
+    </span>,
+    "Та же кислота теперь растворена в большем объёме — концентрация упала.",
+  ),
+];
+
 export const acidWater: TaskDef = {
   ...base(
     "Prof10AcidWater",
@@ -1475,6 +1560,7 @@ export const acidWater: TaskDef = {
     "drop",
     44,
   ),
+  audioSync: acidWaterAudio,
 
   tokens: w(
     "К 120 г раствора кислоты с концентрацией 5% долили 80 г воды. Какой стала концентрация кислоты? Ответ дайте в процентах.",
@@ -1485,19 +1571,52 @@ export const acidWater: TaskDef = {
       line(<>Долили чистую воду — самой кислоты не прибавилось:</>),
       card(<>5% от 120 г = 6 г</>, { size: 46 }),
     ]),
-    step("2", "А раствора стало больше", 9, [
-      line(<>Теперь его 120 + 80 = 200 г. Считаем долю кислоты:</>),
-      ...finish(
-        <span>
-          6 : 200 = <span style={ACCENT}>3</span>%
-        </span>,
-        "Та же кислота теперь растворена в большем объёме — концентрация упала.",
+    step(
+      "2",
+      "А раствора стало больше",
+      9,
+      acidWaterStep2Items,
+      beatsToItemAt(
+        acidWaterStep2Items,
+        acidWaterAudio.stepBeats![1].itemCounts,
+        acidWaterAudio.stepBeats![1].atSec,
       ),
-    ]),
+    ),
   ],
 
   answer: "3",
 };
+
+const tinAddAudio: AudioSync = {
+  src: "audio/prof10-25.mp3",
+  totalSec: 56.53,
+  conditionSec: 6.71,
+  stepSec: [18.33, 32.78],
+  outroSec: 53.91,
+  stepBeats: { 1: { itemCounts: [2, 3], atSec: [19.28] } },
+};
+
+const tinAddStep2Items: SolutionItem[] = [
+  line(
+    <>
+      Масса сплава станет 24 + <V>x</V>, а доля меди должна стать 40%:
+    </>,
+  ),
+  card(
+    <>
+      <Frac num="10,8" den={<>24 + <V>x</V></>} />
+      <span style={{ margin: "0 14px" }}>=</span>0,40
+    </>,
+    { size: 42 },
+  ),
+  arrow(),
+  ...finish(
+    <span>
+      24 + <V>x</V> = 27 ⟹ <V>x</V> = <span style={ACCENT}>3</span> кг
+    </span>,
+    "Меди не прибавилось, зато общая масса выросла — доля меди и просела с 45% до 40%.",
+  ),
+];
 
 export const tinAdd: TaskDef = {
   ...base(
@@ -1506,6 +1625,7 @@ export const tinAdd: TaskDef = {
     "scales",
     42,
   ),
+  audioSync: tinAddAudio,
 
   tokens: w(
     "Сплав меди и олова массой 24 кг содержит 45% меди. Сколько килограммов чистого олова нужно добавить, чтобы содержание меди в сплаве стало 40%? Ответ дайте в кг.",
@@ -1516,27 +1636,17 @@ export const tinAdd: TaskDef = {
       line(<>Добавляют чистое олово — медь никуда не девается:</>),
       card(<>45% от 24 кг = 10,8 кг меди</>, { size: 42 }),
     ]),
-    step("2", "Составляем уравнение", 9.5, [
-      line(
-        <>
-          Масса сплава станет 24 + <V>x</V>, а доля меди должна стать 40%:
-        </>,
+    step(
+      "2",
+      "Составляем уравнение",
+      9.5,
+      tinAddStep2Items,
+      beatsToItemAt(
+        tinAddStep2Items,
+        tinAddAudio.stepBeats![1].itemCounts,
+        tinAddAudio.stepBeats![1].atSec,
       ),
-      card(
-        <>
-          <Frac num="10,8" den={<>24 + <V>x</V></>} />
-          <span style={{ margin: "0 14px" }}>=</span>0,40
-        </>,
-        { size: 42 },
-      ),
-      arrow(),
-      ...finish(
-        <span>
-          24 + <V>x</V> = 27 ⟹ <V>x</V> = <span style={ACCENT}>3</span> кг
-        </span>,
-        "Меди не прибавилось, зато общая масса выросла — доля меди и просела с 45% до 40%.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "3",
