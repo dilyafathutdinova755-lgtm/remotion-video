@@ -1134,6 +1134,40 @@ export const cyclistRest: TaskDef = {
 
 // --- партия 2: работа -----------------------------------------------------------
 
+const twoWorkersAudio: AudioSync = {
+  src: "audio/prof10-19.mp3",
+  totalSec: 46.65,
+  conditionSec: 8.18,
+  stepSec: [17.05],
+  outroSec: 43.93,
+  stepBeats: { 0: { itemCounts: [2, 2], atSec: [18.49] } },
+};
+
+const twoWorkersStep1Items: SolutionItem[] = [
+  line(
+    <>
+      Весь заказ — единица. За день первый делает{" "}
+      <Frac num="1" den="12" />, второй — <Frac num="1" den="6" />:
+    </>,
+  ),
+  card(
+    <>
+      <Frac num="1" den="12" />
+      <span style={{ margin: "0 14px" }}>+</span>
+      <Frac num="1" den="6" />
+      <span style={{ margin: "0 14px" }}>=</span>
+      <Frac num="1" den="4" />
+    </>,
+    { size: 42 },
+  ),
+  ...finish(
+    <span>
+      1 : <Frac num="1" den="4" /> = <span style={ACCENT}>4</span> дня
+    </span>,
+    "Вместе быстрее, чем у самого быстрого рабочего в одиночку — так и должно быть.",
+  ),
+];
+
 export const twoWorkers: TaskDef = {
   ...base(
     "Prof10TwoWorkers",
@@ -1141,36 +1175,24 @@ export const twoWorkers: TaskDef = {
     "worker",
     46,
   ),
+  audioSync: twoWorkersAudio,
 
   tokens: w(
     "Первый рабочий выполняет заказ за 12 дней, второй — за 6 дней. За сколько дней они выполнят заказ, работая вместе? Ответ дайте в днях.",
   ),
 
   solutions: [
-    step("1", "Складываем скорости работы", 9, [
-      line(
-        <>
-          Весь заказ — единица. За день первый делает{" "}
-          <Frac num="1" den="12" />, второй — <Frac num="1" den="6" />:
-        </>,
+    step(
+      "1",
+      "Складываем скорости работы",
+      9,
+      twoWorkersStep1Items,
+      beatsToItemAt(
+        twoWorkersStep1Items,
+        twoWorkersAudio.stepBeats![0].itemCounts,
+        twoWorkersAudio.stepBeats![0].atSec,
       ),
-      card(
-        <>
-          <Frac num="1" den="12" />
-          <span style={{ margin: "0 14px" }}>+</span>
-          <Frac num="1" den="6" />
-          <span style={{ margin: "0 14px" }}>=</span>
-          <Frac num="1" den="4" />
-        </>,
-        { size: 42 },
-      ),
-      ...finish(
-        <span>
-          1 : <Frac num="1" den="4" /> = <span style={ACCENT}>4</span> дня
-        </span>,
-        "Вместе быстрее, чем у самого быстрого рабочего в одиночку — так и должно быть.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "4",
@@ -1232,6 +1254,32 @@ export const ivanPetr: TaskDef = {
   answer: "3,2",
 };
 
+const twoBrigadesAudio: AudioSync = {
+  src: "audio/prof10-21.mp3",
+  totalSec: 53.79,
+  conditionSec: 7.15,
+  stepSec: [21.25, 31.7],
+  outroSec: 50.86,
+  stepBeats: { 1: { itemCounts: [1, 2], atSec: [12.73] } },
+};
+
+const twoBrigadesStep2Items: SolutionItem[] = [
+  line(
+    <>
+      Осталось <Frac num="3" den="5" />. Вместе бригады делают{" "}
+      <Frac num="1" den="10" /> + <Frac num="1" den="15" /> ={" "}
+      <Frac num="1" den="6" /> заказа в день:
+    </>,
+  ),
+  ...finish(
+    <span>
+      <Frac num="3" den="5" /> : <Frac num="1" den="6" /> ={" "}
+      <span style={ACCENT}>3,6</span> дня
+    </span>,
+    "Первая бригада работала одна, вторая подключилась только на этот последний участок.",
+  ),
+];
+
 export const twoBrigades: TaskDef = {
   ...base(
     "Prof10TwoBrigades",
@@ -1239,6 +1287,7 @@ export const twoBrigades: TaskDef = {
     "factory",
     42,
   ),
+  audioSync: twoBrigadesAudio,
 
   tokens: w(
     "Первая бригада может выполнить заказ за 10 дней, вторая — за 15 дней. Первая бригада проработала 4 дня одна, после чего обе бригады закончили заказ, работая вместе. Сколько дней бригады работали вместе? Ответ дайте в днях.",
@@ -1260,26 +1309,40 @@ export const twoBrigades: TaskDef = {
         { size: 42 },
       ),
     ]),
-    step("2", "Доделывают вместе", 9.5, [
-      line(
-        <>
-          Осталось <Frac num="3" den="5" />. Вместе бригады делают{" "}
-          <Frac num="1" den="10" /> + <Frac num="1" den="15" /> ={" "}
-          <Frac num="1" den="6" /> заказа в день:
-        </>,
+    step(
+      "2",
+      "Доделывают вместе",
+      9.5,
+      twoBrigadesStep2Items,
+      beatsToItemAt(
+        twoBrigadesStep2Items,
+        twoBrigadesAudio.stepBeats![1].itemCounts,
+        twoBrigadesAudio.stepBeats![1].atSec,
       ),
-      ...finish(
-        <span>
-          <Frac num="3" den="5" /> : <Frac num="1" den="6" /> ={" "}
-          <span style={ACCENT}>3,6</span> дня
-        </span>,
-        "Первая бригада работала одна, вторая подключилась только на этот последний участок.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "3,6",
 };
+
+const threePipesAudio: AudioSync = {
+  src: "audio/prof10-22.mp3",
+  totalSec: 64.86,
+  conditionSec: 8.03,
+  stepSec: [23.73, 42.01],
+  outroSec: 61.84,
+  stepBeats: { 1: { itemCounts: [1, 2], atSec: [10.16] } },
+};
+
+const threePipesStep2Items: SolutionItem[] = [
+  line(<>Бассейн наполняется на треть в час, значит целиком — за:</>),
+  ...finish(
+    <span>
+      1 : <Frac num="1" den="3" /> = <span style={ACCENT}>3</span> часа
+    </span>,
+    "Две трубы наливают быстрее, чем третья сливает — поэтому бассейн всё-таки заполнится.",
+  ),
+];
 
 export const threePipes: TaskDef = {
   ...base(
@@ -1288,6 +1351,7 @@ export const threePipes: TaskDef = {
     "pipe",
     42,
   ),
+  audioSync: threePipesAudio,
 
   tokens: w(
     "Первая труба наполняет бассейн за 6 часов, вторая — за 4 часа. Третья труба, наоборот, сливает воду из полного бассейна за 12 часов. За сколько часов наполнится пустой бассейн, если открыть все три трубы одновременно? Ответ дайте в часах.",
@@ -1315,21 +1379,49 @@ export const threePipes: TaskDef = {
         { size: 40 },
       ),
     ]),
-    step("2", "Считаем время", 8, [
-      line(<>Бассейн наполняется на треть в час, значит целиком — за:</>),
-      ...finish(
-        <span>
-          1 : <Frac num="1" den="3" /> = <span style={ACCENT}>3</span> часа
-        </span>,
-        "Две трубы наливают быстрее, чем третья сливает — поэтому бассейн всё-таки заполнится.",
+    step(
+      "2",
+      "Считаем время",
+      8,
+      threePipesStep2Items,
+      beatsToItemAt(
+        threePipesStep2Items,
+        threePipesAudio.stepBeats![1].itemCounts,
+        threePipesAudio.stepBeats![1].atSec,
       ),
-    ]),
+    ),
   ],
 
   answer: "3",
 };
 
 // --- партия 2: смеси и сплавы ----------------------------------------------------
+
+const alloyZincAudio: AudioSync = {
+  src: "audio/prof10-23.mp3",
+  totalSec: 79.2,
+  conditionSec: 7.34,
+  stepSec: [24.49, 43.62],
+  outroSec: 76.58,
+  stepBeats: { 1: { itemCounts: [2, 3], atSec: [22.82] } },
+};
+
+const alloyZincStep2Items: SolutionItem[] = [
+  line(<>Раскрываем скобки и приводим подобные:</>),
+  card(
+    <>
+      −0,21<V>x</V> = 4,83 − 6,3 = −1,47
+    </>,
+    { size: 40 },
+  ),
+  arrow(),
+  ...finish(
+    <span>
+      <V>x</V> = <span style={ACCENT}>7</span> кг
+    </span>,
+    "Значит от второго сплава взяли 14 кг: 7 · 9% + 14 · 30% = 4,83 кг цинка — ровно 23% от 21.",
+  ),
+];
 
 export const alloyZinc: TaskDef = {
   ...base(
@@ -1338,6 +1430,7 @@ export const alloyZinc: TaskDef = {
     "ingot",
     40,
   ),
+  audioSync: alloyZincAudio,
 
   tokens: w(
     "Имеется два сплава меди и цинка. Первый сплав содержит 9% цинка, второй — 30% цинка. Из этих сплавов получили 21 кг нового сплава, содержащего 23% цинка. Сколько килограммов взяли от первого сплава? Ответ дайте в кг.",
@@ -1359,22 +1452,17 @@ export const alloyZinc: TaskDef = {
         { size: 38 },
       ),
     ]),
-    step("2", "Решаем уравнение", 9.5, [
-      line(<>Раскрываем скобки и приводим подобные:</>),
-      card(
-        <>
-          −0,21<V>x</V> = 4,83 − 6,3 = −1,47
-        </>,
-        { size: 40 },
+    step(
+      "2",
+      "Решаем уравнение",
+      9.5,
+      alloyZincStep2Items,
+      beatsToItemAt(
+        alloyZincStep2Items,
+        alloyZincAudio.stepBeats![1].itemCounts,
+        alloyZincAudio.stepBeats![1].atSec,
       ),
-      arrow(),
-      ...finish(
-        <span>
-          <V>x</V> = <span style={ACCENT}>7</span> кг
-        </span>,
-        "Значит от второго сплава взяли 14 кг: 7 · 9% + 14 · 30% = 4,83 кг цинка — ровно 23% от 21.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "7",
@@ -1454,6 +1542,44 @@ export const tinAdd: TaskDef = {
   answer: "3",
 };
 
+// У этой задачи в озвучке разбор идёт тремя репликами подряд ("решаем
+// систему" → "подставляем, находим c1" → "ответ"), а на экране между
+// первой и второй ничего не меняется — карточка с c2=25 просто висит,
+// пока голос договаривает вывод c1, и только потом появляется стрелка
+// с готовым ответом. Поэтому вторая реплика не превращается в отдельный
+// пункт: она просто "занимает" время внутри первого пункта.
+const twoSolutionsAudio: AudioSync = {
+  src: "audio/prof10-26.mp3",
+  totalSec: 80.77,
+  conditionSec: 6.86,
+  stepSec: [25.04, 50.66],
+  outroSec: 78.16,
+  stepBeats: { 1: { itemCounts: [2, 3], atSec: [23.65] } },
+};
+
+const twoSolutionsStep2Items: SolutionItem[] = [
+  line(
+    <>
+      Первое уравнение умножаем на 3, второе на 2 и вычитаем — <V>c</V>₁
+      сокращается:
+    </>,
+  ),
+  card(
+    <>
+      10<V>c</V>₂ = 250 ⟹ <V>c</V>₂ = 25
+    </>,
+    { size: 42 },
+  ),
+  arrow(),
+  ...finish(
+    <span>
+      <V>c</V>₁ = <span style={ACCENT}>50%</span>,{" "}
+      <V>c</V>₂ = <span style={ACCENT}>25%</span>
+    </span>,
+    "Проверка: 6 · 50 + 4 · 25 = 400 — ровно то, что дано во втором смешивании.",
+  ),
+];
+
 export const twoSolutions: TaskDef = {
   ...base(
     "Prof10TwoSolutions",
@@ -1461,6 +1587,7 @@ export const twoSolutions: TaskDef = {
     "flask",
     40,
   ),
+  audioSync: twoSolutionsAudio,
 
   tokens: w(
     "При смешивании 4 кг первого раствора и 6 кг второго получается 35-процентный раствор. Если же смешать 6 кг первого раствора и 4 кг второго, получится 40-процентный раствор. Найдите концентрацию (в процентах) каждого из исходных растворов.",
@@ -1486,32 +1613,41 @@ export const twoSolutions: TaskDef = {
         { size: 40 },
       ),
     ]),
-    step("2", "Решаем систему", 10.5, [
-      line(
-        <>
-          Первое уравнение умножаем на 3, второе на 2 и вычитаем — <V>c</V>₁
-          сокращается:
-        </>,
+    step(
+      "2",
+      "Решаем систему",
+      10.5,
+      twoSolutionsStep2Items,
+      beatsToItemAt(
+        twoSolutionsStep2Items,
+        twoSolutionsAudio.stepBeats![1].itemCounts,
+        twoSolutionsAudio.stepBeats![1].atSec,
       ),
-      card(
-        <>
-          10<V>c</V>₂ = 250 ⟹ <V>c</V>₂ = 25
-        </>,
-        { size: 42 },
-      ),
-      arrow(),
-      ...finish(
-        <span>
-          <V>c</V>₁ = <span style={ACCENT}>50%</span>,{" "}
-          <V>c</V>₂ = <span style={ACCENT}>25%</span>
-        </span>,
-        "Проверка: 6 · 50 + 4 · 25 = 400 — ровно то, что дано во втором смешивании.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "50% и 25%",
 };
+
+const raisinsAudio: AudioSync = {
+  src: "audio/prof10-27.mp3",
+  totalSec: 56.11,
+  conditionSec: 7.84,
+  stepSec: [21.45, 35.93],
+  outroSec: 53.35,
+  stepBeats: { 1: { itemCounts: [2, 2], atSec: [14.91] } },
+};
+
+const raisinsStep2Items: SolutionItem[] = [
+  line(<>В винограде воды 90%, значит сухого вещества только 10%:</>),
+  card(<>10% от G = 19 кг</>, { size: 44 }),
+  ...finish(
+    <span>
+      G = <span style={ACCENT}>190</span> кг
+    </span>,
+    "Виноград почти весь — вода, поэтому его требуется в разы больше, чем изюма.",
+  ),
+];
 
 export const raisins: TaskDef = {
   ...base(
@@ -1520,6 +1656,7 @@ export const raisins: TaskDef = {
     "drop",
     42,
   ),
+  audioSync: raisinsAudio,
 
   tokens: w(
     "Изюм получается в процессе сушки винограда. Сколько килограммов винограда потребуется для получения 20 килограммов изюма, если виноград содержит 90% воды, а изюм содержит 5% воды? Ответ дайте в кг.",
@@ -1530,20 +1667,46 @@ export const raisins: TaskDef = {
       line(<>При сушке уходит только вода, сухое вещество остаётся:</>),
       card(<>95% от 20 кг = 19 кг</>, { size: 46 }),
     ]),
-    step("2", "Это же вещество было в винограде", 9.5, [
-      line(<>В винограде воды 90%, значит сухого вещества только 10%:</>),
-      card(<>10% от G = 19 кг</>, { size: 44 }),
-      ...finish(
-        <span>
-          G = <span style={ACCENT}>190</span> кг
-        </span>,
-        "Виноград почти весь — вода, поэтому его требуется в разы больше, чем изюма.",
+    step(
+      "2",
+      "Это же вещество было в винограде",
+      9.5,
+      raisinsStep2Items,
+      beatsToItemAt(
+        raisinsStep2Items,
+        raisinsAudio.stepBeats![1].itemCounts,
+        raisinsAudio.stepBeats![1].atSec,
       ),
-    ]),
+    ),
   ],
 
   answer: "190",
 };
+
+const mushroomsAudio: AudioSync = {
+  src: "audio/prof10-28.mp3",
+  totalSec: 58.46,
+  conditionSec: 7.08,
+  stepSec: [16.9, 28.04],
+  outroSec: 55.71,
+  stepBeats: { 1: { itemCounts: [2, 2], atSec: [18.99] } },
+};
+
+const mushroomsStep2Items: SolutionItem[] = [
+  line(
+    <>
+      В сухих грибах это вещество — уже 88% массы, ведь воды там только
+      12%:
+    </>,
+  ),
+  card(<>10 : 0,88 ≈ 11,36 кг</>, { size: 44 }),
+  ...finish(
+    <span>
+      100 : 11,36 ≈ <span style={ACCENT}>8,8</span> раза
+    </span>,
+    "То же сухое вещество теперь занимает почти всю массу — вот масса и падает в разы.",
+  ),
+];
 
 export const mushrooms: TaskDef = {
   ...base(
@@ -1552,6 +1715,7 @@ export const mushrooms: TaskDef = {
     "percent",
     42,
   ),
+  audioSync: mushroomsAudio,
 
   tokens: w(
     "Свежие грибы содержат 90% воды, а сухие грибы содержат 12% воды. Во сколько раз уменьшится масса грибов после сушки?",
@@ -1562,21 +1726,17 @@ export const mushrooms: TaskDef = {
       line(<>Воды 90%, значит сухого вещества 10 кг — оно не меняется:</>),
       card(<>10% от 100 кг = 10 кг</>, { size: 46 }),
     ]),
-    step("2", "Ищем сухую массу", 9.5, [
-      line(
-        <>
-          В сухих грибах это вещество — уже 88% массы, ведь воды там только
-          12%:
-        </>,
+    step(
+      "2",
+      "Ищем сухую массу",
+      9.5,
+      mushroomsStep2Items,
+      beatsToItemAt(
+        mushroomsStep2Items,
+        mushroomsAudio.stepBeats![1].itemCounts,
+        mushroomsAudio.stepBeats![1].atSec,
       ),
-      card(<>10 : 0,88 ≈ 11,36 кг</>, { size: 44 }),
-      ...finish(
-        <span>
-          100 : 11,36 ≈ <span style={ACCENT}>8,8</span> раза
-        </span>,
-        "То же сухое вещество теперь занимает почти всю массу — вот масса и падает в разы.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "8,8",
@@ -1664,6 +1824,25 @@ export const gravelTruck: TaskDef = {
   answer: "8",
 };
 
+const amphitheaterAudio: AudioSync = {
+  src: "audio/prof10-31.mp3",
+  totalSec: 55.56,
+  conditionSec: 6.57,
+  stepSec: [17.8, 32.33],
+  outroSec: 52.9,
+  stepBeats: { 1: { itemCounts: [1, 2], atSec: [18.4] } },
+};
+
+const amphitheaterStep2Items: SolutionItem[] = [
+  line(<>Сумма — полусумма первого и последнего ряда, умноженная на 14:</>),
+  ...finish(
+    <span>
+      (20 + 59) · 7 = <span style={ACCENT}>553</span> места
+    </span>,
+    "Половину числа рядов (7) умножаем сразу на сумму крайних — так быстрее, чем находить каждый ряд отдельно.",
+  ),
+];
+
 export const amphitheater: TaskDef = {
   ...base(
     "Prof10Amphitheater",
@@ -1671,6 +1850,7 @@ export const amphitheater: TaskDef = {
     "ascent",
     40,
   ),
+  audioSync: amphitheaterAudio,
 
   tokens: w(
     "В амфитеатре расположены 14 рядов. В первом ряду установлены 20 мест, а в каждом следующем ряду — на 3 места больше, чем в предыдущем. Сколько всего мест в амфитеатре?",
@@ -1681,15 +1861,17 @@ export const amphitheater: TaskDef = {
       line(<>Каждый ряд на 3 места больше предыдущего. Ряд номер 14:</>),
       card(<>20 + 13 · 3 = 59 мест</>, { size: 44 }),
     ]),
-    step("2", "Считаем сумму", 9, [
-      line(<>Сумма — полусумма первого и последнего ряда, умноженная на 14:</>),
-      ...finish(
-        <span>
-          (20 + 59) · 7 = <span style={ACCENT}>553</span> места
-        </span>,
-        "Половину числа рядов (7) умножаем сразу на сумму крайних — так быстрее, чем находить каждый ряд отдельно.",
+    step(
+      "2",
+      "Считаем сумму",
+      9,
+      amphitheaterStep2Items,
+      beatsToItemAt(
+        amphitheaterStep2Items,
+        amphitheaterAudio.stepBeats![1].itemCounts,
+        amphitheaterAudio.stepBeats![1].atSec,
       ),
-    ]),
+    ),
   ],
 
   answer: "553",
