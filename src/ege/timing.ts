@@ -87,6 +87,23 @@ export const problemReadingFrames = (task: TaskDef): number => {
 };
 
 export const buildScenes = (task: TaskDef): Scenes => {
+  // Тайминг по реальной озвучке — длительности сцен берутся из секунд в
+  // audioSync, а не оцениваются по числу слов (см. PLAYBOOK.md).
+  if (task.audioSync) {
+    const a = task.audioSync;
+    const starts = [0, a.conditionSec, ...a.stepSec, a.outroSec, a.totalSec];
+    // starts: [хук=0, условие, шаг1, шаг2, …, финал, конец]
+    const durations = starts.slice(1).map((s, i) => sec(s - starts[i]));
+    const stepCount = a.stepSec.length;
+    return {
+      title: durations[0],
+      problem: durations[1],
+      solutions: durations.slice(2, 2 + stepCount),
+      answer: task.answerRecap === false ? 0 : sec(task.answerSeconds ?? 7),
+      outro: durations[2 + stepCount],
+    };
+  }
+
   return {
     // Открывающий кадр: вопрос-хук вместо заставки
     title: sec(4),

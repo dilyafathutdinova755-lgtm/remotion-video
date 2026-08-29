@@ -34,6 +34,13 @@ export type SolutionSpec = {
   title: string;
   seconds: number;
   items: SolutionItem[];
+  /**
+   * Явные кадры появления пунктов (в кадрах при 30 fps, как и весь модуль
+   * timing.ts) — заменяют автоматический равномерный шаг. Берётся из
+   * реальной озвучки через `beatsToItemAt` ниже. Длина массива должна
+   * совпадать с `items`.
+   */
+  itemAt?: number[];
 };
 
 /**
@@ -41,6 +48,44 @@ export type SolutionSpec = {
  * В кадрах при 30 fps — Reveal пересчитает их под текущую частоту сам.
  */
 const TAIL = 80;
+
+/** Небольшой шаг между пунктами внутри одной реплики озвучки (30fps-кадры). */
+const BEAT_STAGGER = 16;
+
+/**
+ * Раскладывает пункты шага по кадрам, когда шаг озвучен несколькими
+ * репликами подряд (например, решение — отдельно от ответа). `beatSeconds`
+ * — секунды начала второй, третьей… реплики от начала шага (первая всегда
+ * с нуля); `itemCounts` — сколько пунктов относится к каждой реплике,
+ * по порядку, в сумме равно `items.length`. Стрелка внутри реплики так же
+ * получает время следующего за ней пункта — как и в автоматическом режиме.
+ */
+export const beatsToItemAt = (
+  items: SolutionItem[],
+  itemCounts: number[],
+  beatSeconds: number[],
+): number[] => {
+  const beatStart30 = [0, ...beatSeconds.map((s) => Math.round(s * 30))];
+  const at: number[] = new Array(items.length);
+  let idx = 0;
+  itemCounts.forEach((count, b) => {
+    const local = items.slice(idx, idx + count);
+    let anchorIndex = -1;
+    local.forEach((it, i) => {
+      if (it.kind !== "arrow") {
+        anchorIndex += 1;
+        at[idx + i] = beatStart30[b] + anchorIndex * BEAT_STAGGER;
+      } else {
+        const nextIsAnchor = local[i + 1] !== undefined;
+        at[idx + i] =
+          beatStart30[b] +
+          (nextIsAnchor ? anchorIndex + 1 : anchorIndex) * BEAT_STAGGER;
+      }
+    });
+    idx += count;
+  });
+  return at;
+};
 
 export const makeSolution = (spec: SolutionSpec): React.FC => {
   // Стрелка не отдельный пункт: она выезжает вместе со следующей карточкой
@@ -55,17 +100,20 @@ export const makeSolution = (spec: SolutionSpec): React.FC => {
     56,
   );
 
-  // Кадр появления каждого пункта
+  // Кадр появления каждого пункта — если пришёл готовый тайминг из
+  // озвучки (itemAt), используем его; иначе считаем сами, равномерно
   let anchorIndex = -1;
-  const at = spec.items.map((it, i) => {
-    if (it.kind !== "arrow") {
-      anchorIndex += 1;
-      return anchorIndex * gap;
-    }
-    // стрелке отдаём время следующего пункта
-    const nextIsAnchor = spec.items[i + 1] !== undefined;
-    return nextIsAnchor ? (anchorIndex + 1) * gap : anchorIndex * gap;
-  });
+  const at =
+    spec.itemAt ??
+    spec.items.map((it, i) => {
+      if (it.kind !== "arrow") {
+        anchorIndex += 1;
+        return anchorIndex * gap;
+      }
+      // стрелке отдаём время следующего пункта
+      const nextIsAnchor = spec.items[i + 1] !== undefined;
+      return nextIsAnchor ? (anchorIndex + 1) * gap : anchorIndex * gap;
+    });
 
   const Scene: React.FC = () => (
     <SolutionLayout step={spec.step} title={spec.title}>

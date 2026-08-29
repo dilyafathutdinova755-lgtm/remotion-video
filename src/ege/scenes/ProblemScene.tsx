@@ -66,9 +66,14 @@ export const ProblemScene: React.FC = () => {
     );
   };
 
+  // По реальной озвучке сцена не даёт «трёх секунд подумать» отдельно —
+  // вся её длительность и есть время на прочтение, так что полоска идёт
+  // от начала до самого конца сцены, а не до оценки по словам.
   const progress = interpolate(
     frame,
-    [READ_DELAY, READ_DELAY + problemReadingFrames(task)],
+    task.audioSync
+      ? [READ_DELAY, durationInFrames]
+      : [READ_DELAY, READ_DELAY + problemReadingFrames(task)],
     [0, 1],
     {
       extrapolateLeft: "clamp",

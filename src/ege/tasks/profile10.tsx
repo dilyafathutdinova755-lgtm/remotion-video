@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { V, Frac } from "../MathBits";
-import { makeSolution, line, card, arrow } from "../Solution";
+import { makeSolution, line, card, arrow, beatsToItemAt } from "../Solution";
 import type { SolutionItem } from "../Solution";
 import { COLORS } from "../theme";
 import { w } from "./dsl";
-import type { TaskDef } from "./types";
+import type { TaskDef, AudioSync } from "./types";
 
 /**
  * Задание 10 ЕГЭ по профильной математике: текстовые задачи на движение,
@@ -43,9 +43,10 @@ const step = (
   title: string,
   seconds: number,
   items: SolutionItem[],
+  itemAt?: number[],
 ) => ({
   seconds,
-  Component: makeSolution({ step: n, title, seconds, items }),
+  Component: makeSolution({ step: n, title, seconds, items, itemAt }),
 });
 
 /** Хвост последнего шага: сам ответ и строчка проверки под ним. */
@@ -644,8 +645,49 @@ export const fence: TaskDef = {
 
 // --- партия 2: движение -------------------------------------------------------
 
+// Тайминг сцен взят из реальной озвучки (ElevenLabs), присланной и
+// размеченной пользователем 29.08.2026 — паузы найдены автоматически
+// (ffmpeg silencedetect) и выровнены по количеству слов на реплику.
+const ship96Audio: AudioSync = {
+  src: "audio/prof10-12.mp3",
+  totalSec: 91.72,
+  conditionSec: 8.0,
+  stepSec: [24.72, 45.44],
+  outroSec: 88.57,
+  stepBeats: { 1: { itemCounts: [4, 2], atSec: [30.22] } },
+};
+
+const ship96Step2Items: SolutionItem[] = [
+  line(
+    <>
+      Общий знаменатель — (20 + <V>x</V>)(20 − <V>x</V>), а это 400 −{" "}
+      <V>x</V>². В числителе <V>x</V> сокращается сам собой:
+    </>,
+  ),
+  card(
+    <>
+      96 · 40 = 10 · (400 − <V>x</V>²)
+    </>,
+    { size: 42 },
+  ),
+  arrow(),
+  card(
+    <>
+      384 = 400 − <V>x</V>² ⟹ <V>x</V>² = 16
+    </>,
+    { size: 40 },
+  ),
+  ...finish(
+    <span>
+      <V>x</V> = <span style={ACCENT}>4</span> км/ч
+    </span>,
+    "По течению 24 км/ч — 4 часа пути, против течения 16 км/ч — 6 часов. Вместе 10.",
+  ),
+];
+
 export const ship96: TaskDef = {
   ...base("Prof10Ship96", ["Теплоход туда и обратно", "Какое течение?"], "river", 42),
+  audioSync: ship96Audio,
 
   tokens: w(
     "Теплоход совершает рейс: 96 км по течению и 96 км обратно. Его собственная скорость — 20 км/ч, а общее время в пути (без учёта стоянок) — 10 часов. Определите скорость течения реки. Ответ дайте в км/ч.",
@@ -686,37 +728,44 @@ export const ship96: TaskDef = {
         { size: 38 },
       ),
     ]),
-    step("2", "Решаем уравнение", 10.5, [
-      line(
-        <>
-          Общий знаменатель — (20 + <V>x</V>)(20 − <V>x</V>), а это 400 −{" "}
-          <V>x</V>². В числителе <V>x</V> сокращается сам собой:
-        </>,
+    step(
+      "2",
+      "Решаем уравнение",
+      10.5,
+      ship96Step2Items,
+      beatsToItemAt(
+        ship96Step2Items,
+        ship96Audio.stepBeats![1].itemCounts,
+        ship96Audio.stepBeats![1].atSec,
       ),
-      card(
-        <>
-          96 · 40 = 10 · (400 − <V>x</V>²)
-        </>,
-        { size: 42 },
-      ),
-      arrow(),
-      card(
-        <>
-          384 = 400 − <V>x</V>² ⟹ <V>x</V>² = 16
-        </>,
-        { size: 40 },
-      ),
-      ...finish(
-        <span>
-          <V>x</V> = <span style={ACCENT}>4</span> км/ч
-        </span>,
-        "По течению 24 км/ч — 4 часа пути, против течения 16 км/ч — 6 часов. Вместе 10.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "4",
 };
+
+const raftBoatAudio: AudioSync = {
+  src: "audio/prof10-13.mp3",
+  totalSec: 56.89,
+  conditionSec: 8.07,
+  stepSec: [21.75, 32.62],
+  outroSec: 54.14,
+  stepBeats: { 1: { itemCounts: [4, 3], atSec: [14.72] } },
+};
+
+const raftBoatStep2Items: SolutionItem[] = [
+  line(<>Катер в 4 раза быстрее течения — это его собственная скорость:</>),
+  card(<>4 · 4 = 16 км/ч</>, { size: 44 }),
+  line(<>По течению река ему ещё и помогает:</>),
+  card(<>16 + 4 = 20 км/ч</>, { size: 44 }),
+  arrow(),
+  ...finish(
+    <span>
+      60 : 20 = <span style={ACCENT}>3</span> часа
+    </span>,
+    "Скорость катера в 4 раза больше течения — считать можно без уравнений.",
+  ),
+];
 
 export const raftBoat: TaskDef = {
   ...base(
@@ -725,6 +774,7 @@ export const raftBoat: TaskDef = {
     "ship",
     44,
   ),
+  audioSync: raftBoatAudio,
 
   tokens: w(
     "Плот проплывает 24 км за 6 часов. Катер, чья собственная скорость в 4 раза больше скорости течения, должен пройти 60 км по течению. Сколько времени у него на это уйдёт? Ответ дайте в часах.",
@@ -735,19 +785,17 @@ export const raftBoat: TaskDef = {
       line(<>Плот сам не плывёт — его скорость и есть скорость течения:</>),
       card(<>24 : 6 = 4 км/ч</>, { size: 46 }),
     ]),
-    step("2", "Находим скорость катера", 9.5, [
-      line(<>Катер в 4 раза быстрее течения — это его собственная скорость:</>),
-      card(<>4 · 4 = 16 км/ч</>, { size: 44 }),
-      line(<>По течению река ему ещё и помогает:</>),
-      card(<>16 + 4 = 20 км/ч</>, { size: 44 }),
-      arrow(),
-      ...finish(
-        <span>
-          60 : 20 = <span style={ACCENT}>3</span> часа
-        </span>,
-        "Скорость катера в 4 раза больше течения — считать можно без уравнений.",
+    step(
+      "2",
+      "Находим скорость катера",
+      9.5,
+      raftBoatStep2Items,
+      beatsToItemAt(
+        raftBoatStep2Items,
+        raftBoatAudio.stepBeats![1].itemCounts,
+        raftBoatAudio.stepBeats![1].atSec,
       ),
-    ]),
+    ),
   ],
 
   answer: "3",
@@ -894,6 +942,35 @@ export const boat3624: TaskDef = {
   answer: "15",
 };
 
+const busAvgAudio: AudioSync = {
+  src: "audio/prof10-16.mp3",
+  totalSec: 69.3,
+  conditionSec: 6.97,
+  stepSec: [18.94, 37.19],
+  outroSec: 66.67,
+  stepBeats: { 1: { itemCounts: [2, 2], atSec: [14.34] } },
+};
+
+const busAvgStep2Items: SolutionItem[] = [
+  line(
+    <>
+      Всё время — вдвое больше одного отрезка: <Frac num="S" den="20" />.
+    </>,
+  ),
+  line(
+    <>
+      Средняя скорость — весь путь 3S, делённый на это время. Буква S
+      сокращается, остаётся:
+    </>,
+  ),
+  ...finish(
+    <span>
+      3 · 20 = <span style={ACCENT}>60</span> км/ч
+    </span>,
+    "Так совпало, что оба отрезка заняли одно и то же время — иначе среднее не совпало бы с обычным средним 40 и 80.",
+  ),
+];
+
 export const busAvg: TaskDef = {
   ...base(
     "Prof10BusAvg",
@@ -901,6 +978,7 @@ export const busAvg: TaskDef = {
     "roadFlat",
     44,
   ),
+  audioSync: busAvgAudio,
 
   tokens: w(
     "Автобус преодолел первую треть дороги со скоростью 40 км/ч, а оставшиеся две трети — со скоростью 80 км/ч. Найдите среднюю скорость автобуса на всём пути. Ответ дайте в км/ч.",
@@ -919,29 +997,46 @@ export const busAvg: TaskDef = {
       ),
       line(<>Значит оба отрезка заняли одинаковое время.</>),
     ]),
-    step("2", "Находим среднюю скорость", 9, [
-      line(
-        <>
-          Всё время — вдвое больше одного отрезка: <Frac num="S" den="20" />.
-        </>,
+    step(
+      "2",
+      "Находим среднюю скорость",
+      9,
+      busAvgStep2Items,
+      beatsToItemAt(
+        busAvgStep2Items,
+        busAvgAudio.stepBeats![1].itemCounts,
+        busAvgAudio.stepBeats![1].atSec,
       ),
-      line(
-        <>
-          Средняя скорость — весь путь 3S, делённый на это время. Буква S
-          сокращается, остаётся:
-        </>,
-      ),
-      ...finish(
-        <span>
-          3 · 20 = <span style={ACCENT}>60</span> км/ч
-        </span>,
-        "Так совпало, что оба отрезка заняли одно и то же время — иначе среднее не совпало бы с обычным средним 40 и 80.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "60",
 };
+
+const cyclistAvgAudio: AudioSync = {
+  src: "audio/prof10-17.mp3",
+  totalSec: 57.21,
+  conditionSec: 7.64,
+  stepSec: [19.63],
+  outroSec: 54.45,
+  stepBeats: { 0: { itemCounts: [2, 2], atSec: [17.31] } },
+};
+
+const cyclistAvgStep1Items: SolutionItem[] = [
+  line(
+    <>
+      Средняя скорость — это путь, делённый на время, а не среднее самих
+      скоростей:
+    </>,
+  ),
+  card(<>10 · 1 + 20 · 3 = 70 км</>, { size: 46 }),
+  ...finish(
+    <span>
+      70 : 4 = <span style={ACCENT}>17,5</span> км/ч
+    </span>,
+    "Если бы усреднить сами скорости, вышло бы 15 — но на быстром участке велосипедист провёл больше времени.",
+  ),
+];
 
 export const cyclistAvg: TaskDef = {
   ...base(
@@ -950,31 +1045,53 @@ export const cyclistAvg: TaskDef = {
     "bicycle",
     46,
   ),
+  audioSync: cyclistAvgAudio,
 
   tokens: w(
     "Велосипедист ехал 1 час со скоростью 10 км/ч, а затем 3 часа со скоростью 20 км/ч. Найдите его среднюю скорость на протяжении всего пути. Ответ дайте в км/ч.",
   ),
 
   solutions: [
-    step("1", "Считаем весь путь", 8.5, [
-      line(
-        <>
-          Средняя скорость — это путь, делённый на время, а не среднее самих
-          скоростей:
-        </>,
+    step(
+      "1",
+      "Считаем весь путь",
+      8.5,
+      cyclistAvgStep1Items,
+      beatsToItemAt(
+        cyclistAvgStep1Items,
+        cyclistAvgAudio.stepBeats![0].itemCounts,
+        cyclistAvgAudio.stepBeats![0].atSec,
       ),
-      card(<>10 · 1 + 20 · 3 = 70 км</>, { size: 46 }),
-      ...finish(
-        <span>
-          70 : 4 = <span style={ACCENT}>17,5</span> км/ч
-        </span>,
-        "Если бы усреднить сами скорости, вышло бы 15 — но на быстром участке велосипедист провёл больше времени.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "17,5",
 };
+
+const cyclistRestAudio: AudioSync = {
+  src: "audio/prof10-18.mp3",
+  totalSec: 67.55,
+  conditionSec: 8.16,
+  stepSec: [26.37, 44.8],
+  outroSec: 64.76,
+  stepBeats: { 1: { itemCounts: [2, 2], atSec: [10.07] } },
+};
+
+const cyclistRestStep2Items: SolutionItem[] = [
+  line(
+    <>
+      Время берём целиком, включая отдых — ведь спрашивают про всё это
+      время:
+    </>,
+  ),
+  card(<>2 + 1 + 1 = 4 часа</>, { size: 46 }),
+  ...finish(
+    <span>
+      34 : 4 = <span style={ACCENT}>8,5</span> км/ч
+    </span>,
+    "Отдых увеличивает время, но не путь — поэтому средняя скорость ниже, чем без остановки.",
+  ),
+];
 
 export const cyclistRest: TaskDef = {
   ...base(
@@ -983,6 +1100,7 @@ export const cyclistRest: TaskDef = {
     "map",
     40,
   ),
+  audioSync: cyclistRestAudio,
 
   tokens: w(
     "Велосипедист ехал из A в B 2 часа со скоростью 12 км/ч, затем отдыхал 1 час, после чего продолжил путь из A в C ещё 1 час со скоростью 10 км/ч. Найдите его среднюю скорость за всё это время. Ответ дайте в км/ч.",
@@ -998,21 +1116,17 @@ export const cyclistRest: TaskDef = {
       ),
       card(<>24 + 10 = 34 км</>, { size: 46 }),
     ]),
-    step("2", "Считаем время", 8, [
-      line(
-        <>
-          Время берём целиком, включая отдых — ведь спрашивают про всё это
-          время:
-        </>,
+    step(
+      "2",
+      "Считаем время",
+      8,
+      cyclistRestStep2Items,
+      beatsToItemAt(
+        cyclistRestStep2Items,
+        cyclistRestAudio.stepBeats![1].itemCounts,
+        cyclistRestAudio.stepBeats![1].atSec,
       ),
-      card(<>2 + 1 + 1 = 4 часа</>, { size: 46 }),
-      ...finish(
-        <span>
-          34 : 4 = <span style={ACCENT}>8,5</span> км/ч
-        </span>,
-        "Отдых увеличивает время, но не путь — поэтому средняя скорость ниже, чем без остановки.",
-      ),
-    ]),
+    ),
   ],
 
   answer: "8,5",

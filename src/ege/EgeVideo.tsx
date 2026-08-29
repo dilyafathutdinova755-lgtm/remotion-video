@@ -1,4 +1,4 @@
-import { AbsoluteFill, Sequence, Series } from "remotion";
+import { AbsoluteFill, Audio, Sequence, Series, staticFile } from "remotion";
 import { Background } from "./Background";
 import { Watermark } from "./Watermark";
 import { FontGate } from "./FontGate";
@@ -31,6 +31,14 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
         {/* Палитра предмета — переменными на корне, дальше её видят все сцены */}
         <AbsoluteFill style={paletteVars(paletteFor(task.palette))}>
           <Background />
+
+          {/* Озвучка целиком, с начала ролика — сцены нарезаны под неё
+              в buildScenes(), поэтому отдельно двигать её не нужно.
+              Родной звук видео отсутствует, так что это единственная
+              дорожка. */}
+          {task.audioSync ? (
+            <Audio src={staticFile(task.audioSync.src)} />
+          ) : null}
 
           <Series>
             <Series.Sequence durationInFrames={scenes.title}>
