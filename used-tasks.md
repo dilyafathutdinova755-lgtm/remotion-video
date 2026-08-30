@@ -38,3 +38,36 @@
 - Prof10Raspberry — малина 85% влаги, потеря 80% массы — 2026-08-29
 - Prof10GravelTruck — грузовик щебень 60 т, первый день 4 т, 8 дней — 2026-08-29
 - Prof10Amphitheater — амфитеатр 14 рядов, 20 мест +3, сумма — 2026-08-29
+
+## История, задание 19 (`history.tsx`)
+
+- Hist19Bulygin — Булыгинская дума — 2026-08-19
+- Hist19Kurultai — Курултай — 2026-08-19
+- Hist19Kuchka — Могучая кучка — 2026-08-19
+- Hist19Kazachestvo — Казачество — 2026-08-19
+- Hist19Prokuror — Генерал-прокурор — 2026-08-19
+- Hist19Peredvizhniki — Передвижники — 2026-08-19
+- Hist19Gvardiya — Гвардейские полки — 2026-08-19
+- Hist19VoenKom — Военный коммунизм — 2026-08-19
+- Hist19Polovtsy — Половцы — 2026-08-19
+- Hist19Prepodobny — Преподобный — 2026-08-19
+- Hist19Oprichnina — Опричнина — 2026-08-30
+- Hist19Veche — Вече — 2026-08-30
+- Hist19Baskak — Баскак — 2026-08-30
+- Hist19Mestnichestvo — Местничество — 2026-08-30
+- Hist19Streltsy — Стрельцы — 2026-08-30
+- Hist19Kormlenie — Кормление — 2026-08-30
+- Hist19UrochnyeLeta — Урочные лета — 2026-08-30
+- Hist19Sekulyarizatsiya — Секуляризация церковных земель — 2026-08-30
+- Hist19Zemstvo — Земство — 2026-08-30
+- Hist19Nep — Новая экономическая политика (нэп) — 2026-08-30
+- Hist19Stakhanov — Стахановское движение — 2026-08-30
+- Hist19Gkchp — ГКЧП — 2026-08-30
+- Hist19Opolchenie — Народное ополчение — 2026-08-30
+- Hist19Narodnichestvo — Народничество — 2026-08-30
+- Hist19Tabel — Табель о рангах — 2026-08-30
+- Hist19Absolutizm — Просвещённый абсолютизм — 2026-08-30
+- Hist19Slavyanofilstvo — Славянофильство — 2026-08-30
+- Hist19Vremennoobyazannye — Временнообязанные крестьяне — 2026-08-30
+- Hist19Kollektivizatsiya — Коллективизация — 2026-08-30
+- Hist19Yasak — Ясак — 2026-08-30
