@@ -19,6 +19,13 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 
+# Системного ffmpeg в PATH нет — берём собранный вместе с Remotion
+# (у него есть silencedetect/atempo, но нет setpts, см. комментарий выше).
+FFMPEG=/home/user/remotion-video/node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg
+if [ ! -x "$FFMPEG" ]; then
+  FFMPEG=$(find /home/user/remotion-video/node_modules/@remotion -name ffmpeg -type f 2>/dev/null | head -1)
+fi
+
 for id in "$@"; do
   in="out/$id.mp4"
   out="out/${id}-1.2x.mp4"
@@ -27,7 +34,7 @@ for id in "$@"; do
     continue
   fi
   echo "=== $id"
-  ffmpeg -y -itsscale 0.833333 -i "$in" -i "$in" \
+  "$FFMPEG" -y -itsscale 0.833333 -i "$in" -i "$in" \
     -map 0:v -map 1:a \
     -af atempo=1.2 \
     -r 72 -vsync cfr \
