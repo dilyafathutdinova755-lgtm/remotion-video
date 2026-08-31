@@ -328,6 +328,16 @@ export const mestnichestvo = makeConceptTask(
   mestnichestvoAudio,
 );
 
+const streltsyAudio: AudioSync = {
+  src: "audio/hist19-streltsy.mp3",
+  totalSec: 39.967313,
+  conditionSec: 5.336485,
+  stepSec: [],
+  answerSec: 11.509909,
+  factAtSec: 24.407075,
+  outroSec: 37.541134,
+};
+
 export const streltsy = makeConceptTask(
   "Hist19Streltsy",
   "«Стрельцы»",
@@ -340,7 +350,20 @@ export const streltsy = makeConceptTask(
     подавления восстания 1698 года Пётр I начал его расформирование.
   </>,
   15,
+  78,
+  undefined,
+  streltsyAudio,
 );
+
+const kormlenieAudio: AudioSync = {
+  src: "audio/hist19-kormlenie.mp3",
+  totalSec: 34.115875,
+  conditionSec: 4.997324,
+  stepSec: [],
+  answerSec: 11.542404,
+  factAtSec: 24.121542,
+  outroSec: 31.679796,
+};
 
 export const kormlenie = makeConceptTask(
   "Hist19Kormlenie",
@@ -355,7 +378,19 @@ export const kormlenie = makeConceptTask(
   </>,
   14,
   74,
+  undefined,
+  kormlenieAudio,
 );
+
+const urochnyeLetaAudio: AudioSync = {
+  src: "audio/hist19-urochnyeleta.mp3",
+  totalSec: 33.724063,
+  conditionSec: 5.128458,
+  stepSec: [],
+  answerSec: 12.423424,
+  factAtSec: 23.423356,
+  outroSec: 31.085034,
+};
 
 export const urochnyeLeta = makeConceptTask(
   "Hist19UrochnyeLeta",
@@ -367,7 +402,19 @@ export const urochnyeLeta = makeConceptTask(
   </>,
   12,
   70,
+  undefined,
+  urochnyeLetaAudio,
 );
+
+const sekulyarizatsiyaAudio: AudioSync = {
+  src: "audio/hist19-sekulyarizatsiya.mp3",
+  totalSec: 37.8775,
+  conditionSec: 6.93542,
+  stepSec: [],
+  answerSec: 14.971383,
+  factAtSec: 26.888254,
+  outroSec: 35.359841,
+};
 
 export const sekulyarizatsiya = makeConceptTask(
   "Hist19Sekulyarizatsiya",
@@ -380,7 +427,18 @@ export const sekulyarizatsiya = makeConceptTask(
   14,
   50,
   ["«Секуляризация", "церковных", "земель»"],
+  sekulyarizatsiyaAudio,
 );
+
+const zemstvoAudio: AudioSync = {
+  src: "audio/hist19-zemstvo.mp3",
+  totalSec: 36.205688,
+  conditionSec: 4.997075,
+  stepSec: [],
+  answerSec: 12.168118,
+  factAtSec: 22.561973,
+  outroSec: 33.472381,
+};
 
 export const zemstvo = makeConceptTask(
   "Hist19Zemstvo",
@@ -391,6 +449,9 @@ export const zemstvo = makeConceptTask(
   </>,
   <>Земства были учреждены в 1864 году в ходе земской реформы Александра II.</>,
   13,
+  78,
+  undefined,
+  zemstvoAudio,
 );
 
 export const nep = makeConceptTask(
