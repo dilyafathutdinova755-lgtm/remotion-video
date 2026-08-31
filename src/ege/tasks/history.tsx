@@ -40,6 +40,9 @@ const makeConceptTask = (
   id,
   number: 19,
   subject: "в ЕГЭ по истории",
+  // По договорённости у истории отдельная палитра — бело-розовая,
+  // не синяя по умолчанию.
+  palette: "pink",
   hook: hookLines ?? [term],
   pillLabel: "Задание",
   instruction: INSTRUCTION,
