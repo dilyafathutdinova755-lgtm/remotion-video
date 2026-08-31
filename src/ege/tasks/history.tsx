@@ -1,5 +1,5 @@
 import { w } from "./dsl";
-import type { TaskDef } from "./types";
+import type { AudioSync, TaskDef } from "./types";
 
 /**
  * Задание 19 ЕГЭ по истории: раскрыть смысл понятия и привести факт.
@@ -36,6 +36,7 @@ const makeConceptTask = (
   seconds: number,
   problemSize = 78,
   hookLines?: string[],
+  audioSync?: AudioSync,
 ): TaskDef => ({
   id,
   number: 19,
@@ -53,9 +54,20 @@ const makeConceptTask = (
   // Разбирать по шагам нечего: задание на знание, а не на рассуждение
   solutions: [],
   answerSeconds: seconds,
+  audioSync,
 
   concept: { definition, fact },
 });
+
+const bulyginAudio: AudioSync = {
+  src: "audio/hist19-bulygin.mp3",
+  totalSec: 41.87425,
+  conditionSec: 5.808345,
+  stepSec: [],
+  answerSec: 13.081338,
+  factAtSec: 27.084104,
+  outroSec: 39.220748,
+};
 
 export const bulyginDuma = makeConceptTask(
   "Hist19Bulygin",
@@ -71,6 +83,8 @@ export const bulyginDuma = makeConceptTask(
   </>,
   15,
   66,
+  undefined,
+  bulyginAudio,
 );
 
 export const kurultai = makeConceptTask(
@@ -203,6 +217,16 @@ export const prepodobny = makeConceptTask(
 
 // --- партия 2 (20 понятий) ----------------------------------------------------
 
+const oprichninaAudio: AudioSync = {
+  src: "audio/hist19-oprichnina.mp3",
+  totalSec: 48.039125,
+  conditionSec: 5.930884,
+  stepSec: [],
+  answerSec: 13.313968,
+  factAtSec: 34.247732,
+  outroSec: 45.503651,
+};
+
 export const oprichnina = makeConceptTask(
   "Hist19Oprichnina",
   "«Опричнина»",
@@ -217,7 +241,19 @@ export const oprichnina = makeConceptTask(
   </>,
   17,
   72,
+  undefined,
+  oprichninaAudio,
 );
+
+const vecheAudio: AudioSync = {
+  src: "audio/hist19-veche.mp3",
+  totalSec: 39.392625,
+  conditionSec: 4.948027,
+  stepSec: [],
+  answerSec: 11.331179,
+  factAtSec: 24.015714,
+  outroSec: 36.672857,
+};
 
 export const veche = makeConceptTask(
   "Hist19Veche",
@@ -232,7 +268,20 @@ export const veche = makeConceptTask(
     вольности.
   </>,
   14,
+  78,
+  undefined,
+  vecheAudio,
 );
+
+const baskakAudio: AudioSync = {
+  src: "audio/hist19-baskak.mp3",
+  totalSec: 37.250563,
+  conditionSec: 4.157596,
+  stepSec: [],
+  answerSec: 10.278685,
+  factAtSec: 21.696054,
+  outroSec: 34.769252,
+};
 
 export const baskak = makeConceptTask(
   "Hist19Baskak",
@@ -247,7 +296,20 @@ export const baskak = makeConceptTask(
     князьям.
   </>,
   15,
+  78,
+  undefined,
+  baskakAudio,
 );
+
+const mestnichestvoAudio: AudioSync = {
+  src: "audio/hist19-mestnichestvo.mp3",
+  totalSec: 41.325688,
+  conditionSec: 6.001905,
+  stepSec: [],
+  answerSec: 13.064921,
+  factAtSec: 26.981111,
+  outroSec: 38.512472,
+};
 
 export const mestnichestvo = makeConceptTask(
   "Hist19Mestnichestvo",
@@ -262,6 +324,8 @@ export const mestnichestvo = makeConceptTask(
   </>,
   16,
   72,
+  undefined,
+  mestnichestvoAudio,
 );
 
 export const streltsy = makeConceptTask(

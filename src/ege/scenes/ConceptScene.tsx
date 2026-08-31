@@ -69,6 +69,16 @@ export const ConceptScene: React.FC = () => {
 
   if (!task.concept) return null;
 
+  // Без озвучки «Факт» появляется на глаз, через фиксированную паузу. С
+  // озвучкой — ровно тогда, когда его начинают произносить: разница между
+  // factAtSec и началом этой сцены (answerSec), в кадрах при 30 fps — том же
+  // условном шаге, что использует `Reveal` (он сам пересчитывает в f30).
+  const factAt =
+    task.audioSync?.factAtSec !== undefined &&
+    task.audioSync?.answerSec !== undefined
+      ? Math.round((task.audioSync.factAtSec - task.audioSync.answerSec) * 30)
+      : 52;
+
   return (
     <AbsoluteFill style={{ opacity: out }}>
       <FlowLines />
@@ -97,7 +107,7 @@ export const ConceptScene: React.FC = () => {
             />
           </Reveal>
 
-          <Reveal at={52}>
+          <Reveal at={factAt}>
             <Block label="Факт">{task.concept.fact}</Block>
           </Reveal>
         </div>

@@ -91,16 +91,32 @@ export const buildScenes = (task: TaskDef): Scenes => {
   // audioSync, а не оцениваются по числу слов (см. PLAYBOOK.md).
   if (task.audioSync) {
     const a = task.audioSync;
-    const starts = [0, a.conditionSec, ...a.stepSec, a.outroSec, a.totalSec];
-    // starts: [хук=0, условие, шаг1, шаг2, …, финал, конец]
+    // answerSec есть только там, где сцена ответа звучит отдельно от шагов
+    // разбора (история-19, где шагов нет вовсе). У математики её нет: там
+    // ответ — последняя реплика последнего шага, и `scenes.answer` остаётся
+    // 0 через answerRecap: false.
+    const hasAnswerBreak = a.answerSec !== undefined;
+    const starts = [
+      0,
+      a.conditionSec,
+      ...a.stepSec,
+      ...(hasAnswerBreak ? [a.answerSec as number] : []),
+      a.outroSec,
+      a.totalSec,
+    ];
+    // starts: [хук=0, условие, шаг1, шаг2, …, (ответ), финал, конец]
     const durations = starts.slice(1).map((s, i) => sec(s - starts[i]));
     const stepCount = a.stepSec.length;
     return {
       title: durations[0],
       problem: durations[1],
       solutions: durations.slice(2, 2 + stepCount),
-      answer: task.answerRecap === false ? 0 : sec(task.answerSeconds ?? 7),
-      outro: durations[2 + stepCount],
+      answer: hasAnswerBreak
+        ? durations[2 + stepCount]
+        : task.answerRecap === false
+          ? 0
+          : sec(task.answerSeconds ?? 7),
+      outro: durations[durations.length - 1],
     };
   }
 
