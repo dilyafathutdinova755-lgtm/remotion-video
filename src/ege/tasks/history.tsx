@@ -454,6 +454,16 @@ export const zemstvo = makeConceptTask(
   zemstvoAudio,
 );
 
+const nepAudio: AudioSync = {
+  src: "audio/hist19-nep.mp3",
+  totalSec: 45.008938,
+  conditionSec: 7.960431,
+  stepSec: [],
+  answerSec: 16.954626,
+  factAtSec: 30.735624,
+  outroSec: 42.276168,
+};
+
 export const nep = makeConceptTask(
   "Hist19Nep",
   "«Новая экономическая политика (нэп)»",
@@ -468,7 +478,18 @@ export const nep = makeConceptTask(
   16,
   48,
   ["«Новая экономическая", "политика (нэп)»"],
+  nepAudio,
 );
+
+const stakhanovAudio: AudioSync = {
+  src: "audio/hist19-stakhanov.mp3",
+  totalSec: 37.642438,
+  conditionSec: 5.675578,
+  stepSec: [],
+  answerSec: 12.821451,
+  factAtSec: 24.809637,
+  outroSec: 34.88907,
+};
 
 export const stakhanov = makeConceptTask(
   "Hist19Stakhanov",
@@ -480,7 +501,19 @@ export const stakhanov = makeConceptTask(
   </>,
   14,
   56,
+  undefined,
+  stakhanovAudio,
 );
+
+const gkchpAudio: AudioSync = {
+  src: "audio/hist19-gkchp.mp3",
+  totalSec: 48.431,
+  conditionSec: 5.497415,
+  stepSec: [],
+  answerSec: 12.950567,
+  factAtSec: 33.782902,
+  outroSec: 45.863878,
+};
 
 export const gkchp = makeConceptTask(
   "Hist19Gkchp",
@@ -496,7 +529,20 @@ export const gkchp = makeConceptTask(
     были арестованы.
   </>,
   18,
+  78,
+  undefined,
+  gkchpAudio,
 );
+
+const opolchenieAudio: AudioSync = {
+  src: "audio/hist19-opolchenie.mp3",
+  totalSec: 39.706063,
+  conditionSec: 6.91,
+  stepSec: [],
+  answerSec: 14.6361,
+  factAtSec: 26.969683,
+  outroSec: 37.209796,
+};
 
 export const opolchenie = makeConceptTask(
   "Hist19Opolchenie",
@@ -511,7 +557,19 @@ export const opolchenie = makeConceptTask(
   </>,
   15,
   62,
+  undefined,
+  opolchenieAudio,
 );
+
+const narodnichestvoAudio: AudioSync = {
+  src: "audio/hist19-narodnichestvo.mp3",
+  totalSec: 43.311,
+  conditionSec: 6.0,
+  stepSec: [],
+  answerSec: 12.566259,
+  factAtSec: 29.512744,
+  outroSec: 40.98034,
+};
 
 export const narodnichestvo = makeConceptTask(
   "Hist19Narodnichestvo",
@@ -527,6 +585,8 @@ export const narodnichestvo = makeConceptTask(
   </>,
   16,
   70,
+  undefined,
+  narodnichestvoAudio,
 );
 
 export const tabelORangakh = makeConceptTask(
