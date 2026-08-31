@@ -589,6 +589,16 @@ export const narodnichestvo = makeConceptTask(
   narodnichestvoAudio,
 );
 
+const tabelAudio: AudioSync = {
+  src: "audio/hist19-tabel.mp3",
+  totalSec: 32.365688,
+  conditionSec: 4.786327,
+  stepSec: [],
+  answerSec: 11.796644,
+  factAtSec: 24.408027,
+  outroSec: 29.892494,
+};
+
 export const tabelORangakh = makeConceptTask(
   "Hist19Tabel",
   "«Табель о рангах»",
@@ -599,7 +609,19 @@ export const tabelORangakh = makeConceptTask(
   <>Табель о рангах был введён Петром I в 1722 году.</>,
   14,
   68,
+  undefined,
+  tabelAudio,
 );
+
+const absolutizmAudio: AudioSync = {
+  src: "audio/hist19-absolutizm.mp3",
+  totalSec: 44.355875,
+  conditionSec: 6.21,
+  stepSec: [],
+  answerSec: 13.516961,
+  factAtSec: 30.749184,
+  outroSec: 41.783673,
+};
 
 export const absolutizm = makeConceptTask(
   "Hist19Absolutizm",
@@ -616,7 +638,18 @@ export const absolutizm = makeConceptTask(
   17,
   56,
   ["«Просвещённый", "абсолютизм»"],
+  absolutizmAudio,
 );
+
+const slavyanofilstvoAudio: AudioSync = {
+  src: "audio/hist19-slavyanofilstvo.mp3",
+  totalSec: 39.888938,
+  conditionSec: 5.94,
+  stepSec: [],
+  answerSec: 13.233628,
+  factAtSec: 27.103333,
+  outroSec: 37.240635,
+};
 
 export const slavyanofilstvo = makeConceptTask(
   "Hist19Slavyanofilstvo",
@@ -632,7 +665,19 @@ export const slavyanofilstvo = makeConceptTask(
   </>,
   16,
   66,
+  undefined,
+  slavyanofilstvoAudio,
 );
+
+const vremennoobyazannyeAudio: AudioSync = {
+  src: "audio/hist19-vremennoobyazannye.mp3",
+  totalSec: 44.591,
+  conditionSec: 6.55,
+  stepSec: [],
+  answerSec: 14.648707,
+  factAtSec: 31.045669,
+  outroSec: 42.063878,
+};
 
 export const vremennoobyazannye = makeConceptTask(
   "Hist19Vremennoobyazannye",
@@ -648,7 +693,18 @@ export const vremennoobyazannye = makeConceptTask(
   15,
   52,
   ["«Временнообязанные", "крестьяне»"],
+  vremennoobyazannyeAudio,
 );
+
+const kollektivizatsiyaAudio: AudioSync = {
+  src: "audio/hist19-kollektivizatsiya.mp3",
+  totalSec: 36.989375,
+  conditionSec: 5.246553,
+  stepSec: [],
+  answerSec: 12.702562,
+  factAtSec: 21.893424,
+  outroSec: 34.264036,
+};
 
 export const kollektivizatsiya = makeConceptTask(
   "Hist19Kollektivizatsiya",
@@ -663,6 +719,8 @@ export const kollektivizatsiya = makeConceptTask(
   </>,
   15,
   66,
+  undefined,
+  kollektivizatsiyaAudio,
 );
 
 export const yasak = makeConceptTask(
