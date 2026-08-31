@@ -153,7 +153,8 @@ export const ProblemScene: React.FC = () => {
               fontWeight: 700,
               fontSize: 36,
               color: COLORS.accent,
-              letterSpacing: "0.01em",
+              letterSpacing: "0.03em",
+              textTransform: "uppercase",
             }}
           >
             Ставь на паузу
