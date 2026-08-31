@@ -141,6 +141,25 @@ export const ProblemScene: React.FC = () => {
           </div>
         </ProblemCard>
 
+        {/* У понятий (история-19) нет ни разбора, ни отдельного таймера —
+            вместо него прямая подсказка остановить видео и вспомнить ответ
+            самому, прежде чем откроется смысл понятия. */}
+        {task.concept ? (
+          <div
+            style={{
+              marginTop: 30,
+              textAlign: "center",
+              fontFamily: FONTS.body,
+              fontWeight: 700,
+              fontSize: 36,
+              color: COLORS.accent,
+              letterSpacing: "0.01em",
+            }}
+          >
+            Ставь на паузу
+          </div>
+        ) : null}
+
         {icons.length > 0 ? (
           <div
             style={{
