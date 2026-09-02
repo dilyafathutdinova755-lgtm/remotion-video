@@ -1,5 +1,5 @@
 import { w } from "./dsl";
-import type { TaskDef } from "./types";
+import type { AudioSync, TaskDef } from "./types";
 
 /**
  * Задание 7 ЕГЭ по русскому языку: ошибка в образовании формы слова.
@@ -26,6 +26,7 @@ type FormSpec = {
   /** В чём ошибка — по предложению на строку. */
   why: string[];
   optionSize?: number;
+  audioSync?: AudioSync;
 };
 
 const makeFormTask = (spec: FormSpec): TaskDef => ({
@@ -45,6 +46,7 @@ const makeFormTask = (spec: FormSpec): TaskDef => ({
   // Разбирать по шагам нечего: ошибка либо видна, либо нет
   solutions: [],
   answerSeconds: 11,
+  audioSync: spec.audioSync,
 
   answerLead: "Правильно",
   wrongNote: spec.wrong,
@@ -245,6 +247,17 @@ export const formIh = makeFormTask({
 
 // --- партия 2 (20 карточек) ---------------------------------------------
 
+const obgryzannoeAudio: AudioSync = {
+  src: "audio/rus7-obgryzannoe.mp3",
+  totalSec: 24.111,
+  conditionSec: 5.646553,
+  stepSec: [],
+  answerSec: 12.465986,
+  correctAtSec: 15.11644,
+  checkAtSec: 16.751088,
+  outroSec: 21.476916,
+};
+
 export const formObgryzannoe = makeFormTask({
   id: "Rus7Obgryzannoe",
   hook: ["Одна ошибка", "спряталась здесь"],
@@ -261,7 +274,19 @@ export const formObgryzannoe = makeFormTask({
     "Причастие от глагола «обгрызть» образуется с суффиксом -енн-, а не -анн-.",
   ],
   optionSize: 42,
+  audioSync: obgryzannoeAudio,
 });
+
+const posleDnyaAudio: AudioSync = {
+  src: "audio/rus7-posle-dnya.mp3",
+  totalSec: 24.26775,
+  conditionSec: 5.827732,
+  stepSec: [],
+  answerSec: 12.792789,
+  correctAtSec: 15.677029,
+  checkAtSec: 17.434739,
+  outroSec: 21.796825,
+};
 
 export const formPosleDnya = makeFormTask({
   id: "Rus7PosleDnya",
@@ -276,7 +301,19 @@ export const formPosleDnya = makeFormTask({
   wrong: "после ДЕНЬ рождения",
   answer: "дня",
   why: ["Предлог «после» требует родительного падежа — «после ДНЯ рождения»."],
+  audioSync: posleDnyaAudio,
 });
+
+const bashkirovAudio: AudioSync = {
+  src: "audio/rus7-bashkirov.mp3",
+  totalSec: 27.715875,
+  conditionSec: 6.463288,
+  stepSec: [],
+  answerSec: 13.260567,
+  correctAtSec: 16.083673,
+  checkAtSec: 16.883243,
+  outroSec: 25.169456,
+};
 
 export const formBashkirov = makeFormTask({
   id: "Rus7Bashkirov",
@@ -294,7 +331,19 @@ export const formBashkirov = makeFormTask({
     "У названий ряда народов (башкиры, буряты, турки) в родительном падеже множественного числа нулевое окончание.",
   ],
   optionSize: 44,
+  audioSync: bashkirovAudio,
 });
+
+const guashemAudio: AudioSync = {
+  src: "audio/rus7-guashem.mp3",
+  totalSec: 26.044063,
+  conditionSec: 6.02093,
+  stepSec: [],
+  answerSec: 12.7222,
+  correctAtSec: 15.59746,
+  checkAtSec: 16.329887,
+  outroSec: 23.532585,
+};
 
 export const formGuashem = makeFormTask({
   id: "Rus7Guashem",
@@ -312,7 +361,19 @@ export const formGuashem = makeFormTask({
     "«Гуашь» — существительное женского рода на -ь, в творительном падеже оно оканчивается на -ью.",
   ],
   optionSize: 44,
+  audioSync: guashemAudio,
 });
+
+const vysochaishayaAudio: AudioSync = {
+  src: "audio/rus7-vysochaishaya.mp3",
+  totalSec: 30.040813,
+  conditionSec: 6.423243,
+  stepSec: [],
+  answerSec: 13.707007,
+  correctAtSec: 17.121451,
+  checkAtSec: 17.877732,
+  outroSec: 27.183673,
+};
 
 export const formVysochaishaya = makeFormTask({
   id: "Rus7Vysochaishaya",
@@ -329,6 +390,7 @@ export const formVysochaishaya = makeFormTask({
   why: [
     "«Самая» уже выражает превосходную степень, добавлять к ней ещё суффикс -айш- нельзя — двойная превосходная степень.",
   ],
+  audioSync: vysochaishayaAudio,
 });
 
 export const formSemistami = makeFormTask({

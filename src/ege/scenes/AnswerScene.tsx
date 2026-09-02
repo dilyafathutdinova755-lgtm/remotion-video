@@ -24,9 +24,28 @@ export const AnswerScene: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
   const task = useTask();
 
+  // Без озвучки тайминг — фиксированный, на глаз. С озвучкой — секунды
+  // реальных реплик: «Неверно сказано «…»» звучит первой и открывает сцену
+  // (это и есть начало сцены, отдельного поля не нужно), поэтому зачёркнутый
+  // неверный вариант можно показывать сразу; «Правильно — …» и объяснение
+  // идут позже и ждут своих секунд, чтобы ответ не появился раньше, чем его
+  // произнесли (см. PLAYBOOK.md §11a — та же ошибка, что нашли в истории).
+  const a = task.audioSync;
+  const hasAudioAnswer = a?.answerSec !== undefined && a?.correctAtSec !== undefined;
+  const correctAt = hasAudioAnswer
+    ? Math.round((a!.correctAtSec! - a!.answerSec!) * 30)
+    : 24;
+  const wrongAt = hasAudioAnswer ? 0 : 64;
+  const checkAt =
+    a?.answerSec !== undefined && a?.checkAtSec !== undefined
+      ? Math.round((a.checkAtSec - a.answerSec) * 30)
+      : 104;
+  // Волосок перед объяснением держит небольшой отступ от него, как и раньше
+  const dividerAt = hasAudioAnswer ? Math.max(correctAt + 12, checkAt - 12) : 92;
+
   // Ответ появляется с упругим «хлопком»
   const pop = spring({
-    frame: frame - f30(24),
+    frame: frame - f30(correctAt),
     fps,
     config: { damping: 13, mass: 0.7, stiffness: 130 },
     durationInFrames: f30(40),
@@ -66,7 +85,7 @@ export const AnswerScene: React.FC = () => {
           }}
         >
           {task.answerLead ? (
-            <Reveal at={0}>
+            <Reveal at={correctAt}>
               <div
                 style={{
                   fontFamily: FONTS.display,
@@ -123,7 +142,7 @@ export const AnswerScene: React.FC = () => {
           </div>
 
           {task.answerFormula ? (
-            <Reveal at={64}>
+            <Reveal at={correctAt}>
               <div
                 style={{
                   fontFamily: FONTS.body,
@@ -139,7 +158,7 @@ export const AnswerScene: React.FC = () => {
           ) : null}
 
           {task.wrongNote ? (
-            <Reveal at={64}>
+            <Reveal at={wrongAt}>
               <div
                 style={{
                   fontFamily: FONTS.body,
@@ -159,7 +178,7 @@ export const AnswerScene: React.FC = () => {
           ) : null}
 
           {/* Волосок вместо рамки: отделяет ответ от разбора, не запирая их */}
-          <Reveal at={92}>
+          <Reveal at={dividerAt}>
             <div
               style={{
                 width: 180,
@@ -171,7 +190,7 @@ export const AnswerScene: React.FC = () => {
             />
           </Reveal>
 
-          <Reveal at={104}>
+          <Reveal at={checkAt}>
             <div
               style={{
                 fontFamily: FONTS.body,
