@@ -687,6 +687,17 @@ export const formTabu = makeFormTask({
   audioSync: tabuAudio,
 });
 
+const oladyevAudio: AudioSync = {
+  src: "audio/rus7-oladyev.mp3",
+  totalSec: 25.312625,
+  conditionSec: 5.504467,
+  stepSec: [],
+  answerSec: 12.566213,
+  correctAtSec: 16.08195,
+  checkAtSec: 17.134649,
+  outroSec: 22.833356,
+};
+
 export const formOladyev = makeFormTask({
   id: "Rus7Oladyev",
   hook: ["Один из пяти —", "неверный"],
@@ -702,7 +713,19 @@ export const formOladyev = makeFormTask({
   why: [
     "У существительного «оладья» в родительном падеже множественного числа форма «оладий».",
   ],
+  audioSync: oladyevAudio,
 });
+
+const dzhinsAudio: AudioSync = {
+  src: "audio/rus7-dzhins.mp3",
+  totalSec: 25.0775,
+  conditionSec: 5.68898,
+  stepSec: [],
+  answerSec: 12.424376,
+  correctAtSec: 15.599297,
+  checkAtSec: 16.568776,
+  outroSec: 22.492404,
+};
 
 export const formDzhins = makeFormTask({
   id: "Rus7Dzhins",
@@ -719,7 +742,19 @@ export const formDzhins = makeFormTask({
   why: [
     "У существительного «джинсы» в родительном падеже множественного числа окончание -ов.",
   ],
+  audioSync: dzhinsAudio,
 });
+
+const kislAudio: AudioSync = {
+  src: "audio/rus7-kisl.mp3",
+  totalSec: 27.402438,
+  conditionSec: 5.528866,
+  stepSec: [],
+  answerSec: 12.802608,
+  correctAtSec: 16.242789,
+  checkAtSec: 18.219342,
+  outroSec: 24.478413,
+};
 
 export const formKisl = makeFormTask({
   id: "Rus7Kisl",
@@ -736,7 +771,19 @@ export const formKisl = makeFormTask({
   why: [
     "В краткой форме прилагательного «кислый» между согласными появляется беглая гласная — «кисел».",
   ],
+  audioSync: kislAudio,
 });
+
+const svetlAudio: AudioSync = {
+  src: "audio/rus7-svetl.mp3",
+  totalSec: 27.088938,
+  conditionSec: 5.585125,
+  stepSec: [],
+  answerSec: 12.590045,
+  correctAtSec: 16.341066,
+  checkAtSec: 18.315692,
+  outroSec: 24.512812,
+};
 
 export const formSvetl = makeFormTask({
   id: "Rus7Svetl",
@@ -754,7 +801,19 @@ export const formSvetl = makeFormTask({
     "В краткой форме прилагательного «светлый» между согласными появляется беглая гласная — «светел».",
   ],
   optionSize: 44,
+  audioSync: svetlAudio,
 });
+
+const pyatTselykhAudio: AudioSync = {
+  src: "audio/rus7-pyattselykh.mp3",
+  totalSec: 24.764063,
+  conditionSec: 5.152449,
+  stepSec: [],
+  answerSec: 11.836871,
+  correctAtSec: 15.012358,
+  checkAtSec: 16.568299,
+  outroSec: 22.183333,
+};
 
 export const formPyatTselykh = makeFormTask({
   id: "Rus7PyatTselykh",
@@ -772,6 +831,7 @@ export const formPyatTselykh = makeFormTask({
     "Числительное в составе дробного числительного склоняется — «к ПЯТИ целым четырём шестым».",
   ],
   optionSize: 44,
+  audioSync: pyatTselykhAudio,
 });
 
 export const FORM_WORD_TASKS: TaskDef[] = [
