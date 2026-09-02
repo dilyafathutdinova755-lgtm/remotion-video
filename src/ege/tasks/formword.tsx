@@ -539,6 +539,17 @@ export const formReituzov = makeFormTask({
   audioSync: reituzovAudio,
 });
 
+const chasovenAudio: AudioSync = {
+  src: "audio/rus7-chasoven.mp3",
+  totalSec: 27.715875,
+  conditionSec: 5.459184,
+  stepSec: [],
+  answerSec: 12.714694,
+  correctAtSec: 16.001406,
+  checkAtSec: 17.833016,
+  outroSec: 25.249252,
+};
+
 export const formChasoven = makeFormTask({
   id: "Rus7Chasoven",
   hook: ["Легко ошибиться", "в одном месте"],
@@ -555,7 +566,19 @@ export const formChasoven = makeFormTask({
     "У существительного «часовня» в родительном падеже множественного числа окончание -ен (как у «башня» — «башен»).",
   ],
   optionSize: 44,
+  audioSync: chasovenAudio,
 });
+
+const doktoryAudio: AudioSync = {
+  src: "audio/rus7-doktory.mp3",
+  totalSec: 24.26775,
+  conditionSec: 4.434853,
+  stepSec: [],
+  answerSec: 11.51805,
+  correctAtSec: 14.226417,
+  checkAtSec: 15.821156,
+  outroSec: 21.501474,
+};
 
 export const formDoktory = makeFormTask({
   id: "Rus7Doktory",
@@ -572,7 +595,19 @@ export const formDoktory = makeFormTask({
   why: [
     "У существительного «доктор» в именительном падеже множественного числа ударное окончание -а.",
   ],
+  audioSync: doktoryAudio,
 });
+
+const getrovAudio: AudioSync = {
+  src: "audio/rus7-getrov.mp3",
+  totalSec: 27.79425,
+  conditionSec: 6.741247,
+  stepSec: [],
+  answerSec: 14.385442,
+  correctAtSec: 17.87483,
+  checkAtSec: 18.706304,
+  outroSec: 25.218617,
+};
 
 export const formGetrov = makeFormTask({
   id: "Rus7Getrov",
@@ -590,7 +625,19 @@ export const formGetrov = makeFormTask({
     "У существительного «гетры» в родительном падеже множественного числа нулевое окончание.",
   ],
   optionSize: 44,
+  audioSync: getrovAudio,
 });
+
+const naperekorNeyAudio: AudioSync = {
+  src: "audio/rus7-naperekorney.mp3",
+  totalSec: 28.10775,
+  conditionSec: 5.517959,
+  stepSec: [],
+  answerSec: 12.462426,
+  correctAtSec: 16.100227,
+  checkAtSec: 17.725351,
+  outroSec: 25.416757,
+};
 
 export const formNaperekorNey = makeFormTask({
   id: "Rus7NaperekorNey",
@@ -607,7 +654,19 @@ export const formNaperekorNey = makeFormTask({
   why: [
     "«Наперекор» — предлог, после которого местоимение 3-го лица не получает начального «н» (как «вопреки», «согласно»).",
   ],
+  audioSync: naperekorNeyAudio,
 });
+
+const tabuAudio: AudioSync = {
+  src: "audio/rus7-tabu.mp3",
+  totalSec: 26.592625,
+  conditionSec: 5.314739,
+  stepSec: [],
+  answerSec: 12.133787,
+  correctAtSec: 14.796939,
+  checkAtSec: 16.614082,
+  outroSec: 23.916916,
+};
 
 export const formTabu = makeFormTask({
   id: "Rus7Tabu",
@@ -625,6 +684,7 @@ export const formTabu = makeFormTask({
     "«Табу» — несклоняемое существительное среднего рода, прилагательное должно с ним согласовываться: «древнее табу».",
   ],
   optionSize: 44,
+  audioSync: tabuAudio,
 });
 
 export const formOladyev = makeFormTask({
