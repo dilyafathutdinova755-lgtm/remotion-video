@@ -393,6 +393,17 @@ export const formVysochaishaya = makeFormTask({
   audioSync: vysochaishayaAudio,
 });
 
+const semistamiAudio: AudioSync = {
+  src: "audio/rus7-semistami.mp3",
+  totalSec: 27.951,
+  conditionSec: 6.038957,
+  stepSec: [],
+  answerSec: 14.235488,
+  correctAtSec: 17.166939,
+  checkAtSec: 19.159615,
+  outroSec: 25.212585,
+};
+
 export const formSemistami = makeFormTask({
   id: "Rus7Semistami",
   hook: ["Проверь себя", "за 10 секунд"],
@@ -408,7 +419,19 @@ export const formSemistami = makeFormTask({
   why: [
     "В составном числительном «семьсот» при склонении изменяются обе части — семьюстами.",
   ],
+  audioSync: semistamiAudio,
 });
+
+const polotentsevAudio: AudioSync = {
+  src: "audio/rus7-polotentsev.mp3",
+  totalSec: 27.559125,
+  conditionSec: 5.866349,
+  stepSec: [],
+  answerSec: 13.805805,
+  correctAtSec: 16.658594,
+  checkAtSec: 18.87644,
+  outroSec: 24.950317,
+};
 
 export const formPolotentsev = makeFormTask({
   id: "Rus7Polotentsev",
@@ -426,7 +449,19 @@ export const formPolotentsev = makeFormTask({
     "У существительного «полотенце» в родительном падеже множественного числа нулевое окончание.",
   ],
   optionSize: 44,
+  audioSync: polotentsevAudio,
 });
+
+const pasportyAudio: AudioSync = {
+  src: "audio/rus7-pasporty.mp3",
+  totalSec: 26.592625,
+  conditionSec: 5.272517,
+  stepSec: [],
+  answerSec: 12.884762,
+  correctAtSec: 15.923311,
+  checkAtSec: 17.898005,
+  outroSec: 23.956916,
+};
 
 export const formPasporty = makeFormTask({
   id: "Rus7Pasporty",
@@ -443,7 +478,19 @@ export const formPasporty = makeFormTask({
   why: [
     "У существительного «паспорт» в именительном падеже множественного числа ударное окончание -а.",
   ],
+  audioSync: pasportyAudio,
 });
+
+const pomidorAudio: AudioSync = {
+  src: "audio/rus7-pomidor.mp3",
+  totalSec: 28.525688,
+  conditionSec: 5.697642,
+  stepSec: [],
+  answerSec: 13.116553,
+  correctAtSec: 15.673946,
+  checkAtSec: 17.524989,
+  outroSec: 26.001202,
+};
 
 export const formPomidor = makeFormTask({
   id: "Rus7Pomidor",
@@ -460,7 +507,19 @@ export const formPomidor = makeFormTask({
   why: [
     "У существительного «помидор», в отличие от «яблок» или «баклажан», в родительном падеже множественного числа сохраняется окончание -ов.",
   ],
+  audioSync: pomidorAudio,
 });
+
+const reituzovAudio: AudioSync = {
+  src: "audio/rus7-reituzov.mp3",
+  totalSec: 27.79425,
+  conditionSec: 6.289615,
+  stepSec: [],
+  answerSec: 13.530023,
+  correctAtSec: 16.193401,
+  checkAtSec: 17.918322,
+  outroSec: 25.112381,
+};
 
 export const formReituzov = makeFormTask({
   id: "Rus7Reituzov",
@@ -477,6 +536,7 @@ export const formReituzov = makeFormTask({
   why: [
     "У существительного «рейтузы» в родительном падеже множественного числа нулевое окончание, как у «сапог» или «чулок».",
   ],
+  audioSync: reituzovAudio,
 });
 
 export const formChasoven = makeFormTask({
