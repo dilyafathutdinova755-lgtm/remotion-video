@@ -41,6 +41,7 @@ const examLabel = (subject?: string): string => {
   if (subject.includes("истори")) return "история";
   if (subject.includes("базов")) return "база";
   if (subject.includes("биолог")) return "биология";
+  if (subject.includes("хими")) return "химия";
   return "профиль";
 };
 

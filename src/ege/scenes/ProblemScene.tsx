@@ -115,7 +115,11 @@ export const ProblemScene: React.FC = () => {
             </div>
           ) : null}
           {task.options ? (
-            <OptionList options={task.options} size={task.problemSize} />
+            <OptionList
+              options={task.options}
+              size={task.problemSize}
+              highlight={task.optionsHighlight ?? true}
+            />
           ) : (
             <ProblemText tokens={task.tokens} size={task.problemSize} />
           )}

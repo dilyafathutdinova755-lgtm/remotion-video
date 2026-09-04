@@ -79,11 +79,18 @@ export const Pill: React.FC<{ children: React.ReactNode }> = ({ children }) => (
  * Пять словосочетаний задания 7: выделенное слово набрано капсом прямо в
  * строке, поэтому его достаточно найти регуляркой и подсветить. Строки
  * проявляются одна за другой — читать их вслух не надо, надо разглядеть.
+ *
+ * `highlight` по умолчанию включён (так работали все прежние варианты),
+ * но выключается там, где строки — не «слово капсом среди обычного
+ * текста», а формулы и термины (задание 11 по химии): регулярка на 2+
+ * заглавные буквы подряд иначе подсвечивает случайные куски формул вроде
+ * «OH» или «CH» внутри «C5H11OH».
  */
-export const OptionList: React.FC<{ options: string[]; size: number }> = ({
-  options,
-  size,
-}) => {
+export const OptionList: React.FC<{
+  options: string[];
+  size: number;
+  highlight?: boolean;
+}> = ({ options, size, highlight = true }) => {
   const frame = useCurrentFrame();
 
   return (
@@ -108,15 +115,17 @@ export const OptionList: React.FC<{ options: string[]; size: number }> = ({
               transform: `translateX(${(1 - appear) * 16}px)`,
             }}
           >
-            {option.split(/([А-ЯЁA-Z]{2,})/).map((part, j) =>
-              /^[А-ЯЁA-Z]{2,}$/.test(part) ? (
-                <span key={j} style={{ color: COLORS.accent, fontWeight: 600 }}>
-                  {part}
-                </span>
-              ) : (
-                part
-              ),
-            )}
+            {highlight
+              ? option.split(/([А-ЯЁA-Z]{2,})/).map((part, j) =>
+                  /^[А-ЯЁA-Z]{2,}$/.test(part) ? (
+                    <span key={j} style={{ color: COLORS.accent, fontWeight: 600 }}>
+                      {part}
+                    </span>
+                  ) : (
+                    part
+                  ),
+                )
+              : option}
           </div>
         );
       })}
