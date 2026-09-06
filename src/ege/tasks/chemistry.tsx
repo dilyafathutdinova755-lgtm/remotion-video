@@ -67,6 +67,17 @@ const makeChemTask = (spec: ChemSpec): TaskDef => ({
   ),
 });
 
+const spirtIzomeriyaAudio: AudioSync = {
+  src: "audio/chem11-spirtizomeriya.mp3",
+  totalSec: 33.959184,
+  conditionSec: 5.797551,
+  stepSec: [],
+  answerSec: 14.16415,
+  correctAtSec: 14.16415,
+  checkAtSec: 16.934558,
+  outroSec: 31.19898,
+};
+
 export const chemSpirtIzomeriya = makeChemTask({
   id: "Chem11SpirtIzomeriya",
   hook: ["Один тип изомерии", "здесь ни при чём"],
@@ -85,7 +96,19 @@ export const chemSpirtIzomeriya = makeChemTask({
     "Изомерия скелета, положения гидроксильной группы и межклассовая (с эфирами) для него как раз характерны.",
   ],
   optionSize: 36,
+  audioSync: spirtIzomeriyaAudio,
 });
+
+const metanalAudio: AudioSync = {
+  src: "audio/chem11-metanal.mp3",
+  totalSec: 33.802449,
+  conditionSec: 6.922744,
+  stepSec: [],
+  answerSec: 12.936032,
+  correctAtSec: 12.936032,
+  checkAtSec: 15.423016,
+  outroSec: 31.261497,
+};
 
 export const chemMetanal = makeChemTask({
   id: "Chem11Metanal",
@@ -105,7 +128,19 @@ export const chemMetanal = makeChemTask({
     "При этом оно действительно карбонильное соединение — альдегид с группой С=О.",
   ],
   optionSize: 38,
+  audioSync: metanalAudio,
 });
+
+const gomologiBenzolaAudio: AudioSync = {
+  src: "audio/chem11-gomologibenzola.mp3",
+  totalSec: 39.88898,
+  conditionSec: 6.897914,
+  stepSec: [],
+  answerSec: 13.375828,
+  correctAtSec: 13.375828,
+  checkAtSec: 16.51,
+  outroSec: 36.963628,
+};
 
 export const chemGomologiBenzola = makeChemTask({
   id: "Chem11GomologiBenzola",
@@ -124,7 +159,19 @@ export const chemGomologiBenzola = makeChemTask({
     "Гомологи бензола — арены той же общей формулы с алкильными заместителями вместо водорода в кольце. Толуол и этилбензол под это подходят.",
     "Циклогексан не ароматичен, ацетилен вообще из другого класса, а стирол из-за двойной связи в боковой цепи имеет другую общую формулу.",
   ],
+  audioSync: gomologiBenzolaAudio,
 });
+
+const izomeryPentenaAudio: AudioSync = {
+  src: "audio/chem11-izomerypentena.mp3",
+  totalSec: 27.08898,
+  conditionSec: 5.966463,
+  stepSec: [],
+  answerSec: 10.599819,
+  correctAtSec: 10.599819,
+  checkAtSec: 13.063288,
+  outroSec: 24.318277,
+};
 
 export const chemIzomeryPentena = makeChemTask({
   id: "Chem11IzomeryPentena",
@@ -143,7 +190,19 @@ export const chemIzomeryPentena = makeChemTask({
     "Изомеры обязаны иметь одинаковую молекулярную формулу. У 3-метилпентена-1 и метилциклопентана она совпадает — C6H12.",
     "У остальных формулы другие: пентадиен-1,3 — C5H8, пентен-2 — C5H10, гексан — C6H14.",
   ],
+  audioSync: izomeryPentenaAudio,
 });
+
+const sp3Audio: AudioSync = {
+  src: "audio/chem11-sp3.mp3",
+  totalSec: 38.347755,
+  conditionSec: 6.86517,
+  stepSec: [],
+  answerSec: 15.252245,
+  correctAtSec: 15.252245,
+  checkAtSec: 18.959501,
+  outroSec: 35.607166,
+};
 
 export const chemSp3 = makeChemTask({
   id: "Chem11Sp3",
@@ -156,6 +215,7 @@ export const chemSp3 = makeChemTask({
     "sp3 — это состояние насыщенного атома углерода без кратных связей. Циклогексан, гексан и метилциклопропан полностью предельные.",
     "В бензоле все атомы sp2, в гексене два атома при двойной связи — sp2.",
   ],
+  audioSync: sp3Audio,
 });
 
 export const chemIzomeryPropanola = makeChemTask({
