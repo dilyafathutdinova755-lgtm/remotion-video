@@ -645,6 +645,17 @@ export const chemKarbonil = makeChemTask({
   audioSync: karbonilAudio,
 });
 
+const karboksilAudio: AudioSync = {
+  src: "audio/chem11-karboksil.mp3",
+  totalSec: 29.152625,
+  conditionSec: 5.93517,
+  stepSec: [],
+  answerSec: 11.499184,
+  correctAtSec: 11.499184,
+  checkAtSec: 14.06932,
+  outroSec: 26.181474,
+};
+
 export const chemKarboksil = makeChemTask({
   id: "Chem11Karboksil",
   hook: ["А здесь ищем", "другую группу"],
@@ -656,7 +667,19 @@ export const chemKarboksil = makeChemTask({
     "У глицина и пропионовой кислоты есть группа –COOH.",
     "У глюкозы и формальдегида — альдегидная группа, а не карбоксильная, у анилина — аминогруппа.",
   ],
+  audioSync: karboksilAudio,
 });
+
+const coohAudio: AudioSync = {
+  src: "audio/chem11-cooh.mp3",
+  totalSec: 37.146063,
+  conditionSec: 6.74966,
+  stepSec: [],
+  answerSec: 14.934739,
+  correctAtSec: 14.934739,
+  checkAtSec: 17.761361,
+  outroSec: 34.161202,
+};
 
 export const chemCooh = makeChemTask({
   id: "Chem11Cooh",
@@ -669,7 +692,19 @@ export const chemCooh = makeChemTask({
     "У олеиновой кислоты и у глицина есть свободная группа –COOH.",
     "У метилформиата это сложноэфирная группа без OH, у анилина — аминогруппа, у глицерина — только гидроксильные группы.",
   ],
+  audioSync: coohAudio,
 });
+
+const chisloIzomerovAudio: AudioSync = {
+  src: "audio/chem11-chisloizomerov.mp3",
+  totalSec: 38.530563,
+  conditionSec: 6.255261,
+  stepSec: [],
+  answerSec: 17.205351,
+  correctAtSec: 17.205351,
+  checkAtSec: 19.979569,
+  outroSec: 35.502902,
+};
 
 export const chemChisloIzomerov = makeChemTask({
   id: "Chem11ChisloIzomerov",
@@ -682,7 +717,19 @@ export const chemChisloIzomerov = makeChemTask({
     "У состава C3H8O ровно один простой эфир — метилэтиловый — и ровно два спирта: пропанол-1 и пропанол-2.",
     "Больше вариантов расположения атомов при трёх углеродах и одном кислороде такого типа не даёт.",
   ],
+  audioSync: chisloIzomerovAudio,
 });
+
+const gomologiMetilaminaAudio: AudioSync = {
+  src: "audio/chem11-gomologimetilamina.mp3",
+  totalSec: 37.146063,
+  conditionSec: 6.909524,
+  stepSec: [],
+  answerSec: 12.462744,
+  correctAtSec: 12.462744,
+  checkAtSec: 14.989932,
+  outroSec: 34.494626,
+};
 
 export const chemGomologiMetilamina = makeChemTask({
   id: "Chem11GomologiMetilamina",
@@ -695,7 +742,19 @@ export const chemGomologiMetilamina = makeChemTask({
     "Метиламин — первичный амин, и его гомологи — тоже первичные амины с прямой заменой групп CH2: бутиламин и этиламин подходят.",
     "Глицин — аминокислота, другой класс, диметиламин — вторичный амин, анилин — ароматический амин с совсем другой общей формулой.",
   ],
+  audioSync: gomologiMetilaminaAudio,
 });
+
+const sopryazhenieAudio: AudioSync = {
+  src: "audio/chem11-sopryazhenie.mp3",
+  totalSec: 39.706063,
+  conditionSec: 6.721542,
+  stepSec: [],
+  answerSec: 12.584535,
+  correctAtSec: 12.584535,
+  checkAtSec: 15.670045,
+  outroSec: 37.179955,
+};
 
 export const chemSopryazhenie = makeChemTask({
   id: "Chem11Sopryazhenie",
@@ -708,6 +767,7 @@ export const chemSopryazhenie = makeChemTask({
     "В феноле пи-система кольца сопряжена с неподелённой парой кислорода, в бутадиене-1,3 сопряжены две двойные связи через одинарную.",
     "В циклогексене двойная связь одна и изолированная, у 2-метилбутана двойных связей нет вовсе, у бутина-1 тройная связь тоже изолирована.",
   ],
+  audioSync: sopryazhenieAudio,
 });
 
 export const chemKetony = makeChemTask({
