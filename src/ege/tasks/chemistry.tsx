@@ -363,6 +363,17 @@ export const chemDvePary = makeChemTask({
   audioSync: dveParyAudio,
 });
 
+const ryadyC7H12Audio: AudioSync = {
+  src: "audio/chem11-ryadyc7h12.mp3",
+  totalSec: 44.74775,
+  conditionSec: 7.114762,
+  stepSec: [],
+  answerSec: 16.187392,
+  correctAtSec: 16.187392,
+  checkAtSec: 18.46,
+  outroSec: 41.776757,
+};
+
 export const chemRyadyC7H12 = makeChemTask({
   id: "Chem11RyadyC7H12",
   hook: ["Один и тот же ряд,", "только не для всех"],
@@ -374,7 +385,19 @@ export const chemRyadyC7H12 = makeChemTask({
     "Формула C7H12 отвечает общей формуле с двумя степенями непредельности — под неё подходят и алкины (ацетилен), и циклоалкены с одним кольцом и одной двойной связью (циклопентен).",
     "Метан — алкан, этилен — алкен, бензол — арен: у всех другая общая формула.",
   ],
+  audioSync: ryadyC7H12Audio,
 });
+
+const sp3Sp2Audio: AudioSync = {
+  src: "audio/chem11-sp3sp2.mp3",
+  totalSec: 45.949375,
+  conditionSec: 6.359705,
+  stepSec: [],
+  answerSec: 15.782925,
+  correctAtSec: 15.782925,
+  checkAtSec: 19.459637,
+  outroSec: 43.226961,
+};
 
 export const chemSp3Sp2 = makeChemTask({
   id: "Chem11Sp3Sp2",
@@ -387,7 +410,19 @@ export const chemSp3Sp2 = makeChemTask({
     "В пропене два атома при двойной связи sp2, третий, метильный — sp3. В толуоле кольцо целиком sp2, а метильная группа — sp3.",
     "В циклогексене два атома при двойной связи sp2, остальные четыре в кольце — sp3. В пропине есть тройная связь и sp-гибридизация, а в пропане только sp3.",
   ],
+  audioSync: sp3Sp2Audio,
 });
+
+const spSp3Audio: AudioSync = {
+  src: "audio/chem11-spsp3.mp3",
+  totalSec: 37.799125,
+  conditionSec: 5.435918,
+  stepSec: [],
+  answerSec: 15.074989,
+  correctAtSec: 15.074989,
+  checkAtSec: 17.522426,
+  outroSec: 35.15712,
+};
 
 export const chemSpSp3 = makeChemTask({
   id: "Chem11SpSp3",
@@ -400,7 +435,19 @@ export const chemSpSp3 = makeChemTask({
     "sp-гибридизация — признак тройной связи. У пропина и бутина она есть, и при этом у обоих остаются насыщенные, sp3, атомы в цепи.",
     "В пропене и толуоле есть только sp2 и sp3, в пропане — только sp3.",
   ],
+  audioSync: spSp3Audio,
 });
+
+const neGomologiEfiraAudio: AudioSync = {
+  src: "audio/chem11-negomologiefira.mp3",
+  totalSec: 37.564063,
+  conditionSec: 6.036145,
+  stepSec: [],
+  answerSec: 12.479819,
+  correctAtSec: 12.479819,
+  checkAtSec: 15.149909,
+  outroSec: 35.136009,
+};
 
 export const chemNeGomologiEfira = makeChemTask({
   id: "Chem11NeGomologiEfira",
@@ -420,7 +467,19 @@ export const chemNeGomologiEfira = makeChemTask({
     "А «уксуснометиловый эфир» и «этиловый эфир уксусной кислоты» — это сложные эфиры, другой класс соединений, не гомологи.",
   ],
   optionSize: 40,
+  audioSync: neGomologiEfiraAudio,
 });
+
+const paryGomologovAudio: AudioSync = {
+  src: "audio/chem11-parygomologov.mp3",
+  totalSec: 39.810563,
+  conditionSec: 6.52771,
+  stepSec: [],
+  answerSec: 11.772562,
+  correctAtSec: 11.772562,
+  checkAtSec: 14.321995,
+  outroSec: 37.039615,
+};
 
 export const chemParyGomologov = makeChemTask({
   id: "Chem11ParyGomologov",
@@ -439,6 +498,7 @@ export const chemParyGomologov = makeChemTask({
     "Толуол и этилбензол отличаются на группу CH2 в боковой цепи, фенол и крезол — тем же в кольце: это гомологи.",
     "Бензол и стирол из-за двойной связи в боковой цепи не подходят под одну общую формулу, бензол и фенол — разные классы, а толуол и метилбензол — вообще одно и то же вещество под двумя названиями.",
   ],
+  audioSync: paryGomologovAudio,
 });
 
 export const chemNeIzomeryButena = makeChemTask({
