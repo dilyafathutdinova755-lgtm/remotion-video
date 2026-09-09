@@ -770,6 +770,17 @@ export const chemSopryazhenie = makeChemTask({
   audioSync: sopryazhenieAudio,
 });
 
+const ketonyAudio: AudioSync = {
+  src: "audio/chem11-ketony.mp3",
+  totalSec: 33.724063,
+  conditionSec: 6.209252,
+  stepSec: [],
+  answerSec: 11.139229,
+  correctAtSec: 11.139229,
+  checkAtSec: 13.93195,
+  outroSec: 30.832449,
+};
+
 export const chemKetony = makeChemTask({
   id: "Chem11Ketony",
   hook: ["Два вещества", "относятся к одному классу"],
@@ -780,7 +791,19 @@ export const chemKetony = makeChemTask({
     "У ацетона и бутанона карбонильная группа стоит внутри углеродной цепи — это и есть признак кетона.",
     "Формалин — раствор альдегида, этилацетат — сложный эфир, глюкоза в открытой форме — тоже альдегид, а не кетон.",
   ],
+  audioSync: ketonyAudio,
 });
+
+const izomerButanolaAudio: AudioSync = {
+  src: "audio/chem11-izomerbutanola.mp3",
+  totalSec: 32.7575,
+  conditionSec: 6.956576,
+  stepSec: [],
+  answerSec: 9.920839,
+  correctAtSec: 9.920839,
+  checkAtSec: 11.681859,
+  outroSec: 30.182472,
+};
 
 export const chemIzomerButanola = makeChemTask({
   id: "Chem11IzomerButanola",
@@ -792,7 +815,19 @@ export const chemIzomerButanola = makeChemTask({
     "Бутанол-1 — это C4H10O. Та же формула у бутанола-2, то есть у второго варианта.",
     "Первый вариант — это сам бутанол-1, не изомер самому себе; третий — эфир другой формулы; четвёртый — бутаналь, альдегид с другой формулой.",
   ],
+  audioSync: izomerButanolaAudio,
 });
+
+const gibridizatsiyaAudio: AudioSync = {
+  src: "audio/chem11-gibridizatsiya.mp3",
+  totalSec: 34.586063,
+  conditionSec: 6.70585,
+  stepSec: [],
+  answerSec: 15.607347,
+  correctAtSec: 15.607347,
+  checkAtSec: 18.701338,
+  outroSec: 31.629864,
+};
 
 export const chemGibridizatsiya = makeChemTask({
   id: "Chem11Gibridizatsiya",
@@ -805,7 +840,19 @@ export const chemGibridizatsiya = makeChemTask({
     "В молекуле 2-метилбутена-2 два атома при двойной связи — sp2, а все три метильные группы — sp3.",
     "Тройной связи, а значит и sp-гибридизации, в этой молекуле нет вовсе.",
   ],
+  audioSync: gibridizatsiyaAudio,
 });
+
+const toluolAudio: AudioSync = {
+  src: "audio/chem11-toluol.mp3",
+  totalSec: 38.269375,
+  conditionSec: 5.916054,
+  stepSec: [],
+  answerSec: 10.900998,
+  correctAtSec: 10.900998,
+  checkAtSec: 13.380091,
+  outroSec: 35.366553,
+};
 
 export const chemToluol = makeChemTask({
   id: "Chem11Toluol",
@@ -824,6 +871,7 @@ export const chemToluol = makeChemTask({
     "Метильная группа — донор электронной плотности, она смещает пи-электроны кольца несимметрично, повышая плотность именно в орто- и пара-положениях, поэтому равномерного распределения на самом деле нет.",
   ],
   optionSize: 32,
+  audioSync: toluolAudio,
 });
 
 export const CHEMISTRY_TASKS: TaskDef[] = [
