@@ -218,6 +218,17 @@ export const chemSp3 = makeChemTask({
   audioSync: sp3Audio,
 });
 
+const izomeryPropanolaAudio: AudioSync = {
+  src: "audio/chem11-izomerypropanola.mp3",
+  totalSec: 34.690612,
+  conditionSec: 6.880317,
+  stepSec: [],
+  answerSec: 13.235465,
+  correctAtSec: 13.235465,
+  checkAtSec: 15.978141,
+  outroSec: 31.816145,
+};
+
 export const chemIzomeryPropanola = makeChemTask({
   id: "Chem11IzomeryPropanola",
   hook: ["Два вещества", "повторяют пропанол-2"],
@@ -235,7 +246,19 @@ export const chemIzomeryPropanola = makeChemTask({
     "Пропанол-2 — это C3H8O. Такая же формула у метилэтилового эфира и у пропанола-1.",
     "Варианты два и четыре — это уже C4H10O, а вариант пять — этанол, C2H6O.",
   ],
+  audioSync: izomeryPropanolaAudio,
 });
+
+const izomeryHlorbutanaAudio: AudioSync = {
+  src: "audio/chem11-izomeryhlorbutana.mp3",
+  totalSec: 31.791,
+  conditionSec: 6.227528,
+  stepSec: [],
+  answerSec: 12.6839,
+  correctAtSec: 12.6839,
+  checkAtSec: 15.371519,
+  outroSec: 29.066395,
+};
 
 export const chemIzomeryHlorbutana = makeChemTask({
   id: "Chem11IzomeryHlorbutana",
@@ -255,7 +278,19 @@ export const chemIzomeryHlorbutana = makeChemTask({
     "Циклические варианты из-за кольца теряют два атома водорода — их формулы уже другие.",
   ],
   optionSize: 42,
+  audioSync: izomeryHlorbutanaAudio,
 });
+
+const sigma8Audio: AudioSync = {
+  src: "audio/chem11-8sigma.mp3",
+  totalSec: 41.404063,
+  conditionSec: 7.520159,
+  stepSec: [],
+  answerSec: 13.957732,
+  correctAtSec: 13.957732,
+  checkAtSec: 17.832472,
+  outroSec: 38.79356,
+};
 
 export const chem8Sigma = makeChemTask({
   id: "Chem118Sigma",
@@ -268,7 +303,19 @@ export const chem8Sigma = makeChemTask({
     "В этаноле: связь С–С, связь С–О, связь О–Н и пять связей С–Н — итого восемь.",
     "В диметиловом эфире: две связи С–О и шесть связей С–Н — тоже восемь. У остальных веществ сигма-связей больше или меньше.",
   ],
+  audioSync: sigma8Audio,
 });
+
+const sigma6Audio: AudioSync = {
+  src: "audio/chem11-6sigma.mp3",
+  totalSec: 38.608938,
+  conditionSec: 6.192222,
+  stepSec: [],
+  answerSec: 12.402426,
+  correctAtSec: 12.402426,
+  checkAtSec: 15.796417,
+  outroSec: 35.923537,
+};
 
 export const chem6Sigma = makeChemTask({
   id: "Chem116Sigma",
@@ -281,7 +328,19 @@ export const chem6Sigma = makeChemTask({
     "В пропине тройная связь даёт одну сигма-связь, плюс связь С–С и четыре С–Н — итого шесть.",
     "В пропадиене две двойные связи дают по одной сигма-связи каждая, плюс четыре С–Н — тоже шесть. Циклические варианты и пропен дают другое число связей.",
   ],
+  audioSync: sigma6Audio,
 });
+
+const dveParyAudio: AudioSync = {
+  src: "audio/chem11-dvepary.mp3",
+  totalSec: 27.715875,
+  conditionSec: 6.152222,
+  stepSec: [],
+  answerSec: 11.534943,
+  correctAtSec: 11.534943,
+  checkAtSec: 14.397415,
+  outroSec: 24.93678,
+};
 
 export const chemDvePary = makeChemTask({
   id: "Chem11DvePary",
@@ -301,6 +360,7 @@ export const chemDvePary = makeChemTask({
     "В остальных парах формулы разные.",
   ],
   optionSize: 42,
+  audioSync: dveParyAudio,
 });
 
 export const chemRyadyC7H12 = makeChemTask({
