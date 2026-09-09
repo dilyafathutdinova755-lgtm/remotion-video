@@ -501,6 +501,17 @@ export const chemParyGomologov = makeChemTask({
   audioSync: paryGomologovAudio,
 });
 
+const neIzomeryButenaAudio: AudioSync = {
+  src: "audio/chem11-neizomeributena.mp3",
+  totalSec: 33.149375,
+  conditionSec: 6.842902,
+  stepSec: [],
+  answerSec: 12.820317,
+  correctAtSec: 12.820317,
+  checkAtSec: 15.554626,
+  outroSec: 30.177959,
+};
+
 export const chemNeIzomeryButena = makeChemTask({
   id: "Chem11NeIzomeryButena",
   hook: ["Пять веществ.", "Два — не изомеры бутена"],
@@ -518,7 +529,19 @@ export const chemNeIzomeryButena = makeChemTask({
     "Бутен-2 — это C4H8. Такая же формула у 2-метилпропена, бутена-1 и циклобутана — все они изомеры.",
     "А этилциклопропан и метилциклобутан из-за лишнего атома углерода в кольце — уже C5H10, другая формула.",
   ],
+  audioSync: neIzomeryButenaAudio,
 });
+
+const cisTransAudio: AudioSync = {
+  src: "audio/chem11-cistrans.mp3",
+  totalSec: 41.325688,
+  conditionSec: 7.192177,
+  stepSec: [],
+  answerSec: 13.210635,
+  correctAtSec: 13.210635,
+  checkAtSec: 16.305714,
+  outroSec: 38.393537,
+};
 
 export const chemCisTrans = makeChemTask({
   id: "Chem11CisTrans",
@@ -531,7 +554,19 @@ export const chemCisTrans = makeChemTask({
     "Цис-транс-изомерия возможна, только если у обоих атомов при двойной связи два разных заместителя. У пентена-2, гексена-3 и бутена-2 это условие выполняется.",
     "А у пропилена и бутена-1 на конце двойной связи стоит группа с двумя одинаковыми атомами водорода — цис-транс-форм для них не существует.",
   ],
+  audioSync: cisTransAudio,
 });
+
+const cisTrans2Audio: AudioSync = {
+  src: "audio/chem11-cistrans2.mp3",
+  totalSec: 42.605688,
+  conditionSec: 6.508322,
+  stepSec: [],
+  answerSec: 12.945351,
+  correctAtSec: 12.945351,
+  checkAtSec: 15.616236,
+  outroSec: 39.852494,
+};
 
 export const chemCisTrans2 = makeChemTask({
   id: "Chem11CisTrans2",
@@ -550,7 +585,19 @@ export const chemCisTrans2 = makeChemTask({
     "У 1-хлорпропена и бутена-2 на каждом атоме при двойной связи по два разных заместителя — цис-транс-изомерия есть.",
     "У пентина-2 связь тройная, у 1,1-дифенилэтилена на одном атоме два одинаковых фенила, у трифторпропена на конце двойной связи снова две одинаковые группы — везде изомерии нет.",
   ],
+  audioSync: cisTrans2Audio,
 });
+
+const dveParyIzomerov2Audio: AudioSync = {
+  src: "audio/chem11-dveparyizomerov2.mp3",
+  totalSec: 35.78775,
+  conditionSec: 6.752653,
+  stepSec: [],
+  answerSec: 11.896485,
+  correctAtSec: 11.896485,
+  checkAtSec: 14.487687,
+  outroSec: 32.983855,
+};
 
 export const chemDveParyIzomerov2 = makeChemTask({
   id: "Chem11DveParyIzomerov2",
@@ -570,7 +617,19 @@ export const chemDveParyIzomerov2 = makeChemTask({
     "Пентан и пентадиен формулами отличаются, этин и ацетилен — вообще одно и то же вещество под двумя названиями, а этанол и этаналь — разные формулы.",
   ],
   optionSize: 40,
+  audioSync: dveParyIzomerov2Audio,
 });
+
+const karbonilAudio: AudioSync = {
+  src: "audio/chem11-karbonil.mp3",
+  totalSec: 33.567313,
+  conditionSec: 6.354989,
+  stepSec: [],
+  answerSec: 11.142925,
+  correctAtSec: 11.142925,
+  checkAtSec: 13.917438,
+  outroSec: 31.009796,
+};
 
 export const chemKarbonil = makeChemTask({
   id: "Chem11Karbonil",
@@ -583,6 +642,7 @@ export const chemKarbonil = makeChemTask({
     "Рибоза в открытой форме — альдопентоза с альдегидной, карбонильной группой, этаналь — тоже альдегид.",
     "Глицерин и этанол — спирты, карбонила у них нет. Карбоксильную группу уксусной кислоты здесь отдельно не считаем карбонильной — в задании 11 это разные категории.",
   ],
+  audioSync: karbonilAudio,
 });
 
 export const chemKarboksil = makeChemTask({
