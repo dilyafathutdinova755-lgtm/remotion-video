@@ -1077,8 +1077,20 @@ export const roosterW: TaskDef = {
   ),
 };
 
+const eggSexChromosomeAudio: AudioSync = {
+  src: "audio/bio3-eggsexchromosome.mp3",
+  totalSec: 39.47,
+  conditionSec: 7.999,
+  stepSec: [17.366, 19.104],
+  answerSec: 23.098,
+  correctAtSec: 23.098,
+  checkAtSec: 28.57,
+  outroSec: 37.168,
+};
+
 export const eggSexChromosome: TaskDef = {
   ...base("Bio3EggSexChromosome", ["Яйцеклетка человека, набор 23", "Сколько из них половых?"], 42),
+  audioSync: eggSexChromosomeAudio,
 
   tokens: w(
     "Сколько половых хромосом содержит яйцеклетка человека, если гаплоидный набор равен 23? В ответе запишите только соответствующее число.",
@@ -1110,8 +1122,20 @@ export const eggSexChromosome: TaskDef = {
   ),
 };
 
+const ratInterphaseAudio: AudioSync = {
+  src: "audio/bio3-ratinterphase.mp3",
+  totalSec: 50.99,
+  conditionSec: 7.04,
+  stepSec: [20.275, 31.531],
+  answerSec: 35.582,
+  correctAtSec: 35.582,
+  checkAtSec: 38.21,
+  outroSec: 48.512,
+};
+
 export const ratInterphase: TaskDef = {
   ...base("Bio3RatInterphase", ["Клетка ещё не делилась", "Хромосом всё ещё столько же"], 40),
+  audioSync: ratInterphaseAudio,
 
   tokens: w(
     "Диплоидный набор крысы составляет 42 хромосомы. Сколько хромосом имеет первичная половая клетка самки крысы в конце интерфазы перед мейозом? В ответе запишите только количество хромосом.",
@@ -1144,8 +1168,20 @@ export const ratInterphase: TaskDef = {
   ),
 };
 
+const wheatMeiosisIIAudio: AudioSync = {
+  src: "audio/bio3-wheatmeiosisii.mp3",
+  totalSec: 48.04,
+  conditionSec: 9.036,
+  stepSec: [20.598, 30.012],
+  answerSec: 33.947,
+  correctAtSec: 33.947,
+  checkAtSec: 36.111,
+  outroSec: 45.468,
+};
+
 export const wheatMeiosisII: TaskDef = {
   ...base("Bio3WheatMeiosisII", ["Пшеница — 28 хромосом", "А перед вторым делением мейоза?"], 40),
+  audioSync: wheatMeiosisIIAudio,
 
   tokens: w(
     "Хромосомный набор соматических клеток пшеницы равен 28. Сколько хромосом в клетке семязачатка перед началом мейоза II? В ответе запишите только количество хромосом.",
@@ -1177,8 +1213,20 @@ export const wheatMeiosisII: TaskDef = {
   ),
 };
 
+const chromatidsAfterMeiosisIAudio: AudioSync = {
+  src: "audio/bio3-chromatidsaftermeiosisi.mp3",
+  totalSec: 48.43,
+  conditionSec: 7.048,
+  stepSec: [17.784, 26.068],
+  answerSec: 31.575,
+  correctAtSec: 31.575,
+  checkAtSec: 34.338,
+  outroSec: 45.967,
+};
+
 export const chromatidsAfterMeiosisI: TaskDef = {
   ...base("Bio3ChromatidsAfterMeiosisI", ["Мейоз I прошёл", "Хроматид осталось не половина"], 40),
+  audioSync: chromatidsAfterMeiosisIAudio,
 
   tokens: w(
     "Диплоидный набор клетки составляет 46 хромосом. Сколько хроматид будет содержаться в продуктах первого мейотического деления? В ответе запишите только количество хроматид.",
@@ -1210,8 +1258,20 @@ export const chromatidsAfterMeiosisI: TaskDef = {
   ),
 };
 
+const ryeEndospermAudio: AudioSync = {
+  src: "audio/bio3-ryeendosperm.mp3",
+  totalSec: 49.32,
+  conditionSec: 8.043,
+  stepSec: [19.385, 30.234],
+  answerSec: 33.73,
+  correctAtSec: 33.73,
+  checkAtSec: 36.363,
+  outroSec: 46.962,
+};
+
 export const ryeEndosperm: TaskDef = {
   ...base("Bio3RyeEndosperm", ["В листе ржи — 14 хромосом", "А в эндосперме семени?"], 42),
+  audioSync: ryeEndospermAudio,
 
   tokens: w(
     "В клетке листа ржи 14 хромосом. Какой набор хромосом имеют клетки эндосперма семени ржи? В ответе запишите только количество хромосом.",
