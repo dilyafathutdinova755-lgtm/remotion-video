@@ -621,8 +621,20 @@ export const g2Chromatids: TaskDef = {
   ),
 };
 
+const plantSpermAudio: AudioSync = {
+  src: "audio/bio3-plantsperm.mp3",
+  totalSec: 45.4,
+  conditionSec: 7.276,
+  stepSec: [17.888, 25.141],
+  answerSec: 32.162,
+  correctAtSec: 32.162,
+  checkAtSec: 34.509,
+  outroSec: 42.797,
+};
+
 export const plantSperm: TaskDef = {
   ...base("Bio3PlantSperm", ["В листе — 32 хромосомы", "А у спермия?"], 44),
+  audioSync: plantSpermAudio,
 
   tokens: w(
     "Сколько хромосом содержит спермий цветкового растения, если в ядре клетки листа содержится 32 хромосомы? В ответе запишите только количество хромосом.",
@@ -654,8 +666,20 @@ export const plantSperm: TaskDef = {
   ),
 };
 
+const adenine15Audio: AudioSync = {
+  src: "audio/bio3-adenine15.mp3",
+  totalSec: 50.44,
+  conditionSec: 6.944,
+  stepSec: [17.74, 20.364],
+  answerSec: 32.31,
+  correctAtSec: 32.31,
+  checkAtSec: 34.858,
+  outroSec: 48.063,
+};
+
 export const adenine15: TaskDef = {
   ...base("Bio3Adenine15", ["Аденина 15%", "А цитозина?"], 44),
+  audioSync: adenine15Audio,
 
   tokens: w(
     "Какой процент нуклеотидов с цитозином содержит ДНК, если доля адениновых нуклеотидов составляет 15%? В ответе запишите только соответствующее число.",
@@ -689,8 +713,20 @@ export const adenine15: TaskDef = {
   ),
 };
 
+const cytosine34Audio: AudioSync = {
+  src: "audio/bio3-cytosine34.mp3",
+  totalSec: 55.07,
+  conditionSec: 7.548,
+  stepSec: [20.18, 29.507],
+  answerSec: 39.208,
+  correctAtSec: 39.208,
+  checkAtSec: 41.983,
+  outroSec: 52.564,
+};
+
 export const cytosine34: TaskDef = {
   ...base("Bio3Cytosine34", ["Цитозина 34%", "А тимина?"], 44),
+  audioSync: cytosine34Audio,
 
   tokens: w(
     "В молекуле ДНК эукариотического организма на долю нуклеотидов с цитозином приходится 34%. Определите долю нуклеотидов с тимином. В ответе запишите только соответствующее число.",
@@ -724,8 +760,20 @@ export const cytosine34: TaskDef = {
   ),
 };
 
+const guanine30Audio: AudioSync = {
+  src: "audio/bio3-guanine30.mp3",
+  totalSec: 51.57,
+  conditionSec: 7.171,
+  stepSec: [21.334, 26.354],
+  answerSec: 36.043,
+  correctAtSec: 36.043,
+  checkAtSec: 40.68,
+  outroSec: 49.128,
+};
+
 export const guanine30: TaskDef = {
   ...base("Bio3Guanine30", ["Гуанина 30%", "А аденина?"], 44),
+  audioSync: guanine30Audio,
 
   tokens: w(
     "В молекуле ДНК количество нуклеотидов с гуанином составляет 30% от общего числа. Какой процент нуклеотидов с аденином содержится в этой молекуле? В ответе запишите только соответствующее число.",
@@ -759,8 +807,20 @@ export const guanine30: TaskDef = {
   ),
 };
 
+const twentyAminoAcidsAudio: AudioSync = {
+  src: "audio/bio3-twentyaminoacids.mp3",
+  totalSec: 38.19,
+  conditionSec: 6.75,
+  stepSec: [16.791, 22.035],
+  answerSec: 24.342,
+  correctAtSec: 24.342,
+  checkAtSec: 26.954,
+  outroSec: 35.745,
+};
+
 export const twentyAminoAcids: TaskDef = {
   ...base("Bio3TwentyAminoAcids", ["20 аминокислот", "Сколько нуклеотидов?"], 44),
+  audioSync: twentyAminoAcidsAudio,
 
   tokens: w(
     "Сколько нуклеотидов в зрелой молекуле иРНК кодируют полипептидный фрагмент из 20 аминокислот? В ответе запишите только соответствующее число.",
