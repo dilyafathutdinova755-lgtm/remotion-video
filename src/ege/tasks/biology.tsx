@@ -1531,8 +1531,20 @@ export const beetMicrospore: TaskDef = {
   ),
 };
 
+const spermAlleleAudio: AudioSync = {
+  src: "audio/bio3-spermallele.mp3",
+  totalSec: 36.91,
+  conditionSec: 7.092,
+  stepSec: [11.563, 20.208],
+  answerSec: 23.188,
+  correctAtSec: 23.188,
+  checkAtSec: 23.836,
+  outroSec: 34.328,
+};
+
 export const spermAllele: TaskDef = {
   ...base("Bio3SpermAllele", ["Один ген", "Сколько его копий в сперматозоиде?"], 44),
+  audioSync: spermAlleleAudio,
 
   tokens: w(
     "Сколько аллелей одного гена содержит сперматозоид млекопитающего? В ответе запишите только соответствующее число.",
@@ -1564,8 +1576,20 @@ export const spermAllele: TaskDef = {
   ),
 };
 
+const dnaMoleculesPerChromosomeAudio: AudioSync = {
+  src: "audio/bio3-dnamoleculesperchromosome.mp3",
+  totalSec: 44.67,
+  conditionSec: 8.718,
+  stepSec: [17.476, 27.413],
+  answerSec: 31.217,
+  correctAtSec: 31.217,
+  checkAtSec: 31.848,
+  outroSec: 42.278,
+};
+
 export const dnaMoleculesPerChromosome: TaskDef = {
   ...base("Bio3DnaMoleculesPerChromosome", ["Конец интерфазы", "Сколько ДНК теперь в одной хромосоме?"], 40),
+  audioSync: dnaMoleculesPerChromosomeAudio,
 
   tokens: w(
     "Сколько молекул ДНК будет содержать каждая хромосома к концу интерфазы? В ответе запишите только соответствующее число.",
@@ -1598,8 +1622,20 @@ export const dnaMoleculesPerChromosome: TaskDef = {
   ),
 };
 
+const eightyFourTRNAAudio: AudioSync = {
+  src: "audio/bio3-eightyfourtrna.mp3",
+  totalSec: 47.07,
+  conditionSec: 9.112,
+  stepSec: [20.841, 29.784],
+  answerSec: 32.278,
+  correctAtSec: 32.278,
+  checkAtSec: 35.606,
+  outroSec: 44.505,
+};
+
 export const eightyFourTRNA: TaskDef = {
   ...base("Bio3EightyFourTRNA", ["84 молекулы тРНК", "Сколько аминокислот в белке?"], 42),
+  audioSync: eightyFourTRNAAudio,
 
   tokens: w(
     "В процессе трансляции участвовало 84 молекулы тРНК. Определите количество аминокислот в синтезируемом белке. В ответе запишите только соответствующее число.",
@@ -1631,8 +1667,20 @@ export const eightyFourTRNA: TaskDef = {
   ),
 };
 
+const drosophilaEggXAudio: AudioSync = {
+  src: "audio/bio3-drosophilaeggx.mp3",
+  totalSec: 46.29,
+  conditionSec: 8.608,
+  stepSec: [17.759, 29.843],
+  answerSec: 30.558,
+  correctAtSec: 30.558,
+  checkAtSec: 33.036,
+  outroSec: 43.839,
+};
+
 export const drosophilaEggX: TaskDef = {
   ...base("Bio3DrosophilaEggX", ["8 хромосом дрозофилы", "Сколько X-хромосом у яйцеклетки?"], 42),
+  audioSync: drosophilaEggXAudio,
 
   tokens: w(
     "В соматической клетке дрозофилы 8 хромосом. Сколько X-хромосом имеет яйцеклетка дрозофилы? В ответе запишите только число X-хромосом.",
@@ -1664,8 +1712,20 @@ export const drosophilaEggX: TaskDef = {
   ),
 };
 
+const generativeCellAudio: AudioSync = {
+  src: "audio/bio3-generativecell.mp3",
+  totalSec: 48.04,
+  conditionSec: 7.51,
+  stepSec: [18.312, 29.432],
+  answerSec: 34.458,
+  correctAtSec: 34.458,
+  checkAtSec: 36.835,
+  outroSec: 45.505,
+};
+
 export const generativeCell: TaskDef = {
   ...base("Bio3GenerativeCell", ["Спермий — 8 хромосом", "А генеративная клетка?"], 40),
+  audioSync: generativeCellAudio,
 
   tokens: w(
     "Из генеративной клетки пыльцевого зерна красной смородины в результате митоза образовался спермий, содержащий 8 хромосом. Сколько хромосом в самой генеративной клетке? В ответе запишите только количество хромосом.",
