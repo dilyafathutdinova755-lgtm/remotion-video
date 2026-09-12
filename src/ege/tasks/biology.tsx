@@ -852,8 +852,20 @@ export const twentyAminoAcids: TaskDef = {
   ),
 };
 
+const nucleotides2130Audio: AudioSync = {
+  src: "audio/bio3-nucleotides2130.mp3",
+  totalSec: 46.29,
+  conditionSec: 7.925,
+  stepSec: [21.196, 24.028],
+  answerSec: 30.634,
+  correctAtSec: 30.634,
+  checkAtSec: 32.941,
+  outroSec: 43.985,
+};
+
 export const nucleotides2130: TaskDef = {
   ...base("Bio3Nucleotides2130", ["2130 нуклеотидов", "Сколько аминокислот?"], 44),
+  audioSync: nucleotides2130Audio,
 
   tokens: w(
     "Фрагмент зрелой молекулы иРНК содержит 2130 нуклеотидов. Определите число аминокислот в кодируемом полипептиде. В ответе запишите только соответствующее число.",
@@ -885,8 +897,20 @@ export const nucleotides2130: TaskDef = {
   ),
 };
 
+const fiftyTRNAAudio: AudioSync = {
+  src: "audio/bio3-fiftytrna.mp3",
+  totalSec: 51.57,
+  conditionSec: 8.623,
+  stepSec: [19.636, 24.645],
+  answerSec: 33.978,
+  correctAtSec: 33.978,
+  checkAtSec: 37.675,
+  outroSec: 48.916,
+};
+
 export const fiftyTRNA: TaskDef = {
   ...base("Bio3FiftyTRNA", ["50 молекул тРНК", "Сколько нуклеотидов в гене?"], 44),
+  audioSync: fiftyTRNAAudio,
 
   tokens: w(
     "В трансляции участвовало 50 молекул тРНК. Сколько нуклеотидов в гене, который кодирует этот белок? В ответе запишите только соответствующее число.",
@@ -918,8 +942,20 @@ export const fiftyTRNA: TaskDef = {
   ),
 };
 
+const birdAutosomes16Audio: AudioSync = {
+  src: "audio/bio3-birdautosomes16.mp3",
+  totalSec: 40.05,
+  conditionSec: 7.807,
+  stepSec: [17.931, 24.259],
+  answerSec: 27.619,
+  correctAtSec: 27.619,
+  checkAtSec: 30.164,
+  outroSec: 37.481,
+};
+
 export const birdAutosomes16: TaskDef = {
   ...base("Bio3BirdAutosomes16", ["Кариотип — 16", "Сколько аутосом?"], 46),
+  audioSync: birdAutosomes16Audio,
 
   tokens: w(
     "Сколько аутосом содержит соматическая клетка птицы, если в её кариотипе 16 хромосом? В ответе запишите только количество аутосом.",
@@ -951,8 +987,20 @@ export const birdAutosomes16: TaskDef = {
   ),
 };
 
+const horseAutosomes32Audio: AudioSync = {
+  src: "audio/bio3-horseautosomes32.mp3",
+  totalSec: 37.8,
+  conditionSec: 7.732,
+  stepSec: [17.72, 23.26],
+  answerSec: 26.422,
+  correctAtSec: 26.422,
+  checkAtSec: 27.1,
+  outroSec: 35.367,
+};
+
 export const horseAutosomes32: TaskDef = {
   ...base("Bio3HorseAutosomes32", ["32 хромосомы лошади", "Сколько аутосом?"], 46),
+  audioSync: horseAutosomes32Audio,
 
   tokens: w(
     "Сколько аутосом содержится в соматической клетке лошади, если в диплоидном наборе 32 хромосомы? В ответе запишите только количество аутосом.",
@@ -984,8 +1032,20 @@ export const horseAutosomes32: TaskDef = {
   ),
 };
 
+const roosterWAudio: AudioSync = {
+  src: "audio/bio3-roosterw.mp3",
+  totalSec: 51.49,
+  conditionSec: 7.241,
+  stepSec: [21.396, 31.77],
+  answerSec: 36.046,
+  correctAtSec: 36.046,
+  checkAtSec: 36.684,
+  outroSec: 48.901,
+};
+
 export const roosterW: TaskDef = {
   ...base("Bio3RoosterW", ["У птиц пол наоборот", "Сколько W у петуха?"], 42),
+  audioSync: roosterWAudio,
 
   tokens: w(
     "В соматической клетке петуха 78 хромосом. У птиц гетерогаметный пол — женский. Сколько W-хромосом содержит соматическая клетка петуха? В ответе запишите только число W-хромосом.",
