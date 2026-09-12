@@ -2,7 +2,7 @@ import { makeSolution, line, card, arrow } from "../Solution";
 import type { SolutionItem } from "../Solution";
 import { COLORS } from "../theme";
 import { w } from "./dsl";
-import type { TaskDef } from "./types";
+import type { AudioSync, TaskDef } from "./types";
 
 /**
  * Задание 3 ЕГЭ по биологии: хромосомные наборы и подсчёты по ДНК.
@@ -393,8 +393,23 @@ export const chargaff: TaskDef = {
 
 // --- партия 2 (30 карточек) --------------------------------------------------
 
+// Тайминг сцен взят из реальной озвучки (ElevenLabs), присланной пользователем
+// 11–12.09.2026 — паузы найдены автоматически (ffmpeg silencedetect) и
+// выровнены по количеству слов на реплику (см. PLAYBOOK.md).
+const birdGameteAudio: AudioSync = {
+  src: "audio/bio3-birdgamete.mp3",
+  totalSec: 45.24,
+  conditionSec: 5.686,
+  stepSec: [14.436, 22.171],
+  answerSec: 31.014,
+  correctAtSec: 31.014,
+  checkAtSec: 32.571,
+  outroSec: 42.377,
+};
+
 export const birdGamete: TaskDef = {
   ...base("Bio3BirdGamete", ["32 хромосомы", "А в гамете?"], 48),
+  audioSync: birdGameteAudio,
 
   tokens: w(
     "Сколько хромосом в гамете птицы, если её соматическая клетка содержит 32 хромосомы? В ответе запишите только количество хромосом.",
@@ -426,8 +441,20 @@ export const birdGamete: TaskDef = {
   ),
 };
 
+const fishSpermAudio: AudioSync = {
+  src: "audio/bio3-fishsperm.mp3",
+  totalSec: 46.68,
+  conditionSec: 6.692,
+  stepSec: [16.236, 22.831],
+  answerSec: 31.774,
+  correctAtSec: 31.774,
+  checkAtSec: 34.27,
+  outroSec: 44.033,
+};
+
 export const fishSperm: TaskDef = {
   ...base("Bio3FishSperm", ["56 хромосом", "А в сперматозоиде?"], 46),
+  audioSync: fishSpermAudio,
 
   tokens: w(
     "В соматической клетке тела рыбы 56 хромосом. Какой набор хромосом имеет сперматозоид рыбы? В ответе запишите только количество хромосом.",
@@ -459,8 +486,20 @@ export const fishSperm: TaskDef = {
   ),
 };
 
+const humanAutosomesAudio: AudioSync = {
+  src: "audio/bio3-humanautosomes.mp3",
+  totalSec: 45.56,
+  conditionSec: 6.872,
+  stepSec: [13.672, 21.749],
+  answerSec: 30.366,
+  correctAtSec: 30.366,
+  checkAtSec: 32.576,
+  outroSec: 42.693,
+};
+
 export const humanAutosomes: TaskDef = {
   ...base("Bio3HumanAutosomes", ["44 аутосомы в теле", "А в половой клетке?"], 46),
+  audioSync: humanAutosomesAudio,
 
   tokens: w(
     "Сколько аутосом содержится в половых клетках человека? В ответе запишите только количество аутосом.",
@@ -492,8 +531,20 @@ export const humanAutosomes: TaskDef = {
   ),
 };
 
+const chimpSpermAudio: AudioSync = {
+  src: "audio/bio3-chimpsperm.mp3",
+  totalSec: 46.68,
+  conditionSec: 7.06,
+  stepSec: [17.214, 23.676],
+  answerSec: 32.072,
+  correctAtSec: 32.072,
+  checkAtSec: 34.825,
+  outroSec: 44.182,
+};
+
 export const chimpSperm: TaskDef = {
   ...base("Bio3ChimpSperm", ["48 хромосом", "А у сперматозоида?"], 46),
+  audioSync: chimpSpermAudio,
 
   tokens: w(
     "В соматической клетке тела шимпанзе 48 хромосом. Какой набор хромосом имеет сперматозоид шимпанзе? В ответе запишите только количество хромосом.",
@@ -525,8 +576,20 @@ export const chimpSperm: TaskDef = {
   ),
 };
 
+const g2ChromatidsAudio: AudioSync = {
+  src: "audio/bio3-g2chromatids.mp3",
+  totalSec: 52.04,
+  conditionSec: 8.413,
+  stepSec: [19.094, 26.074],
+  answerSec: 37.487,
+  correctAtSec: 37.487,
+  checkAtSec: 40.185,
+  outroSec: 49.543,
+};
+
 export const g2Chromatids: TaskDef = {
   ...base("Bio3G2Chromatids", ["G2-период, 64 хромосомы", "Сколько хроматид?"], 44),
+  audioSync: g2ChromatidsAudio,
 
   tokens: w(
     "В кариотипе организма 64 хромосомы. Сколько хроматид будет в соматической клетке в G2-периоде интерфазы? В ответе запишите только количество хроматид.",
