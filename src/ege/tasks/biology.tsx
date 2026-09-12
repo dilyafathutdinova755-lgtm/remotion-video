@@ -1303,8 +1303,20 @@ export const ryeEndosperm: TaskDef = {
   ),
 };
 
+const thirtyThymineAudio: AudioSync = {
+  src: "audio/bio3-thirtythymine.mp3",
+  totalSec: 45.24,
+  conditionSec: 6.557,
+  stepSec: [20.384, 27.073],
+  answerSec: 32.56,
+  correctAtSec: 32.56,
+  checkAtSec: 33.226,
+  outroSec: 42.717,
+};
+
 export const thirtyThymine: TaskDef = {
   ...base("Bio3ThirtyThymine", ["30 тиминов в цепи", "А в дочерней молекуле?"], 40),
+  audioSync: thirtyThymineAudio,
 
   tokens: w(
     "В молекуле ДНК содержится 30 нуклеотидов с тимином. Сколько нуклеотидов с аденином будет содержать каждая из дочерних молекул ДНК после репликации? В ответе запишите только соответствующее число.",
@@ -1337,8 +1349,20 @@ export const thirtyThymine: TaskDef = {
   ),
 };
 
+const protein120Audio: AudioSync = {
+  src: "audio/bio3-protein120.mp3",
+  totalSec: 42.45,
+  conditionSec: 8.72,
+  stepSec: [19.246, 22.981],
+  answerSec: 30.075,
+  correctAtSec: 30.075,
+  checkAtSec: 32.809,
+  outroSec: 39.928,
+};
+
 export const protein120: TaskDef = {
   ...base("Bio3Protein120", ["Белок из 120 аминокислот", "Сколько нуклеотидов в матрице?"], 42),
+  audioSync: protein120Audio,
 
   tokens: w(
     "Белок состоит из 120 аминокислот. Сколько нуклеотидов в матричной цепи ДНК, кодирующей этот белок? В ответе запишите только соответствующее число.",
@@ -1370,8 +1394,20 @@ export const protein120: TaskDef = {
   ),
 };
 
+const cytosine31Audio: AudioSync = {
+  src: "audio/bio3-cytosine31.mp3",
+  totalSec: 53.16,
+  conditionSec: 6.706,
+  stepSec: [19.385, 27.988],
+  answerSec: 38.263,
+  correctAtSec: 38.263,
+  checkAtSec: 40.843,
+  outroSec: 50.707,
+};
+
 export const cytosine31: TaskDef = {
   ...base("Bio3Cytosine31", ["Цитозина 31%", "А тимина?"], 44),
+  audioSync: cytosine31Audio,
 
   tokens: w(
     "В молекуле ДНК эукариотического организма на долю нуклеотидов с цитозином приходится 31%. Определите долю нуклеотидов с тимином. В ответе запишите только соответствующее число.",
@@ -1405,8 +1441,20 @@ export const cytosine31: TaskDef = {
   ),
 };
 
+const thirtyAminoAcidsAudio: AudioSync = {
+  src: "audio/bio3-thirtyaminoacids.mp3",
+  totalSec: 44.12,
+  conditionSec: 8.979,
+  stepSec: [18.293, 25.878],
+  answerSec: 30.15,
+  correctAtSec: 30.15,
+  checkAtSec: 33.268,
+  outroSec: 41.519,
+};
+
 export const thirtyAminoAcids: TaskDef = {
   ...base("Bio3ThirtyAminoAcids", ["30 аминокислот в белке", "Сколько тРНК их доставили?"], 42),
+  audioSync: thirtyAminoAcidsAudio,
 
   tokens: w(
     "Сколько молекул тРНК доставляют на рибосому 30 аминокислот для синтеза белка? В ответе запишите только соответствующее число.",
@@ -1438,8 +1486,20 @@ export const thirtyAminoAcids: TaskDef = {
   ),
 };
 
+const beetMicrosporeAudio: AudioSync = {
+  src: "audio/bio3-beetmicrospore.mp3",
+  totalSec: 43.23,
+  conditionSec: 6.958,
+  stepSec: [18.787, 25.364],
+  answerSec: 30.471,
+  correctAtSec: 30.471,
+  checkAtSec: 32.563,
+  outroSec: 40.679,
+};
+
 export const beetMicrospore: TaskDef = {
   ...base("Bio3BeetMicrospore", ["После митоза — 9 хромосом", "А до него?"], 40),
+  audioSync: beetMicrosporeAudio,
 
   tokens: w(
     "Из микроспоры свёклы обыкновенной в результате митоза образовались клетки, содержащие по 9 хромосом. Сколько хромосом было в самой микроспоре? В ответе запишите только количество хромосом.",
