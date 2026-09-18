@@ -47,7 +47,7 @@ const makeOge9Task = (spec: Oge9Spec): TaskDef => ({
   number: 9,
   examType: "oge",
   subject: SUBJECT,
-  palette: "blue",
+  palette: "pink",
   hook: spec.hook,
   pillLabel: "Задание",
 
