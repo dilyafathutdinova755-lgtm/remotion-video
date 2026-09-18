@@ -133,7 +133,7 @@ export const HookScene: React.FC = () => {
             transform: `translateY(${interpolate(sub, [0, 1], [22, 0])}px)`,
           }}
         >
-          ЕГЭ · {examLabel(task.subject)}
+          {task.examType === "oge" ? "ОГЭ" : "ЕГЭ"} · {examLabel(task.subject)}
           <span style={{ opacity: 0.6 }}>·</span>
           задание {task.number}
         </div>

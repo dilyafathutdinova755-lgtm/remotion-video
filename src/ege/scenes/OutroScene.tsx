@@ -8,11 +8,13 @@ import {
 } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { AppLogo } from "../AppLogo";
+import { useTask } from "../TaskContext";
 
 /** Финальный экран: иконка приложения и призыв скачать. */
 export const OutroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const task = useTask();
 
   const logo = spring({
     frame: frame - f30(2),
@@ -64,7 +66,7 @@ export const OutroScene: React.FC = () => {
             transform: `scale(${interpolate(logo, [0, 1], [0.68, 1]) * pulse})`,
           }}
         >
-          <AppLogo size={230} />
+          <AppLogo size={230} examType={task.examType} />
         </div>
 
         {/* Название приложения не дублируем — оно уже есть на самой иконке */}

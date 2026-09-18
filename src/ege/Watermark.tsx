@@ -2,14 +2,16 @@ import { f30 } from "./timing";
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 import { COLORS, FONTS, PAD } from "./theme";
 import { AppLogo } from "./AppLogo";
+import { useTask } from "./TaskContext";
 
 /**
- * Плашка «ЕГЭ тренажёр» в правом верхнем углу. Появляется в начале
- * и остаётся на экране весь ролик.
+ * Плашка «ЕГЭ тренажёр» / «ОГЭ тренажёр» в правом верхнем углу. Появляется
+ * в начале и остаётся на экране весь ролик.
  */
 export const Watermark: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
+  const task = useTask();
 
   const enter = spring({
     frame: frame - f30(8),
@@ -49,7 +51,7 @@ export const Watermark: React.FC = () => {
         transform: `translateX(${shift}px)`,
       }}
     >
-      <AppLogo size={54} compact />
+      <AppLogo size={54} compact examType={task.examType} />
       <span
         style={{
           fontFamily: FONTS.display,
@@ -60,7 +62,7 @@ export const Watermark: React.FC = () => {
           color: COLORS.deep,
         }}
       >
-        ЕГЭ тренажёр
+        {task.examType === "oge" ? "ОГЭ тренажёр" : "ЕГЭ тренажёр"}
       </span>
     </div>
   );
