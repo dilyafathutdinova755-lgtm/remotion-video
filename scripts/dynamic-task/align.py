@@ -99,8 +99,15 @@ def silence_ends(ffmpeg, audio_path, noise_db=-20):
     return [float(x) for x in re.findall(r"silence_end:\s*([\d.]+)", out)]
 
 
-CTA_MARKER = "скачивай бесплатно"
 ANSWER_RE = re.compile(r"^ответ\s*[:\-—]", re.IGNORECASE)
+# Гибкое сопоставление CTA: ё/е не различаем, между словами допускаем любые
+# небуквенные символы (пробелы, тире, запятая, перенос строки) — требование
+# к самой фразе остаётся жёстким, гибкость только в её написании.
+CTA_RE = re.compile(r"скачивай\W*бесплатно", re.IGNORECASE)
+
+
+def normalize_yo(text: str) -> str:
+    return text.replace("ё", "е").replace("Ё", "Е")
 
 
 def main():
@@ -122,7 +129,7 @@ def main():
 
     answer_idx = next((i for i, s in enumerate(sentences) if ANSWER_RE.match(s)), None)
     cta_idx = next(
-        (i for i, s in enumerate(sentences) if CTA_MARKER in s.lower()), None
+        (i for i, s in enumerate(sentences) if CTA_RE.search(normalize_yo(s))), None
     )
     if answer_idx is None:
         print(
