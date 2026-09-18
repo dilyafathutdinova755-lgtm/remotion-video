@@ -1,0 +1,150 @@
+name: Render on demand
+
+# Рендер одного ролика по запросу n8n: n8n сам дёргает
+# POST /repos/{owner}/{repo}/actions/workflows/render-on-demand.yml/dispatches
+# с этими тремя полями, когда озвучка для очередной задачи готова.
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: "Идентификатор задачи (строка/id строки в таблице n8n)"
+        required: true
+        type: string
+      task_data:
+        description: >
+          JSON строкой: {exam, subject, task_number, condition_text, answer,
+          voiceover_text, account}
+        required: true
+        type: string
+      audio_url:
+        description: "Прямая или веб-ссылка на mp3 в Google Drive"
+        required: true
+        type: string
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Установить зависимости
+        run: |
+          npm ci
+          pip install --quiet gdown
+
+      - name: Сохранить task_data во временный файл
+        env:
+          TASK_DATA: ${{ inputs.task_data }}
+        run: printf '%s' "$TASK_DATA" > task_data.json
+
+      - name: Проверить task_data и вычислить безопасный id файла
+        id: prep
+        env:
+          TASK_ID: ${{ inputs.task_id }}
+        run: |
+          node -e "
+            const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
+            for (const f of ['exam','subject','task_number','condition_text','answer','voiceover_text']) {
+              if (!d[f] && d[f] !== 0) { console.error('В task_data нет поля ' + f); process.exit(1); }
+            }
+          "
+          SAFE_ID=$(printf '%s' "$TASK_ID" | tr -c 'a-zA-Z0-9' '-' | sed -E 's/-+/-/g; s/^-|-$//g')
+          if [ -z "$SAFE_ID" ]; then SAFE_ID="task"; fi
+          echo "safe_id=$SAFE_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Скачать озвучку с Google Drive
+        env:
+          AUDIO_URL: ${{ inputs.audio_url }}
+        run: gdown --fuzzy "$AUDIO_URL" -O audio_raw.mp3
+
+      - name: Разметить тайминг по озвучке (align.py)
+        run: |
+          TASK_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).voiceover_text)")
+          python3 scripts/dynamic-task/align.py \
+            --text "$TASK_TEXT" \
+            --audio audio_raw.mp3 \
+            --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
+            > align.json
+          cat align.json
+
+      - name: Положить аудио в public/ и собрать TaskDef
+        env:
+          TASK_ID: ${{ inputs.task_id }}
+        run: |
+          mkdir -p public/audio
+          AUDIO_REL="audio/dynamic-${{ steps.prep.outputs.safe_id }}.mp3"
+          cp audio_raw.mp3 "public/$AUDIO_REL"
+          node scripts/dynamic-task/build-dynamic-task.mjs \
+            --task-id "$TASK_ID" \
+            --task-data task_data.json \
+            --align align.json \
+            --audio-src "$AUDIO_REL" \
+            --out src/ege/tasks/_dynamic.generated.tsx \
+            --id-out composition_id.txt
+          cat src/ege/tasks/_dynamic.generated.tsx
+
+      - name: Рендер видео
+        id: render
+        run: |
+          COMPOSITION_ID=$(cat composition_id.txt)
+          echo "composition_id=$COMPOSITION_ID" >> "$GITHUB_OUTPUT"
+          npx remotion render "$COMPOSITION_ID" out/dynamic.mp4
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ steps.prep.outputs.safe_id }}
+          path: out/dynamic.mp4
+          retention-days: 30
+
+      - name: Проверить наличие секретов для Google Drive
+        id: drive_check
+        env:
+          HAS_SA: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON != '' }}
+          HAS_FOLDER: ${{ secrets.GDRIVE_FOLDER_ID != '' }}
+        run: |
+          if [ "$HAS_SA" = "true" ] && [ "$HAS_FOLDER" = "true" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::GDRIVE_SERVICE_ACCOUNT_JSON и/или GDRIVE_FOLDER_ID не заданы в секретах репозитория — видео на Google Drive не загружено, video_url в вебхуке будет ссылкой на артефакт GitHub Actions."
+          fi
+
+      - name: Загрузить видео на Google Drive
+        id: drive_upload
+        if: steps.drive_check.outputs.enabled == 'true'
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          RESULT=$(node scripts/dynamic-task/gdrive-upload.mjs \
+            --file out/dynamic.mp4 \
+            --name "${{ steps.render.outputs.composition_id }}.mp4")
+          echo "$RESULT"
+          echo "link=$(node -e "console.log(JSON.parse(process.argv[1]).webViewLink)" "$RESULT")" >> "$GITHUB_OUTPUT"
+
+      - name: Сообщить n8n, что видео готово
+        env:
+          TASK_ID: ${{ inputs.task_id }}
+          VIDEO_URL: ${{ steps.drive_upload.outputs.link || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+        run: |
+          BODY=$(node -e "
+            console.log(JSON.stringify({
+              task_id: process.env.TASK_ID,
+              video_url: process.env.VIDEO_URL,
+              status: 'готово',
+            }));
+          ")
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            "https://dilyafathutdinova755.app.n8n.cloud/webhook/video-ready"
