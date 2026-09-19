@@ -193,7 +193,7 @@ const j = (v) => JSON.stringify(v);
 const checkField =
   checkLines.length > 0
     ? `check: (\n    <>\n      ${checkLines
-        .map((line) => `<div>${j(line)}</div>`)
+        .map((line) => `<div>{${j(line)}}</div>`)
         .join("\n      ")}\n    </>\n  ),`
     : "";
 

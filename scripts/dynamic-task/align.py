@@ -7,12 +7,25 @@ ffmpeg silencedetect, ожидаемые позиции границ — по д
 числа, DP выравнивает найденные паузы под ожидаемые позиции минимизируя
 сумму квадратов ошибки (см. PLAYBOOK.md §11a).
 
-В отличие от ручного процесса, здесь нет отдельного хука в озвучке
-(экран хука не озвучивается, см. задание в чате) — первая же услышанная
-фраза относится к условию. Текст обязан содержать маркер «Ответ:»
-(с любым тире после) — это единственный способ автоматически найти
-границу условие→ответ без разметки от человека. Финальная фраза-CTA
-(«Скачивай бесплатно...») ищется тоже по фиксированному тексту.
+Фиксированный порядок сегментов voiceover_text (n8n собирает именно так,
+см. PLAYBOOK.md §11b):
+
+    1. вступление («Решаем задание 6 по русскому языку...»)
+    2. condition_text — дословно, тем же текстом, что на экране
+    3. explanation — объяснение решения
+    4. «Ответ: …» (с любым тире/двоеточием после)
+    5. CTA («Скачивай бесплатно...»)
+
+Заметьте: explanation звучит ДО «Ответ:», а не после — под ответом на
+экране (AnswerScene) объяснение всё равно показывается (см. checkLines
+ниже), но озвучено оно уже было, пока на экране ещё висела карточка с
+условием. Три опорные точки, которые скрипт ищет в тексте:
+  - конец condition_text (нужен --condition-text — тот же текст, что ушёл
+    в task_data.condition_text, дословно; ищется как подстрока в
+    накапливаемых предложениях, без него не отличить «условие» от
+    «объяснение» внутри одного и того же блока перед «Ответ:»);
+  - «Ответ:» — начало сегмента 4;
+  - «Скачивай бесплатно» — начало сегмента 5.
 
 Если текст не соответствует этому шаблону — скрипт завершается с
 ошибкой (код 1), а не с угадыванием: лучше видимый сбой CI, чем тихо
@@ -22,16 +35,17 @@ ffmpeg silencedetect, ожидаемые позиции границ — по д
 пропущенным через normalizeForVoiceover.mjs — с «6», а не «шесть», иначе
 подсчёт слов для тайминга разойдётся с тем, что на самом деле произнесено).
 --display-text — необязательный, ИСХОДНЫЙ (не нормализованный) текст с
-цифрами: если передан, «checkLines» в выводе берутся из него, а не из
---text, чтобы пояснение под ответом на экране показывало «15», а не
-«пятнадцать» — нормализация нужна только звуку, не отображаемому тексту.
-Число предложений в --display-text должно совпадать с --text (так и есть,
-если единственная разница — это цифры/слова: точки, «Ответ:» и CTA-маркер
-нормализация не трогает).
+цифрами: если передан, и он, и --condition-text используются для
+«checkLines» и поиска границы условия вместо --text, чтобы пояснение под
+ответом на экране показывало «15», а не «пятнадцать» — нормализация нужна
+только звуку, не отображаемому тексту. Число предложений в --display-text
+должно совпадать с --text (так и есть, если единственная разница — это
+цифры/слова: точки, «Ответ:» и CTA-маркер нормализация не трогает).
 
 Использование:
     python3 align.py --text "<озвучка для TTS, числа словами>" \
         --display-text "<та же озвучка, числа цифрами>" \
+        --condition-text "<task_data.condition_text, как на экране>" \
         --audio path/to.mp3 --ffmpeg path/to/ffmpeg > audiosync.json
 """
 import argparse
@@ -122,10 +136,33 @@ def normalize_yo(text: str) -> str:
     return text.replace("ё", "е").replace("Ё", "Е")
 
 
+def normalize_ws(text: str) -> str:
+    return re.sub(r"\s+", " ", text.strip())
+
+
+def find_condition_end_idx(sentences, condition_text):
+    """Индекс предложения, на котором заканчивается condition_text —
+    накапливаем предложения по одному и проверяем, содержит ли накопленный
+    текст condition_text как подстроку (без учёта регистра, ё/е и лишних
+    пробелов). condition_text может занимать несколько предложений — тогда
+    вернётся индекс последнего из них."""
+    target = normalize_yo(normalize_ws(condition_text)).lower()
+    if not target:
+        return None
+    acc = ""
+    for i, s in enumerate(sentences):
+        acc = f"{acc} {s}".strip() if acc else s
+        norm_acc = normalize_yo(normalize_ws(acc)).lower()
+        if target in norm_acc:
+            return i
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text", required=True)
     ap.add_argument("--display-text", default=None)
+    ap.add_argument("--condition-text", required=True)
     ap.add_argument("--audio", required=True)
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--noise-db", type=int, default=-20)
@@ -166,18 +203,12 @@ def main():
         )
         sys.exit(1)
 
-    # Схлопываем весь CTA-хвост в одно предложение (после первого совпадения) —
-    # так же, как и в ручной разметке: между «Скачивай бесплатно.» и
-    # «Ссылка в шапке профиля.» обычно нет отдельной паузы длиннее порога.
-    merged = sentences[: cta_idx + 1] + ["".join(sentences[cta_idx + 1 :])]
-    merged = [s for s in merged if s]
-    # После схлопывания cta_idx не меняется (то же самое предложение);
-    # answer_idx не меняется, так как он раньше cta_idx.
-
-    # Для отображаемого текста (checkLines) берём тот же диапазон, но из
-    # НЕнормализованного текста, если он передан — на экране число должно
-    # быть цифрой, а не словом; звуку нужны слова, экрану — цифры.
-    display_merged = merged
+    # Раздельный, ИСХОДНЫЙ (с цифрами) список предложений — нужен и для
+    # checkLines, и для поиска границы condition_text/explanation: числа
+    # внутри condition_text нормализованы в --text («пятнадцать» вместо
+    # «15»), а condition_text из task_data — всегда с цифрами, поэтому
+    # искать его подстрокой нужно в НЕнормализованном тексте.
+    display_sentences = sentences
     if args.display_text is not None:
         display_sentences = split_sentences(args.display_text)
         if len(display_sentences) != len(sentences):
@@ -189,10 +220,44 @@ def main():
                 file=sys.stderr,
             )
             sys.exit(1)
-        display_merged = display_sentences[: cta_idx + 1] + [
-            "".join(display_sentences[cta_idx + 1 :])
-        ]
-        display_merged = [s for s in display_merged if s]
+
+    # Граница между condition_text и explanation: ищем, на каком предложении
+    # заканчивается дословный condition_text. Без неё explanation и условие
+    # неотличимы друг от друга — оба звучат до «Ответ:» (см. фиксированный
+    # порядок в докстринге).
+    condition_end_idx = find_condition_end_idx(display_sentences, args.condition_text)
+    if condition_end_idx is None:
+        print(
+            "ОШИБКА: не нашёл condition_text внутри озвучки (--display-text/--text) — "
+            "без этого не отличить условие от объяснения перед «Ответ:». "
+            "Проверьте, что condition_text вставлен в voiceover_text дословно.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if condition_end_idx >= answer_idx:
+        print(
+            "ОШИБКА: condition_text заканчивается не раньше «Ответ:» — "
+            "порядок текста не соответствует ожидаемому шаблону "
+            "(вступление → условие → объяснение → «Ответ:» → CTA).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Схлопываем весь CTA-хвост в одно предложение (после первого совпадения) —
+    # так же, как и в ручной разметке: между «Скачивай бесплатно.» и
+    # «Ссылка в шапке профиля.» обычно нет отдельной паузы длиннее порога.
+    merged = sentences[: cta_idx + 1] + ["".join(sentences[cta_idx + 1 :])]
+    merged = [s for s in merged if s]
+    # После схлопывания cta_idx не меняется (то же самое предложение);
+    # answer_idx и condition_end_idx тоже не меняются — оба раньше cta_idx.
+
+    # Для отображаемого текста (checkLines) берём тот же диапазон, но из
+    # НЕнормализованного текста, если он передан — на экране число должно
+    # быть цифрой, а не словом; звуку нужны слова, экрану — цифры.
+    display_merged = display_sentences[: cta_idx + 1] + [
+        "".join(display_sentences[cta_idx + 1 :])
+    ]
+    display_merged = [s for s in display_merged if s]
 
     words = [len(s.split()) for s in merged]
     cum = []
@@ -217,7 +282,12 @@ def main():
     # Нужные границы (0-based индекс "после какого предложения"):
     # conditionSec — самое начало (перед предложением 0), считаем отдельно;
     # answerSec — перед предложением answer_idx;
-    # checkAtSec — перед предложением answer_idx + 1, если оно есть до CTA;
+    # checkAtSec — только если после «Ответ:» и до CTA есть ещё что-то
+    #   озвученное (в фиксированном порядке объяснение звучит ДО ответа, так
+    #   что обычно тут пусто, и AnswerScene просто открывается сразу с уже
+    #   готовым текстом check — см. фолбэк ниже); checkLines при этом всё
+    #   равно заполнены — они не зависят от того, звучит ли что-то ПОСЛЕ
+    #   ответа, а зависят от того, что звучало ДО него (условие → объяснение).
     # outroSec — перед CTA-предложением (индекс cta_idx).
     needed = {}
     needed_idx = []
@@ -225,17 +295,17 @@ def main():
         needed_idx.append(("answerSec", answer_idx - 1))
     else:
         needed["answerSec"] = 0.0  # ответ — первое предложение (короткий текст)
-    has_check = answer_idx + 1 < cta_idx
-    if has_check:
+    has_trailing_after_answer = answer_idx + 1 < cta_idx
+    if has_trailing_after_answer:
         needed_idx.append(("checkAtSec", answer_idx))
     needed_idx.append(("outroSec", cta_idx - 1))
 
-    # Текст пояснения под ответом — те же предложения, что звучат между
-    # «Ответ: …» и CTA, слово в слово из присланной озвучки (не выдумываем
-    # отдельное пояснение — берём то, что реально проговорено).
-    check_lines = (
-        [s for s in display_merged[answer_idx + 1 : cta_idx]] if has_check else []
-    )
+    # Текст пояснения под ответом — те же предложения, что реально звучат
+    # МЕЖДУ concluding condition_text и «Ответ:» (фиксированный порядок:
+    # вступление → условие → объяснение → «Ответ:» → CTA, см. докстринг).
+    # Явно НЕ выдумываем отдельное пояснение — берём то, что действительно
+    # проговорено, слово в слово, из исходного (с цифрами) текста.
+    check_lines = [s for s in display_merged[condition_end_idx + 1 : answer_idx]]
 
     if needed_idx:
         idxs = [i for _, i in needed_idx]
@@ -244,7 +314,7 @@ def main():
         for (label, _), value in zip(needed_idx, aligned):
             needed[label] = value
 
-    if not has_check:
+    if not has_trailing_after_answer:
         needed["checkAtSec"] = needed["answerSec"]
 
     # conditionSec: начало самого первого предложения — граница перед ним,
@@ -265,6 +335,7 @@ def main():
         "checkLines": check_lines,
         "_debug": {
             "sentenceCount": len(merged),
+            "conditionEndIdx": condition_end_idx,
             "answerIdx": answer_idx,
             "ctaIdx": cta_idx,
             "candidates": candidates,

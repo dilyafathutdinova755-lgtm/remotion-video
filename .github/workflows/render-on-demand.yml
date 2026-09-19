@@ -80,11 +80,17 @@ jobs:
           # (словами, не цифрами), иначе подсчёт слов для тайминга разъедется.
           # --display-text — исходный текст с цифрами, из него берётся
           # показанный на экране check (там число должно остаться цифрой).
+          # --condition-text — task_data.condition_text дословно: align.py
+          # ищет его внутри озвучки, чтобы отличить условие (не показывается
+          # как check) от объяснения (звучит следом, до "Ответ:" — см.
+          # PLAYBOOK.md §11b, фиксированный порядок сегментов).
           TASK_TEXT=$(node scripts/dynamic-task/print-normalized-voiceover.mjs task_data.json)
           RAW_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).voiceover_text)")
+          CONDITION_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).condition_text)")
           python3 scripts/dynamic-task/align.py \
             --text "$TASK_TEXT" \
             --display-text "$RAW_TEXT" \
+            --condition-text "$CONDITION_TEXT" \
             --audio audio_raw.mp3 \
             --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
             > align.json
