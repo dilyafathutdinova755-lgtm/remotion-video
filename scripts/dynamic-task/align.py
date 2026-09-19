@@ -18,9 +18,21 @@ ffmpeg silencedetect, ожидаемые позиции границ — по д
 ошибкой (код 1), а не с угадыванием: лучше видимый сбой CI, чем тихо
 разъехавшийся по времени ролик.
 
+--text должен быть ТЕМ ЖЕ текстом, который реально ушёл в TTS (то есть уже
+пропущенным через normalizeForVoiceover.mjs — с «6», а не «шесть», иначе
+подсчёт слов для тайминга разойдётся с тем, что на самом деле произнесено).
+--display-text — необязательный, ИСХОДНЫЙ (не нормализованный) текст с
+цифрами: если передан, «checkLines» в выводе берутся из него, а не из
+--text, чтобы пояснение под ответом на экране показывало «15», а не
+«пятнадцать» — нормализация нужна только звуку, не отображаемому тексту.
+Число предложений в --display-text должно совпадать с --text (так и есть,
+если единственная разница — это цифры/слова: точки, «Ответ:» и CTA-маркер
+нормализация не трогает).
+
 Использование:
-    python3 align.py --text "<озвучка целиком>" --audio path/to.mp3 \
-        --ffmpeg path/to/ffmpeg > audiosync.json
+    python3 align.py --text "<озвучка для TTS, числа словами>" \
+        --display-text "<та же озвучка, числа цифрами>" \
+        --audio path/to.mp3 --ffmpeg path/to/ffmpeg > audiosync.json
 """
 import argparse
 import json
@@ -113,6 +125,7 @@ def normalize_yo(text: str) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text", required=True)
+    ap.add_argument("--display-text", default=None)
     ap.add_argument("--audio", required=True)
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--noise-db", type=int, default=-20)
@@ -161,6 +174,26 @@ def main():
     # После схлопывания cta_idx не меняется (то же самое предложение);
     # answer_idx не меняется, так как он раньше cta_idx.
 
+    # Для отображаемого текста (checkLines) берём тот же диапазон, но из
+    # НЕнормализованного текста, если он передан — на экране число должно
+    # быть цифрой, а не словом; звуку нужны слова, экрану — цифры.
+    display_merged = merged
+    if args.display_text is not None:
+        display_sentences = split_sentences(args.display_text)
+        if len(display_sentences) != len(sentences):
+            print(
+                "ОШИБКА: --display-text и --text разбились на разное число "
+                f"предложений ({len(display_sentences)} vs {len(sentences)}) — "
+                "нормализация не должна была менять количество предложений, "
+                "разметить не могу.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        display_merged = display_sentences[: cta_idx + 1] + [
+            "".join(display_sentences[cta_idx + 1 :])
+        ]
+        display_merged = [s for s in display_merged if s]
+
     words = [len(s.split()) for s in merged]
     cum = []
     acc = 0
@@ -200,7 +233,9 @@ def main():
     # Текст пояснения под ответом — те же предложения, что звучат между
     # «Ответ: …» и CTA, слово в слово из присланной озвучки (не выдумываем
     # отдельное пояснение — берём то, что реально проговорено).
-    check_lines = [s for s in merged[answer_idx + 1 : cta_idx]] if has_check else []
+    check_lines = (
+        [s for s in display_merged[answer_idx + 1 : cta_idx]] if has_check else []
+    )
 
     if needed_idx:
         idxs = [i for _, i in needed_idx]

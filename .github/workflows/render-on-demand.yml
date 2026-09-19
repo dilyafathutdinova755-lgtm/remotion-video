@@ -72,9 +72,19 @@ jobs:
 
       - name: Разметить тайминг по озвучке (align.py)
         run: |
-          TASK_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).voiceover_text)")
+          # ElevenLabs здесь не вызывается — аудио уже готово и лежит на Drive
+          # (его генерирует n8n своим вызовом ElevenLabs, куда должен уйти
+          # текст, нормализованный той же normalize-for-voiceover.mjs). Здесь
+          # эта функция нужна для другого: --text для align.py обязан
+          # совпадать с тем, что реально произнесено в уже скачанном аудио
+          # (словами, не цифрами), иначе подсчёт слов для тайминга разъедется.
+          # --display-text — исходный текст с цифрами, из него берётся
+          # показанный на экране check (там число должно остаться цифрой).
+          TASK_TEXT=$(node scripts/dynamic-task/print-normalized-voiceover.mjs task_data.json)
+          RAW_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).voiceover_text)")
           python3 scripts/dynamic-task/align.py \
             --text "$TASK_TEXT" \
+            --display-text "$RAW_TEXT" \
             --audio audio_raw.mp3 \
             --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
             > align.json
