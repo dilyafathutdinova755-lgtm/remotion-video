@@ -6,8 +6,9 @@
  *     answer, voiceover_text, account; необязательно — instruction, если
  *     n8n хочет явно задать приглушённую формулировку над условием, см.
  *     splitInstruction ниже);
- *   - JSON от align.py (тайминг по реальной озвучке + checkLines — текст
- *     пояснения, дословно из voiceover_text);
+ *   - JSON от align.py (тайминг по реальной озвучке; checkLines оттуда
+ *     сознательно НЕ используются — explanation в AnswerScene динамических
+ *     задач не показывается текстом, см. комментарий у поля check ниже);
  *   - относительный путь к уже скачанному mp3 внутри public/.
  *
  * Файл перезаписывается транзитно в рабочей копии рантайма CI и никогда не
@@ -156,7 +157,6 @@ const id = sanitizeId(taskId ?? taskData.task_number ?? "task");
 const palette = paletteFor(taskData.subject);
 const hook = hookFor(id);
 const answer = String(taskData.answer).trim();
-const checkLines = Array.isArray(align.checkLines) ? align.checkLines : [];
 
 const taskNumber = Number(taskData.task_number) || 0;
 const { instruction, tokensText } = splitInstruction(
@@ -190,13 +190,6 @@ for (const [key, value] of Object.entries(audioSync)) {
 
 const j = (v) => JSON.stringify(v);
 
-const checkField =
-  checkLines.length > 0
-    ? `check: (\n    <>\n      ${checkLines
-        .map((line) => `<div>{${j(line)}}</div>`)
-        .join("\n      ")}\n    </>\n  ),`
-    : "";
-
 const source = `// АВТОГЕНЕРИРОВАНО build-dynamic-task.mjs — не редактировать руками.
 // Источник: render-on-demand.yml, task_id = ${j(String(taskId ?? ""))}.
 // Перезаписывается транзитно в CI и никогда не коммитится обратно.
@@ -224,7 +217,11 @@ ${instruction ? `  instruction: ${j(instruction)},\n` : ""}
 
   answerLead: "Ответ",
   answer: ${j(answer)},
-  ${checkField}
+  // check сознательно не заполняется: explanation в этом пайплайне звучит
+  // ДО "Ответ:", пока на экране ещё видна карточка условия (см.
+  // фиксированный порядок сегментов в PLAYBOOK.md §11b), и повторно
+  // текстом под ответом уже не показывается — align.py всё ещё отдаёт его
+  // в checkLines (полезно для отладки), но здесь эти строки не используются.
 };
 
 export const DYNAMIC_TASKS: TaskDef[] = [DYNAMIC_TASK];
