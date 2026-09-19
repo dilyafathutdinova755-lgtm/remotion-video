@@ -1,0 +1,57 @@
+name: Diagnostic - New School scraper
+
+# ОДНОРАЗОВЫЙ диагностический воркфлоу — не часть продакшен-пайплайна.
+# Открывает страницу тренажёра thenewschool.ru настоящим headless-браузером
+# (Playwright/Chromium — не fetch/curl, задания дорисовываются JS-ом) и
+# пытается вытащить сырой текст заданий №6 и №7. Никак не связан с
+# render-on-demand.yml, ничего не рендерит и не пишет в основной пайплайн.
+# Можно удалить этот файл после того, как результат получен.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Установить Playwright + Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Запустить скрейпер
+        id: scrape
+        run: |
+          node scripts/task-source/scrape-newschool.mjs \
+            "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=275" \
+            --out newschool-tasks.json \
+            --debug-html newschool-debug.html \
+            --debug-text newschool-debug.txt
+
+      - name: Показать итоговый JSON
+        if: always()
+        run: |
+          echo "=== newschool-tasks.json ==="
+          cat newschool-tasks.json 2>/dev/null || echo "(файл не создан)"
+
+      - name: Загрузить результаты как артефакт
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newschool-scrape-result
+          path: |
+            newschool-tasks.json
+            newschool-debug.html
+            newschool-debug.txt
+          retention-days: 7
+          if-no-files-found: warn
