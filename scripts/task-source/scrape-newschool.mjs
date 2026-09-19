@@ -26,6 +26,28 @@ import { writeFileSync } from "node:fs";
 // eslint-disable-next-line no-control-regex
 const stripAnsi = (s) => String(s).replace(/\x1b\[[0-9;]*m/g, "");
 
+/**
+ * Обрезает мусор интерфейса тренажёра после текста самого задания: кнопки
+ * и виджеты («Ответ», «Проверить ответ», «Показать ответ и решение»,
+ * «Решения от учеников», счётчик и т. п.) идут отдельными строками сразу
+ * после условия — реальный подтверждённый пример на живой странице
+ * (задание №6 по КИМ). Режем по ПЕРВОЙ строке, которая целиком (без
+ * остального текста на той же строке) равна «Ответ» — это заголовок
+ * блока с кнопками, у настоящего текста условия такой отдельной строки
+ * не бывает (маркер вида «Ответ:» с двоеточием, если он вообще есть в
+ * тексте задания, сюда не попадает — regex требует конец строки сразу
+ * после слова, без двоеточия/остального).
+ */
+function trimUiNoiseAfterAnswer(text) {
+  const lines = String(text).split("\n");
+  const idx = lines.findIndex((l) => /^\s*ответ\s*$/i.test(l));
+  if (idx === -1) return text.trim();
+  return lines
+    .slice(0, idx)
+    .join("\n")
+    .trim();
+}
+
 const args = process.argv.slice(2);
 const flag = (name, def) => {
   const i = args.indexOf(`--${name}`);
@@ -224,7 +246,7 @@ async function main() {
     }
     tasks.push({
       task_number: num,
-      source_text: chosen.text,
+      source_text: trimUiNoiseAfterAnswer(chosen.text),
       source: "Новая школа",
       source_url: TARGET_URL,
       ...(chosen.elementId ? { internal_id: chosen.elementId } : {}),
