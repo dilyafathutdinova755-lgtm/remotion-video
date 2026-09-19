@@ -1,0 +1,100 @@
+name: Diagnostic - FIPI access test (temporary)
+
+# ОДНОРАЗОВЫЙ диагностический воркфлоу — не часть продакшен-пайплайна.
+# Проверяет, доступен ли банк заданий ФИПИ с раннера GitHub Actions
+# (в отличие от этой sandbox-сессии, где egress-прокси блокирует
+# fipi.ru/ege.fipi.ru — см. PLAYBOOK.md §13). Ничего не рендерит, ничего
+# не пишет в репозиторий, никак не связан с render-on-demand.yml. Можно
+# удалить этот файл после того, как результат получен.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test-fipi-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: curl https://ege.fipi.ru/bank/questions.php...
+        id: fipi_check
+        run: |
+          set +e
+
+          URL="https://ege.fipi.ru/bank/questions.php?proj=AF0ED3F2557F8FFC4C06F80B6803FD26&init_filter_themes=1"
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+          echo "Запрашиваю: $URL"
+          echo "User-Agent: $UA"
+          echo
+
+          HTTP_STATUS=$(curl -sS -L --max-time 30 \
+            -A "$UA" \
+            -o fipi.html \
+            -w "%{http_code}" \
+            "$URL")
+          CURL_EXIT=$?
+
+          echo "curl exit code: $CURL_EXIT"
+          echo "HTTP status: $HTTP_STATUS"
+          echo
+
+          # curl не завершился успешно (таймаут, DNS, отказ в соединении,
+          # TLS и т. п.) — тела ответа может не быть вовсе.
+          if [ $CURL_EXIT -ne 0 ]; then
+            case $CURL_EXIT in
+              28) REASON="превышен таймаут (30с) — сеть не отвечает или пакеты блокируются." ;;
+              6)  REASON="не удалось разрешить хост (DNS) — домен недоступен с этого раннера." ;;
+              7)  REASON="не удалось подключиться (connection refused) — порт/хост блокируется." ;;
+              35|60) REASON="ошибка TLS/SSL — сертификат не проверяется или соединение сброшено на этапе handshake." ;;
+              *)  REASON="curl завершился с кодом $CURL_EXIT (см. curl.se/libcurl/c/libcurl-errors.html)." ;;
+            esac
+            echo "::error::ФИПИ недоступен: $REASON"
+            echo "fipi_html_exists=$( [ -s fipi.html ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+          else
+            # curl получил HTTP-ответ — смотрим на код статуса.
+            if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+              echo "Успех: ФИПИ ответил $HTTP_STATUS."
+              echo "reachable=true" >> "$GITHUB_OUTPUT"
+            else
+              case "$HTTP_STATUS" in
+                403) REASON="доступ запрещён (403) — похоже на блокировку по User-Agent/IP или WAF." ;;
+                429) REASON="слишком много запросов (429) — рейт-лимит." ;;
+                5*)  REASON="сервер ФИПИ вернул ошибку 5xx ($HTTP_STATUS)." ;;
+                *)   REASON="сервер ответил кодом $HTTP_STATUS." ;;
+              esac
+              echo "::error::ФИПИ ответил с ошибкой: $REASON"
+              echo "reachable=false" >> "$GITHUB_OUTPUT"
+            fi
+            echo "fipi_html_exists=$( [ -s fipi.html ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo
+          if [ -s fipi.html ]; then
+            SIZE=$(wc -c < fipi.html | tr -d ' ')
+            echo "Размер fipi.html: $SIZE байт"
+            echo
+            echo "--- Первые 1000 символов ответа ---"
+            head -c 1000 fipi.html
+            echo
+            echo "--- конец фрагмента ---"
+          else
+            echo "Файл fipi.html пуст или не создан — тела ответа не получено."
+          fi
+
+      - name: Загрузить fipi.html как артефакт
+        if: steps.fipi_check.outputs.fipi_html_exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fipi-response
+          path: fipi.html
+          retention-days: 7
+
+      - name: Итог
+        if: steps.fipi_check.outputs.reachable != 'true'
+        run: |
+          echo "::warning::ФИПИ с этого раннера недоступен — подробности и тело ответа (если было) см. выше/в артефакте."
+          exit 1
