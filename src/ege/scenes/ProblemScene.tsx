@@ -99,21 +99,27 @@ export const ProblemScene: React.FC = () => {
       >
         <Pill>{task.pillLabel ?? "Задача"}</Pill>
 
+        {/* Формулировка задания — вне карточки: свой блок над ней, приглушённый
+            и полупрозрачный, без фона карточки за спиной. Карточка ниже несёт
+            только само условие (task.tokens/options) — это её единственное
+            содержимое. */}
+        {task.instruction ? (
+          <div
+            style={{
+              fontFamily: FONTS.body,
+              fontWeight: 300,
+              fontSize: task.problemSize * 0.62,
+              lineHeight: 1.3,
+              color: COLORS.textMuted,
+              opacity: 0.82,
+              marginBottom: 22,
+            }}
+          >
+            {task.instruction}
+          </div>
+        ) : null}
+
         <ProblemCard padding={44}>
-          {task.instruction ? (
-            <div
-              style={{
-                fontFamily: FONTS.body,
-                fontWeight: 300,
-                fontSize: task.problemSize * 0.62,
-                lineHeight: 1.3,
-                color: COLORS.textMuted,
-                marginBottom: 26,
-              }}
-            >
-              {task.instruction}
-            </div>
-          ) : null}
           {task.options ? (
             <OptionList
               options={task.options}
