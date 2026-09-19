@@ -3,7 +3,9 @@
  * Собирает src/ege/tasks/_dynamic.generated.tsx для разового рендера в CI
  * (render-on-demand.yml) из трёх источников:
  *   - task_data (JSON от n8n: exam, subject, task_number, condition_text,
- *     answer, voiceover_text, account);
+ *     answer, voiceover_text, account; необязательно — instruction, если
+ *     n8n хочет явно задать приглушённую формулировку над условием, см.
+ *     splitInstruction ниже);
  *   - JSON от align.py (тайминг по реальной озвучке + checkLines — текст
  *     пояснения, дословно из voiceover_text);
  *   - относительный путь к уже скачанному mp3 внутри public/.
@@ -74,6 +76,54 @@ const paletteFor = (subject) => {
   return "blue";
 };
 
+/**
+ * Некоторые номера заданий (7 и 8 по русскому) имеют раз и навсегда
+ * стандартизированную формулировку — ту же самую, что и в formword.tsx /
+ * oge8.tsx. В карточке (ProblemScene.tsx) она рисуется отдельным приглушённым
+ * блоком НАД самим условием (`task.instruction`), а не сплошным текстом
+ * вперемешку с ним (`task.tokens`) — раньше динамический рендер этот блок
+ * вообще не заполнял, и весь condition_text шёл одним жирным куском без
+ * разделения на «формулировка» / «условие». Отсюда и был визуальный дефект.
+ *
+ * Для заданий, где формулировка — часть самого предложения (задание 9) или
+ * зависит от варианта, которого в task_data нет (задание 6: «исключив» или
+ * «заменив»), автоматической формулировки нет — n8n может прислать её явно
+ * через необязательное поле task_data.instruction.
+ */
+const STANDARD_INSTRUCTIONS = {
+  "ege:7":
+    "В одном из выделенных слов допущена ошибка в образовании формы слова. Исправьте ошибку и запишите слово правильно.",
+  "oge:8":
+    "Раскройте скобки и запишите слово в соответствии с нормами современного русского литературного языка.",
+};
+
+/**
+ * condition_text от n8n может либо уже содержать сам стандартный текст
+ * формулировки (тогда его нужно убрать из tokens, чтобы не показать дважды),
+ * либо быть только специфичным предложением без неё (тогда tokens не трогаем).
+ * Сравнение — регуляркой, нечувствительной к регистру, ё/е и лишним
+ * пробелам, а не по длине строки: длины могут не совпасть даже при
+ * фактически одинаковом тексте.
+ */
+const splitInstruction = (conditionText, examType, taskNumber, explicit) => {
+  const instruction =
+    explicit != null && explicit !== ""
+      ? String(explicit)
+      : STANDARD_INSTRUCTIONS[`${examType}:${taskNumber}`];
+  if (!instruction) return { instruction: undefined, tokensText: conditionText };
+
+  const pattern =
+    "^\\s*" +
+    instruction
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .replace(/[её]/gi, "[её]")
+      .replace(/\s+/g, "\\s+");
+  const match = conditionText.match(new RegExp(pattern, "i"));
+  const tokensText = match ? conditionText.slice(match[0].length).trim() : conditionText;
+
+  return { instruction, tokensText: tokensText || conditionText };
+};
+
 const problemSizeFor = (text) => {
   const len = String(text).length;
   if (len <= 60) return 48;
@@ -105,9 +155,17 @@ const hookFor = (id) => {
 const id = sanitizeId(taskId ?? taskData.task_number ?? "task");
 const palette = paletteFor(taskData.subject);
 const hook = hookFor(id);
-const problemSize = problemSizeFor(taskData.condition_text);
 const answer = String(taskData.answer).trim();
 const checkLines = Array.isArray(align.checkLines) ? align.checkLines : [];
+
+const taskNumber = Number(taskData.task_number) || 0;
+const { instruction, tokensText } = splitInstruction(
+  taskData.condition_text,
+  examType,
+  taskNumber,
+  taskData.instruction,
+);
+const problemSize = problemSizeFor(tokensText);
 
 const audioSync = {
   src: audioSrc,
@@ -150,14 +208,14 @@ const audioSync: AudioSync = ${JSON.stringify(audioSync, null, 2)};
 
 export const DYNAMIC_TASK: TaskDef = {
   id: ${j(id)},
-  number: ${Number(taskData.task_number) || 0},
+  number: ${taskNumber},
   examType: ${j(examType)},
   subject: ${j(String(taskData.subject))},
   palette: ${j(palette)},
   hook: ${JSON.stringify(hook)},
   pillLabel: "Задание",
-
-  tokens: w(${j(String(taskData.condition_text))}),
+${instruction ? `  instruction: ${j(instruction)},\n` : ""}
+  tokens: w(${j(tokensText)}),
   problemSize: ${problemSize},
 
   solutions: [],
