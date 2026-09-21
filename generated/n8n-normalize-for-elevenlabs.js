@@ -1,4 +1,10 @@
-#!/usr/bin/env node
+// АВТОГЕНЕРИРОВАНО build-n8n-voiceover-normalizer.mjs из
+// scripts/dynamic-task/normalize-for-voiceover.mjs — НЕ РЕДАКТИРОВАТЬ РУКАМИ.
+// Скопируйте это целиком в n8n Code node (JavaScript) перед узлом ElevenLabs.
+// Источник: normalize-for-voiceover.mjs, версия нормализатора см. ниже
+// (TTS_NORMALIZER_VERSION). Пере-сгенерировать после правок исходника:
+//   node scripts/dynamic-task/build-n8n-voiceover-normalizer.mjs
+
 /**
  * ЕДИНЫЙ ИСТОЧНИК нормализации текста для TTS (ElevenLabs) — производственная
  * версия для всех предметов ЕГЭ кроме иностранных языков: русский язык,
@@ -59,7 +65,7 @@ const TENS = ["", "", "двадцать", "тридцать", "сорок", "п�
 const HUNDREDS = ["", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"];
 
 /** Русское склонение по числу: forms = [1 (один), 2-4 (два), 5+ (пять)]. */
-export const pluralRu = (n, forms) => {
+const pluralRu = (n, forms) => {
   const mod10 = n % 10;
   const mod100 = n % 100;
   if (mod100 >= 11 && mod100 <= 14) return forms[2];
@@ -86,7 +92,7 @@ const threeDigitsToWords = (n, feminine = false) => {
 };
 
 /** Целое число (строка/число) → кириллические слова, именительный падеж. */
-export const numberToRussianWords = (value) => {
+const numberToRussianWords = (value) => {
   let n = typeof value === "string" ? parseInt(value, 10) : value;
   if (!Number.isFinite(n)) return String(value);
   if (n === 0) return "ноль";
@@ -188,7 +194,7 @@ function lastOrdinalNomForRemainder(rem) {
  * omitOneThousand — не говорить «одна тысяча», а просто «тысяча» (так
  * читаются годы: «тысяча девятьсот сорок пятый», не «одна тысяча...»).
  */
-export function numberToOrdinal(n, { gender = "masc", case: grammCase = "nom", omitOneThousand = true } = {}) {
+function numberToOrdinal(n, { gender = "masc", case: grammCase = "nom", omitOneThousand = true } = {}) {
   if (n === 0) return declineOrdinal(ORDINAL_ONES_NOM[0], gender, grammCase);
 
   const millions = Math.floor(n / 1_000_000);
@@ -388,7 +394,7 @@ function normalizeSingleYears(text) {
 
 const ROMAN_MAP = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
 
-export function romanToInt(roman) {
+function romanToInt(roman) {
   const s = roman.toUpperCase();
   let result = 0;
   for (let i = 0; i < s.length; i++) {
@@ -1178,7 +1184,7 @@ function normalizeLogicOperators(text) {
  * программу, только делает её произносимой — операторы/числа/переменные
  * читаются по имени, структура (переносы строк, отступы) не разрушается.
  */
-export function normalizeCodeFragmentForSpeech(code) {
+function normalizeCodeFragmentForSpeech(code) {
   const OPERATOR_NAMES = {
     "==": "равно равно", "!=": "не равно", "<=": "меньше либо равно", ">=": "больше либо равно",
     "=": "равно", "+": "плюс", "-": "минус", "*": "умножить", "/": "делить",
@@ -1321,7 +1327,7 @@ function normalizeGeoCoordinates(text) {
 // ---------------------------------------------------------------------------
 
 /** Общие правила, применимые ко всем предметам — базовый проход. */
-export function normalizeCommon(text) {
+function normalizeCommon(text) {
   let out = String(text);
   out = normalizeIPAddresses(out); // до нормализации десятичных дробей!
   out = normalizeRadixNumbers(out);
@@ -1378,7 +1384,7 @@ function normalizePlainIntegers(text) {
 const UNSAFE_TOKEN_RE = /[\p{L}]*\d[\p{L}\d]*[⁰-₟Ͱ-Ͽ]|[⁰-₟]+|[Ͱ-Ͽ]+|[≈≠≥≤±×÷√∞⇄∧∨¬]/gu;
 
 /** Разбирает неизвестный токен по символам: буквы/цифры/операторы — безопасно. */
-export function safeFallbackForUnknownToken(token) {
+function safeFallbackForUnknownToken(token) {
   const decoded = decodeScriptDigits(decodeScriptDigits(token, SUPERSCRIPT_MAP), SUBSCRIPT_MAP);
   const OPERATOR_NAMES = { "≈": "приблизительно равно", "≠": "не равно", "≥": "больше либо равно", "≤": "меньше либо равно", "±": "плюс-минус", "×": "умножить", "÷": "делить", "√": "корень", "∞": "бесконечность", "⇄": "равновесие", "∧": "и", "∨": "или", "¬": "не" };
   return decoded
@@ -1405,7 +1411,7 @@ function applySafeFallback(text) {
  * операторы, смесь латиницы с цифрами. Возвращает массив найденных токенов
  * (пусто — нормализация отработала полностью). Диагностика, не мутирует текст.
  */
-export function findUnsafeTtsTokens(text) {
+function findUnsafeTtsTokens(text) {
   const re = /\d+|[⁰-₟]+|[Ͱ-Ͽ]+|[≈≠≥≤±×÷√∞⇄∧∨¬]|[A-Za-z]+\d+|\d+[A-Za-z]+/gu;
   const found = String(text).match(re) || [];
   return [...new Set(found)];
@@ -1415,13 +1421,13 @@ export function findUnsafeTtsTokens(text) {
 // 14. Определение предмета и предметные обёртки (§ главная архитектура).
 // ---------------------------------------------------------------------------
 
-export const SUBJECT_KEYS = /** @type {const} */ ([
+const SUBJECT_KEYS = /** @type {const} */ ([
   "russian", "math", "physics", "chemistry", "biology", "informatics",
   "history", "geography", "social", "literature", "unknown",
 ]);
 
 /** Определяет ключ предмета по строке task_data.subject (см. build-dynamic-task.mjs). */
-export function subjectKeyFromText(subjectText) {
+function subjectKeyFromText(subjectText) {
   const s = String(subjectText || "").toLowerCase();
   if (s.includes("литератур")) return "literature";
   if (s.includes("русск")) return "russian";
@@ -1436,43 +1442,43 @@ export function subjectKeyFromText(subjectText) {
   return "unknown";
 }
 
-export function normalizeRussianAndLiterature(text) {
+function normalizeRussianAndLiterature(text) {
   return normalizeCommon(text);
 }
 
-export function normalizeMathSubject(text) {
+function normalizeMathSubject(text) {
   return normalizeCommon(text);
 }
 
-export function normalizePhysics(text) {
+function normalizePhysics(text) {
   return normalizeCommon(text);
 }
 
-export function normalizeChemistry(text) {
+function normalizeChemistry(text) {
   return normalizeCommon(text);
 }
 
-export function normalizeBiology(text) {
+function normalizeBiology(text) {
   let out = normalizeBiologyNotation(text);
   out = normalizeCommon(out);
   return out;
 }
 
-export function normalizeInformaticsSubject(text) {
+function normalizeInformaticsSubject(text) {
   let out = normalizeInformatics(text);
   out = normalizeCommon(out);
   return out;
 }
 
-export function normalizeHistory(text) {
+function normalizeHistory(text) {
   return normalizeCommon(text);
 }
 
-export function normalizeGeography(text) {
+function normalizeGeography(text) {
   return normalizeCommon(text);
 }
 
-export function normalizeSocialStudies(text) {
+function normalizeSocialStudies(text) {
   return normalizeCommon(text);
 }
 
@@ -1490,7 +1496,7 @@ const SUBJECT_HANDLERS = {
   unknown: normalizeCommon,
 };
 
-export const TTS_NORMALIZER_VERSION = "2.0";
+const TTS_NORMALIZER_VERSION = "2.0";
 
 /**
  * ГЛАВНАЯ ФУНКЦИЯ. text — исходный voiceover_text (не мутируется, возвращает
@@ -1514,7 +1520,7 @@ function normalizeMinusSign(text) {
   return String(text).replace(/−/g, "-");
 }
 
-export function normalizeForVoiceover(text, subject) {
+function normalizeForVoiceover(text, subject) {
   const key = SUBJECT_KEYS.includes(subject) ? subject : subjectKeyFromText(subject);
   const handler = SUBJECT_HANDLERS[key] || normalizeCommon;
   let out = normalizeMinusSign(text);
@@ -1527,3 +1533,32 @@ export function normalizeForVoiceover(text, subject) {
   out = out.replace(/[ \t]{2,}/g, " ");
   return out;
 }
+
+
+// ---------------------------------------------------------------------------
+// n8n Code node driver — добавлено генератором, не часть исходного модуля.
+// Режим "Run Once for All Items" (самый частый выбор для Code node в n8n).
+// Если ваша нода настроена на "Run Once for Each Item" — замените блок ниже
+// на:
+//   const item = $input.item;
+//   const subject = item.json.subject;
+//   const ttsText = normalizeForVoiceover(item.json.voiceover_text, subject);
+//   return { json: { ...item.json, voiceover_tts_text: ttsText,
+//     tts_normalization_warnings: findUnsafeTtsTokens(ttsText),
+//     tts_normalizer_version: TTS_NORMALIZER_VERSION } };
+// ---------------------------------------------------------------------------
+return $input.all().map((item) => {
+  const subject = item.json.subject;
+  const voiceoverText = item.json.voiceover_text;
+  const ttsText = normalizeForVoiceover(voiceoverText, subject);
+  return {
+    json: {
+      ...item.json,
+      // voiceover_text (и все остальные поля item.json) остаются исходными —
+      // эта функция ничего не меняет на видео, только добавляет копию для TTS.
+      voiceover_tts_text: ttsText,
+      tts_normalization_warnings: findUnsafeTtsTokens(ttsText),
+      tts_normalizer_version: TTS_NORMALIZER_VERSION,
+    },
+  };
+});
