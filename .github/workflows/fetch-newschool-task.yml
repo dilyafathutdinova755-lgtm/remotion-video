@@ -38,6 +38,9 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
+      - name: Тесты извлечения/валидации заданий (newschool-lib)
+        run: node scripts/task-source/test-newschool-lib.mjs
+
       - name: Собрать и отправить задание в n8n
         env:
           N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_NEWSCHOOL_WEBHOOK_URL }}

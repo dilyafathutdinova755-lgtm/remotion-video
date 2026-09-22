@@ -45,10 +45,74 @@ export function trimUiNoiseAfterAnswer(text) {
  * похож на заголовок задания («Задание 6», «№6», просто «6.» в начале
  * блока с вопросом) и берём текст ближайшего осмысленного контейнера
  * вокруг — родителя разумного размера (не всей страницы, не пустышку).
+ *
+ * ВАЖНО (см. случай с литературным заданием, случайно принятым за русское
+ * №6): SPA-тренажёры часто держат в DOM НЕСКОЛЬКО блоков «Задание N» сразу
+ * — карусель вариантов, preload следующего задания, скрытые/неактивные
+ * панели других предметов — из которых реально показан только один. Без
+ * фильтра по видимости заголовок и/или контейнер может совпасть с чужим,
+ * невидимым в данный момент блоком. Поэтому здесь ДВАЖДЫ проверяется
+ * видимость: у самого заголовка (el) и у выбранного контейнера — оба
+ * должны реально рендериться (не display:none/visibility:hidden/нулевой
+ * opacity/нулевой размер) и не быть визуально унесены за пределы разумной
+ * области документа (типичный трюк каруселей — translateX на тысячи px).
+ * Кандидаты, не прошедшие эту проверку, в candidates вообще не попадают —
+ * это не гарантия правильности (для этого есть отдельная валидация
+ * сигнатуры задания у вызывающего кода), а фильтр первого уровня.
+ *
  * Возвращает { [number]: { text, elementId, dataId } | null }.
  */
 export async function extractViaDom(page, numbers) {
   return page.evaluate((numbers) => {
+    const isVisible = (el) => {
+      if (!el || !el.isConnected) return false;
+      const style = getComputedStyle(el);
+      if (style.display === "none") return false;
+      if (style.visibility === "hidden" || style.visibility === "collapse") return false;
+      if (Number(style.opacity) === 0) return false;
+      // checkVisibility(), где доступен (современный Chromium) — покрывает
+      // ещё content-visibility:auto и несколько других краевых случаев
+      // одним вызовом; если его нет в движке — просто пропускаем.
+      if (typeof el.checkVisibility === "function") {
+        try {
+          if (
+            !el.checkVisibility({
+              opacityProperty: true,
+              visibilityProperty: true,
+              contentVisibilityAuto: true,
+            })
+          ) {
+            return false;
+          }
+        } catch {
+          // checkVisibility кинул — не считаем это решающим, идём дальше
+          // по ручным проверкам ниже.
+        }
+      }
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return false;
+      // offsetParent === null — почти всегда display:none где-то в цепочке
+      // предков (position:fixed — известное исключение, поэтому его не
+      // отбрасываем по этому одному признаку).
+      if (el.offsetParent === null && style.position !== "fixed") return false;
+      // Унесённые каруселью далеко за пределы документа (translateX на
+      // тысячи px) остаются формально "visible" по всем проверкам выше —
+      // ширина/высота ненулевые, display не none. Отсекаем координаты,
+      // ушедшие далеко за пределы разумной окрестности документа.
+      const docW = Math.max(document.documentElement.scrollWidth, window.innerWidth, 1);
+      const docH = Math.max(document.documentElement.scrollHeight, window.innerHeight, 1);
+      const margin = 2000; // щедрый запас на ленивую вёрстку/подгрузку
+      if (
+        rect.right < -margin ||
+        rect.left > docW + margin ||
+        rect.bottom < -margin ||
+        rect.top > docH + margin
+      ) {
+        return false;
+      }
+      return true;
+    };
+
     const headerRe = new RegExp(
       `(?:задание|вопрос|№)\\s*0*(${numbers.join("|")})\\b`,
       "i",
@@ -72,6 +136,8 @@ export async function extractViaDom(page, numbers) {
       const num = Number(match[1]);
       if (!numbers.includes(num)) continue;
 
+      if (!isVisible(el)) continue;
+
       // Контейнер задания — ближайший предок с достаточным объёмом текста
       // (сам заголовок обычно слишком короткий), но не весь документ.
       let container = el;
@@ -80,6 +146,8 @@ export async function extractViaDom(page, numbers) {
         if (len > 40 && len < 6000) break;
         container = container.parentElement;
       }
+
+      if (!isVisible(container)) continue;
 
       const text = container.innerText?.trim();
       if (!text) continue;
@@ -98,7 +166,7 @@ export async function extractViaDom(page, numbers) {
       });
     }
 
-    // Для каждого номера берём самый короткий подходящий контейнер —
+    // Для каждого номера берём самый короткий подходящий видимый контейнер —
     // обычно это самый точный (широкий предок случайно тоже match'ится).
     const result = {};
     for (const num of numbers) {
@@ -148,6 +216,52 @@ export function extractViaText(fullText, numbers) {
     result[num] = text ? { text, elementId: null, dataId: null } : null;
   }
   return result;
+}
+
+/**
+ * Вторая, независимая от видимости линия защиты от чужого задания под
+ * правильным task_number (см. случай с литературным заданием, принятым за
+ * русское №6, — заголовок «№6» на странице сам по себе ничего не
+ * гарантирует, если рядом в DOM есть №6 совсем другого предмета/типа).
+ * Проверяется не структура, а СОДЕРЖАНИЕ: source_text должен реально
+ * содержать канонической формулировки задания — ту же, что зашита в
+ * lexical.tsx (REMOVE/REPLACE) и STANDARD_INSTRUCTIONS build-dynamic-task.mjs
+ * для №7, чтобы не разъезжаться с тем, что уже считается "правильным
+ * заданием 6/7" во всём остальном пайплайне.
+ */
+const normalizeForSignatureMatch = (text) =>
+  String(text)
+    .replace(/[её]/g, "е")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+export const TASK6_SIGNATURES = [
+  "отредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово",
+  "отредактируйте предложение: исправьте лексическую ошибку, заменив неверно употребленное слово",
+];
+
+// "ниже слов"/"ниже словах"/"слов" — формулировка на разных копиях сайта
+// слегка отличается; неизменная, отличительная часть — сам факт ошибки
+// именно "в образовании формы слова", её и проверяем.
+export const TASK7_SIGNATURE_RE = /допущена ошибка в образовании формы слова/;
+
+/**
+ * true — source_text реально похож на русское задание №6 или №7 (а не на
+ * что-то ещё с тем же случайно совпавшим номером). Для любого другого
+ * taskNumber возвращает false — эта функция сознательно не пытается
+ * валидировать прочие номера/предметы, только то, что сейчас скрейпится.
+ */
+export function matchesTaskSignature(taskNumber, sourceText) {
+  if (typeof sourceText !== "string" || !sourceText.trim()) return false;
+  const norm = normalizeForSignatureMatch(sourceText);
+  if (taskNumber === 6) {
+    return TASK6_SIGNATURES.some((sig) => norm.includes(sig));
+  }
+  if (taskNumber === 7) {
+    return TASK7_SIGNATURE_RE.test(norm);
+  }
+  return false;
 }
 
 /**

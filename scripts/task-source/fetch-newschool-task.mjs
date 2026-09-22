@@ -36,6 +36,7 @@ import {
   extractViaText,
   gotoAndSettle,
   launchNewSchoolPage,
+  matchesTaskSignature,
   stripAnsi,
   trimUiNoiseAfterAnswer,
 } from "./newschool-lib.mjs";
@@ -160,6 +161,17 @@ async function main() {
       if (!isUsableSourceText(sourceText)) {
         console.error(
           `  variant=${variant}, №${num}: source_text слишком короткий/пустой (${sourceText.trim().length} симв.), пропускаю.`,
+        );
+        continue;
+      }
+      // Строгая валидация ПОСЛЕ extraction и ДО webhook POST: заголовок
+      // «№6»/«№7» на странице сам по себе не гарантия — рядом в DOM может
+      // быть чужой блок с тем же номером (см. случай с литературным
+      // заданием, принятым за русское №6). Здесь проверяется реальное
+      // содержимое, а не структура/заголовок.
+      if (!matchesTaskSignature(num, sourceText)) {
+        console.error(
+          `variant ${variant} rejected: task ${num} does not match Russian EGE task ${num} signature`,
         );
         continue;
       }
