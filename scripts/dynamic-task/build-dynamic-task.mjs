@@ -224,24 +224,52 @@ requireUsableConditionText(
 );
 const problemSize = problemSizeFor(tokensText);
 
+/**
+ * У гуманитарных предметов (русский язык, литература, история,
+ * обществознание) без отдельной озвученной фразы «Ответ: ...» align.py
+ * сознательно не кладёт в align.json answerSec/correctAtSec/checkAtSec —
+ * отдельного AnswerScene у такого ролика вообще нет (см. align.py и
+ * PLAYBOOK.md §11d). hasAnswerMarker отличает этот случай от технических
+ * предметов и от гуманитарных с «Ответ:» (переходный период, backward
+ * compat) — там все три поля всегда числа, как и раньше.
+ */
+const hasAnswerMarker =
+  typeof align.answerSec === "number" && !Number.isNaN(align.answerSec);
+
 const audioSync = {
   src: audioSrc,
   totalSec: align.totalSec,
   conditionSec: align.conditionSec,
   stepSec: [],
-  answerSec: align.answerSec,
-  correctAtSec: align.correctAtSec,
-  checkAtSec: align.checkAtSec,
+  ...(hasAnswerMarker
+    ? {
+        answerSec: align.answerSec,
+        correctAtSec: align.correctAtSec,
+        checkAtSec: align.checkAtSec,
+      }
+    : {}),
   outroSec: align.outroSec,
 };
 
-for (const [key, value] of Object.entries(audioSync)) {
-  if (key === "src" || key === "stepSec") continue;
+const ALWAYS_REQUIRED_NUMERIC = ["totalSec", "conditionSec", "outroSec"];
+for (const key of ALWAYS_REQUIRED_NUMERIC) {
+  const value = audioSync[key];
   if (typeof value !== "number" || Number.isNaN(value)) {
     console.error(
       `ОШИБКА: align.json не содержит числового поля "${key}" — тайминг не собран.`,
     );
     process.exit(1);
+  }
+}
+if (hasAnswerMarker) {
+  for (const key of ["correctAtSec", "checkAtSec"]) {
+    const value = audioSync[key];
+    if (typeof value !== "number" || Number.isNaN(value)) {
+      console.error(
+        `ОШИБКА: align.json содержит answerSec, но не содержит числового поля "${key}" — тайминг не собран.`,
+      );
+      process.exit(1);
+    }
   }
 }
 
@@ -270,7 +298,15 @@ ${instruction ? `  instruction: ${j(instruction)},\n` : ""}
 
   solutions: [],
   answerSeconds: 11,
-  audioSync,
+${
+  hasAnswerMarker
+    ? ""
+    : `  // Гуманитарный предмет без отдельной озвученной фразы "Ответ:" —
+  // answerRecap: false отключает AnswerScene целиком (buildScenes() в
+  // timing.ts обнуляет scenes.answer), ProblemScene держится до самого
+  // CTA/Outro. См. align.py и PLAYBOOK.md §11d.
+  answerRecap: false,\n`
+}  audioSync,
 
   answerLead: "Ответ",
   answer: ${j(answer)},
@@ -279,6 +315,8 @@ ${instruction ? `  instruction: ${j(instruction)},\n` : ""}
   // фиксированный порядок сегментов в PLAYBOOK.md §11b), и повторно
   // текстом под ответом уже не показывается — align.py всё ещё отдаёт его
   // в checkLines (полезно для отладки), но здесь эти строки не используются.
+  // answer в данных остаётся всегда (для таблицы/проверки), даже когда
+  // отдельного AnswerScene нет — см. answerRecap выше.
 };
 
 export const DYNAMIC_TASKS: TaskDef[] = [DYNAMIC_TASK];

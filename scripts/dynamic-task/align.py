@@ -42,12 +42,17 @@ checkLines ниже), но озвучено оно уже было, пока н�
     если он реально есть в тексте);
   - «Скачивай бесплатно» — начало финального CTA-сегмента.
 
-Когда «Ответ:» отсутствует (гуманитарные), answerSec — не привязанная к
-конкретной озвученной фразе точка, а вычисленная граница «конец
-explanation / начало экрана с ответом»: если между концом explanation и
-началом CTA естественная пауза короче MIN_ANSWER_SCENE_SEC секунд, граница
-сдвигается раньше (в последние секунды explanation), чтобы AnswerScene
-получил гарантированный минимум времени — см. synthesize_answer_sec ниже.
+Когда «Ответ:» отсутствует (гуманитарные), отдельного AnswerScene у ролика
+вообще нет — answerSec/correctAtSec/checkAtSec в результат не попадают
+(ключи отсутствуют в JSON, а не равны null/0). ProblemScene в этом случае
+держится от condition_text до самого CTA (все explanation звучит поверх
+неё), и сразу после неё идёт Outro — так же, как устроены сцены без
+audioSync вовсе, только с точным таймингом из реального аудио, а не
+оценкой по словам. Никакого отдельного резервирования секунд под
+AnswerScene не делается: их попросту нет, экран с одним ответом не
+появляется. build-dynamic-task.mjs при отсутствии answerSec сам выставляет
+TaskDef.answerRecap = false — этого достаточно, чтобы buildScenes()
+(timing.ts) не добавил AnswerScene в Series.
 
 Если текст не соответствует ожидаемому шаблону — скрипт завершается с
 ошибкой (код 1), а не с угадыванием: лучше видимый сбой CI, чем тихо
@@ -161,11 +166,6 @@ CTA_RE = re.compile(r"скачивай\W*бесплатно", re.IGNORECASE)
 # короткий и фиксированный (см. задание пользователя: ровно эти 4 предмета
 # гуманитарные), держите в синхроне при правке normalize-for-voiceover.mjs.
 HUMANITIES_KEYWORDS = ("русск", "литератур", "истор", "обществ")
-
-# Гарантированный минимум длительности AnswerScene для гуманитарных, когда
-# нет отдельной озвученной фразы «Ответ: ...», которая раньше естественным
-# образом задавала эту длительность (см. synthesize_answer_sec).
-MIN_ANSWER_SCENE_SEC = 5.0
 
 
 def is_humanities(subject) -> bool:
@@ -342,11 +342,12 @@ def main():
 
     # Нужные границы (0-based индекс "после какого предложения"):
     # conditionSec — самое начало (перед предложением 0), считаем отдельно;
-    # answerSec — перед предложением answer_idx (технические/«Ответ:» есть);
-    #   когда «Ответ:» нет (гуманитарные), настоящей DP-точки для answerSec
-    #   нет вовсе — вместо неё запрашиваем conditionEndSec (реальное время
-    #   конца condition_text) и вычисляем answerSec из неё и outroSec ниже,
-    #   см. блок "if not answer_marker_present".
+    # answerSec — перед предложением answer_idx, только когда «Ответ:»
+    #   реально есть (технические — всегда; гуманитарные — в переходный
+    #   период со старой записью). Когда его нет (новые гуманитарные без
+    #   «Ответ:») — answerSec/correctAtSec/checkAtSec вообще не вычисляются
+    #   и не попадают в result: отдельного AnswerScene у такого ролика нет,
+    #   ProblemScene держится до самого CTA (см. докстринг).
     # checkAtSec — только если после «Ответ:» и до CTA есть ещё что-то
     #   озвученное (в фиксированном порядке объяснение звучит ДО ответа, так
     #   что обычно тут пусто, и AnswerScene просто открывается сразу с уже
@@ -356,6 +357,7 @@ def main():
     # outroSec — перед CTA-предложением (индекс cta_idx).
     needed = {}
     needed_idx = []
+    has_trailing_after_answer = False
     if answer_marker_present:
         if answer_idx > 0:
             needed_idx.append(("answerSec", answer_idx - 1))
@@ -364,9 +366,6 @@ def main():
         has_trailing_after_answer = answer_idx + 1 < cta_idx
         if has_trailing_after_answer:
             needed_idx.append(("checkAtSec", answer_idx))
-    else:
-        has_trailing_after_answer = False
-        needed_idx.append(("conditionEndSec", condition_end_idx))
     needed_idx.append(("outroSec", cta_idx - 1))
 
     # Текст пояснения под ответом — те же предложения, что реально звучат
@@ -383,17 +382,7 @@ def main():
         for (label, _), value in zip(needed_idx, aligned):
             needed[label] = value
 
-    if not answer_marker_present:
-        # Гуманитарные без отдельной фразы «Ответ:»: answerSec = «конец
-        # explanation», то есть примерно граница перед CTA — но не ближе
-        # MIN_ANSWER_SCENE_SEC к ней (иначе AnswerScene рискует получить
-        # почти нулевую длительность — то, что явно запрещено) и не раньше
-        # конца condition_text (иначе исчезло бы время на explanation).
-        needed["answerSec"] = max(
-            needed["conditionEndSec"], needed["outroSec"] - MIN_ANSWER_SCENE_SEC
-        )
-
-    if not has_trailing_after_answer:
+    if answer_marker_present and not has_trailing_after_answer:
         needed["checkAtSec"] = needed["answerSec"]
 
     # conditionSec: начало самого первого предложения — граница перед ним,
@@ -407,21 +396,22 @@ def main():
         "totalSec": round(total_sec, 3),
         "conditionSec": round(condition_sec, 3),
         "stepSec": [],
-        "answerSec": round(needed["answerSec"], 3),
-        "correctAtSec": round(needed["answerSec"], 3),
-        "checkAtSec": round(needed["checkAtSec"], 3),
-        "outroSec": round(needed["outroSec"], 3),
-        "checkLines": check_lines,
-        "_debug": {
-            "sentenceCount": len(merged),
-            "conditionEndIdx": condition_end_idx,
-            "answerIdx": answer_idx,
-            "ctaIdx": cta_idx,
-            "humanities": humanities,
-            "answerMarkerPresent": answer_marker_present,
-            "candidates": candidates,
-            "fullExpected": [round(x, 2) for x in full_expected],
-        },
+    }
+    if answer_marker_present:
+        result["answerSec"] = round(needed["answerSec"], 3)
+        result["correctAtSec"] = round(needed["answerSec"], 3)
+        result["checkAtSec"] = round(needed["checkAtSec"], 3)
+    result["outroSec"] = round(needed["outroSec"], 3)
+    result["checkLines"] = check_lines
+    result["_debug"] = {
+        "sentenceCount": len(merged),
+        "conditionEndIdx": condition_end_idx,
+        "answerIdx": answer_idx,
+        "ctaIdx": cta_idx,
+        "humanities": humanities,
+        "answerMarkerPresent": answer_marker_present,
+        "candidates": candidates,
+        "fullExpected": [round(x, 2) for x in full_expected],
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
