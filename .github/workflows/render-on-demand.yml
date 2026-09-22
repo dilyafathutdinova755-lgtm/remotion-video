@@ -86,15 +86,23 @@ jobs:
           # показанный на экране check (там число должно остаться цифрой).
           # --condition-text — task_data.condition_text дословно: align.py
           # ищет его внутри озвучки, чтобы отличить условие (не показывается
-          # как check) от объяснения (звучит следом, до "Ответ:" — см.
+          # как check) от объяснения (звучит следом, до "Ответ:"/CTA — см.
           # PLAYBOOK.md §11b, фиксированный порядок сегментов).
+          # --subject — task_data.subject как есть: для гуманитарных
+          # (русский/литература/история/обществознание) align.py допускает
+          # отсутствие отдельной озвученной фразы "Ответ: ..." и сам
+          # вычисляет answerSec как конец объяснения (см. PLAYBOOK.md §11d);
+          # для остальных предметов поведение не меняется — "Ответ:" по
+          # прежнему обязателен.
           TASK_TEXT=$(node scripts/dynamic-task/print-normalized-voiceover.mjs task_data.json)
           RAW_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).voiceover_text)")
           CONDITION_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).condition_text)")
+          SUBJECT_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).subject)")
           python3 scripts/dynamic-task/align.py \
             --text "$TASK_TEXT" \
             --display-text "$RAW_TEXT" \
             --condition-text "$CONDITION_TEXT" \
+            --subject "$SUBJECT_TEXT" \
             --audio audio_raw.mp3 \
             --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
             > align.json

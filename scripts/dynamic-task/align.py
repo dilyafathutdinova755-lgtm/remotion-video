@@ -8,7 +8,8 @@ ffmpeg silencedetect, ожидаемые позиции границ — по д
 сумму квадратов ошибки (см. PLAYBOOK.md §11a).
 
 Фиксированный порядок сегментов voiceover_text (n8n собирает именно так,
-см. PLAYBOOK.md §11b):
+см. PLAYBOOK.md §11b) — для технических/естественно-научных предметов
+(математика, физика, химия, информатика, биология, география):
 
     1. вступление («Решаем задание 6 по русскому языку...»)
     2. condition_text — дословно, тем же текстом, что на экране
@@ -16,18 +17,39 @@ ffmpeg silencedetect, ожидаемые позиции границ — по д
     4. «Ответ: …» (с любым тире/двоеточием после)
     5. CTA («Скачивай бесплатно...»)
 
-Заметьте: explanation звучит ДО «Ответ:», а не после — под ответом на
-экране (AnswerScene) объяснение всё равно показывается (см. checkLines
-ниже), но озвучено оно уже было, пока на экране ещё висела карточка с
-условием. Три опорные точки, которые скрипт ищет в тексте:
+Для гуманитарных предметов (русский язык, литература, история,
+обществознание) сегмента 4 нет вовсе — после краткого explanation сразу
+идёт CTA, без отдельной озвученной фразы «Ответ: ...» (см. PLAYBOOK.md
+§11d). Это определяется по --subject: если он похож на гуманитарный (по
+тем же ключевым словам, что в normalize-for-voiceover.mjs/subjectKeyFromText
+— русск/литератур/истор/обществ) И в тексте не нашлось предложения
+«Ответ:», сегмент 4 считается ОТСУТСТВУЮЩИМ намеренно, а не ошибкой; если
+--subject не передан или не гуманитарный — «Ответ:» по-прежнему обязателен
+(полная обратная совместимость со старыми вызовами). Если гуманитарный
+предмет всё же прислал «Ответ:» (переходный период, старые записанные
+ролики) — используется он, как раньше: отсутствие маркера — это
+единственное, что меняет поведение.
+
+Заметьте: explanation звучит ДО «Ответ:» (когда он есть), а не после — под
+ответом на экране (AnswerScene) объяснение всё равно показывается (см.
+checkLines ниже), но озвучено оно уже было, пока на экране ещё висела
+карточка с условием. Опорные точки, которые скрипт ищет в тексте:
   - конец condition_text (нужен --condition-text — тот же текст, что ушёл
     в task_data.condition_text, дословно; ищется как подстрока в
     накапливаемых предложениях, без него не отличить «условие» от
-    «объяснение» внутри одного и того же блока перед «Ответ:»);
-  - «Ответ:» — начало сегмента 4;
-  - «Скачивай бесплатно» — начало сегмента 5.
+    «объяснение» внутри одного и того же блока перед «Ответ:»/CTA);
+  - «Ответ:» — начало сегмента 4 (технические — всегда; гуманитарные —
+    если он реально есть в тексте);
+  - «Скачивай бесплатно» — начало финального CTA-сегмента.
 
-Если текст не соответствует этому шаблону — скрипт завершается с
+Когда «Ответ:» отсутствует (гуманитарные), answerSec — не привязанная к
+конкретной озвученной фразе точка, а вычисленная граница «конец
+explanation / начало экрана с ответом»: если между концом explanation и
+началом CTA естественная пауза короче MIN_ANSWER_SCENE_SEC секунд, граница
+сдвигается раньше (в последние секунды explanation), чтобы AnswerScene
+получил гарантированный минимум времени — см. synthesize_answer_sec ниже.
+
+Если текст не соответствует ожидаемому шаблону — скрипт завершается с
 ошибкой (код 1), а не с угадыванием: лучше видимый сбой CI, чем тихо
 разъехавшийся по времени ролик.
 
@@ -131,6 +153,25 @@ ANSWER_RE = re.compile(r"^ответ\s*[:\-—]", re.IGNORECASE)
 # к самой фразе остаётся жёстким, гибкость только в её написании.
 CTA_RE = re.compile(r"скачивай\W*бесплатно", re.IGNORECASE)
 
+# Те же ключевые слова и та же группировка предметов, что в
+# scripts/dynamic-task/normalize-for-voiceover.mjs (subjectKeyFromText/
+# SUBJECT_KEYS: russian/literature/history/social = гуманитарные, всё
+# остальное — технические/естественно-научные). Python не может
+# импортировать .mjs напрямую, поэтому список продублирован здесь — он
+# короткий и фиксированный (см. задание пользователя: ровно эти 4 предмета
+# гуманитарные), держите в синхроне при правке normalize-for-voiceover.mjs.
+HUMANITIES_KEYWORDS = ("русск", "литератур", "истор", "обществ")
+
+# Гарантированный минимум длительности AnswerScene для гуманитарных, когда
+# нет отдельной озвученной фразы «Ответ: ...», которая раньше естественным
+# образом задавала эту длительность (см. synthesize_answer_sec).
+MIN_ANSWER_SCENE_SEC = 5.0
+
+
+def is_humanities(subject) -> bool:
+    s = (subject or "").lower()
+    return any(k in s for k in HUMANITIES_KEYWORDS)
+
 
 def normalize_yo(text: str) -> str:
     return text.replace("ё", "е").replace("Ё", "Е")
@@ -163,10 +204,20 @@ def main():
     ap.add_argument("--text", required=True)
     ap.add_argument("--display-text", default=None)
     ap.add_argument("--condition-text", required=True)
+    ap.add_argument(
+        "--subject",
+        default="",
+        help=(
+            "task_data.subject как есть (например «Русский язык»). Не передан "
+            "или не похож на гуманитарный (см. HUMANITIES_KEYWORDS) — «Ответ:» "
+            "по-прежнему обязателен (обратная совместимость)."
+        ),
+    )
     ap.add_argument("--audio", required=True)
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--noise-db", type=int, default=-20)
     args = ap.parse_args()
+    humanities = is_humanities(args.subject)
 
     sentences = split_sentences(args.text)
     if len(sentences) < 3:
@@ -181,10 +232,12 @@ def main():
     cta_idx = next(
         (i for i, s in enumerate(sentences) if CTA_RE.search(normalize_yo(s))), None
     )
-    if answer_idx is None:
+    if answer_idx is None and not humanities:
         print(
             "ОШИБКА: не нашёл предложение, начинающееся с «Ответ:» — без него "
-            "невозможно автоматически найти границу условие → ответ.",
+            "невозможно автоматически найти границу условие → ответ. Если это "
+            "гуманитарный предмет без отдельной фразы «Ответ:» — передайте "
+            "--subject (русский язык/литература/история/обществознание).",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -195,13 +248,18 @@ def main():
             file=sys.stderr,
         )
         sys.exit(1)
-    if cta_idx <= answer_idx:
+    # answer_idx может отсутствовать намеренно — у гуманитарных без отдельной
+    # фразы «Ответ:» граница «конец объяснения» совпадает с началом CTA (см.
+    # докстринг и synthesize_answer_sec ниже).
+    answer_marker_present = answer_idx is not None
+    if answer_marker_present and cta_idx <= answer_idx:
         print(
             "ОШИБКА: фраза «Скачивай бесплатно» стоит раньше «Ответ:» — "
             "порядок текста не соответствует ожидаемому шаблону.",
             file=sys.stderr,
         )
         sys.exit(1)
+    explanation_end_idx = answer_idx if answer_marker_present else cta_idx
 
     # Раздельный, ИСХОДНЫЙ (с цифрами) список предложений — нужен и для
     # checkLines, и для поиска границы condition_text/explanation: числа
@@ -229,16 +287,19 @@ def main():
     if condition_end_idx is None:
         print(
             "ОШИБКА: не нашёл condition_text внутри озвучки (--display-text/--text) — "
-            "без этого не отличить условие от объяснения перед «Ответ:». "
+            "без этого не отличить условие от объяснения перед «Ответ:»/CTA. "
             "Проверьте, что condition_text вставлен в voiceover_text дословно.",
             file=sys.stderr,
         )
         sys.exit(1)
-    if condition_end_idx >= answer_idx:
+    if condition_end_idx >= explanation_end_idx:
+        boundary = "«Ответ:»" if answer_marker_present else "CTA («Скачивай бесплатно»)"
         print(
-            "ОШИБКА: condition_text заканчивается не раньше «Ответ:» — "
+            f"ОШИБКА: condition_text заканчивается не раньше {boundary} — "
             "порядок текста не соответствует ожидаемому шаблону "
-            "(вступление → условие → объяснение → «Ответ:» → CTA).",
+            "(вступление → [instruction →] условие → объяснение → "
+            + ("«Ответ:» → " if answer_marker_present else "")
+            + "CTA).",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -281,7 +342,11 @@ def main():
 
     # Нужные границы (0-based индекс "после какого предложения"):
     # conditionSec — самое начало (перед предложением 0), считаем отдельно;
-    # answerSec — перед предложением answer_idx;
+    # answerSec — перед предложением answer_idx (технические/«Ответ:» есть);
+    #   когда «Ответ:» нет (гуманитарные), настоящей DP-точки для answerSec
+    #   нет вовсе — вместо неё запрашиваем conditionEndSec (реальное время
+    #   конца condition_text) и вычисляем answerSec из неё и outroSec ниже,
+    #   см. блок "if not answer_marker_present".
     # checkAtSec — только если после «Ответ:» и до CTA есть ещё что-то
     #   озвученное (в фиксированном порядке объяснение звучит ДО ответа, так
     #   что обычно тут пусто, и AnswerScene просто открывается сразу с уже
@@ -291,21 +356,25 @@ def main():
     # outroSec — перед CTA-предложением (индекс cta_idx).
     needed = {}
     needed_idx = []
-    if answer_idx > 0:
-        needed_idx.append(("answerSec", answer_idx - 1))
+    if answer_marker_present:
+        if answer_idx > 0:
+            needed_idx.append(("answerSec", answer_idx - 1))
+        else:
+            needed["answerSec"] = 0.0  # ответ — первое предложение (короткий текст)
+        has_trailing_after_answer = answer_idx + 1 < cta_idx
+        if has_trailing_after_answer:
+            needed_idx.append(("checkAtSec", answer_idx))
     else:
-        needed["answerSec"] = 0.0  # ответ — первое предложение (короткий текст)
-    has_trailing_after_answer = answer_idx + 1 < cta_idx
-    if has_trailing_after_answer:
-        needed_idx.append(("checkAtSec", answer_idx))
+        has_trailing_after_answer = False
+        needed_idx.append(("conditionEndSec", condition_end_idx))
     needed_idx.append(("outroSec", cta_idx - 1))
 
     # Текст пояснения под ответом — те же предложения, что реально звучат
-    # МЕЖДУ concluding condition_text и «Ответ:» (фиксированный порядок:
-    # вступление → условие → объяснение → «Ответ:» → CTA, см. докстринг).
+    # МЕЖДУ concluding condition_text и «Ответ:»/CTA (фиксированный порядок:
+    # вступление → условие → объяснение → [«Ответ:» →] CTA, см. докстринг).
     # Явно НЕ выдумываем отдельное пояснение — берём то, что действительно
     # проговорено, слово в слово, из исходного (с цифрами) текста.
-    check_lines = [s for s in display_merged[condition_end_idx + 1 : answer_idx]]
+    check_lines = [s for s in display_merged[condition_end_idx + 1 : explanation_end_idx]]
 
     if needed_idx:
         idxs = [i for _, i in needed_idx]
@@ -313,6 +382,16 @@ def main():
         aligned = align(sub_expected, candidates)
         for (label, _), value in zip(needed_idx, aligned):
             needed[label] = value
+
+    if not answer_marker_present:
+        # Гуманитарные без отдельной фразы «Ответ:»: answerSec = «конец
+        # explanation», то есть примерно граница перед CTA — но не ближе
+        # MIN_ANSWER_SCENE_SEC к ней (иначе AnswerScene рискует получить
+        # почти нулевую длительность — то, что явно запрещено) и не раньше
+        # конца condition_text (иначе исчезло бы время на explanation).
+        needed["answerSec"] = max(
+            needed["conditionEndSec"], needed["outroSec"] - MIN_ANSWER_SCENE_SEC
+        )
 
     if not has_trailing_after_answer:
         needed["checkAtSec"] = needed["answerSec"]
@@ -338,6 +417,8 @@ def main():
             "conditionEndIdx": condition_end_idx,
             "answerIdx": answer_idx,
             "ctaIdx": cta_idx,
+            "humanities": humanities,
+            "answerMarkerPresent": answer_marker_present,
             "candidates": candidates,
             "fullExpected": [round(x, 2) for x in full_expected],
         },

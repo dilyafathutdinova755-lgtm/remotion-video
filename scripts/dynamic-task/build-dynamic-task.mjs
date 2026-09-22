@@ -45,19 +45,40 @@ const idOutPath = flag("id-out", false);
 const taskData = JSON.parse(readFileSync(taskDataPath, "utf8"));
 const align = JSON.parse(readFileSync(alignPath, "utf8"));
 
-const REQUIRED_FIELDS = [
-  "exam",
-  "subject",
-  "task_number",
-  "condition_text",
-  "answer",
-];
+const REQUIRED_FIELDS = ["exam", "subject", "task_number", "answer"];
 for (const f of REQUIRED_FIELDS) {
   if (!taskData[f] && taskData[f] !== 0) {
     console.error(`ОШИБКА: в task_data нет обязательного поля "${f}"`);
     process.exit(1);
   }
 }
+
+/**
+ * condition_text — единственный источник текста самой карточки (task.tokens).
+ * Раньше пустая/пробельная строка формально проходила общий REQUIRED_FIELDS
+ * (это truthy-значение), а после splitInstruction() ниже могла и вовсе
+ * схлопнуться в "" — когда явный/стандартный instruction совпадает со ВСЕМ
+ * condition_text целиком (например, если n8n по ошибке прислал в
+ * condition_text только саму формулировку без материала задания). Старый
+ * код в этом случае тихо подставлял назад исходный, ещё не разрезанный
+ * conditionText — то есть склеивал instruction обратно с условием вместо
+ * явного отказа, и результат зависел от того, что окажется в тексте.
+ * Теперь вместо угадывания — жёсткий fail-fast с одним и тем же понятным
+ * сообщением в обоих случаях: лучше видимый сбой CI и невыпущенное видео,
+ * чем ролик без условия задания.
+ */
+const FAIL_NO_CONDITION = "Dynamic task has no usable condition_text; refusing to render";
+const requireUsableConditionText = (text, reason) => {
+  if (typeof text !== "string" || text.trim() === "") {
+    console.error(`ОШИБКА: ${FAIL_NO_CONDITION} (${reason})`);
+    process.exit(1);
+  }
+};
+
+requireUsableConditionText(
+  taskData.condition_text,
+  "task_data.condition_text отсутствует, не строка или состоит из одних пробелов",
+);
 
 /** Composition id принимает только a-z, A-Z, 0-9, CJK и "-". */
 const sanitizeId = (raw) => {
@@ -119,6 +140,13 @@ const STANDARD_INSTRUCTIONS = {
  * номера задания (строка или массив строк) — побеждает тот, что реально
  * находится в начале condition_text; если ни один не подошёл, инструкция не
  * показывается (как и раньше — лучше её не показать, чем показать не ту).
+ *
+ * Важно: если после вырезания instruction от condition_text ничего не
+ * остаётся (instruction совпал со ВСЕМ текстом), tokensText здесь
+ * возвращается пустым, а НЕ подменяется обратно исходным conditionText —
+ * склеивать instruction с условием как fallback запрещено (см.
+ * requireUsableConditionText выше и её вызов сразу после этой функции,
+ * который и превращает пустой tokensText в явный fail-fast).
  */
 const splitInstruction = (conditionText, examType, taskNumber, explicit) => {
   const matchAt = (instruction) => {
@@ -134,8 +162,8 @@ const splitInstruction = (conditionText, examType, taskNumber, explicit) => {
   if (explicit != null && explicit !== "") {
     const instruction = String(explicit);
     const match = matchAt(instruction);
-    const tokensText = match ? conditionText.slice(match[0].length).trim() : conditionText;
-    return { instruction, tokensText: tokensText || conditionText };
+    const tokensText = (match ? conditionText.slice(match[0].length) : conditionText).trim();
+    return { instruction, tokensText };
   }
 
   const standard = STANDARD_INSTRUCTIONS[`${examType}:${taskNumber}`];
@@ -143,12 +171,11 @@ const splitInstruction = (conditionText, examType, taskNumber, explicit) => {
   for (const instruction of candidates) {
     const match = matchAt(instruction);
     if (match) {
-      const tokensText = conditionText.slice(match[0].length).trim();
-      return { instruction, tokensText: tokensText || conditionText };
+      return { instruction, tokensText: conditionText.slice(match[0].length).trim() };
     }
   }
 
-  return { instruction: undefined, tokensText: conditionText };
+  return { instruction: undefined, tokensText: conditionText.trim() };
 };
 
 const problemSizeFor = (text) => {
@@ -190,6 +217,10 @@ const { instruction, tokensText } = splitInstruction(
   examType,
   taskNumber,
   taskData.instruction,
+);
+requireUsableConditionText(
+  tokensText,
+  "после отделения instruction от condition_text для карточки не осталось текста",
 );
 const problemSize = problemSizeFor(tokensText);
 
