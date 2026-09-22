@@ -78,20 +78,29 @@ const paletteFor = (subject) => {
 };
 
 /**
- * Некоторые номера заданий (7 и 8 по русскому) имеют раз и навсегда
- * стандартизированную формулировку — ту же самую, что и в formword.tsx /
- * oge8.tsx. В карточке (ProblemScene.tsx) она рисуется отдельным приглушённым
- * блоком НАД самим условием (`task.instruction`), а не сплошным текстом
- * вперемешку с ним (`task.tokens`) — раньше динамический рендер этот блок
- * вообще не заполнял, и весь condition_text шёл одним жирным куском без
- * разделения на «формулировка» / «условие». Отсюда и был визуальный дефект.
+ * Некоторые номера заданий (6, 7 и 8 по русскому) имеют раз и навсегда
+ * стандартизированную формулировку — ту же самую, что и в lexical.tsx /
+ * formword.tsx / oge8.tsx. В карточке (ProblemScene.tsx) она рисуется
+ * отдельным приглушённым блоком НАД самим условием (`task.instruction`), а
+ * не сплошным текстом вперемешку с ним (`task.tokens`) — раньше динамический
+ * рендер этот блок вообще не заполнял, и весь condition_text шёл одним
+ * жирным куском без разделения на «формулировка» / «условие». Отсюда и был
+ * визуальный дефект.
  *
- * Для заданий, где формулировка — часть самого предложения (задание 9) или
- * зависит от варианта, которого в task_data нет (задание 6: «исключив» или
- * «заменив»), автоматической формулировки нет — n8n может прислать её явно
- * через необязательное поле task_data.instruction.
+ * У задания 6 таких формулировок ровно две — «исключив лишнее слово» или
+ * «заменив неверно употреблённое слово» (см. REMOVE/REPLACE в lexical.tsx),
+ * поэтому значение может быть не только строкой, но и списком вариантов:
+ * тогда проверяются все по очереди, пока один не совпадёт с condition_text.
+ *
+ * Для заданий, где формулировка — часть самого предложения (задание 9),
+ * автоматической формулировки нет вовсе — n8n может прислать её явно через
+ * необязательное поле task_data.instruction.
  */
 const STANDARD_INSTRUCTIONS = {
+  "ege:6": [
+    "Отредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово. Выпишите это слово.",
+    "Отредактируйте предложение: исправьте лексическую ошибку, заменив неверно употреблённое слово. Выпишите это слово.",
+  ],
   "ege:7":
     "В одном из выделенных слов допущена ошибка в образовании формы слова. Исправьте ошибку и запишите слово правильно.",
   "oge:8":
@@ -105,24 +114,41 @@ const STANDARD_INSTRUCTIONS = {
  * Сравнение — регуляркой, нечувствительной к регистру, ё/е и лишним
  * пробелам, а не по длине строки: длины могут не совпасть даже при
  * фактически одинаковом тексте.
+ *
+ * Если explicit не передан, перебираются все стандартные варианты для этого
+ * номера задания (строка или массив строк) — побеждает тот, что реально
+ * находится в начале condition_text; если ни один не подошёл, инструкция не
+ * показывается (как и раньше — лучше её не показать, чем показать не ту).
  */
 const splitInstruction = (conditionText, examType, taskNumber, explicit) => {
-  const instruction =
-    explicit != null && explicit !== ""
-      ? String(explicit)
-      : STANDARD_INSTRUCTIONS[`${examType}:${taskNumber}`];
-  if (!instruction) return { instruction: undefined, tokensText: conditionText };
+  const matchAt = (instruction) => {
+    const pattern =
+      "^\\s*" +
+      instruction
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/[её]/gi, "[её]")
+        .replace(/\s+/g, "\\s+");
+    return conditionText.match(new RegExp(pattern, "i"));
+  };
 
-  const pattern =
-    "^\\s*" +
-    instruction
-      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .replace(/[её]/gi, "[её]")
-      .replace(/\s+/g, "\\s+");
-  const match = conditionText.match(new RegExp(pattern, "i"));
-  const tokensText = match ? conditionText.slice(match[0].length).trim() : conditionText;
+  if (explicit != null && explicit !== "") {
+    const instruction = String(explicit);
+    const match = matchAt(instruction);
+    const tokensText = match ? conditionText.slice(match[0].length).trim() : conditionText;
+    return { instruction, tokensText: tokensText || conditionText };
+  }
 
-  return { instruction, tokensText: tokensText || conditionText };
+  const standard = STANDARD_INSTRUCTIONS[`${examType}:${taskNumber}`];
+  const candidates = Array.isArray(standard) ? standard : standard ? [standard] : [];
+  for (const instruction of candidates) {
+    const match = matchAt(instruction);
+    if (match) {
+      const tokensText = conditionText.slice(match[0].length).trim();
+      return { instruction, tokensText: tokensText || conditionText };
+    }
+  }
+
+  return { instruction: undefined, tokensText: conditionText };
 };
 
 const problemSizeFor = (text) => {
