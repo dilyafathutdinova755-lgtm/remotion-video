@@ -163,41 +163,124 @@ jobs:
           echo "$RESULT"
           echo "link=$(node -e "console.log(JSON.parse(process.argv[1]).webViewLink)" "$RESULT")" >> "$GITHUB_OUTPUT"
 
+      - name: Загрузить MP4 в Postmypost (upload/init)
+        id: postmypost_init
+        env:
+          POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
+        run: |
+          # Тот же файл, что уже создаёт "Рендер видео" и (опционально)
+          # грузит шаг Google Drive выше — путь не выдумываем, берём как есть.
+          MP4_PATH="out/dynamic.mp4"
+          if [ ! -f "$MP4_PATH" ]; then
+            echo "::error::$MP4_PATH не найден после шага рендера — грузить в Postmypost нечего."
+            exit 1
+          fi
+          FILE_NAME=$(basename "$MP4_PATH")
+          FILE_SIZE=$(stat -c%s "$MP4_PATH")
+          echo "Postmypost upload/init: name=$FILE_NAME, size=$FILE_SIZE bytes"
+
+          BODY=$(FILE_NAME="$FILE_NAME" FILE_SIZE="$FILE_SIZE" node -e "
+            console.log(JSON.stringify({
+              project_id: 351182,
+              name: process.env.FILE_NAME,
+              size: Number(process.env.FILE_SIZE),
+            }));
+          ")
+
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer $POSTMYPOST_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            "https://api.postmypost.io/v4.1/upload/init" > postmypost_init_response.json
+
+          # Разбираем ответ строго как он есть — id/action/fields не
+          # придумываются, а проверяются на присутствие; fields целиком (все
+          # key/value) сохраняются рядом для следующего шага. В лог не
+          # попадают значения fields (это одноразовые presigned-поля upload'а,
+          # но осторожность не помешает) — только id и имена ключей.
+          node -e "
+            const r = JSON.parse(require('fs').readFileSync('postmypost_init_response.json', 'utf8'));
+            if (r.id === undefined || r.id === null || !r.action || !Array.isArray(r.fields)) {
+              console.error('ОШИБКА: ответ Postmypost upload/init не содержит id/action/fields.');
+              process.exit(1);
+            }
+            const fs = require('fs');
+            fs.writeFileSync('postmypost_upload_id.json', JSON.stringify(r.id));
+            fs.writeFileSync('postmypost_upload_id.txt', String(r.id));
+            fs.writeFileSync('postmypost_action_url.txt', r.action);
+            fs.writeFileSync('postmypost_fields.json', JSON.stringify(r.fields));
+            console.error('Postmypost upload_id=' + JSON.stringify(r.id) + ', полей в fields: ' + r.fields.length + ' (' + r.fields.map(f => f.key).join(', ') + ')');
+          "
+
+      - name: Отправить MP4 в Postmypost (multipart upload)
+        run: |
+          ACTION_URL=$(cat postmypost_action_url.txt)
+          MP4_PATH="out/dynamic.mp4"
+
+          # Все key/value из fields ответа upload/init как есть, ничего не
+          # хардкодим. --form-string — чтобы значение поля никогда не было
+          # интерпретировано curl как "@файл"/"<файл" (некоторые presigned
+          # значения начинаются с похожих символов). Разделитель между
+          # аргументами — NUL, чтобы точно пережить любые символы в values;
+          # завершающий NUL после последнего элемента обязателен — без него
+          # "read -r -d ''" не считает последнюю запись (EOF без разделителя
+          # молча обрывает цикл до её обработки) и теряется последнее поле.
+          # Сам MP4 передаётся последним полем — обычное требование
+          # presigned POST-загрузок (S3-подобный протокол).
+          node -e "
+            const fields = JSON.parse(require('fs').readFileSync('postmypost_fields.json', 'utf8'));
+            const out = [];
+            for (const f of fields) { out.push('--form-string'); out.push(f.key + '=' + f.value); }
+            process.stdout.write(out.join('\u0000') + '\u0000');
+          " > postmypost_form_args.bin
+
+          FORM_ARGS=()
+          while IFS= read -r -d '' arg; do FORM_ARGS+=("$arg"); done < postmypost_form_args.bin
+
+          curl -sS --fail-with-body -X POST \
+            "${FORM_ARGS[@]}" \
+            -F "file=@${MP4_PATH}" \
+            "$ACTION_URL"
+
+      - name: Завершить upload в Postmypost (upload/complete)
+        env:
+          POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
+        run: |
+          UPLOAD_ID=$(cat postmypost_upload_id.txt)
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer $POSTMYPOST_API_KEY" \
+            "https://api.postmypost.io/v4.1/upload/complete?id=${UPLOAD_ID}"
+
       - name: Сообщить n8n, что видео готово
         env:
           TASK_ID: ${{ inputs.task_id }}
-          VIDEO_URL: ${{ steps.drive_upload.outputs.link }}
           N8N_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_VIDEO_READY_WEBHOOK_URL }}
         run: |
-          # Единственный callback о готовом видео за весь рендер — дальше он
-          # запускает публикацию в Postmypost, и второй вызов создал бы
-          # дубликат Reel. video_url обязан быть ссылкой именно на сам MP4
-          # (Google Drive), а не на страницу прогона GitHub Actions — без
-          # неё это не видеофайл, поэтому фолбэка на actions/runs/... нет:
-          # если drive_upload не отработал (секреты Google Drive не заданы
-          # или сама загрузка упала), callback не отправляется вовсе, а шаг
-          # падает с понятной ошибкой.
-          if [ -z "$VIDEO_URL" ]; then
-            echo "::error::steps.drive_upload.outputs.link пуст — видео не загружено на Google Drive, реального video_url нет. Callback video-ready НЕ отправлен (не отправлять GitHub Actions URL вместо ссылки на MP4)."
-            exit 1
-          fi
-
-          # account — из того же task_data.json, что уже сохранён шагом
-          # "Сохранить task_data во временный файл" выше; безопасно (пустая
-          # строка), если поля нет вовсе.
+          # Единственный callback о готовом видео за весь рендер — дальше
+          # он инициирует публикацию из уже загруженного и завершённого
+          # Postmypost-upload'а (проект 351182); второй вызов создал бы
+          # дубликат Reel. Не зависит от Google Drive вовсе (см. шаги
+          # Postmypost выше) — отсутствие Drive-ссылки никак не мешает.
           ACCOUNT=$(node -e "
             const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
             console.log(d.account || '');
           ")
-          BODY=$(TASK_ID="$TASK_ID" VIDEO_URL="$VIDEO_URL" ACCOUNT="$ACCOUNT" node -e "
+          BODY=$(TASK_ID="$TASK_ID" ACCOUNT="$ACCOUNT" node -e "
+            const uploadId = JSON.parse(require('fs').readFileSync('postmypost_upload_id.json', 'utf8'));
             console.log(JSON.stringify({
               task_id: process.env.TASK_ID,
-              video_url: process.env.VIDEO_URL,
+              postmypost_upload_id: uploadId,
               account: process.env.ACCOUNT,
               video_status: 'ready',
             }));
           ")
-          curl -sS -X POST \
+
+          # Callback обязан быть надёжным: ретраи на сетевые/5xx ошибки, и
+          # если n8n так и не ответил 2xx — весь workflow должен упасть, а
+          # не остаться зелёным при недоставленном сообщении.
+          curl -sS --fail-with-body \
+            --retry 5 --retry-delay 3 --retry-all-errors \
+            -X POST \
             -H "Content-Type: application/json" \
             -d "$BODY" \
             "$N8N_VIDEO_READY_WEBHOOK_URL"
