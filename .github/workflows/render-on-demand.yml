@@ -166,26 +166,22 @@ jobs:
       - name: Сообщить n8n, что видео готово
         env:
           TASK_ID: ${{ inputs.task_id }}
-          VIDEO_URL: ${{ steps.drive_upload.outputs.link || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-        run: |
-          BODY=$(node -e "
-            console.log(JSON.stringify({
-              task_id: process.env.TASK_ID,
-              video_url: process.env.VIDEO_URL,
-              status: 'готово',
-            }));
-          ")
-          curl -sS -X POST \
-            -H "Content-Type: application/json" \
-            -d "$BODY" \
-            "https://dilyafathutdinova755.app.n8n.cloud/webhook/video-ready"
-
-      - name: Сообщить video_url в n8n (N8N_VIDEO_READY_WEBHOOK_URL)
-        env:
-          TASK_ID: ${{ inputs.task_id }}
-          VIDEO_URL: ${{ steps.drive_upload.outputs.link || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          VIDEO_URL: ${{ steps.drive_upload.outputs.link }}
           N8N_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_VIDEO_READY_WEBHOOK_URL }}
         run: |
+          # Единственный callback о готовом видео за весь рендер — дальше он
+          # запускает публикацию в Postmypost, и второй вызов создал бы
+          # дубликат Reel. video_url обязан быть ссылкой именно на сам MP4
+          # (Google Drive), а не на страницу прогона GitHub Actions — без
+          # неё это не видеофайл, поэтому фолбэка на actions/runs/... нет:
+          # если drive_upload не отработал (секреты Google Drive не заданы
+          # или сама загрузка упала), callback не отправляется вовсе, а шаг
+          # падает с понятной ошибкой.
+          if [ -z "$VIDEO_URL" ]; then
+            echo "::error::steps.drive_upload.outputs.link пуст — видео не загружено на Google Drive, реального video_url нет. Callback video-ready НЕ отправлен (не отправлять GitHub Actions URL вместо ссылки на MP4)."
+            exit 1
+          fi
+
           # account — из того же task_data.json, что уже сохранён шагом
           # "Сохранить task_data во временный файл" выше; безопасно (пустая
           # строка), если поля нет вовсе.
@@ -193,7 +189,7 @@ jobs:
             const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
             console.log(d.account || '');
           ")
-          BODY=$(ACCOUNT="$ACCOUNT" node -e "
+          BODY=$(TASK_ID="$TASK_ID" VIDEO_URL="$VIDEO_URL" ACCOUNT="$ACCOUNT" node -e "
             console.log(JSON.stringify({
               task_id: process.env.TASK_ID,
               video_url: process.env.VIDEO_URL,
