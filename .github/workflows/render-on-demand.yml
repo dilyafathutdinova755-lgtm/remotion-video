@@ -179,3 +179,29 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$BODY" \
             "https://dilyafathutdinova755.app.n8n.cloud/webhook/video-ready"
+
+      - name: Сообщить video_url в n8n (N8N_VIDEO_READY_WEBHOOK_URL)
+        env:
+          TASK_ID: ${{ inputs.task_id }}
+          VIDEO_URL: ${{ steps.drive_upload.outputs.link || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          N8N_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_VIDEO_READY_WEBHOOK_URL }}
+        run: |
+          # account — из того же task_data.json, что уже сохранён шагом
+          # "Сохранить task_data во временный файл" выше; безопасно (пустая
+          # строка), если поля нет вовсе.
+          ACCOUNT=$(node -e "
+            const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
+            console.log(d.account || '');
+          ")
+          BODY=$(ACCOUNT="$ACCOUNT" node -e "
+            console.log(JSON.stringify({
+              task_id: process.env.TASK_ID,
+              video_url: process.env.VIDEO_URL,
+              account: process.env.ACCOUNT,
+              video_status: 'ready',
+            }));
+          ")
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            "$N8N_VIDEO_READY_WEBHOOK_URL"
