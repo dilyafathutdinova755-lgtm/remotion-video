@@ -1,11 +1,28 @@
-import { AbsoluteFill, Audio, Sequence, Series, staticFile } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  Sequence,
+  Series,
+  staticFile,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { Background } from "./Background";
 import { Watermark } from "./Watermark";
 import { FontGate } from "./FontGate";
 import { TaskProvider } from "./TaskContext";
-import { buildFourSlidesScenes, buildScenes, totalFourSlidesFrames, totalFrames } from "./timing";
+import {
+  buildFourSlidesScenes,
+  buildScenes,
+  totalFourSlidesFrames,
+  totalFrames,
+} from "./timing";
 import { paletteFor, paletteVars } from "./theme";
-import { isFourSlidesTask, type TaskDef } from "./tasks/types";
+import {
+  isFourSlidesTask,
+  type TaskDef,
+} from "./tasks/types";
 import { HookScene } from "./scenes/HookScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { AnswerScene } from "./scenes/AnswerScene";
@@ -26,59 +43,123 @@ import { FourSlidesAnswerScene } from "./scenes/four-slides/AnswerScene";
  * висит до финального экрана, где её заменяет большая иконка приложения.
  *
  * video_structure_version="four-slides-v1" — отдельная, полностью
- * независимая композиция сцен (см. FourSlidesVideo ниже): жёстко Title →
- * Problem → Answer → CTA, без пошагового разбора и без общего "explanation
- * во время ProblemScene" — это старое поведение здесь ЗАПРЕЩЕНО контрактом.
- * Старая модель (эта функция, EgeVideo) не меняется вовсе — обе ветки
- * должны продолжать рендериться как раньше.
+ * независимая композиция сцен (см. FourSlidesVideo ниже): Title →
+ * Problem → Answer → CTA, без пошагового разбора и без общего
+ * "explanation во время ProblemScene".
+ *
+ * Старая модель (эта функция, EgeVideo) не меняется —
+ * обе ветки должны продолжать рендериться независимо.
  */
-export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
+export const EgeVideo: React.FC<{
+  task: TaskDef;
+}> = ({ task }) => {
   if (isFourSlidesTask(task)) {
-    return <FourSlidesVideo task={task} />;
+    return (
+      <FourSlidesVideo
+        task={task}
+      />
+    );
   }
 
-  const scenes = buildScenes(task);
+  const scenes =
+    buildScenes(task);
 
   return (
     <FontGate>
-      <TaskProvider value={task}>
-        {/* Палитра предмета — переменными на корне, дальше её видят все сцены */}
-        <AbsoluteFill style={paletteVars(paletteFor(task.palette))}>
+      <TaskProvider
+        value={task}
+      >
+        {/* Палитра предмета — переменными на корне */}
+        <AbsoluteFill
+          style={paletteVars(
+            paletteFor(
+              task.palette,
+            ),
+          )}
+        >
           <Background />
 
-          {/* Озвучка целиком, с начала ролика — сцены нарезаны под неё
-              в buildScenes(), поэтому отдельно двигать её не нужно.
-              Родной звук видео отсутствует, так что это единственная
-              дорожка. */}
+          {/* Озвучка целиком, с начала ролика */}
           {task.audioSync ? (
-            <Audio src={staticFile(task.audioSync.src)} />
+            <Audio
+              src={staticFile(
+                task.audioSync
+                  .src,
+              )}
+            />
           ) : null}
 
           <Series>
-            <Series.Sequence durationInFrames={scenes.title}>
+            <Series.Sequence
+              durationInFrames={
+                scenes.title
+              }
+            >
               <HookScene />
             </Series.Sequence>
-            <Series.Sequence durationInFrames={scenes.problem}>
+
+            <Series.Sequence
+              durationInFrames={
+                scenes.problem
+              }
+            >
               <ProblemScene />
             </Series.Sequence>
-            {task.solutions.map(({ Component }, i) => (
-              <Series.Sequence key={i} durationInFrames={scenes.solutions[i]}>
-                <Component />
-              </Series.Sequence>
-            ))}
 
-            {scenes.answer > 0 ? (
-              <Series.Sequence durationInFrames={scenes.answer}>
+            {task.solutions.map(
+              (
+                {
+                  Component,
+                },
+                i,
+              ) => (
+                <Series.Sequence
+                  key={i}
+                  durationInFrames={
+                    scenes
+                      .solutions[
+                      i
+                    ]
+                  }
+                >
+                  <Component />
+                </Series.Sequence>
+              ),
+            )}
+
+            {scenes.answer >
+            0 ? (
+              <Series.Sequence
+                durationInFrames={
+                  scenes.answer
+                }
+              >
                 {/* У задания 19 по истории ответ — не значение, а два абзаца */}
-                {task.concept ? <ConceptScene /> : <AnswerScene />}
+                {task.concept ? (
+                  <ConceptScene />
+                ) : (
+                  <AnswerScene />
+                )}
               </Series.Sequence>
             ) : null}
-            <Series.Sequence durationInFrames={scenes.outro}>
+
+            <Series.Sequence
+              durationInFrames={
+                scenes.outro
+              }
+            >
               <OutroScene />
             </Series.Sequence>
           </Series>
 
-          <Sequence durationInFrames={totalFrames(task) - scenes.outro}>
+          <Sequence
+            durationInFrames={
+              totalFrames(
+                task,
+              ) -
+              scenes.outro
+            }
+          >
             <Watermark />
           </Sequence>
         </AbsoluteFill>
@@ -88,41 +169,285 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
 };
 
 /**
- * four-slides-v1: Title → Problem → 5-секундная пауза для размышления
- * (часть Problem-сцены, см. FourSlidesProblemScene) → Answer → CTA.
- * Ничего похожего на "ProblemScene во время explanation" здесь нет и быть
- * не может: Problem заканчивается ровно на audioSync.answerSec, Answer
- * начинается сразу после неё — граница жёсткая, посчитана align.py по
- * реальной (склеенной с настоящей тишиной) озвучке.
+ * Единая визуальная плавность для four-slides-v1.
+ *
+ * ВАЖНО:
+ * - длительность сцен не меняется;
+ * - сцены не перекрываются;
+ * - audioSync не двигается;
+ * - границы Title / Problem / Answer / CTA остаются теми же;
+ * - добавляется только одинаковый fade на визуальном слое.
+ *
+ * Фон находится вне Series, поэтому во время fade
+ * сцена мягко растворяется в том же самом фоне,
+ * без чёрного кадра и без резкой склейки.
  */
-const FourSlidesVideo: React.FC<{ task: Extract<TaskDef, { videoStructureVersion: "four-slides-v1" }> }> = ({
-  task,
+const FourSlidesSceneFade: React.FC<{
+  children: React.ReactNode;
+  durationInFrames: number;
+  fadeIn?: boolean;
+  fadeOut?: boolean;
+}> = ({
+  children,
+  durationInFrames,
+  fadeIn = true,
+  fadeOut = true,
 }) => {
-  const scenes = buildFourSlidesScenes(task);
+  const frame =
+    useCurrentFrame();
+
+  const { fps } =
+    useVideoConfig();
+
+  /*
+   * Одинаковая длительность перехода
+   * независимо от FPS.
+   *
+   * ~0.22 секунды достаточно,
+   * чтобы переход был заметно плавным,
+   * но не выглядел медленным.
+   */
+  const preferredFadeFrames =
+    Math.max(
+      1,
+      Math.round(
+        fps * 0.22,
+      ),
+    );
+
+  /*
+   * Защита от слишком короткой сцены:
+   * fade не должен занимать большую
+   * часть её длительности.
+   */
+  const maxFadeFrames =
+    Math.max(
+      1,
+      Math.floor(
+        (durationInFrames -
+          1) /
+          3,
+      ),
+    );
+
+  const fadeFrames =
+    Math.min(
+      preferredFadeFrames,
+      maxFadeFrames,
+    );
+
+  /*
+   * Теоретическая защита для
+   * сверхкоротких сцен.
+   */
+  if (
+    durationInFrames <= 2
+  ) {
+    return (
+      <AbsoluteFill>
+        {children}
+      </AbsoluteFill>
+    );
+  }
+
+  const fadeInOpacity =
+    fadeIn
+      ? interpolate(
+          frame,
+          [
+            0,
+            fadeFrames,
+          ],
+          [0, 1],
+          {
+            extrapolateLeft:
+              "clamp",
+            extrapolateRight:
+              "clamp",
+          },
+        )
+      : 1;
+
+  const fadeOutStart =
+    Math.max(
+      0,
+      durationInFrames -
+        1 -
+        fadeFrames,
+    );
+
+  const fadeOutOpacity =
+    fadeOut
+      ? interpolate(
+          frame,
+          [
+            fadeOutStart,
+            durationInFrames -
+              1,
+          ],
+          [1, 0],
+          {
+            extrapolateLeft:
+              "clamp",
+            extrapolateRight:
+              "clamp",
+          },
+        )
+      : 1;
+
+  const opacity =
+    Math.min(
+      fadeInOpacity,
+      fadeOutOpacity,
+    );
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * four-slides-v1:
+ *
+ * Title → Problem → Answer → CTA.
+ *
+ * Пауза для размышления является частью Problem-сцены
+ * и берётся из task.pauseSeconds.
+ *
+ * Тайминг всех границ остаётся строго привязанным
+ * к audioSync, рассчитанному align.py.
+ *
+ * Визуально каждый переход между сценами получает
+ * один и тот же мягкий fade:
+ *
+ * Title → Problem
+ * Problem → Answer
+ * Answer → CTA
+ *
+ * Это НЕ изменяет длину видео и НЕ сдвигает аудио.
+ */
+const FourSlidesVideo: React.FC<{
+  task: Extract<
+    TaskDef,
+    {
+      videoStructureVersion: "four-slides-v1";
+    }
+  >;
+}> = ({ task }) => {
+  const scenes =
+    buildFourSlidesScenes(
+      task,
+    );
 
   return (
     <FontGate>
-      <TaskProvider value={task}>
-        <AbsoluteFill style={paletteVars(paletteFor(task.palette))}>
+      <TaskProvider
+        value={task}
+      >
+        <AbsoluteFill
+          style={paletteVars(
+            paletteFor(
+              task.palette,
+            ),
+          )}
+        >
           <Background />
-          <Audio src={staticFile(task.audioSync.src)} />
+
+          <Audio
+            src={staticFile(
+              task.audioSync
+                .src,
+            )}
+          />
 
           <Series>
-            <Series.Sequence durationInFrames={scenes.title}>
-              <FourSlidesTitleScene />
+            {/* 1. TITLE / HOOK */}
+            <Series.Sequence
+              durationInFrames={
+                scenes.title
+              }
+            >
+              <FourSlidesSceneFade
+                durationInFrames={
+                  scenes.title
+                }
+                fadeIn={
+                  false
+                }
+                fadeOut
+              >
+                <FourSlidesTitleScene />
+              </FourSlidesSceneFade>
             </Series.Sequence>
-            <Series.Sequence durationInFrames={scenes.problem}>
-              <FourSlidesProblemScene />
+
+            {/* 2. TASK */}
+            <Series.Sequence
+              durationInFrames={
+                scenes.problem
+              }
+            >
+              <FourSlidesSceneFade
+                durationInFrames={
+                  scenes.problem
+                }
+                fadeIn
+                fadeOut
+              >
+                <FourSlidesProblemScene />
+              </FourSlidesSceneFade>
             </Series.Sequence>
-            <Series.Sequence durationInFrames={scenes.answer}>
-              <FourSlidesAnswerScene />
+
+            {/* 3. ANSWER */}
+            <Series.Sequence
+              durationInFrames={
+                scenes.answer
+              }
+            >
+              <FourSlidesSceneFade
+                durationInFrames={
+                  scenes.answer
+                }
+                fadeIn
+                fadeOut
+              >
+                <FourSlidesAnswerScene />
+              </FourSlidesSceneFade>
             </Series.Sequence>
-            <Series.Sequence durationInFrames={scenes.outro}>
-              <OutroScene />
+
+            {/* 4. CTA */}
+            <Series.Sequence
+              durationInFrames={
+                scenes.outro
+              }
+            >
+              <FourSlidesSceneFade
+                durationInFrames={
+                  scenes.outro
+                }
+                fadeIn
+                fadeOut={
+                  false
+                }
+              >
+                <OutroScene />
+              </FourSlidesSceneFade>
             </Series.Sequence>
           </Series>
 
-          <Sequence durationInFrames={totalFourSlidesFrames(task) - scenes.outro}>
+          <Sequence
+            durationInFrames={
+              totalFourSlidesFrames(
+                task,
+              ) -
+              scenes.outro
+            }
+          >
             <Watermark />
           </Sequence>
         </AbsoluteFill>
