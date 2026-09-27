@@ -8,6 +8,15 @@
  * answer/explanation — их дальше делает n8n/Claude) и отправляет ОДНИМ
  * POST-запросом в n8n webhook.
  *
+ * instruction (формулировка задания) и condition_text (сам материал)
+ * разделяются ЗДЕСЬ, на стороне источника, по канонической сигнатуре и
+ * структуре абзацев (см. newschool-lib.mjs: splitInstructionAndCondition,
+ * checkSplitUsable) — раньше это разделение делал Claude в n8n уже после
+ * приёма source_text целиком, и оно иногда терялось/смешивалось. Теперь это
+ * детерминированно и обязательно: вариант, для которого разделение не
+ * прошло fail-fast проверку, отклоняется целиком (см. цикл ниже), а не
+ * отправляется в n8n с сомнительными instruction/condition_text.
+ *
  * Claude в GitHub здесь не участвует: это чистое извлечение + пересылка
  * сырого текста задания. Вся логика поиска заданий и очистки UI-мусора —
  * общая с диагностическим scrape-newschool.mjs, см. newschool-lib.mjs
@@ -31,12 +40,14 @@
  */
 import { chromium } from "playwright";
 import {
+  checkSplitUsable,
   discoverVariants,
   extractViaDom,
   extractViaText,
   gotoAndSettle,
   launchNewSchoolPage,
   matchesTaskSignature,
+  splitInstructionAndCondition,
   stripAnsi,
   trimUiNoiseAfterAnswer,
 } from "./newschool-lib.mjs";
@@ -175,11 +186,27 @@ async function main() {
         );
         continue;
       }
+
+      // Разделение instruction/condition_text переносится сюда, на сторону
+      // источника — раньше это делал Claude в n8n уже ПОСЛЕ приёма
+      // source_text целиком, и разделение иногда терялось/смешивалось.
+      // Никаких догадок: только каноническая сигнатура + абзацы (см.
+      // splitInstructionAndCondition), с жёстким fail-fast, если результат
+      // выглядит подозрительно (checkSplitUsable).
+      const split = splitInstructionAndCondition(num, sourceText);
+      const splitUsable = checkSplitUsable(split);
+      if (splitUsable !== true) {
+        console.error(`variant ${variant} rejected: task ${num} split failed (${splitUsable})`);
+        continue;
+      }
+
       chosen = {
         variant,
         url,
         taskNumber: num,
         sourceText,
+        instruction: split.instruction,
+        conditionText: split.condition_text,
         internalId: picked.elementId || null,
         internalDataId: picked.dataId || null,
       };
@@ -200,6 +227,8 @@ async function main() {
     exam: "ЕГЭ",
     subject: "русский",
     task_number: chosen.taskNumber,
+    instruction: chosen.instruction,
+    condition_text: chosen.conditionText,
     source_text: chosen.sourceText,
     source: "Новая школа",
     source_url: chosen.url,
@@ -212,8 +241,14 @@ async function main() {
   console.log("--- Выбрано (безопасный лог) ---");
   console.log(`variant: ${chosen.variant} (source_url: ${chosen.url})`);
   console.log(`task_number: ${payload.task_number}`);
+  console.log(`instruction: ${payload.instruction.length} символов`);
+  console.log(`condition_text: ${payload.condition_text.length} символов`);
   console.log(`source_text: ${payload.source_text.length} символов`);
   if (payload.source_task_id) console.log(`source_task_id: ${payload.source_task_id}`);
+  console.log("--- instruction (полностью, для диагностики) ---");
+  console.log(payload.instruction);
+  console.log("--- condition_text (полностью, для диагностики) ---");
+  console.log(payload.condition_text);
   console.log("--- source_text (полностью, для диагностики) ---");
   console.log(payload.source_text);
   console.log("--- конец source_text ---");

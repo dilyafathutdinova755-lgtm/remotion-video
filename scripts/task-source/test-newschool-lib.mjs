@@ -12,8 +12,10 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import {
+  checkSplitUsable,
   extractViaDom,
   matchesTaskSignature,
+  splitInstructionAndCondition,
   trimUiNoiseAfterAnswer,
 } from "./newschool-lib.mjs";
 
@@ -94,6 +96,94 @@ async function main() {
       ),
       false,
     );
+  });
+
+  console.log("\n--- splitInstructionAndCondition / checkSplitUsable ---");
+
+  await check("реальный №7 (variant 275, продакшн-прогон) → instruction/condition_text разделены верно", () => {
+    // Дословный source_text из реального прогона production-workflow на
+    // thenewschool.ru (variant=275, run 35751769166) — см. отчёт в диалоге.
+    const real =
+      "№7 по КИМ\n\nВ одном из выделенных ниже слов допущена ошибка в образовании формы слова. Исправьте ошибку и запишите слово правильно.\n\nПРОПОЛОЩИ бельё\nдетские ДОКТОРА\nШЕСТИСТАМИ солдатами\nу неё более ГРОМКИЙ голос\nСОЖЖЕТ письмо";
+    const split = splitInstructionAndCondition(7, real);
+    assert.equal(
+      split.instruction,
+      "В одном из выделенных ниже слов допущена ошибка в образовании формы слова. Исправьте ошибку и запишите слово правильно.",
+    );
+    assert.equal(
+      split.condition_text,
+      "ПРОПОЛОЩИ бельё\nдетские ДОКТОРА\nШЕСТИСТАМИ солдатами\nу неё более ГРОМКИЙ голос\nСОЖЖЕТ письмо",
+    );
+    assert.ok(!/№7 по КИМ/.test(split.instruction));
+    assert.ok(!/№7 по КИМ/.test(split.condition_text));
+    assert.equal(checkSplitUsable(split), true);
+  });
+
+  await check("русский №6 REMOVE → instruction/condition_text разделены верно", () => {
+    const text =
+      "№6 по КИМ\n\nОтредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово. Выпишите это слово.\n\nЭтот исключительно эксклюзивный автомобиль, вид которого отсылает к 1930-м годам, был изготовлен в 2008 году на одном из немецких заводов.";
+    const split = splitInstructionAndCondition(6, text);
+    assert.equal(
+      split.instruction,
+      "Отредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово. Выпишите это слово.",
+    );
+    assert.equal(
+      split.condition_text,
+      "Этот исключительно эксклюзивный автомобиль, вид которого отсылает к 1930-м годам, был изготовлен в 2008 году на одном из немецких заводов.",
+    );
+    assert.equal(checkSplitUsable(split), true);
+  });
+
+  await check("русский №6 REPLACE → instruction/condition_text разделены верно", () => {
+    const text =
+      "Задание 6\n\nОтредактируйте предложение: исправьте лексическую ошибку, заменив неверно употреблённое слово. Выпишите это слово.\n\nМама испекла вкусный пирог для гостей.";
+    const split = splitInstructionAndCondition(6, text);
+    assert.equal(
+      split.instruction,
+      "Отредактируйте предложение: исправьте лексическую ошибку, заменив неверно употреблённое слово. Выпишите это слово.",
+    );
+    assert.equal(split.condition_text, "Мама испекла вкусный пирог для гостей.");
+    assert.equal(checkSplitUsable(split), true);
+  });
+
+  await check("instruction отсутствует (сигнатуры нет ни в одном абзаце) → checkSplitUsable отклоняет", () => {
+    const text = "№6 по КИМ\n\nЭтот текст вообще не формулировка задания.\n\nПросто предложение без instruction.";
+    const split = splitInstructionAndCondition(6, text);
+    assert.equal(split.instruction, "");
+    const reason = checkSplitUsable(split);
+    assert.notEqual(reason, true);
+    assert.match(reason, /instruction is empty/);
+  });
+
+  await check("material (condition_text) отсутствует — instruction последний абзац → checkSplitUsable отклоняет", () => {
+    const text =
+      "№6 по КИМ\n\nОтредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово. Выпишите это слово.";
+    const split = splitInstructionAndCondition(6, text);
+    assert.equal(split.condition_text, "");
+    const reason = checkSplitUsable(split);
+    assert.notEqual(reason, true);
+    assert.match(reason, /condition_text is empty/);
+  });
+
+  await check("разделение оставило instruction целиком внутри condition_text → checkSplitUsable отклоняет", () => {
+    // Симулируем сломанное разделение напрямую (не через splitInstruction-
+    // AndCondition — она уже это не допускает), чтобы проверить именно
+    // защитную функцию checkSplitUsable саму по себе.
+    const brokenSplit = {
+      instruction: "Отредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово.",
+      condition_text:
+        "Отредактируйте предложение: исправьте лексическую ошибку, исключив лишнее слово. Этот автомобиль был изготовлен в 2008 году.",
+    };
+    const reason = checkSplitUsable(brokenSplit);
+    assert.notEqual(reason, true);
+    assert.match(reason, /condition_text still contains instruction/);
+  });
+
+  await check("литературное задание с task_number=6 (гарбл) → split не находит instruction, отклонён", () => {
+    const text =
+      "№6 по КИМ\n\nЗаполните пропуски в следующем предложении. В ответе запишите два литературных термина.\n\nВ этом фрагменте ветер печёт,м о ягрудь наполняется запахами хвои.";
+    const split = splitInstructionAndCondition(6, text);
+    assert.equal(checkSplitUsable(split), "instruction is empty after split");
   });
 
   console.log("\n--- trimUiNoiseAfterAnswer ---");

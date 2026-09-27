@@ -265,6 +265,85 @@ export function matchesTaskSignature(taskNumber, sourceText) {
 }
 
 /**
+ * Заголовок страницы вида «№6 по КИМ»/«Задание 7» — не часть ни instruction,
+ * ни condition_text, только служебная метка каталога. Проверяется как
+ * ОТДЕЛЬНЫЙ абзац целиком (а не подстрокой где угодно), чтобы случайно не
+ * отбросить абзац, который лишь НАЧИНАЕТСЯ похоже на заголовок.
+ */
+function isHeaderParagraph(paragraph, taskNumber) {
+  const norm = normalizeForSignatureMatch(paragraph);
+  const re = new RegExp(`^(?:№\\s*0*${taskNumber}(?:\\s*по\\s*ким)?|задание\\s*0*${taskNumber})\\s*[.:]?$`);
+  return re.test(norm);
+}
+
+/**
+ * Делит source_text (уже прошедший matchesTaskSignature — то есть точно
+ * содержащий каноническую формулировку задания №6/№7) на instruction
+ * (формулировка того, что нужно сделать) и condition_text (сам материал —
+ * предложение для №6, строки вариантов для №7). НИКАКИХ LLM/эвристических
+ * догадок: только каноническая сигнатура (та же, что в matchesTaskSignature)
+ * и структура текста по абзацам (реальная страница отдаёт задание с чёткими
+ * пустыми строками между заголовком/формулировкой/материалом — так устроен
+ * innerText блочных DOM-элементов у extractViaDom, см. её докстринг).
+ *
+ * Алгоритм:
+ *   1. Разбить текст на абзацы (по пустым строкам).
+ *   2. Отбросить ведущие абзацы-заголовки («№6 по КИМ» и т. п.).
+ *   3. Найти первый оставшийся абзац, реально содержащий каноническую
+ *      сигнатуру задания (тем же matchesTaskSignature, что и раньше) — это
+ *      и есть instruction, ЦЕЛИКОМ как отдельный абзац (со всеми
+ *      предложениями формулировки, например и «Выпишите это слово.»).
+ *   4. Всё, что идёт ПОСЛЕ этого абзаца — condition_text.
+ *
+ * Если сигнатура не нашлась ни в одном абзаце (не должно происходить после
+ * matchesTaskSignature, но на случай рассинхронизации абзацев) — возвращает
+ * пустые instruction/condition_text, и isUsableSplit() ниже это отклонит.
+ */
+export function splitInstructionAndCondition(taskNumber, sourceText) {
+  const paragraphs = String(sourceText)
+    .split(/\n\s*\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  while (paragraphs.length > 0 && isHeaderParagraph(paragraphs[0], taskNumber)) {
+    paragraphs.shift();
+  }
+
+  const instructionIdx = paragraphs.findIndex((p) => matchesTaskSignature(taskNumber, p));
+  if (instructionIdx === -1) {
+    return { instruction: "", condition_text: "" };
+  }
+
+  const instruction = paragraphs[instructionIdx];
+  const condition_text = paragraphs.slice(instructionIdx + 1).join("\n\n").trim();
+
+  return { instruction, condition_text };
+}
+
+/**
+ * Fail-fast проверка результата splitInstructionAndCondition(): задание
+ * нельзя отправлять в n8n, если после разделения instruction пуст, ИЛИ
+ * condition_text пуст, ИЛИ (типичный симптом сломавшегося разделения)
+ * condition_text целиком содержит в себе instruction. Возвращает либо
+ * true, либо строку с человекочитаемой причиной отказа (используется
+ * вызывающим кодом и в логах, и как признак "отклонить").
+ */
+export function checkSplitUsable({ instruction, condition_text }) {
+  if (!instruction || !instruction.trim()) {
+    return "instruction is empty after split";
+  }
+  if (!condition_text || !condition_text.trim()) {
+    return "condition_text is empty after split";
+  }
+  const normInstr = normalizeForSignatureMatch(instruction);
+  const normCond = normalizeForSignatureMatch(condition_text);
+  if (normCond.includes(normInstr)) {
+    return "condition_text still contains instruction after split";
+  }
+  return true;
+}
+
+/**
  * Открывает headless Chromium с тем же UA и (опционально)
  * PLAYWRIGHT_EXECUTABLE_PATH, что и раньше — вынесено в одно место, чтобы
  * оба скрипта запускали браузер одинаково.
