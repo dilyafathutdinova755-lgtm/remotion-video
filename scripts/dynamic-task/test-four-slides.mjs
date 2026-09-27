@@ -14,16 +14,24 @@
  * Использование: node scripts/dynamic-task/test-four-slides.mjs
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import {
   computeRevealSeconds,
+  findIncorrectContext,
   highlightCapsTokens,
   lineRevealOffsetSeconds,
+  normalizePausePromptText,
   pausePromptWindowSeconds,
   requiresIncorrectFragment,
   splitConditionLines,
   validateFourSlidesTaskData,
   validateFourSlidesTiming,
 } from "./four-slides.mjs";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(HERE, "..", "..");
 
 let passed = 0;
 let failed = 0;
@@ -137,6 +145,67 @@ check("валидный RUS7 task_data проходит validateFourSlidesTaskDa
   const result = validateFourSlidesTaskData(RUS7);
   assert.deepEqual(result.errors, []);
   assert.equal(result.ok, true);
+});
+
+console.log("\n--- Визуальные правки: Title/Hook, pause_prompt без emoji, incorrectContext ---");
+
+check("TitleScene four-slides-v1 использует старый Hook-визуал (HookVisual), а не intro_text как центральный текст", () => {
+  // В этом проекте нет DOM/React-рендер-тестов (см. комментарий в шапке
+  // файла) — реальная визуальная проверка идёт кадрами (npx remotion still,
+  // см. отчёт по правке). Здесь — статическая регрессия по исходнику:
+  // TitleScene обязана рендерить общий HookVisual и НЕ должна вставлять
+  // task.introText как видимый JSX-текст (только звучать/определять
+  // длительность сцены).
+  const src = readFileSync(join(REPO_ROOT, "src/ege/scenes/four-slides/TitleScene.tsx"), "utf8");
+  assert.ok(src.includes("HookVisual"), "TitleScene должна использовать HookVisual");
+  assert.ok(!/>\s*\{task\.introText\}/.test(src), "TitleScene не должна рисовать task.introText как видимый текст");
+});
+
+check("HookScene и FourSlidesTitleScene рендерят один и тот же визуальный компонент", () => {
+  const hookScene = readFileSync(join(REPO_ROOT, "src/ege/scenes/HookScene.tsx"), "utf8");
+  const titleScene = readFileSync(join(REPO_ROOT, "src/ege/scenes/four-slides/TitleScene.tsx"), "utf8");
+  assert.ok(hookScene.includes("<HookVisual"));
+  assert.ok(titleScene.includes("<HookVisual"));
+});
+
+check("normalizePausePromptText убирает emoji, оставляя чистый текст", () => {
+  assert.equal(normalizePausePromptText("Ставь на паузу ⏸️"), "Ставь на паузу");
+  assert.equal(normalizePausePromptText("Пауза 🎯🔥 текст"), "Пауза текст");
+  assert.equal(normalizePausePromptText("Обычный текст без эмодзи"), "Обычный текст без эмодзи");
+  assert.equal(normalizePausePromptText(""), "");
+});
+
+check("findIncorrectContext: для RUS7 находит именно строку «застёгивать пуговицы ГЕТРОВ»", () => {
+  const result = findIncorrectContext(RUS7.condition_text, RUS7.incorrect_fragment);
+  assert.equal(result.ok, true);
+  assert.equal(result.context, "застёгивать пуговицы ГЕТРОВ");
+});
+
+check("findIncorrectContext: однострочный condition_text — весь текст становится контекстом", () => {
+  const result = findIncorrectContext("Единственное предложение с ГЕТРОВ внутри.", "ГЕТРОВ");
+  assert.equal(result.ok, true);
+  assert.equal(result.context, "Единственное предложение с ГЕТРОВ внутри.");
+});
+
+check("findIncorrectContext: fail-fast, если incorrect_fragment не найден ни в одной строке", () => {
+  const result = findIncorrectContext(RUS7.condition_text, "НЕСУЩЕСТВУЮЩЕЕСЛОВО");
+  assert.equal(result.ok, false);
+  assert.ok(/не найден дословно/i.test(result.error));
+});
+
+check("findIncorrectContext: fail-fast, если incorrect_fragment найден в нескольких строках (неоднозначно)", () => {
+  const ambiguous = "слово ГЕТРОВ на первой строке\nещё раз ГЕТРОВ на второй строке";
+  const result = findIncorrectContext(ambiguous, "ГЕТРОВ");
+  assert.equal(result.ok, false);
+  assert.ok(/неоднозначен/i.test(result.error));
+});
+
+check("AnswerScene зачёркивает incorrectContext (всю строку), а не только incorrectFragment; answer остаётся одним словом", () => {
+  const src = readFileSync(join(REPO_ROOT, "src/ege/scenes/four-slides/AnswerScene.tsx"), "utf8");
+  assert.ok(src.includes("task.incorrectContext"), "AnswerScene должна зачёркивать task.incorrectContext");
+  assert.ok(!src.includes("task.incorrectFragment"), "AnswerScene больше не должна рендерить task.incorrectFragment напрямую");
+  // answer сам по себе — просто и как есть, никаких склеек со строкой контекста.
+  assert.ok(src.includes("{task.answer}"));
 });
 
 console.log("\n--- 4/5/6. Progressive reveal + пауза ---");

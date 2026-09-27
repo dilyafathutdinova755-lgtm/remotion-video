@@ -22,8 +22,11 @@ const answerFontSizeFor = (answer: string): number =>
  * outroSec). Explanation здесь и ТОЛЬКО здесь — на Problem-сцене (слайд 2)
  * его никогда не показываем (контракт four-slides-v1 явно это запрещает).
  *
- * Порядок по ТЗ: подпись «ПРАВИЛЬНО» → answer крупно → incorrect_fragment
- * зачёркнутым → explanation коротким текстом ниже.
+ * Порядок по ТЗ: подпись «ПРАВИЛЬНО» → answer крупно → вся исходная строка
+ * condition_text с ошибкой (incorrectContext) зачёркнутой целиком →
+ * explanation коротким текстом ниже. answer остаётся ОДНИМ словом/формой
+ * («гетр»), а не переписанной целиком строкой — зачёркнутая строка это
+ * только контекст ошибки, не альтернативная версия ответа.
  */
 export const FourSlidesAnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -103,7 +106,7 @@ export const FourSlidesAnswerScene: React.FC = () => {
             {task.answer}
           </div>
 
-          {task.incorrectFragment ? (
+          {task.incorrectContext ? (
             <div
               style={{
                 marginTop: 24,
@@ -116,7 +119,7 @@ export const FourSlidesAnswerScene: React.FC = () => {
                 opacity: fade(f30(16)),
               }}
             >
-              {task.incorrectFragment}
+              {task.incorrectContext}
             </div>
           ) : null}
 

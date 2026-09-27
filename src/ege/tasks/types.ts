@@ -217,6 +217,13 @@ export type FourSlidesTaskDef = {
   palette?: PaletteName;
   pillLabel?: string;
   videoStructureVersion: "four-slides-v1";
+  /**
+   * Хук-вопрос титульного слайда (тот же визуал, что у старой модели —
+   * HookVisual/HookScene, см. отчёт по правке). НЕ intro_text: intro_text
+   * только звучит и определяет длительность этой сцены, крупным текстом на
+   * экране не рисуется.
+   */
+  hook?: string | string[];
 
   introText: string;
   instruction: string;
@@ -224,6 +231,13 @@ export type FourSlidesTaskDef = {
   conditionLines: string[];
   /** Обязателен для русского №6/№7 (проверено до render — см. build-dynamic-task.mjs). */
   incorrectFragment?: string;
+  /**
+   * Строка condition_text, где буквально встречается incorrectFragment —
+   * зачёркивается на AnswerScene ЦЕЛИКОМ (не одно только incorrectFragment).
+   * Вычисляется детерминированно в build-dynamic-task.mjs (findIncorrectContext,
+   * см. four-slides.mjs) — condition_text при этом не меняется.
+   */
+  incorrectContext?: string;
   answer: string;
   explanation: string;
 

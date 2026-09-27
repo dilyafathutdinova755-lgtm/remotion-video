@@ -70,6 +70,62 @@ export function requiresIncorrectFragment(subject, taskNumber) {
   return s.includes("русск") && (n === 6 || n === 7);
 }
 
+/**
+ * Детерминированный поиск строки condition_text, где буквально встречается
+ * incorrect_fragment — вся эта строка (целиком, как есть) становится
+ * "зачёркнутым контекстом" на AnswerScene (а не одно только incorrect_
+ * fragment — по референсу зачёркивается вся исходная фраза). condition_text
+ * НЕ меняется — это read-only поиск, не мутация.
+ *
+ * Для однострочного condition_text splitConditionLines() вернёт массив из
+ * одного элемента, и тот же алгоритм сработает без отдельной ветки —
+ * "используем весь condition_text как контекст" получается сам собой.
+ *
+ * Fail-fast, не угадывание: если фрагмент не найден ни в одной строке, или
+ * найден в нескольких — однозначного контекста нет, ok:false.
+ */
+export function findIncorrectContext(conditionText, incorrectFragment) {
+  const fragment = String(incorrectFragment ?? "").trim();
+  if (!fragment) {
+    return { ok: false, error: "incorrect_fragment пуст — контекст не найти" };
+  }
+  const lines = splitConditionLines(conditionText);
+  const matches = lines.filter((line) => line.includes(fragment));
+  if (matches.length === 0) {
+    return {
+      ok: false,
+      error: `incorrect_fragment "${fragment}" не найден дословно ни в одной строке condition_text`,
+    };
+  }
+  if (matches.length > 1) {
+    return {
+      ok: false,
+      error: `incorrect_fragment "${fragment}" найден в ${matches.length} строках condition_text — контекст неоднозначен`,
+    };
+  }
+  return { ok: true, context: matches[0] };
+}
+
+/**
+ * Убирает эмодзи/иконки из pause_prompt — контракт требует показывать
+ * ТОЛЬКО текст ("Ставь на паузу"), без ⏸️ и любых других эмодзи, даже если
+ * старый task_data их всё ещё присылает. Единый источник правды здесь, а
+ * не в самой сцене: ProblemScene просто рисует то, что получила, и не
+ * должна знать про Unicode-регексы.
+ *
+ * \p{Extended_Pictographic} покрывает сами эмодзи-символы (включая ⏸,
+ * U+23F8); ️/‍ — variation selector и zero-width joiner, которые
+ * эмодзи-последовательности используют как модификаторы и которые сами по
+ * себе не Extended_Pictographic.
+ */
+export function normalizePausePromptText(text) {
+  return String(text ?? "")
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/[️‍]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 const REQUIRED_FOUR_SLIDES_FIELDS = [
   "intro_text",
   "instruction",
@@ -125,12 +181,12 @@ export function validateFourSlidesTaskData(taskData) {
       errors.push(
         `incorrect_fragment обязателен для русского задания №${taskData.task_number}, но отсутствует`,
       );
-    } else if (!conditionText.includes(String(fragment).trim())) {
-      // Дословно — без нормализации ё/е и регистра: incorrect_fragment должен
-      // быть найден в condition_text буква в букву, как он там реально написан.
-      errors.push(
-        `incorrect_fragment "${fragment}" не найден дословно в condition_text`,
-      );
+    } else {
+      // Дословно, буква в букву, и в РОВНО одной строке — иначе AnswerScene
+      // не сможет однозначно выбрать, какую строку зачёркивать целиком (см.
+      // findIncorrectContext).
+      const contextResult = findIncorrectContext(conditionText, fragment);
+      if (!contextResult.ok) errors.push(contextResult.error);
     }
   }
 

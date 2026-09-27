@@ -24,6 +24,8 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import {
+  findIncorrectContext,
+  normalizePausePromptText,
   requiresIncorrectFragment,
   splitConditionLines,
   validateFourSlidesTaskData,
@@ -73,6 +75,28 @@ const paletteFor = (subject) => {
   return "blue";
 };
 
+/**
+ * Безопасные общие хуки — без намёка на ответ. Задание не даёт отдельного
+ * поля для крючка (весь контент уже придуман в n8n заранее для голоса, а не
+ * для титульного экрана), поэтому выбираем детерминированно по id, чтобы
+ * один и тот же task_id всегда давал один и тот же ролик при повторном
+ * запуске. Общий для обоих контрактов (runLegacy/runFourSlidesV1) — у
+ * four-slides-v1 титульный слайд визуально тот же HookVisual, что у старой
+ * модели (см. отчёт по правке визуала), и хук ему нужен по той же причине.
+ */
+const GENERIC_HOOKS = [
+  ["Решишь это задание?"],
+  ["Сможешь ответить?"],
+  ["Проверь себя —", "знаешь ответ?"],
+  ["А ты решишь", "это задание?"],
+  ["Слабо ответить", "за 10 секунд?"],
+];
+const hookFor = (id) => {
+  let hash = 0;
+  for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return GENERIC_HOOKS[hash % GENERIC_HOOKS.length];
+};
+
 if (taskData.video_structure_version === "four-slides-v1") {
   runFourSlidesV1();
 } else {
@@ -114,9 +138,25 @@ function runFourSlidesV1() {
 
   const id = sanitizeId(taskId ?? taskData.task_number ?? "task");
   const palette = paletteFor(taskData.subject);
+  const hook = hookFor(id);
+  const pausePrompt = normalizePausePromptText(taskData.pause_prompt);
   const taskNumber = Number(taskData.task_number) || 0;
   const conditionLines = splitConditionLines(taskData.condition_text);
   const hasIncorrectFragment = requiresIncorrectFragment(taskData.subject, taskData.task_number);
+
+  // validateFourSlidesTaskData() выше уже гарантирует, что для №6/№7
+  // incorrect_fragment найден дословно в РОВНО одной строке condition_text —
+  // здесь просто забираем эту же строку целиком (см. findIncorrectContext),
+  // чтобы AnswerScene зачёркивала её полностью, а не только сам фрагмент.
+  let incorrectContext;
+  if (hasIncorrectFragment) {
+    const contextResult = findIncorrectContext(taskData.condition_text, taskData.incorrect_fragment);
+    if (!contextResult.ok) {
+      console.error(`ОШИБКА: ${contextResult.error}`);
+      process.exit(1);
+    }
+    incorrectContext = contextResult.context;
+  }
 
   const audioSync = {
     src: audioSrc,
@@ -143,15 +183,16 @@ export const DYNAMIC_TASK: FourSlidesTaskDef = {
   palette: ${j(palette)},
   pillLabel: "Задание",
   videoStructureVersion: "four-slides-v1",
+  hook: ${JSON.stringify(hook)},
 
   introText: ${j(String(taskData.intro_text))},
   instruction: ${j(String(taskData.instruction))},
   conditionLines: ${JSON.stringify(conditionLines)},
-${hasIncorrectFragment ? `  incorrectFragment: ${j(String(taskData.incorrect_fragment))},\n` : ""}  answer: ${j(String(taskData.answer))},
+${hasIncorrectFragment ? `  incorrectFragment: ${j(String(taskData.incorrect_fragment))},\n  incorrectContext: ${j(incorrectContext)},\n` : ""}  answer: ${j(String(taskData.answer))},
   explanation: ${j(String(taskData.explanation))},
 
   pauseSeconds: ${JSON.stringify(Number(taskData.pause_seconds))},
-  pausePrompt: ${j(String(taskData.pause_prompt ?? ""))},
+  pausePrompt: ${j(pausePrompt)},
   readTaskAloud: ${taskData.read_task_aloud === true},
   ctaText: ${j(String(taskData.cta_text))},
 
@@ -290,26 +331,6 @@ function runLegacy() {
     if (len <= 120) return 44;
     if (len <= 200) return 40;
     return 36;
-  };
-
-  /**
-   * Безопасные общие хуки — без намёка на ответ. Задание не даёт отдельного
-   * поля для крючка (весь контент уже придуман в n8n заранее для голоса, а не
-   * для титульного экрана), поэтому выбираем детерминированно по id, чтобы
-   * один и тот же task_id всегда давал один и тот же ролик при повторном
-   * запуске.
-   */
-  const GENERIC_HOOKS = [
-    ["Решишь это задание?"],
-    ["Сможешь ответить?"],
-    ["Проверь себя —", "знаешь ответ?"],
-    ["А ты решишь", "это задание?"],
-    ["Слабо ответить", "за 10 секунд?"],
-  ];
-  const hookFor = (id) => {
-    let hash = 0;
-    for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-    return GENERIC_HOOKS[hash % GENERIC_HOOKS.length];
   };
 
   const id = sanitizeId(taskId ?? taskData.task_number ?? "task");
