@@ -5,12 +5,23 @@ Regression-тесты align.py --mode four-slides-v1: реальный ffmpeg, �
 — то же самое, чем сама разметка проверялась при разработке (см. отчёт по
 video_structure_version=four-slides-v1). Никаких моков ffmpeg/align.py.
 
+Все spoken-секции (intro_text/task_voiceover_text/answer_voiceover_text/
+cta_text/read_task_aloud/pause_seconds) передаются через --task-data
+(temp task_data.json), а не отдельными CLI-флагами — тот же контракт, что
+теперь и в render-on-demand.yml (см. отчёт по багфиксу: production ловил
+"не нашёл condition_text внутри озвучки" — сообщение из run_legacy(), т.е.
+align.py по ошибке шёл по legacy-пути; для four-slides-v1 condition_text
+в озвучке не ищется вовсе, только spoken-секции из task_data.json).
+
 Проверяет:
-  - read_task_aloud=false: границы найдены, тишина реально вставлена
-    (silencedetect после сплайса), problem-длительность = reveal+pause;
+  - read_task_aloud=false: границы найдены БЕЗ обращения к condition_text
+    в аудио (она там сознательно отсутствует — только display-данные для
+    экрана), реальная тишина = reveal_seconds + pause_seconds;
   - read_task_aloud=true: то же самое, тишина = ровно pause_seconds;
   - когда в аудио нет пауз рядом с ожидаемой позицией — fail-fast
-    (exit != 0), а не угадывание по проценту длины текста.
+    (exit != 0), а не угадывание по проценту длины текста;
+  - fail-fast по spoken section contract (read_task_aloud=false, но
+    task_voiceover_text непуст; отсутствующие обязательные поля).
 
 Использование:
     python3 scripts/dynamic-task/test_align_four_slides.py
@@ -18,6 +29,7 @@ video_structure_version=four-slides-v1). Никаких моков ffmpeg/align.
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -84,16 +96,20 @@ def silence_intervals(path):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     ).stderr.decode("utf-8", "ignore")
-    import re
-
     starts = [float(x) for x in re.findall(r"silence_start:\s*([\d.]+)", out)]
     ends = [float(x) for x in re.findall(r"silence_end:\s*([\d.]+)", out)]
     return list(zip(starts, ends))
 
 
-def run_align(args):
-    cmd = [sys.executable, ALIGN_PY] + args
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def run_align(extra_args, task_data=None, tmp=None):
+    args = [sys.executable, ALIGN_PY, "--mode", "four-slides-v1"]
+    if task_data is not None:
+        task_data_path = os.path.join(tmp, "task_data.json")
+        with open(task_data_path, "w", encoding="utf-8") as f:
+            json.dump(task_data, f, ensure_ascii=False)
+        args += ["--task-data", task_data_path]
+    args += extra_args
+    proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return proc.returncode, proc.stdout.decode("utf-8", "ignore"), proc.stderr.decode("utf-8", "ignore")
 
 
@@ -108,25 +124,41 @@ def main():
         cta = "Скачивай бесплатно ссылка в шапке профиля"
         task = "Скорость тела равна двадцать метров в секунду найдите путь за две секунды"
         answer_aloud = "Правильно сорок метров используем формулу путь равно скорость умножить на время"
+        # РЕАЛЬНЫЙ пример из ТЗ: 5 строк, ни одна из них (ни "ГЕТРОВ", ни
+        # что-либо ещё отсюда) не встречается ни в одном из intro/answer/cta
+        # выше — condition_text и озвучка полностью НЕЗАВИСИМЫ друг от
+        # друга, как и требует контракт read_task_aloud=false.
+        condition_text_rus7 = (
+            "становиться всё ГИБЧЕ\n"
+            "деревянных БРУСЬЕВ\n"
+            "застёгивать пуговицы ГЕТРОВ\n"
+            "группа КИРГИЗОВ\n"
+            "много ДЕЛ"
+        )
 
         audio_false_in = os.path.join(tmp, "false_in.mp3")
         audio_false_out = os.path.join(tmp, "false_out.mp3")
         build_tone_audio(audio_false_in, [1.8, 2.5, 1.5], gap=0.5, lead=1.0)
 
         def t_false_happy_path():
+            # 5 строк × 0.7с = 3.5с reveal + 5с pause = 8.5с — то же число,
+            # что и раньше, но теперь reveal_seconds не передаётся CLI-
+            # флагом, а сам align.py считает его из task_data.condition_text
+            # (см. split_condition_lines/REVEAL_SECONDS_PER_LINE в align.py).
+            task_data = {
+                "video_structure_version": "four-slides-v1",
+                "intro_text": intro,
+                "condition_text": condition_text_rus7,
+                "task_voiceover_text": "",
+                "answer_voiceover_text": answer,
+                "cta_text": cta,
+                "read_task_aloud": False,
+                "pause_seconds": 5,
+            }
             code, out, err = run_align(
-                [
-                    "--mode", "four-slides-v1",
-                    "--intro-text", intro,
-                    "--answer-text", answer,
-                    "--cta-text", cta,
-                    "--read-task-aloud", "false",
-                    "--pause-seconds", "5",
-                    "--reveal-seconds", "3.5",
-                    "--audio-in", audio_false_in,
-                    "--audio-out", audio_false_out,
-                    "--ffmpeg", FFMPEG,
-                ]
+                ["--audio-in", audio_false_in, "--audio-out", audio_false_out, "--ffmpeg", FFMPEG],
+                task_data=task_data,
+                tmp=tmp,
             )
             assert code == 0, f"align.py упал: {err}"
             data = json.loads(out)
@@ -142,26 +174,31 @@ def main():
             ]
             assert covering, f"не нашёл реальный силентный интервал ~8.5с в спличенном аудио: {intervals}"
 
-        check("read_task_aloud=false: границы найдены, реальная тишина = reveal+pause", t_false_happy_path)
+        check(
+            "RUS7: read_task_aloud=false, condition_text ОТСУТСТВУЕТ в озвучке (только intro+answer+cta) — "
+            "align.py находит границы и вставляет reveal(3.5с)+pause(5с)=8.5с, не пытаясь искать condition_text в аудио",
+            t_false_happy_path,
+        )
 
         audio_true_in = os.path.join(tmp, "true_in.mp3")
         audio_true_out = os.path.join(tmp, "true_out.mp3")
         build_tone_audio(audio_true_in, [1.5, 2.2, 2.0, 1.3], gap=0.5, lead=1.0)
 
         def t_true_happy_path():
+            task_data = {
+                "video_structure_version": "four-slides-v1",
+                "intro_text": intro,
+                "condition_text": "Скорость тела равна 20 м/с, найдите путь за 2 с.",
+                "task_voiceover_text": task,
+                "answer_voiceover_text": answer_aloud,
+                "cta_text": cta,
+                "read_task_aloud": True,
+                "pause_seconds": 5,
+            }
             code, out, err = run_align(
-                [
-                    "--mode", "four-slides-v1",
-                    "--intro-text", intro,
-                    "--task-text", task,
-                    "--answer-text", answer_aloud,
-                    "--cta-text", cta,
-                    "--read-task-aloud", "true",
-                    "--pause-seconds", "5",
-                    "--audio-in", audio_true_in,
-                    "--audio-out", audio_true_out,
-                    "--ffmpeg", FFMPEG,
-                ]
+                ["--audio-in", audio_true_in, "--audio-out", audio_true_out, "--ffmpeg", FFMPEG],
+                task_data=task_data,
+                tmp=tmp,
             )
             assert code == 0, f"align.py упал: {err}"
             data = json.loads(out)
@@ -174,7 +211,10 @@ def main():
             ]
             assert covering, f"не нашёл реальный силентный интервал ~5с в спличенном аудио: {intervals}"
 
-        check("read_task_aloud=true: тишина после task_voiceover_text = ровно pause_seconds", t_true_happy_path)
+        check(
+            "read_task_aloud=true: intro+task_voiceover+answer+CTA, ровно 5с паузы после task_voiceover_text",
+            t_true_happy_path,
+        )
 
         audio_bad_in = os.path.join(tmp, "bad_in.mp3")
         audio_bad_out = os.path.join(tmp, "bad_out.mp3")
@@ -183,25 +223,71 @@ def main():
         build_tone_audio(audio_bad_in, [1.8, 2.5, 1.5], gap=0.0, lead=1.0)
 
         def t_no_reliable_boundary():
+            task_data = {
+                "video_structure_version": "four-slides-v1",
+                "intro_text": intro,
+                "condition_text": condition_text_rus7,
+                "task_voiceover_text": "",
+                "answer_voiceover_text": answer,
+                "cta_text": cta,
+                "read_task_aloud": False,
+                "pause_seconds": 5,
+            }
             code, out, err = run_align(
-                [
-                    "--mode", "four-slides-v1",
-                    "--intro-text", intro,
-                    "--answer-text", answer,
-                    "--cta-text", cta,
-                    "--read-task-aloud", "false",
-                    "--pause-seconds", "5",
-                    "--reveal-seconds", "3.5",
-                    "--audio-in", audio_bad_in,
-                    "--audio-out", audio_bad_out,
-                    "--ffmpeg", FFMPEG,
-                ]
+                ["--audio-in", audio_bad_in, "--audio-out", audio_bad_out, "--ffmpeg", FFMPEG],
+                task_data=task_data,
+                tmp=tmp,
             )
             assert code != 0, "align.py должен был отказаться размечать (fail-fast), но завершился успешно"
             assert "надёжно определить границу" in err, f"ожидали сообщение про ненадёжную границу, получили: {err}"
             assert not os.path.exists(audio_bad_out), "audio_out не должен быть создан при fail-fast"
 
         check("невозможно надёжно определить границу → fail-fast, файл не создан", t_no_reliable_boundary)
+
+        def t_task_voiceover_must_be_empty_when_not_read_aloud():
+            task_data = {
+                "video_structure_version": "four-slides-v1",
+                "intro_text": intro,
+                "condition_text": condition_text_rus7,
+                "task_voiceover_text": "Это поле должно быть пустым",
+                "answer_voiceover_text": answer,
+                "cta_text": cta,
+                "read_task_aloud": False,
+                "pause_seconds": 5,
+            }
+            code, out, err = run_align(
+                ["--audio-in", audio_false_in, "--audio-out", os.path.join(tmp, "unused_out.mp3"), "--ffmpeg", FFMPEG],
+                task_data=task_data,
+                tmp=tmp,
+            )
+            assert code != 0, "align.py должен был отказаться (task_voiceover_text непуст при read_task_aloud=false)"
+            assert "task_voiceover_text" in err, f"ожидали сообщение про task_voiceover_text, получили: {err}"
+
+        check(
+            "read_task_aloud=false, но task_voiceover_text непуст → fail-fast",
+            t_task_voiceover_must_be_empty_when_not_read_aloud,
+        )
+
+        def t_missing_required_spoken_field():
+            task_data = {
+                "video_structure_version": "four-slides-v1",
+                "intro_text": intro,
+                "condition_text": condition_text_rus7,
+                "task_voiceover_text": "",
+                "answer_voiceover_text": "",
+                "cta_text": cta,
+                "read_task_aloud": False,
+                "pause_seconds": 5,
+            }
+            code, out, err = run_align(
+                ["--audio-in", audio_false_in, "--audio-out", os.path.join(tmp, "unused_out2.mp3"), "--ffmpeg", FFMPEG],
+                task_data=task_data,
+                tmp=tmp,
+            )
+            assert code != 0, "align.py должен был отказаться (answer_voiceover_text пуст)"
+            assert "answer_voiceover_text" in err, f"ожидали сообщение про answer_voiceover_text, получили: {err}"
+
+        check("read_task_aloud=false, answer_voiceover_text пуст → fail-fast", t_missing_required_spoken_field)
 
     print(f"\n{'Все тесты пройдены' if failed == 0 else 'ЕСТЬ ПРОВАЛЕННЫЕ ТЕСТЫ'} ({passed}/{passed + failed}).")
     if failed:

@@ -227,14 +227,12 @@ def main():
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--noise-db", type=int, default=-20)
 
-    # four-slides-v1 — отдельный набор флагов, см. докстринг run_four_slides_v1.
-    ap.add_argument("--intro-text")
-    ap.add_argument("--task-text", default="")
-    ap.add_argument("--answer-text")
-    ap.add_argument("--cta-text")
-    ap.add_argument("--read-task-aloud", default="false")
-    ap.add_argument("--pause-seconds", type=float, default=0.0)
-    ap.add_argument("--reveal-seconds", type=float, default=0.0)
+    # four-slides-v1 — читает spoken-секции (intro_text/task_voiceover_text/
+    # answer_voiceover_text/cta_text/read_task_aloud/pause_seconds) напрямую
+    # из task_data.json, а не из отдельных CLI-флагов (см. докстринг
+    # run_four_slides_v1) — так длинные тексты не проходят через bash-
+    # аргументы вовсе и не могут разъехаться на кавычках/переносах строк.
+    ap.add_argument("--task-data", help="Путь к task_data.json (обязателен для mode=four-slides-v1).")
     ap.add_argument("--audio-in")
     ap.add_argument("--audio-out")
 
@@ -504,21 +502,48 @@ def splice_silence(ffmpeg, audio_in, audio_out, cut_sec, silence_sec):
         sys.exit(1)
 
 
+#: Держите в синхроне со scripts/dynamic-task/four-slides.mjs
+#: (REVEAL_SECONDS_PER_LINE) — тот же принцип дублирования констант между
+#: .py/.mjs, что и у ALL-CAPS highlighter (см. src/ege/scenes/four-slides/
+#: highlight.ts): кросс-импорт JS↔Python не имеет смысла ради одного числа.
+REVEAL_SECONDS_PER_LINE = 0.7
+
+
+def split_condition_lines(condition_text):
+    """Python-двойник splitConditionLines() из four-slides.mjs — нужен
+    ТОЛЬКО чтобы посчитать reveal_seconds (сколько визуально длится
+    progressive reveal строк на ProblemScene), а не чтобы искать
+    condition_text внутри аудио: для read_task_aloud=false он там сознательно
+    отсутствует (см. докстринг run_four_slides_v1)."""
+    return [line.strip() for line in re.split(r"\r?\n", condition_text or "") if line.strip()]
+
+
 def run_four_slides_v1(args):
     """
     Разметка для video_structure_version="four-slides-v1" (см.
     scripts/dynamic-task/four-slides.mjs и src/ege/scenes/four-slides/).
 
     В отличие от legacy-режима, здесь НЕТ единого текстового блока с
-    маркерами вида «Ответ:»/«Скачивай бесплатно» для поиска — n8n присылает
-    четыре ОТДЕЛЬНЫХ, уже готовых для TTS текста: intro_text,
-    (task_voiceover_text — только если read_task_aloud=true),
-    answer_voiceover_text, cta_text. Реальное аудио — их конкатенация именно
-    в этом порядке. Раз сегменты уже разделены на уровне task_data, нет
-    нужды искать маркеры внутри одного текста — вместо этого каждый
-    сегмент целиком выступает "предложением" для той же word-count-
-    proportional оценки ожидаемой позиции + DP-выравнивания по реальным
-    паузам (align()), что и в legacy-режиме.
+    маркерами вида «Ответ:»/«Скачивай бесплатно» для поиска, и condition_text
+    в озвучке НЕ ищется вовсе — n8n присылает четыре ОТДЕЛЬНЫХ, уже готовых
+    для TTS текста: intro_text, (task_voiceover_text — только если
+    read_task_aloud=true), answer_voiceover_text, cta_text. Реальное аудио —
+    их конкатенация именно в этом порядке. Раз сегменты уже разделены на
+    уровне task_data, нет нужды искать маркеры/condition_text внутри одного
+    текста — вместо этого каждый сегмент целиком выступает "предложением"
+    для той же word-count-proportional оценки ожидаемой позиции +
+    DP-выравнивания по реальным паузам (align()), что и в legacy-режиме.
+
+    Для read_task_aloud=false condition_text — ЧИСТО display-only данные:
+    он показывается на экране (progressive reveal), но никогда не звучит и
+    не ищется в аудио. Единственное, для чего он здесь вообще читается —
+    посчитать reveal_seconds (сколько строк, сколько секунд идёт их появление
+    — split_condition_lines/REVEAL_SECONDS_PER_LINE выше), это чисто
+    текстовая арифметика, а не поиск подстроки в озвучке.
+
+    Все текстовые поля читаются напрямую из --task-data (task_data.json), а
+    не из отдельных CLI-флагов: длинные тексты с кавычками/переносами строк
+    так вообще не проходят через bash-аргументы и не могут там разъехаться.
 
     Нужны РОВНО две реальные границы:
       - intro_end  — конец intro_text (Title → Problem);
@@ -541,41 +566,99 @@ def run_four_slides_v1(args):
     беззвучным промежутком, а не полагается на то, что видео "подождёт"
     во время, когда в файле уже звучит следующий сегмент.
     """
-    for flag, value in (
-        ("--intro-text", args.intro_text),
-        ("--answer-text", args.answer_text),
-        ("--cta-text", args.cta_text),
-        ("--audio-in", args.audio_in),
-        ("--audio-out", args.audio_out),
-    ):
+    if not args.task_data:
+        print("ОШИБКА: --task-data обязателен для --mode four-slides-v1.", file=sys.stderr)
+        sys.exit(1)
+    with open(args.task_data, "r", encoding="utf-8") as f:
+        task_data = json.load(f)
+
+    intro_text = str(task_data.get("intro_text") or "").strip()
+    task_voiceover_text = str(task_data.get("task_voiceover_text") or "").strip()
+    answer_text = str(task_data.get("answer_voiceover_text") or "").strip()
+    cta_text = str(task_data.get("cta_text") or "").strip()
+    condition_text = task_data.get("condition_text") or ""
+    read_aloud = task_data.get("read_task_aloud") is True
+    pause_seconds = task_data.get("pause_seconds")
+    try:
+        pause_seconds = float(pause_seconds)
+    except (TypeError, ValueError):
+        pause_seconds = 0.0
+
+    for flag, value in (("--audio-in", args.audio_in), ("--audio-out", args.audio_out)):
         if not value:
             print(f"ОШИБКА: обязательный флаг {flag} не передан (mode=four-slides-v1).", file=sys.stderr)
             sys.exit(1)
-    if not (args.pause_seconds > 0):
-        print(f"ОШИБКА: --pause-seconds должен быть положительным, получено {args.pause_seconds}.", file=sys.stderr)
-        sys.exit(1)
-
-    read_aloud = str(args.read_task_aloud).strip().lower() == "true"
-
-    segments = [("intro", args.intro_text)]
-    if read_aloud:
-        if not args.task_text or not args.task_text.strip():
-            print(
-                "ОШИБКА: --read-task-aloud true, но --task-text пуст — нечего "
-                "озвучивать под ProblemScene.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        segments.append(("task", args.task_text))
-    elif args.reveal_seconds <= 0:
+    if not (pause_seconds > 0):
         print(
-            "ОШИБКА: --read-task-aloud false требует положительный --reveal-seconds "
-            "(суммарное время последовательного появления строк condition_text).",
+            f"ОШИБКА: task_data.pause_seconds должен быть положительным числом, получено "
+            f"{task_data.get('pause_seconds')!r}.",
             file=sys.stderr,
         )
         sys.exit(1)
-    segments.append(("answer", args.answer_text))
-    segments.append(("cta", args.cta_text))
+
+    # Spoken section contract (см. п.5 постановки задачи по этому багу) —
+    # НИКАКОГО отношения к condition_text: read_task_aloud определяет только
+    # набор реально ЗВУЧАЩИХ полей.
+    if read_aloud:
+        missing = [
+            name
+            for name, value in (
+                ("intro_text", intro_text),
+                ("task_voiceover_text", task_voiceover_text),
+                ("answer_voiceover_text", answer_text),
+                ("cta_text", cta_text),
+            )
+            if not value
+        ]
+        if missing:
+            print(
+                f"ОШИБКА: read_task_aloud=true требует непустые поля: {', '.join(missing)}.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+    else:
+        missing = [
+            name
+            for name, value in (
+                ("intro_text", intro_text),
+                ("answer_voiceover_text", answer_text),
+                ("cta_text", cta_text),
+            )
+            if not value
+        ]
+        if missing:
+            print(
+                f"ОШИБКА: read_task_aloud=false требует непустые поля: {', '.join(missing)}.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        if task_voiceover_text:
+            print(
+                "ОШИБКА: read_task_aloud=false, но task_voiceover_text непуст — контракт "
+                "four-slides-v1 требует оставить его пустым (условие в этом режиме не "
+                "озвучивается отдельной репликой).",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    reveal_seconds = 0.0
+    if not read_aloud:
+        lines = split_condition_lines(condition_text)
+        reveal_seconds = len(lines) * REVEAL_SECONDS_PER_LINE
+        if not (reveal_seconds > 0):
+            print(
+                "ОШИБКА: read_task_aloud=false требует непустой condition_text — без него "
+                "не из чего считать reveal_seconds (визуальный тайминг progressive reveal, "
+                "НЕ поиск condition_text в аудио — в озвучке его нет и не должно быть).",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    segments = [("intro", intro_text)]
+    if read_aloud:
+        segments.append(("task", task_voiceover_text))
+    segments.append(("answer", answer_text))
+    segments.append(("cta", cta_text))
 
     names = [name for name, _ in segments]
     word_counts = [len(text.split()) for _, text in segments]
@@ -637,7 +720,7 @@ def run_four_slides_v1(args):
     cut_sec = matched[cut_idx]
     answer_end_sec = matched[answer_end_idx]
 
-    silence_duration = args.pause_seconds if read_aloud else (args.reveal_seconds + args.pause_seconds)
+    silence_duration = pause_seconds if read_aloud else (reveal_seconds + pause_seconds)
 
     splice_silence(args.ffmpeg, args.audio_in, args.audio_out, cut_sec, silence_duration)
 

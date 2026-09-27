@@ -88,39 +88,21 @@ jobs:
           # текста отдельными полями, и аудио уже физически содержит паузу
           # (align.py сам её вставляет через ffmpeg). Старая ветка ниже (else)
           # не тронута ни на строку — полная обратная совместимость.
+          #
+          # Багфикс: раньше intro_text/answer_voiceover_text/cta_text и
+          # т. п. вычитывались здесь по одному через `node -e` в переменные
+          # и передавались align.py длинными CLI-флагами (--intro-text и
+          # т. д.) — align.py теперь читает --task-data task_data.json
+          # напрямую, одним куском, без единого текстового поля в bash-
+          # аргументах: intro_text/task_voiceover_text/answer_voiceover_text/
+          # cta_text/read_task_aloud/pause_seconds и reveal_seconds (из
+          # condition_text) align.py сам достаёт из task_data.json.
           VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).video_structure_version || '')")
 
           if [ "$VERSION" = "four-slides-v1" ]; then
-            INTRO_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).intro_text || '')")
-            ANSWER_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).answer_voiceover_text || '')")
-            CTA_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).cta_text || '')")
-            TASK_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).task_voiceover_text || '')")
-            READ_ALOUD=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).read_task_aloud === true ? 'true' : 'false')")
-            PAUSE_SECONDS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).pause_seconds || 0)")
-
-            # reveal-seconds нужен только при read_task_aloud=false (align.py
-            # сам считает --pause-seconds достаточным при read_task_aloud=true)
-            # — это то же суммарное время появления строк condition_text,
-            # которое ProblemScene покажет визуально во время вставленной
-            # тишины (см. scripts/dynamic-task/four-slides.mjs).
-            REVEAL_SECONDS=$(node -e "
-              import('./scripts/dynamic-task/four-slides.mjs').then(({ splitConditionLines, computeRevealSeconds }) => {
-                const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
-                if (d.read_task_aloud === true) { console.log(0); return; }
-                const lines = splitConditionLines(d.condition_text || '');
-                console.log(computeRevealSeconds(lines.length));
-              });
-            ")
-
             python3 scripts/dynamic-task/align.py \
               --mode four-slides-v1 \
-              --intro-text "$INTRO_TEXT" \
-              --task-text "$TASK_TEXT" \
-              --answer-text "$ANSWER_TEXT" \
-              --cta-text "$CTA_TEXT" \
-              --read-task-aloud "$READ_ALOUD" \
-              --pause-seconds "$PAUSE_SECONDS" \
-              --reveal-seconds "$REVEAL_SECONDS" \
+              --task-data task_data.json \
               --audio-in audio_raw.mp3 \
               --audio-out audio_spliced.mp3 \
               --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
