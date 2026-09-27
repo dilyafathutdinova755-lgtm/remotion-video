@@ -18,45 +18,104 @@ const answerFontSizeFor = (answer: string): number =>
 /**
  * СЛАЙД 3 — ANSWER (video_structure_version="four-slides-v1").
  *
- * Живёт ровно во время answer_voiceover_text (audioSync.answerSec →
- * outroSec). Explanation здесь и ТОЛЬКО здесь — на Problem-сцене (слайд 2)
- * его никогда не показываем (контракт four-slides-v1 явно это запрещает).
+ * РУССКИЙ №6:
+ *   ПРАВИЛЬНО → answer → explanation.
+ *   Исходное предложение НЕ перечёркиваем.
  *
- * Порядок по ТЗ: подпись «ПРАВИЛЬНО» → answer крупно → вся исходная строка
- * condition_text с ошибкой (incorrectContext) зачёркнутой целиком →
- * explanation коротким текстом ниже. answer остаётся ОДНИМ словом/формой
- * («гетр»), а не переписанной целиком строкой — зачёркнутая строка это
- * только контекст ошибки, не альтернативная версия ответа.
+ * РУССКИЙ №7:
+ *   ПРАВИЛЬНО → answer → исходный ошибочный контекст,
+ *   зачёркнутый целиком → explanation.
+ *
+ * Для будущих предметов это правило автоматически не применяется:
+ * оформление их AnswerScene определяем отдельно при масштабировании.
  */
 export const FourSlidesAnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const task = useTask();
+
   if (!isFourSlidesTask(task)) return null;
+
+  // ------------------------------------------------------
+  // Определяем предмет и номер задания.
+  // Поддерживаем несколько возможных имён поля,
+  // чтобы сцена не зависела от одного способа сборки TaskDef.
+  // ------------------------------------------------------
+
+  const taskMeta = task as unknown as Record<string, unknown>;
+
+  const subject = String(
+    taskMeta.subject ??
+      taskMeta.subjectName ??
+      taskMeta.subject_name ??
+      "",
+  ).toLowerCase();
+
+  const pillNumberMatch = String(
+    taskMeta.pillLabel ?? "",
+  ).match(/\d+/);
+
+  const taskNumber = Number(
+    taskMeta.taskNumber ??
+      taskMeta.task_number ??
+      taskMeta.number ??
+      pillNumberMatch?.[0] ??
+      0,
+  );
+
+  const isRussian =
+    subject.includes("русск");
+
+  // Зачёркнутый incorrectContext разрешён ТОЛЬКО
+  // для русского задания №7.
+  const showIncorrectContext =
+    isRussian &&
+    taskNumber === 7 &&
+    Boolean(task.incorrectContext);
 
   const pop = spring({
     frame: frame - f30(10),
     fps,
-    config: { damping: 13, mass: 0.7, stiffness: 130 },
+    config: {
+      damping: 13,
+      mass: 0.7,
+      stiffness: 130,
+    },
     durationInFrames: f30(40),
   });
 
   const fade = (delay: number) =>
-    interpolate(frame, [delay, delay + f30(14)], [0, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
+    interpolate(
+      frame,
+      [delay, delay + f30(14)],
+      [0, 1],
+      {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      },
+    );
 
   const out = interpolate(
     frame,
-    [durationInFrames - f30(8), durationInFrames],
+    [
+      durationInFrames - f30(8),
+      durationInFrames,
+    ],
     [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    },
   );
 
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill
+      style={{
+        opacity: out,
+      }}
+    >
       <FlowLines />
+
       <AbsoluteFill
         style={{
           justifyContent: "flex-start",
@@ -96,17 +155,26 @@ export const FourSlidesAnswerScene: React.FC = () => {
               lineHeight: 1.05,
               letterSpacing: "-0.03em",
               color: COLORS.deep,
-              opacity: interpolate(pop, [0, 0.5], [0, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              }),
-              transform: `scale(${interpolate(pop, [0, 1], [0.86, 1])})`,
+              opacity: interpolate(
+                pop,
+                [0, 0.5],
+                [0, 1],
+                {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                },
+              ),
+              transform: `scale(${interpolate(
+                pop,
+                [0, 1],
+                [0.86, 1],
+              )})`,
             }}
           >
             {task.answer}
           </div>
 
-          {task.incorrectContext ? (
+          {showIncorrectContext ? (
             <div
               style={{
                 marginTop: 24,
@@ -129,7 +197,9 @@ export const FourSlidesAnswerScene: React.FC = () => {
               height: 3,
               borderRadius: 999,
               background: COLORS.accentLine,
-              margin: "54px 0 40px",
+              margin: showIncorrectContext
+                ? "54px 0 40px"
+                : "44px 0 40px",
               opacity: fade(f30(30)),
             }}
           />
