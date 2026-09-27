@@ -7,7 +7,14 @@
  */
 
 import { VIDEO } from "./theme";
-import type { TaskDef, Token } from "./tasks/types";
+import { isFourSlidesTask, type FourSlidesTaskDef, type TaskDef, type Token } from "./tasks/types";
+
+/**
+ * Старая модель задачи (всё, кроме four-slides-v1) — buildScenes() и всё,
+ * что она использует, рассчитаны только на эту форму; four-slides-v1 своя
+ * тайминг-логика ниже (buildFourSlidesScenes/totalFourSlidesFrames).
+ */
+type OldTaskDef = Exclude<TaskDef, FourSlidesTaskDef>;
 
 export const sec = (s: number) => Math.round(s * VIDEO.fps);
 
@@ -62,7 +69,7 @@ export type Scenes = {
 };
 
 /** Формулировку задания тоже надо успеть прочитать. */
-export const instructionFrames = (task: TaskDef): number =>
+export const instructionFrames = (task: OldTaskDef): number =>
   task.instruction
     ? task.instruction
         .trim()
@@ -74,7 +81,7 @@ export const instructionFrames = (task: TaskDef): number =>
 /** Появление списка вариантов: по строке за раз, читать их вслух не надо. */
 export const OPTION_STEP = f30(12);
 
-export const problemReadingFrames = (task: TaskDef): number => {
+export const problemReadingFrames = (task: OldTaskDef): number => {
   if (task.options) {
     // Формулировку проговаривают, варианты только показывают
     return instructionFrames(task) + task.options.length * OPTION_STEP;
@@ -86,7 +93,7 @@ export const problemReadingFrames = (task: TaskDef): number => {
   return Math.round(raw * dense);
 };
 
-export const buildScenes = (task: TaskDef): Scenes => {
+export const buildScenes = (task: OldTaskDef): Scenes => {
   // Тайминг по реальной озвучке — длительности сцен берутся из секунд в
   // audioSync, а не оцениваются по числу слов (см. PLAYBOOK.md).
   if (task.audioSync) {
@@ -134,7 +141,37 @@ export const buildScenes = (task: TaskDef): Scenes => {
   };
 };
 
-export const totalFrames = (task: TaskDef): number => {
+/**
+ * Тайминг для video_structure_version="four-slides-v1" — четыре сцены
+ * (Title/Problem/Answer/CTA) считаются НАПРЯМУЮ из реальных границ
+ * audioSync (см. align.py: run_four_slides_v1), без всякой оценки по
+ * словам. ЗАПРЕЩЕНО: возвращать старое поведение "ProblemScene во время
+ * explanation" — эта функция не даёт для этого никакой возможности,
+ * Problem у four-slides-v1 всегда заканчивается ровно на answerSec.
+ */
+export type FourSlidesScenes = {
+  title: number;
+  problem: number;
+  answer: number;
+  outro: number;
+};
+
+export const buildFourSlidesScenes = (task: FourSlidesTaskDef): FourSlidesScenes => {
+  const a = task.audioSync;
+  return {
+    title: sec(a.introSec),
+    problem: sec(a.answerSec - a.introSec),
+    answer: sec(a.outroSec - a.answerSec),
+    outro: sec(a.totalSec - a.outroSec),
+  };
+};
+
+export const totalFourSlidesFrames = (task: FourSlidesTaskDef): number => {
+  const s = buildFourSlidesScenes(task);
+  return s.title + s.problem + s.answer + s.outro;
+};
+
+export const totalFrames = (task: OldTaskDef): number => {
   const s = buildScenes(task);
   return (
     s.title +
@@ -144,3 +181,9 @@ export const totalFrames = (task: TaskDef): number => {
     s.outro
   );
 };
+
+/** Диспетчер по video_structure_version — нужен там, где список задач
+ * смешивает старую модель и four-slides-v1 (Root.tsx: <Composition>
+ * перебирает все TASKS одним циклом). */
+export const totalFramesFor = (task: TaskDef): number =>
+  isFourSlidesTask(task) ? totalFourSlidesFrames(task) : totalFrames(task);

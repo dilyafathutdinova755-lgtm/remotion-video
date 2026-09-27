@@ -3,14 +3,17 @@ import { Background } from "./Background";
 import { Watermark } from "./Watermark";
 import { FontGate } from "./FontGate";
 import { TaskProvider } from "./TaskContext";
-import { buildScenes, totalFrames } from "./timing";
+import { buildFourSlidesScenes, buildScenes, totalFourSlidesFrames, totalFrames } from "./timing";
 import { paletteFor, paletteVars } from "./theme";
-import type { TaskDef } from "./tasks/types";
+import { isFourSlidesTask, type TaskDef } from "./tasks/types";
 import { HookScene } from "./scenes/HookScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { AnswerScene } from "./scenes/AnswerScene";
 import { ConceptScene } from "./scenes/ConceptScene";
 import { OutroScene } from "./scenes/OutroScene";
+import { FourSlidesTitleScene } from "./scenes/four-slides/TitleScene";
+import { FourSlidesProblemScene } from "./scenes/four-slides/ProblemScene";
+import { FourSlidesAnswerScene } from "./scenes/four-slides/AnswerScene";
 
 /**
  * Ролик-разбор задачи, вертикальный 9:16.
@@ -21,8 +24,19 @@ import { OutroScene } from "./scenes/OutroScene";
  *
  * Фон живёт вне Series, поэтому не мигает на стыках сцен. Плашка в углу
  * висит до финального экрана, где её заменяет большая иконка приложения.
+ *
+ * video_structure_version="four-slides-v1" — отдельная, полностью
+ * независимая композиция сцен (см. FourSlidesVideo ниже): жёстко Title →
+ * Problem → Answer → CTA, без пошагового разбора и без общего "explanation
+ * во время ProblemScene" — это старое поведение здесь ЗАПРЕЩЕНО контрактом.
+ * Старая модель (эта функция, EgeVideo) не меняется вовсе — обе ветки
+ * должны продолжать рендериться как раньше.
  */
 export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
+  if (isFourSlidesTask(task)) {
+    return <FourSlidesVideo task={task} />;
+  }
+
   const scenes = buildScenes(task);
 
   return (
@@ -65,6 +79,50 @@ export const EgeVideo: React.FC<{ task: TaskDef }> = ({ task }) => {
           </Series>
 
           <Sequence durationInFrames={totalFrames(task) - scenes.outro}>
+            <Watermark />
+          </Sequence>
+        </AbsoluteFill>
+      </TaskProvider>
+    </FontGate>
+  );
+};
+
+/**
+ * four-slides-v1: Title → Problem → 5-секундная пауза для размышления
+ * (часть Problem-сцены, см. FourSlidesProblemScene) → Answer → CTA.
+ * Ничего похожего на "ProblemScene во время explanation" здесь нет и быть
+ * не может: Problem заканчивается ровно на audioSync.answerSec, Answer
+ * начинается сразу после неё — граница жёсткая, посчитана align.py по
+ * реальной (склеенной с настоящей тишиной) озвучке.
+ */
+const FourSlidesVideo: React.FC<{ task: Extract<TaskDef, { videoStructureVersion: "four-slides-v1" }> }> = ({
+  task,
+}) => {
+  const scenes = buildFourSlidesScenes(task);
+
+  return (
+    <FontGate>
+      <TaskProvider value={task}>
+        <AbsoluteFill style={paletteVars(paletteFor(task.palette))}>
+          <Background />
+          <Audio src={staticFile(task.audioSync.src)} />
+
+          <Series>
+            <Series.Sequence durationInFrames={scenes.title}>
+              <FourSlidesTitleScene />
+            </Series.Sequence>
+            <Series.Sequence durationInFrames={scenes.problem}>
+              <FourSlidesProblemScene />
+            </Series.Sequence>
+            <Series.Sequence durationInFrames={scenes.answer}>
+              <FourSlidesAnswerScene />
+            </Series.Sequence>
+            <Series.Sequence durationInFrames={scenes.outro}>
+              <OutroScene />
+            </Series.Sequence>
+          </Series>
+
+          <Sequence durationInFrames={totalFourSlidesFrames(task) - scenes.outro}>
             <Watermark />
           </Sequence>
         </AbsoluteFill>

@@ -182,13 +182,71 @@ type ConceptAnswer = {
 };
 
 /**
+ * Тайминг для video_structure_version="four-slides-v1" — четыре жёстко
+ * заданные, взаимоисключающие сцены (Title/Problem/Answer/CTA), границы
+ * между которыми определены реальным forced alignment в align.py (см.
+ * scripts/dynamic-task/align.py: run_four_slides_v1), а не оценкой по
+ * словам. Секунды — абсолютные, от начала (уже склеенного с реальной
+ * тишиной) аудиофайла.
+ */
+export type FourSlidesAudioSync = {
+  /** Путь к файлу в public/, без ведущего слэша — для staticFile(). */
+  src: string;
+  /** Полная длительность аудио (после вставки тишины) в секундах. */
+  totalSec: number;
+  /** Title → Problem: конец intro_text. */
+  introSec: number;
+  /** Problem → Answer: конец «размышления» (реальная вставленная тишина). */
+  answerSec: number;
+  /** Answer → CTA: конец answer_voiceover_text. */
+  outroSec: number;
+};
+
+/**
+ * Полное описание ролика по контракту four-slides-v1 (см. build-dynamic-
+ * task.mjs: buildFourSlidesTask). Сознательно НЕ расширяет TaskCommon —
+ * структура жёстко зафиксирована этим контрактом и не должна незаметно
+ * унаследовать поля старой модели (illustration/options/solutions и т. п.),
+ * которых в four-slides-v1 просто нет.
+ */
+export type FourSlidesTaskDef = {
+  id: string;
+  number: number;
+  examType?: "ege" | "oge";
+  subject?: string;
+  palette?: PaletteName;
+  pillLabel?: string;
+  videoStructureVersion: "four-slides-v1";
+
+  introText: string;
+  instruction: string;
+  /** condition_text, уже разбитый на непустые строки — исходный текст не меняется. */
+  conditionLines: string[];
+  /** Обязателен для русского №6/№7 (проверено до render — см. build-dynamic-task.mjs). */
+  incorrectFragment?: string;
+  answer: string;
+  explanation: string;
+
+  pauseSeconds: number;
+  pausePrompt: string;
+  readTaskAloud: boolean;
+  ctaText: string;
+
+  audioSync: FourSlidesAudioSync;
+};
+
+/**
  * Полное описание задачи. Всё, что меняется от ролика к ролику, живёт
  * здесь; сцены забирают это из контекста и остаются общими.
  */
-export type TaskDef = TaskCommon & (ValueAnswer | ConceptAnswer);
+export type TaskDef = (TaskCommon & (ValueAnswer | ConceptAnswer)) | FourSlidesTaskDef;
 
 /** Задача с ответом-значением: сцена ответа работает только с такими. */
 export type ValueTask = TaskCommon & ValueAnswer;
+
+/** Различает контракт four-slides-v1 от старой модели без приведения типов. */
+export const isFourSlidesTask = (task: TaskDef): task is FourSlidesTaskDef =>
+  "videoStructureVersion" in task && task.videoStructureVersion === "four-slides-v1";
 
 /**
  * Кегль ответа: длинное слово вроде «преследовало» в 132 пункта не влезает

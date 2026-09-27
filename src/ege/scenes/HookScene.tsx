@@ -7,7 +7,7 @@ import {
   interpolate,
 } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
-import { useTask } from "../TaskContext";
+import { useOldTask } from "../TaskContext";
 
 /**
  * Первые секунды ролика по ТЗ: не заставка с логотипом, а вопрос крупным
@@ -48,7 +48,7 @@ const examLabel = (subject?: string): string => {
 export const HookScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const task = useTask();
+  const task = useOldTask();
 
   const at = (delay: number) =>
     spring({

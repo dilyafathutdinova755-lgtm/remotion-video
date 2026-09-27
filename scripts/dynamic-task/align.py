@@ -201,9 +201,19 @@ def find_condition_end_idx(sentences, condition_text):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--text", required=True)
+    ap.add_argument(
+        "--mode",
+        choices=["legacy", "four-slides-v1"],
+        default="legacy",
+        help="legacy (по умолчанию, полная обратная совместимость) или "
+        "four-slides-v1 (см. run_four_slides_v1).",
+    )
+    # legacy-режим — required=True сознательно не ставится на уровне
+    # argparse (иначе four-slides-v1 не смог бы обойтись без них); проверка
+    # обязательности — вручную, внутри run_legacy(), сразу после разбора.
+    ap.add_argument("--text")
     ap.add_argument("--display-text", default=None)
-    ap.add_argument("--condition-text", required=True)
+    ap.add_argument("--condition-text")
     ap.add_argument(
         "--subject",
         default="",
@@ -213,10 +223,36 @@ def main():
             "по-прежнему обязателен (обратная совместимость)."
         ),
     )
-    ap.add_argument("--audio", required=True)
+    ap.add_argument("--audio")
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--noise-db", type=int, default=-20)
+
+    # four-slides-v1 — отдельный набор флагов, см. докстринг run_four_slides_v1.
+    ap.add_argument("--intro-text")
+    ap.add_argument("--task-text", default="")
+    ap.add_argument("--answer-text")
+    ap.add_argument("--cta-text")
+    ap.add_argument("--read-task-aloud", default="false")
+    ap.add_argument("--pause-seconds", type=float, default=0.0)
+    ap.add_argument("--reveal-seconds", type=float, default=0.0)
+    ap.add_argument("--audio-in")
+    ap.add_argument("--audio-out")
+
     args = ap.parse_args()
+
+    if args.mode == "four-slides-v1":
+        run_four_slides_v1(args)
+        return
+
+    run_legacy(args)
+
+
+def run_legacy(args):
+    for flag, value in (("--text", args.text), ("--condition-text", args.condition_text), ("--audio", args.audio)):
+        if not value:
+            print(f"ОШИБКА: обязательный флаг {flag} не передан (mode=legacy).", file=sys.stderr)
+            sys.exit(1)
+
     humanities = is_humanities(args.subject)
 
     sentences = split_sentences(args.text)
@@ -412,6 +448,231 @@ def main():
         "answerMarkerPresent": answer_marker_present,
         "candidates": candidates,
         "fullExpected": [round(x, 2) for x in full_expected],
+    }
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+def audio_format(ffmpeg, audio_path):
+    """(sample_rate, channels) — нужны, чтобы сгенерированная anullsrc-тишина
+    точно совпадала по формату со входным файлом (иначе ffmpeg concat может
+    отказаться склеивать потоки или тихо испортить результат)."""
+    out = subprocess.run(
+        [ffmpeg, "-i", audio_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE
+    ).stderr.decode("utf-8", "ignore")
+    m = re.search(r"Audio:.*?(\d+)\s*Hz,\s*(mono|stereo|[\d.]+\s*channels?)", out)
+    if not m:
+        raise RuntimeError("Не удалось определить частоту дискретизации/каналы аудио из ffmpeg -i")
+    rate = int(m.group(1))
+    chan_str = m.group(2)
+    if chan_str == "mono":
+        channels = 1
+    elif chan_str == "stereo":
+        channels = 2
+    else:
+        channels = int(re.search(r"\d+", chan_str).group())
+    return rate, channels
+
+
+def splice_silence(ffmpeg, audio_in, audio_out, cut_sec, silence_sec):
+    """РЕАЛЬНАЯ тишина: обрезает audio_in на cut_sec, вставляет между двумя
+    кусками сгенерированную дорожку тишины длиной silence_sec и склеивает всё
+    обратно в audio_out — а не просто "визуально держит сцену дольше", пока
+    в аудио на самом деле уже звучит следующий сегмент."""
+    rate, channels = audio_format(ffmpeg, audio_in)
+    cl = "mono" if channels == 1 else "stereo"
+    filter_complex = (
+        f"[0:a]atrim=end={cut_sec:.3f},asetpts=PTS-STARTPTS[a1];"
+        f"[0:a]atrim=start={cut_sec:.3f},asetpts=PTS-STARTPTS[a2];"
+        f"anullsrc=r={rate}:cl={cl}:d={silence_sec:.3f}[sil];"
+        f"[a1][sil][a2]concat=n=3:v=0:a=1[out]"
+    )
+    cmd = [
+        ffmpeg,
+        "-y",
+        "-i",
+        audio_in,
+        "-filter_complex",
+        filter_complex,
+        "-map",
+        "[out]",
+        audio_out,
+    ]
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if proc.returncode != 0:
+        print("ОШИБКА: ffmpeg не смог вставить тишину в аудио:", file=sys.stderr)
+        print(proc.stderr.decode("utf-8", "ignore")[-2000:], file=sys.stderr)
+        sys.exit(1)
+
+
+def run_four_slides_v1(args):
+    """
+    Разметка для video_structure_version="four-slides-v1" (см.
+    scripts/dynamic-task/four-slides.mjs и src/ege/scenes/four-slides/).
+
+    В отличие от legacy-режима, здесь НЕТ единого текстового блока с
+    маркерами вида «Ответ:»/«Скачивай бесплатно» для поиска — n8n присылает
+    четыре ОТДЕЛЬНЫХ, уже готовых для TTS текста: intro_text,
+    (task_voiceover_text — только если read_task_aloud=true),
+    answer_voiceover_text, cta_text. Реальное аудио — их конкатенация именно
+    в этом порядке. Раз сегменты уже разделены на уровне task_data, нет
+    нужды искать маркеры внутри одного текста — вместо этого каждый
+    сегмент целиком выступает "предложением" для той же word-count-
+    proportional оценки ожидаемой позиции + DP-выравнивания по реальным
+    паузам (align()), что и в legacy-режиме.
+
+    Нужны РОВНО две реальные границы:
+      - intro_end  — конец intro_text (Title → Problem);
+      - cut        — точка, после которой вставляется тишина:
+                       read_task_aloud=true  → конец task_voiceover_text;
+                       read_task_aloud=false → конец intro_text (то есть
+                       совпадает с intro_end — Problem-сцена в этом случае
+                       целиком состоит из вставленной тишины: reveal строк
+                       + pause_seconds, без единого произнесённого слова);
+      - answer_end — конец answer_voiceover_text (Answer → CTA).
+
+    Каждая граница проверяется на правдоподобие (TOLERANCE_SEC): если
+    ближайшая реальная пауза слишком далеко от ожидаемой по words-proportion
+    позиции — это ЗНАЧИТ, что границу нельзя определить надёжно, и скрипт
+    завершается ошибкой, а не подставляет процентную оценку как есть.
+
+    Тишина вставляется взаправду (splice_silence, ffmpeg), поэтому
+    результирующий audioOut длиннее исходного файла ровно на длительность
+    вставленной тишины — Remotion получает готовое аудио с реальным
+    беззвучным промежутком, а не полагается на то, что видео "подождёт"
+    во время, когда в файле уже звучит следующий сегмент.
+    """
+    for flag, value in (
+        ("--intro-text", args.intro_text),
+        ("--answer-text", args.answer_text),
+        ("--cta-text", args.cta_text),
+        ("--audio-in", args.audio_in),
+        ("--audio-out", args.audio_out),
+    ):
+        if not value:
+            print(f"ОШИБКА: обязательный флаг {flag} не передан (mode=four-slides-v1).", file=sys.stderr)
+            sys.exit(1)
+    if not (args.pause_seconds > 0):
+        print(f"ОШИБКА: --pause-seconds должен быть положительным, получено {args.pause_seconds}.", file=sys.stderr)
+        sys.exit(1)
+
+    read_aloud = str(args.read_task_aloud).strip().lower() == "true"
+
+    segments = [("intro", args.intro_text)]
+    if read_aloud:
+        if not args.task_text or not args.task_text.strip():
+            print(
+                "ОШИБКА: --read-task-aloud true, но --task-text пуст — нечего "
+                "озвучивать под ProblemScene.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        segments.append(("task", args.task_text))
+    elif args.reveal_seconds <= 0:
+        print(
+            "ОШИБКА: --read-task-aloud false требует положительный --reveal-seconds "
+            "(суммарное время последовательного появления строк condition_text).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    segments.append(("answer", args.answer_text))
+    segments.append(("cta", args.cta_text))
+
+    names = [name for name, _ in segments]
+    word_counts = [len(text.split()) for _, text in segments]
+    if sum(word_counts) == 0:
+        print("ОШИБКА: во всех сегментах суммарно 0 слов — размётка невозможна.", file=sys.stderr)
+        sys.exit(1)
+
+    cum = []
+    acc = 0
+    for wc in word_counts:
+        acc += wc
+        cum.append(acc)
+    total_words = cum[-1]
+
+    total_sec = ffmpeg_duration(args.ffmpeg, args.audio_in)
+    candidates = silence_ends(args.ffmpeg, args.audio_in, args.noise_db)
+    if not candidates:
+        print(
+            "ОШИБКА: silencedetect не нашёл ни одной паузы ≥0.3с в исходном аудио — "
+            "границы сегментов не определить.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Ожидаемая позиция ПОСЛЕ каждого сегмента, кроме последнего (после
+    # последнего сегмента, cta, граница не нужна — там просто конец файла).
+    full_expected = [cum[i] / total_words * total_sec for i in range(len(segments) - 1)]
+
+    cut_idx = names.index("task") if read_aloud else names.index("intro")
+    answer_end_idx = names.index("answer")
+    # intro-граница нужна всегда (Title→Problem), даже когда cut_idx на неё
+    # не указывает (read_task_aloud=true: cut происходит позже, после task).
+    needed_idx = sorted({0, cut_idx, answer_end_idx})
+
+    sub_expected = [full_expected[i] for i in needed_idx]
+    aligned = align(sub_expected, candidates)
+    matched = dict(zip(needed_idx, aligned))
+
+    # Fail-fast confidence gate (см. докстринг функции): угадывать по
+    # проценту длины текста запрещено пользователем явно — если реальная
+    # пауза слишком далека от ожидаемой позиции, это и есть тот случай,
+    # когда границу "невозможно надёжно определить".
+    TOLERANCE_SEC = 2.0
+    for idx in needed_idx:
+        expected = full_expected[idx]
+        got = matched[idx]
+        if abs(got - expected) > TOLERANCE_SEC:
+            print(
+                f"ОШИБКА: не удалось надёжно определить границу после сегмента "
+                f'"{names[idx]}" — ожидали паузу около {expected:.2f}с по доле слов, '
+                f"ближайшая реальная пауза {got:.2f}с (расхождение "
+                f"{abs(got - expected):.2f}с превышает допуск {TOLERANCE_SEC}с). "
+                "Разметить нельзя без угадывания.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    intro_end_sec = matched[0]
+    cut_sec = matched[cut_idx]
+    answer_end_sec = matched[answer_end_idx]
+
+    silence_duration = args.pause_seconds if read_aloud else (args.reveal_seconds + args.pause_seconds)
+
+    splice_silence(args.ffmpeg, args.audio_in, args.audio_out, cut_sec, silence_duration)
+
+    new_total_sec = total_sec + silence_duration
+    new_answer_sec = cut_sec + silence_duration
+    new_outro_sec = answer_end_sec + silence_duration
+
+    # Сверяем реальную длительность получившегося файла с арифметикой —
+    # заметная расходимость означала бы, что склейка не удалась молча.
+    spliced_duration = ffmpeg_duration(args.ffmpeg, args.audio_out)
+    if abs(spliced_duration - new_total_sec) > 1.0:
+        print(
+            f"ОШИБКА: после вставки тишины длительность файла ({spliced_duration:.2f}с) "
+            f"не сходится с расчётной ({new_total_sec:.2f}с) — склейка аудио, похоже, "
+            "не удалась.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    result = {
+        "totalSec": round(new_total_sec, 3),
+        "introSec": round(intro_end_sec, 3),
+        "answerSec": round(new_answer_sec, 3),
+        "outroSec": round(new_outro_sec, 3),
+        "audioOut": args.audio_out,
+        "_debug": {
+            "readTaskAloud": read_aloud,
+            "segments": names,
+            "wordCounts": word_counts,
+            "candidates": candidates,
+            "fullExpected": [round(x, 2) for x in full_expected],
+            "matched": {names[i]: round(v, 3) for i, v in matched.items()},
+            "cutSec": round(cut_sec, 3),
+            "silenceDuration": round(silence_duration, 3),
+        },
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

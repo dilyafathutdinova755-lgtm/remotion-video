@@ -9,7 +9,7 @@ import {
 import { Reveal } from "../MathBits";
 import { FlowLines } from "../FlowLines";
 import { COLORS, FONTS, PAD, SAFE, SAFE_BELOW_BADGE } from "../theme";
-import { useTask } from "../TaskContext";
+import { useOldTask } from "../TaskContext";
 import { answerFontSize } from "../tasks/types";
 
 /**
@@ -22,7 +22,7 @@ import { answerFontSize } from "../tasks/types";
 export const AnswerScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const task = useTask();
+  const task = useOldTask();
 
   // Без озвучки тайминг — фиксированный, на глаз. С озвучкой — секунды
   // реальных реплик: «Неверно сказано «…»» звучит первой и открывает сцену

@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 import { Reveal } from "../MathBits";
 import { FlowLines } from "../FlowLines";
 import { COLORS, FONTS, PAD, SAFE, SAFE_BELOW_BADGE } from "../theme";
-import { useTask } from "../TaskContext";
+import { useOldTask } from "../TaskContext";
 
 /**
  * Финальная сцена задания 19 по истории. Ответом здесь работает не число, а
@@ -55,7 +55,7 @@ const Block: React.FC<{ label: string; children: ReactNode }> = ({
 export const ConceptScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
-  const task = useTask();
+  const task = useOldTask();
 
   const out = interpolate(
     frame,

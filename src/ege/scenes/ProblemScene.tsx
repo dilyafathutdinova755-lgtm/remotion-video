@@ -9,13 +9,13 @@ import {
 } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../theme";
 import { ProblemText, ProblemCard, Pill, OptionList } from "../ProblemText";
-import { useTask } from "../TaskContext";
+import { useOldTask } from "../TaskContext";
 import { READ_DELAY, problemReadingFrames, f30 } from "../timing";
 
 export const ProblemScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  const task = useTask();
+  const task = useOldTask();
 
   const enter = spring({
     frame: frame - f30(4),

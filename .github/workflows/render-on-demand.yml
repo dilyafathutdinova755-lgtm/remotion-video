@@ -55,9 +55,19 @@ jobs:
         env:
           TASK_ID: ${{ inputs.task_id }}
         run: |
+          # video_structure_version="four-slides-v1" — совсем другой набор
+          # обязательных полей (intro_text/instruction/.../answer_voiceover_
+          # text/cta_text/pause_seconds, см. scripts/dynamic-task/four-
+          # slides.mjs), а не condition_text/voiceover_text старой модели.
+          # Полная fail-fast проверка происходит позже, в build-dynamic-
+          # task.mjs (validateFourSlidesTaskData) — здесь только минимум,
+          # без которого не собрать даже safe_id/дальнейшие шаги.
           node -e "
             const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
-            for (const f of ['exam','subject','task_number','condition_text','answer','voiceover_text']) {
+            const fields = d.video_structure_version === 'four-slides-v1'
+              ? ['exam','subject','task_number']
+              : ['exam','subject','task_number','condition_text','answer','voiceover_text'];
+            for (const f of fields) {
               if (!d[f] && d[f] !== 0) { console.error('В task_data нет поля ' + f); process.exit(1); }
             }
           "
@@ -72,6 +82,53 @@ jobs:
 
       - name: Разметить тайминг по озвучке (align.py)
         run: |
+          # video_structure_version="four-slides-v1" размечается совсем
+          # иначе (см. align.py: run_four_slides_v1) — n8n присылает не один
+          # блок текста с маркерами "Ответ:"/CTA, а четыре готовых для TTS
+          # текста отдельными полями, и аудио уже физически содержит паузу
+          # (align.py сам её вставляет через ffmpeg). Старая ветка ниже (else)
+          # не тронута ни на строку — полная обратная совместимость.
+          VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).video_structure_version || '')")
+
+          if [ "$VERSION" = "four-slides-v1" ]; then
+            INTRO_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).intro_text || '')")
+            ANSWER_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).answer_voiceover_text || '')")
+            CTA_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).cta_text || '')")
+            TASK_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).task_voiceover_text || '')")
+            READ_ALOUD=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).read_task_aloud === true ? 'true' : 'false')")
+            PAUSE_SECONDS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).pause_seconds || 0)")
+
+            # reveal-seconds нужен только при read_task_aloud=false (align.py
+            # сам считает --pause-seconds достаточным при read_task_aloud=true)
+            # — это то же суммарное время появления строк condition_text,
+            # которое ProblemScene покажет визуально во время вставленной
+            # тишины (см. scripts/dynamic-task/four-slides.mjs).
+            REVEAL_SECONDS=$(node -e "
+              import('./scripts/dynamic-task/four-slides.mjs').then(({ splitConditionLines, computeRevealSeconds }) => {
+                const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
+                if (d.read_task_aloud === true) { console.log(0); return; }
+                const lines = splitConditionLines(d.condition_text || '');
+                console.log(computeRevealSeconds(lines.length));
+              });
+            ")
+
+            python3 scripts/dynamic-task/align.py \
+              --mode four-slides-v1 \
+              --intro-text "$INTRO_TEXT" \
+              --task-text "$TASK_TEXT" \
+              --answer-text "$ANSWER_TEXT" \
+              --cta-text "$CTA_TEXT" \
+              --read-task-aloud "$READ_ALOUD" \
+              --pause-seconds "$PAUSE_SECONDS" \
+              --reveal-seconds "$REVEAL_SECONDS" \
+              --audio-in audio_raw.mp3 \
+              --audio-out audio_spliced.mp3 \
+              --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
+              > align.json
+            cat align.json
+            exit 0
+          fi
+
           # ElevenLabs здесь не вызывается — аудио уже готово и лежит на Drive.
           # --text для align.py обязан совпадать с тем, что реально
           # произнесено (словами, не цифрами), иначе подсчёт слов для
@@ -114,7 +171,16 @@ jobs:
         run: |
           mkdir -p public/audio
           AUDIO_REL="audio/dynamic-${{ steps.prep.outputs.safe_id }}.mp3"
-          cp audio_raw.mp3 "public/$AUDIO_REL"
+          # four-slides-v1 кладёт в align.json поле audioOut — путь к файлу
+          # с уже вставленной реальной тишиной (см. align.py:
+          # run_four_slides_v1 → splice_silence); legacy-режим такого поля
+          # не пишет вовсе, и тогда используется исходный audio_raw.mp3
+          # без изменений, как и раньше.
+          AUDIO_SRC_FILE=$(node -e "
+            const a = JSON.parse(require('fs').readFileSync('align.json', 'utf8'));
+            console.log(a.audioOut || 'audio_raw.mp3');
+          ")
+          cp "$AUDIO_SRC_FILE" "public/$AUDIO_REL"
           node scripts/dynamic-task/build-dynamic-task.mjs \
             --task-id "$TASK_ID" \
             --task-data task_data.json \

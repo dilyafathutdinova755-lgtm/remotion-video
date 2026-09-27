@@ -1,7 +1,7 @@
 import "./index.css";
 import { Composition } from "remotion";
 import { EgeVideo } from "./ege/EgeVideo";
-import { totalFrames } from "./ege/timing";
+import { totalFramesFor } from "./ege/timing";
 import { VIDEO } from "./ege/theme";
 import type { TaskDef } from "./ege/tasks/types";
 
@@ -65,7 +65,7 @@ export const RemotionRoot: React.FC = () => (
         key={task.id}
         id={task.id}
         component={() => <EgeVideo task={task} />}
-        durationInFrames={totalFrames(task)}
+        durationInFrames={totalFramesFor(task)}
         fps={VIDEO.fps}
         width={VIDEO.width}
         height={VIDEO.height}
