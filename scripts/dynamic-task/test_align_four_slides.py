@@ -116,7 +116,7 @@ def run_align(extra_args, task_data=None, tmp=None):
 def main():
     if not os.path.exists(FFMPEG):
         print(f"ПРОПУЩЕНО: ffmpeg не найден по пути {FFMPEG} — тесты требуют реальный ffmpeg.")
-        sys.exit(0)
+        sys.exit(1)
 
     with tempfile.TemporaryDirectory() as tmp:
         intro = "Решаем задание семь из приложения ЕГЭ Тренажёр"
@@ -215,6 +215,41 @@ def main():
             "read_task_aloud=true: intro+task_voiceover+answer+CTA, ровно 5с паузы после task_voiceover_text",
             t_true_happy_path,
         )
+
+        def t_current_two_second_pause():
+            instruction = (
+                "В одном из выделенных ниже слов допущена ошибка в образовании формы слова. "
+                "Исправьте ошибку и запишите слово правильно."
+            )
+            source_audio = os.path.join(tmp, "russian_two_in.mp3")
+            output_audio = os.path.join(tmp, "russian_two_out.mp3")
+            spoken = [intro, instruction, answer, cta]
+            # Synthetic tones proportional to section word counts, not TTS.
+            build_tone_audio(source_audio, [len(t.split()) * 0.15 for t in spoken], gap=0.5, lead=0.3)
+            task_data = {
+                "video_structure_version": "four-slides-v1",
+                "intro_text": intro,
+                "instruction": instruction,
+                "condition_text": condition_text_rus7,
+                "task_voiceover_text": instruction,
+                "answer_voiceover_text": answer,
+                "cta_text": cta,
+                "read_task_aloud": True,
+                "pause_seconds": 2,
+            }
+            code, out, err = run_align(
+                ["--audio-in", source_audio, "--audio-out", output_audio, "--ffmpeg", FFMPEG],
+                task_data=task_data, tmp=tmp,
+            )
+            assert code == 0, f"align.py упал: {err}"
+            data = json.loads(out)
+            cut = data["_debug"]["cutSec"]
+            assert abs(data["answerSec"] - cut - 2.0) < 0.05, "вставлено не 2 секунды"
+            assert data["introSec"] < cut < data["answerSec"] < data["outroSec"]
+            intervals = silence_intervals(output_audio)
+            assert any(s <= cut + 0.05 and e >= cut + 1.95 for s, e in intervals), intervals
+
+        check("Текущий русский: instruction озвучивается, материал нет, вставляются 2 секунды", t_current_two_second_pause)
 
         audio_bad_in = os.path.join(tmp, "bad_in.mp3")
         audio_bad_out = os.path.join(tmp, "bad_out.mp3")
