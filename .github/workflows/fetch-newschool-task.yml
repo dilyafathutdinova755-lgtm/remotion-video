@@ -1,20 +1,8 @@
 name: Fetch New School task
 
-# Production-источник заданий для n8n. Открывает тренажёр «Новой школы»
-# настоящим Playwright/Chromium-браузером, динамически выбирает один
-# доступный variant пробника (см. scripts/task-source/newschool-lib.mjs:
-# discoverVariants — список вариантов ищется на странице, а не зашивается
-# навсегда), извлекает из него ОДНО реальное задание №6 или №7 по русскому
-# языку (без придуманных answer/explanation — их дальше делает n8n/Claude)
-# и одним POST-запросом отправляет в n8n webhook.
-#
-# Claude в этом workflow не участвует — только Playwright-скрейпинг и
-# пересылка сырого текста. Пока запускается только вручную
-# (workflow_dispatch); позже n8n Schedule Trigger будет дёргать этот
-# workflow через GitHub Actions API по расписанию.
-#
-# НЕ трогает render-on-demand.yml / Remotion / ElevenLabs / TTS-normalizer /
-# align.py — источник заданий и сам рендер полностью независимы.
+# Production-источник заданий для n8n.
+# Перед отправкой нового задания сначала проверяем Remotion.
+# Если код/тесты/сборка сломаны, webhook в n8n НЕ вызывается.
 
 on:
   workflow_dispatch: {}
@@ -26,19 +14,27 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+
+      - name: Установить зафиксированные зависимости
+        run: npm ci
+
+      - name: Проверить проект ДО отправки задания в n8n
+        run: bash scripts/qa/check-project.sh
 
       - name: Установить Playwright + Chromium
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      - name: Тесты извлечения/валидации заданий (newschool-lib)
+      - name: Тесты извлечения/валидации заданий
         run: node scripts/task-source/test-newschool-lib.mjs
 
       - name: Собрать и отправить задание в n8n
