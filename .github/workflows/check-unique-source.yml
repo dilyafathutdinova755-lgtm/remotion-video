@@ -1,0 +1,118 @@
+name: Check unique tasks (no publication)
+
+on:
+  push:
+    branches:
+      - claude/create-video-setup-u21u42
+    paths:
+      - '.github/workflows/check-unique-source.yml'
+      - '.github/workflows/fetch-newschool-task.yml'
+      - 'scripts/task-source/**'
+      - 'data/russian-task-history.json'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-unique-source-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Установить зависимости и браузер
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.63.0
+          ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Проверить синтаксис новых файлов
+        run: |
+          node --check scripts/task-source/russian-task-history.mjs
+          node --check scripts/task-source/github-task-history.mjs
+          node --check scripts/task-source/fetch-newschool-unique-task.mjs
+
+      - name: Найти три разных задания без отправки
+        env:
+          GITHUB_TOKEN: ''
+          GH_TOKEN: ''
+          N8N_NEWSCHOOL_WEBHOOK_URL: ''
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+          import {
+            HISTORY_PATH, findDuplicate, parseHistory, reserveTask,
+          } from './scripts/task-source/russian-task-history.mjs';
+          import { main } from './scripts/task-source/fetch-newschool-unique-task.mjs';
+
+          const original = readFileSync(HISTORY_PATH);
+          let history = parseHistory(original.toString('utf8'));
+          const output = 'out/qa/unique-source';
+          const selected = [];
+          mkdirSync(output, { recursive: true });
+
+          try {
+            for (let i = 1; i <= 3; i++) {
+              console.log(`Проверка выбора ${i} из 3`);
+              const result = await main(['--dry-run']);
+              assert.equal(result.sent, false, 'Отправка должна быть выключена.');
+              const task = result.payload;
+              assert.ok(task, 'Источник не вернул задание.');
+              assert.equal(findDuplicate(history, task), null, 'Обнаружен повтор.');
+              assert.equal(new URL(task.source_url).origin, 'https://thenewschool.ru');
+
+              selected.push(task);
+              writeFileSync(
+                `${output}/task-${i}.json`,
+                JSON.stringify(task, null, 2) + '\n',
+              );
+              console.log(`Найдено задание ${i}: ${task.source_url}, номер ${task.task_number}`);
+
+              /* Только локальная копия в этой проверке, не коммит в GitHub. */
+              history = reserveTask(history, task, `qa-only-${i}`).history;
+              writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2) + '\n');
+            }
+            assert.equal(selected.length, 3);
+          } finally {
+            writeFileSync(HISTORY_PATH, original);
+          }
+
+          assert.ok(readFileSync(HISTORY_PATH).equals(original));
+          const message =
+            'Найдены три разных задания, отсутствующие в истории этой версии.\n' +
+            'История в репозитории не изменялась. Отправки в n8n не было.\n' +
+            'Это проверка чтения сайта и выбора, не записи через GitHub API и не публикации.\n';
+          writeFileSync(`${output}/RESULT.txt`, message);
+          console.log(message);
+          if (process.env.GITHUB_STEP_SUMMARY) {
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, message);
+          }
+          NODE
+
+      - name: Проверить сохранность истории и настроек зависимостей
+        run: git diff --exit-code -- data/russian-task-history.json package.json package-lock.json
+
+      - name: Сохранить найденные задания для просмотра
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unique-task-check-${{ github.run_id }}-${{ github.run_attempt }}
+          path: out/qa/unique-source/
+          if-no-files-found: ignore
+          retention-days: 7
