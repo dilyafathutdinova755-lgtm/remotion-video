@@ -1,44 +1,86 @@
 name: Fetch New School task
 
-# Production-источник заданий для n8n.
-# Перед отправкой нового задания сначала проверяем Remotion.
-# Если код/тесты/сборка сломаны, webhook в n8n НЕ вызывается.
-
 on:
   workflow_dispatch: {}
 
 permissions:
   contents: read
 
+concurrency:
+  group: ege-russian-unique-task-production
+  cancel-in-progress: false
+
 jobs:
   fetch:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    permissions:
+      contents: write
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Проверить рабочую ветку
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_TYPE:-}" != "branch" || "${GITHUB_REF_NAME:-}" != "claude/create-video-setup-u21u42" ]]; then
+            echo "::error::Источник разрешён только из рабочей ветки."
+            exit 1
+          fi
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Установить зафиксированные зависимости
         run: npm ci
 
-      - name: Проверить проект ДО отправки задания в n8n
+      - name: Проверить новые файлы и локальную историю
+        run: |
+          set -euo pipefail
+          node --check scripts/task-source/russian-task-history.mjs
+          node --check scripts/task-source/github-task-history.mjs
+          node --check scripts/task-source/fetch-newschool-unique-task.mjs
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          import {
+            HISTORY_PATH,
+            parseHistory,
+          } from './scripts/task-source/russian-task-history.mjs';
+
+          const history = parseHistory(readFileSync(HISTORY_PATH, 'utf8'));
+          console.log(`История прочитана: ${history.entries.length} записей.`);
+          NODE
+
+      - name: Проверить Remotion ДО отправки задания в n8n
         run: bash scripts/qa/check-project.sh
 
-      - name: Установить Playwright + Chromium
+      - name: Установить Playwright и Chromium
         run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright@1.63.0
+          ./node_modules/.bin/playwright install --with-deps chromium
 
-      - name: Тесты извлечения/валидации заданий
+      - name: Проверить извлечение и разделение заданий
         run: node scripts/task-source/test-newschool-lib.mjs
 
-      - name: Собрать и отправить задание в n8n
+      - name: Проверить сохранность зависимостей
+        run: git diff --exit-code -- package.json package-lock.json
+
+      - name: Выбрать новое задание, сохранить резерв и отправить в n8n
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_NEWSCHOOL_WEBHOOK_URL }}
-        run: |
-          node scripts/task-source/fetch-newschool-task.mjs
+        run: node scripts/task-source/fetch-newschool-unique-task.mjs
