@@ -66,6 +66,15 @@
       "condition_text": "В XIX веке ещё не были изобретены высоковольтные линии электропередачи переменного тока, обеспечивающие экономию энергии, поэтому цена на электричество была дорогой.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=53"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:36998565319",
+      "reserved_at": "2026-10-02T11:01:36.588Z",
+      "task_number": 7,
+      "condition_text": "опытные БУХГАЛТЕРЫ\nони ЕЗДЯТ\nпара НОСКОВ\nнет ВАФЕЛЬ\nИСПЕКЁТ пирог",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=53"
     }
   ]
 }
