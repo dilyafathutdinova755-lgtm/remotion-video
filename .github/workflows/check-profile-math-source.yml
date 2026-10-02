@@ -1,0 +1,64 @@
+name: Check profile math source (no publication)
+
+on:
+  push:
+    branches:
+      - profile-math-10
+    paths:
+      - '.github/workflows/check-profile-math-source.yml'
+      - 'scripts/task-source/profile-math-task-history.mjs'
+      - 'scripts/task-source/profile-math-github-history.mjs'
+      - 'scripts/task-source/fetch-newschool-profile-math-10.mjs'
+      - 'data/profile-math-10-task-history.json'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-profile-math-source-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Установить зависимости
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.63.0
+          ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Проверить синтаксис математических файлов
+        run: |
+          node --check scripts/task-source/profile-math-task-history.mjs
+          node --check scripts/task-source/profile-math-github-history.mjs
+          node --check scripts/task-source/fetch-newschool-profile-math-10.mjs
+
+      - name: Найти новое задание №10 без отправки
+        env:
+          GITHUB_TOKEN: ''
+          GH_TOKEN: ''
+          N8N_NEWSCHOOL_WEBHOOK_URL: ''
+        run: |
+          node scripts/task-source/fetch-newschool-profile-math-10.mjs --dry-run
+
+      - name: Убедиться, что тест ничего не изменил
+        run: |
+          git diff --exit-code -- \
+            data/profile-math-10-task-history.json \
+            package.json \
+            package-lock.json
