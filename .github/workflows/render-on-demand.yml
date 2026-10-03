@@ -181,6 +181,10 @@ jobs:
       - name: Рендер видео
         id: render
         run: |
+          node -e '
+            const fs=require("fs"),d=JSON.parse(fs.readFileSync("task_data.json")),a=JSON.parse(fs.readFileSync("align.json"));
+            if(d.video_structure_version==="profile-math-steps-v2" && (d.playback_speed!==1.2 || d.max_video_seconds!==60 || (a.totalSec-2)/1.2+2>59.9)) throw Error("Shorten math script before render: maximum 60 seconds, fixed 1.2x pace");
+          '
           COMPOSITION_ID=$(cat composition_id.txt)
 
           echo "composition_id=$COMPOSITION_ID" >> "$GITHUB_OUTPUT"
@@ -202,6 +206,50 @@ jobs:
             console.log(JSON.stringify({fps:v.avg_frame_rate,frames:v.nb_frames,duration:v.duration,timingSource:a._debug.timingSource,pauseSeconds:a.pauseSeconds}));
           '
 
+      - name: Ускорить готовое видео 1.2x без изменения высоты голоса; максимум 60 секунд
+        run: |
+          python3 - <<'PY'
+          import json, math, pathlib, subprocess
+          
+          def finish(task_path='task_data.json', align_path='align.json', video_path='out/dynamic.mp4'):
+              d=json.load(open(task_path)); a=json.load(open(align_path))
+              if d.get('video_structure_version')!='profile-math-steps-v2': return
+              if d.get('playback_speed')!=1.2 or d.get('max_video_seconds')!=60:
+                  raise ValueError('Missing explicit 1.2x / 60 second contract')
+              if a.get('pauseSeconds')!=2: raise ValueError('Expected two second pause')
+              fps=120; speed=1.2
+              task=next(s for s in a['segments'] if s['kind']=='task')
+              end_pause=round(task['endSec']*fps); start_pause=end_pause-240
+              total=round(a['totalSec']*fps)
+              ranges=[(0,start_pause,speed),(start_pause,end_pause,1),(end_pause,total,speed)]
+              out_frames=[math.ceil((hi-lo)/rate-1e-9) for lo,hi,rate in ranges]
+              expected=sum(out_frames)/fps
+              if expected>60 or expected<=2: raise ValueError(f'Video exceeds 60 seconds: {expected:.3f}; shorten script, never truncate or speed up excessively')
+              filters=[]
+              for i,((lo,hi,rate),frames) in enumerate(zip(ranges,out_frames)):
+                  duration=frames/fps
+                  filters.append(f'[0:v]trim=start_frame={lo}:end_frame={hi},setpts=(PTS-STARTPTS)/{rate},fps=120,tpad=stop_mode=clone:stop_duration=0.1,trim=end_frame={frames},setpts=PTS-STARTPTS[v{i}]')
+                  # Pitch-preserving tempo adjustment of the finished soundtrack, NOT TTS.
+                  # Keep pause audio digitally silent and exactly 2 seconds.
+                  if i==1:
+                      filters.append(f'anullsrc=r=48000:cl=stereo,atrim=duration=2,asetpts=PTS-STARTPTS[a{i}]')
+                  else:
+                      filters.append(f'[0:a]atrim=start={lo/fps:.9f}:end={hi/fps:.9f},asetpts=PTS-STARTPTS,atempo={rate},aresample=48000,aformat=channel_layouts=stereo,apad,atrim=duration={duration:.9f},asetpts=PTS-STARTPTS[a{i}]')
+              filters.append('[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]')
+              source=pathlib.Path(video_path); target=source.with_name('dynamic-paced.mp4')
+              subprocess.run(['ffmpeg','-v','error','-y','-i',str(source),'-filter_complex',';'.join(filters),'-map','[v]','-map','[a]','-c:v','libx264','-preset','fast','-crf','18','-r','120','-fps_mode','cfr','-c:a','aac','-b:a','192k','-movflags','+faststart',str(target)],check=True)
+              probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(target)]))
+              v=next(s for s in probe['streams'] if s['codec_type']=='video'); audio=next(s for s in probe['streams'] if s['codec_type']=='audio')
+              if v['avg_frame_rate']!='120/1' or v['r_frame_rate']!='120/1' or float(probe['format']['duration'])>60: raise ValueError('Final FPS/duration failure')
+              if abs(float(v['duration'])-expected)>1/fps+0.001 or abs(float(audio['duration'])-float(v['duration']))>0.08: raise ValueError('Final AV timing mismatch')
+              target.replace(source)
+              proof={'playbackSpeed':speed,'ttsSpeed':1,'pitchPreserved':True,'pauseSeconds':2,'pauseStartSeconds':out_frames[0]/fps,'expectedSeconds':expected,'fps':v['avg_frame_rate'],'frames':v['nb_frames'],'duration':probe['format']['duration']}
+              source.with_name('pacing-check.json').write_text(json.dumps(proof,indent=2))
+              print(json.dumps(proof))
+          
+          if __name__=='__main__': finish()
+          PY
+
       - uses: actions/upload-artifact@v4
         id: video_artifact
         with:
@@ -209,6 +257,7 @@ jobs:
           path: |
             out/dynamic.mp4
             out/video-probe.json
+            out/pacing-check.json
             align.json
             task_data.json
             audio_raw.mp3
