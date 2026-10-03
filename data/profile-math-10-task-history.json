@@ -41,6 +41,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/72574",
       "source_task_id": "72574"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37156259793",
+      "reserved_at": "2026-10-03T21:49:37.648Z",
+      "task_number": 10,
+      "condition_text": "Из городов \nA\nи \nB\nнавстречу друг другу выехали мотоциклист и велосипедист. Мотоциклист приехал в \nB\nна \n3\nчаса раньше, чем велосипедист приехал в \nA\n, а встретились они через минут\nминут\n48\n\nминут\nпосле выезда. Сколько часов затратил на путь из \nB\nв \nA\nвелосипедист?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/85787",
+      "source_task_id": "85787"
     }
   ]
 }
