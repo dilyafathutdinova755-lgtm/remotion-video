@@ -162,6 +162,7 @@ jobs:
           npx remotion render "$COMPOSITION_ID" out/dynamic.mp4
 
       - uses: actions/upload-artifact@v4
+        id: video_artifact
         with:
           name: video-${{ steps.prep.outputs.safe_id }}
           path: out/dynamic.mp4
@@ -294,6 +295,7 @@ jobs:
         env:
           TASK_ID: ${{ inputs.task_id }}
           N8N_PROFILE_MATH_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_PROFILE_MATH_VIDEO_READY_WEBHOOK_URL }}
+          VIDEO_URL: ${{ steps.drive_upload.outputs.link || steps.video_artifact.outputs.artifact-url }}
         run: |
           ACCOUNT=$(node -e "
             const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
@@ -319,6 +321,9 @@ jobs:
 
                 account:
                   process.env.ACCOUNT,
+
+                video_url:
+                  process.env.VIDEO_URL,
 
                 video_status:
                   'ready',
