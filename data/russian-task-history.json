@@ -93,6 +93,15 @@
       "condition_text": "ящик АБРИКОСОВ\nПОЛОЖИ на место\nпрыгал более ВЫШЕ\nПЯТИСОТЫЙ заказ\nуважаемые ДОКТОРА",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=95"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37118221155",
+      "reserved_at": "2026-10-03T11:02:58.551Z",
+      "task_number": 6,
+      "condition_text": "Увидев впереди конницу без артиллерии, Карпов понял, что это передовой авангард пехотной дивизии.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=96"
     }
   ]
 }
