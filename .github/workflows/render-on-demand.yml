@@ -183,7 +183,7 @@ jobs:
         run: |
           node -e '
             const fs=require("fs"),d=JSON.parse(fs.readFileSync("task_data.json")),a=JSON.parse(fs.readFileSync("align.json"));
-            if(d.video_structure_version==="profile-math-steps-v2" && (d.playback_speed!==1.2 || d.max_video_seconds!==60 || (a.totalSec-2)/1.2+2>59.9)) throw Error("Shorten math script before render: maximum 60 seconds, fixed 1.2x pace");
+            if(d.video_structure_version==="profile-math-steps-v2" && (d.playback_speed!==1.2 || d.max_video_seconds!==90 || (a.totalSec-2)/1.2+2>89.9)) throw Error("Shorten math script before render: maximum 90 seconds, fixed 1.2x pace");
           '
           COMPOSITION_ID=$(cat composition_id.txt)
 
@@ -206,7 +206,7 @@ jobs:
             console.log(JSON.stringify({fps:v.avg_frame_rate,frames:v.nb_frames,duration:v.duration,timingSource:a._debug.timingSource,pauseSeconds:a.pauseSeconds}));
           '
 
-      - name: Ускорить готовое видео 1.2x без изменения высоты голоса; максимум 60 секунд
+      - name: Ускорить готовое видео 1.2x без изменения высоты голоса; ориентир около минуты, защитный предел 90 секунд
         run: |
           python3 - <<'PY'
           import json, math, pathlib, subprocess
@@ -214,8 +214,8 @@ jobs:
           def finish(task_path='task_data.json', align_path='align.json', video_path='out/dynamic.mp4'):
               d=json.load(open(task_path)); a=json.load(open(align_path))
               if d.get('video_structure_version')!='profile-math-steps-v2': return
-              if d.get('playback_speed')!=1.2 or d.get('max_video_seconds')!=60:
-                  raise ValueError('Missing explicit 1.2x / 60 second contract')
+              if d.get('playback_speed')!=1.2 or d.get('max_video_seconds')!=90:
+                  raise ValueError('Missing explicit 1.2x / 90 second safety contract')
               if a.get('pauseSeconds')!=2: raise ValueError('Expected two second pause')
               fps=120; speed=1.2
               task=next(s for s in a['segments'] if s['kind']=='task')
@@ -224,7 +224,7 @@ jobs:
               ranges=[(0,start_pause,speed),(start_pause,end_pause,1),(end_pause,total,speed)]
               out_frames=[math.ceil((hi-lo)/rate-1e-9) for lo,hi,rate in ranges]
               expected=sum(out_frames)/fps
-              if expected>60 or expected<=2: raise ValueError(f'Video exceeds 60 seconds: {expected:.3f}; shorten script, never truncate or speed up excessively')
+              if expected>90 or expected<=2: raise ValueError(f'Video exceeds 90 seconds: {expected:.3f}; shorten script, never truncate or speed up excessively')
               filters=[]
               for i,((lo,hi,rate),frames) in enumerate(zip(ranges,out_frames)):
                   duration=frames/fps
@@ -240,7 +240,7 @@ jobs:
               subprocess.run(['ffmpeg','-v','error','-y','-i',str(source),'-filter_complex',';'.join(filters),'-map','[v]','-map','[a]','-c:v','libx264','-preset','fast','-crf','18','-r','120','-fps_mode','cfr','-c:a','aac','-b:a','192k','-movflags','+faststart',str(target)],check=True)
               probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(target)]))
               v=next(s for s in probe['streams'] if s['codec_type']=='video'); audio=next(s for s in probe['streams'] if s['codec_type']=='audio')
-              if v['avg_frame_rate']!='120/1' or v['r_frame_rate']!='120/1' or float(probe['format']['duration'])>60: raise ValueError('Final FPS/duration failure')
+              if v['avg_frame_rate']!='120/1' or v['r_frame_rate']!='120/1' or float(probe['format']['duration'])>90: raise ValueError('Final FPS/duration failure')
               if abs(float(v['duration'])-expected)>1/fps+0.001 or abs(float(audio['duration'])-float(v['duration']))>0.08: raise ValueError('Final AV timing mismatch')
               target.replace(source)
               proof={'playbackSpeed':speed,'ttsSpeed':1,'pitchPreserved':True,'pauseSeconds':2,'pauseStartSeconds':out_frames[0]/fps,'expectedSeconds':expected,'fps':v['avg_frame_rate'],'frames':v['nb_frames'],'duration':probe['format']['duration']}
