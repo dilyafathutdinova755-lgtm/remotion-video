@@ -102,6 +102,15 @@
       "condition_text": "Увидев впереди конницу без артиллерии, Карпов понял, что это передовой авангард пехотной дивизии.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=96"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37128094500",
+      "reserved_at": "2026-10-03T14:03:12.819Z",
+      "task_number": 7,
+      "condition_text": "самый МОЛОДОЙ сотрудник\nнет ЗАМОРОЗКОВ\nмного спелых ВИШЕН\nследы на СНЕГУ\nон более УГРЮМЕЕ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=96"
     }
   ]
 }
