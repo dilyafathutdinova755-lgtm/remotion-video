@@ -84,6 +84,15 @@
       "condition_text": "Посев семян хвойных пород необходимо проводить в очень оптимальные сроки, когда почва влажная и температура её верхних слоёв достигает 6−8 °С  — для кедра и 8−10 °С  — для ели и пихты.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=95"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37101605536",
+      "reserved_at": "2026-10-03T06:02:57.691Z",
+      "task_number": 7,
+      "condition_text": "ящик АБРИКОСОВ\nПОЛОЖИ на место\nпрыгал более ВЫШЕ\nПЯТИСОТЫЙ заказ\nуважаемые ДОКТОРА",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=95"
     }
   ]
 }
