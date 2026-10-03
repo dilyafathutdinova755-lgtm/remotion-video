@@ -51,6 +51,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/85787",
       "source_task_id": "85787"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37157121445",
+      "reserved_at": "2026-10-03T22:05:08.177Z",
+      "task_number": 10,
+      "condition_text": "Один мастер может выполнить заказ за 12 часов, а другой — за 6 часов. За сколько часов выполнят заказ оба мастера, работая вместе?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/86509",
+      "source_task_id": "86509"
     }
   ]
 }
