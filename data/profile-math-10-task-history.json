@@ -31,6 +31,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/86537",
       "source_task_id": "86537"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37155820801",
+      "reserved_at": "2026-10-03T21:41:16.953Z",
+      "task_number": 10,
+      "condition_text": "В сосуд, содержащий 6 литров 18-процентного водного раствора спирта, добавили 3 литра воды. Сколько процентов составляет концентрация получившегося раствора?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/72574",
+      "source_task_id": "72574"
     }
   ]
 }
