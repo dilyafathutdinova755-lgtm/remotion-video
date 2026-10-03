@@ -6,7 +6,7 @@ import {
   interpolate,
 } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../../theme";
-import { ProblemCard, Pill } from "../../ProblemText";
+import { Pill } from "../../ProblemText";
 import { useTask } from "../../TaskContext";
 import { isProfileMathStepsTask } from "../../tasks/types";
 import { fAt } from "./shared";
@@ -92,7 +92,17 @@ export const ProfileMathTaskScene: React.FC = () => {
           {task.instruction}
         </div>
 
-        <ProblemCard padding={44}>
+        <div
+          style={{
+            position: "relative",
+            overflow: "hidden",
+            padding: 44,
+            borderRadius: 34,
+            background: COLORS.card,
+            border: `2px solid ${COLORS.cardBorder}`,
+            boxShadow: `0 22px 60px ${COLORS.shadow}`,
+          }}
+        >
           {/* condition_text — только внутри карточки, неизменный, одним блоком. */}
           <div
             style={{
@@ -105,16 +115,16 @@ export const ProfileMathTaskScene: React.FC = () => {
           >
             {task.conditionText}
           </div>
-        </ProblemCard>
-
-        {/* Полоса чтения: до реальной границы task/pause, без звука. */}
+        {/* Полоса является нижним краем карточки; тайминг — до task/pause. */}
         <div role="progressbar" aria-label="Чтение условия"
           aria-valuemin={0} aria-valuemax={100}
           aria-valuenow={Math.round(Math.min(1, frame / Math.max(1, pauseWindowStartFrame)) * 100)}
-          style={{marginTop: 24, height: 7, width: "100%", borderRadius: 999,
+          style={{position: "absolute", bottom: 0, left: 0, right: 0, height: 7,
             overflow: "hidden", background: COLORS.accentFaint}}>
           <div style={{height: "100%", width: "100%", background: COLORS.accent,
             transformOrigin: "left", transform: `scaleX(${Math.min(1, frame / Math.max(1, pauseWindowStartFrame))})`}} />
+        </div>
+
         </div>
 
         {/* pause_prompt — ТОЛЬКО в финальные task.pauseSeconds секунд, не
