@@ -122,12 +122,16 @@ jobs:
           # narration_segments[].tts_text уже готов (отдельный узел n8n +
           # ChatGPT, затем ElevenLabs).
           if [ "$VERSION" = "profile-math-steps-v2" ]; then
+            if ! command -v ffmpeg >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y ffmpeg
+            fi
             python3 scripts/dynamic-task/align.py \
               --mode profile-math-steps-v2 \
               --task-data task_data.json \
               --audio-in audio_raw.mp3 \
               --audio-out audio_spliced.mp3 \
-              --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
+              --ffmpeg "$(command -v ffmpeg)" \
               > align.json
             cat align.json
             exit 0
@@ -183,11 +187,32 @@ jobs:
 
           npx remotion render "$COMPOSITION_ID" out/dynamic.mp4
 
+      - name: Проверить FPS и длительность математического видео
+        run: |
+          VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).video_structure_version || '')")
+          if [ "$VERSION" != "profile-math-steps-v2" ]; then exit 0; fi
+          ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate,avg_frame_rate,nb_frames,duration -of json out/dynamic.mp4 > out/video-probe.json
+          node -e '
+            const fs=require("fs");
+            const v=JSON.parse(fs.readFileSync("out/video-probe.json")).streams[0];
+            const a=JSON.parse(fs.readFileSync("align.json"));
+            if(v.r_frame_rate!=="120/1" || v.avg_frame_rate!=="120/1") throw Error("Expected actual CFR 120 FPS");
+            if(Math.abs(Number(v.nb_frames)/120-a.totalSec)>0.1) throw Error("Video/audio duration mismatch");
+            if(a._debug.timingSource!=="elevenlabs-character-alignment-v1") throw Error("Missing measured speech timestamps");
+            console.log(JSON.stringify({fps:v.avg_frame_rate,frames:v.nb_frames,duration:v.duration,timingSource:a._debug.timingSource,pauseSeconds:a.pauseSeconds}));
+          '
+
       - uses: actions/upload-artifact@v4
         id: video_artifact
         with:
           name: video-${{ steps.prep.outputs.safe_id }}
-          path: out/dynamic.mp4
+          path: |
+            out/dynamic.mp4
+            out/video-probe.json
+            align.json
+            task_data.json
+            audio_raw.mp3
+            audio_spliced.mp3
           retention-days: 30
 
       - name: Проверить наличие секретов для Google Drive
