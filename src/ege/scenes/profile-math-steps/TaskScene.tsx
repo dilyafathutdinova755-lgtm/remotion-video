@@ -50,7 +50,10 @@ export const ProfileMathTaskScene: React.FC = () => {
     durationInFrames: fAt(fps, 15),
   });
 
-  const sceneDurationSeconds = durationInFrames / fps;
+  const taskSegment = task.audioSync.segments.find((segment) => segment.kind === "task");
+  const sceneDurationSeconds = taskSegment
+    ? (Math.round(taskSegment.endSec * fps) - Math.round(taskSegment.startSec * fps)) / fps
+    : durationInFrames / fps;
   const pauseWindowStartFrame = Math.round(
     Math.max(0, sceneDurationSeconds - task.pauseSeconds) * fps,
   );
@@ -103,6 +106,16 @@ export const ProfileMathTaskScene: React.FC = () => {
             {task.conditionText}
           </div>
         </ProblemCard>
+
+        {/* Полоса чтения: до реальной границы task/pause, без звука. */}
+        <div role="progressbar" aria-label="Чтение условия"
+          aria-valuemin={0} aria-valuemax={100}
+          aria-valuenow={Math.round(Math.min(1, frame / Math.max(1, pauseWindowStartFrame)) * 100)}
+          style={{marginTop: 24, height: 7, width: "100%", borderRadius: 999,
+            overflow: "hidden", background: COLORS.accentFaint}}>
+          <div style={{height: "100%", width: "100%", background: COLORS.accent,
+            transformOrigin: "left", transform: `scaleX(${Math.min(1, frame / Math.max(1, pauseWindowStartFrame))})`}} />
+        </div>
 
         {/* pause_prompt — ТОЛЬКО в финальные task.pauseSeconds секунд, не
             озвучивается (в аудио там уже реальная тишина). */}
