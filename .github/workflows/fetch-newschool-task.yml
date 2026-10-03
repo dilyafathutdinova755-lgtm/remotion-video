@@ -1,4 +1,6 @@
-name: Fetch New School task
+# Math-only dispatch entrypoint on profile-math-10.
+# The production Russian branch is unchanged.
+name: Fetch profile math task 10
 
 on:
   workflow_dispatch: {}
@@ -7,80 +9,43 @@ permissions:
   contents: read
 
 concurrency:
-  group: ege-russian-unique-task-production
+  group: ege-profile-math-10-production
   cancel-in-progress: false
 
 jobs:
   fetch:
+    if: github.ref == 'refs/heads/profile-math-10'
     runs-on: ubuntu-24.04
     timeout-minutes: 35
 
     permissions:
       contents: write
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: profile-math-10
           persist-credentials: false
-
-      - name: Проверить рабочую ветку
-        run: |
-          set -euo pipefail
-          if [[ "${GITHUB_REF_TYPE:-}" != "branch" || "${GITHUB_REF_NAME:-}" != "claude/create-video-setup-u21u42" ]]; then
-            echo "::error::Источник разрешён только из рабочей ветки."
-            exit 1
-          fi
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Установить зафиксированные зависимости
-        run: npm ci
-
-      - name: Проверить новые файлы и локальную историю
+      - name: Install dependencies
         run: |
-          set -euo pipefail
-          node --check scripts/task-source/russian-task-history.mjs
-          node --check scripts/task-source/github-task-history.mjs
-          node --check scripts/task-source/fetch-newschool-unique-task.mjs
-          node --input-type=module <<'NODE'
-          import { readFileSync } from 'node:fs';
-          import {
-            HISTORY_PATH,
-            parseHistory,
-          } from './scripts/task-source/russian-task-history.mjs';
-
-          const history = parseHistory(readFileSync(HISTORY_PATH, 'utf8'));
-          console.log(`История прочитана: ${history.entries.length} записей.`);
-          NODE
-
-      - name: Проверить Remotion ДО отправки задания в n8n
-        run: bash scripts/qa/check-project.sh
-
-      - name: Установить Playwright и Chromium
-        run: |
-          set -euo pipefail
+          npm ci
           npm install --no-save --package-lock=false playwright@1.63.0
           ./node_modules/.bin/playwright install --with-deps chromium
 
-      - name: Проверить извлечение и разделение заданий
-        run: node scripts/task-source/test-newschool-lib.mjs
+      - name: Check math source files
+        run: |
+          node --check scripts/task-source/profile-math-task-history.mjs
+          node --check scripts/task-source/profile-math-github-history.mjs
+          node --check scripts/task-source/fetch-newschool-profile-math-10.mjs
 
-      - name: Проверить сохранность зависимостей
-        run: git diff --exit-code -- package.json package-lock.json
-
-      - name: Выбрать новое задание, сохранить резерв и отправить в n8n
+      - name: Find unique task 10 and send to math n8n
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_NEWSCHOOL_WEBHOOK_URL }}
-        run: node scripts/task-source/fetch-newschool-unique-task.mjs
+          N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_PROFILE_MATH_WEBHOOK_URL }}
+        run: node scripts/task-source/fetch-newschool-profile-math-10.mjs
