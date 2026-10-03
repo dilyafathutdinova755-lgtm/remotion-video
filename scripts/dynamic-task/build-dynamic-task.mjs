@@ -31,6 +31,10 @@ import {
   validateFourSlidesTaskData,
   validateFourSlidesTiming,
 } from "./four-slides.mjs";
+import {
+  validateProfileMathStepsTaskData,
+  validateProfileMathStepsTiming,
+} from "./profile-math-steps.mjs";
 
 const args = process.argv.slice(2);
 const flag = (name, required = true) => {
@@ -99,6 +103,8 @@ const hookFor = (id) => {
 
 if (taskData.video_structure_version === "four-slides-v1") {
   runFourSlidesV1();
+} else if (taskData.video_structure_version === "profile-math-steps-v2") {
+  runProfileMathStepsV2();
 } else {
   runLegacy();
 }
@@ -205,6 +211,132 @@ export const DYNAMIC_TASKS: TaskDef[] = [DYNAMIC_TASK];
   writeFileSync(outPath, source, "utf8");
   if (idOutPath) writeFileSync(idOutPath, id, "utf8");
   console.log(`Сгенерирован ${outPath} (four-slides-v1, id=${id}, palette=${palette})`);
+  process.exit(0);
+}
+
+/**
+ * video_structure_version="profile-math-steps-v2": жёсткая fail-fast
+ * проверка ДО генерации TaskDef (validateProfileMathStepsTaskData/
+ * validateProfileMathStepsTiming — единственный источник правды, см.
+ * profile-math-steps.mjs), затем прямая сборка ProfileMathStepsTaskDef из
+ * уже проверенных полей. Никаких догадок/фолбэков — explicit error вместо
+ * приблизительного рендера при любой непройденной проверке.
+ *
+ * Нормализацию произношения этот скрипт НЕ делает: instruction/
+ * condition_text/solution_steps[].lines — неизменный экранный текст,
+ * tts_text уже готов (нормализован отдельным узлом n8n + ChatGPT, затем
+ * озвучен ElevenLabs) и используется только align.py для выравнивания —
+ * сюда он не попадает вовсе.
+ */
+function runProfileMathStepsV2() {
+  const validation = validateProfileMathStepsTaskData(taskData);
+  if (!validation.ok) {
+    console.error(
+      'ОШИБКА: task_data не проходит fail-fast проверку video_structure_version="profile-math-steps-v2":',
+    );
+    for (const e of validation.errors) console.error(`  - ${e}`);
+    process.exit(1);
+  }
+
+  const segments = align.segments;
+  if (!Array.isArray(segments) || segments.length === 0) {
+    console.error('ОШИБКА: align.json (profile-math-steps-v2) не содержит непустого массива "segments".');
+    process.exit(1);
+  }
+
+  const timing = validateProfileMathStepsTiming(segments);
+  if (!timing.ok) {
+    console.error("ОШИБКА: тайминг profile-math-steps-v2 не проходит fail-fast проверку (см. segments):");
+    for (const e of timing.errors) console.error(`  - ${e}`);
+    process.exit(1);
+  }
+
+  // Сверка 1:1 с narration_segments из task_data: align.py и этот скрипт
+  // независимо читают один и тот же task_data.json, но align.json мог быть
+  // подготовлен по-другому/устареть между шагами CI — явная проверка лучше
+  // тихого рассинхрона id/kind/stepId между аудио-границами и сценами.
+  const expectedIds = taskData.narration_segments.map((s) => s.id);
+  const actualIds = segments.map((s) => s.id);
+  const idsMatch =
+    expectedIds.length === actualIds.length && expectedIds.every((id, i) => id === actualIds[i]);
+  if (!idsMatch) {
+    console.error(
+      "ОШИБКА: align.json segments[].id не совпадают 1:1 с task_data.narration_segments[].id " +
+        `(порядок/состав разошёлся). Ожидалось: [${expectedIds.join(", ")}], получено: [${actualIds.join(", ")}].`,
+    );
+    process.exit(1);
+  }
+
+  const totalSec = align.totalSec;
+  if (typeof totalSec !== "number" || Number.isNaN(totalSec)) {
+    console.error('ОШИБКА: align.json (profile-math-steps-v2) не содержит числового поля "totalSec".');
+    process.exit(1);
+  }
+
+  const id = sanitizeId(taskId ?? taskData.task_number ?? "task");
+  const palette = paletteFor(taskData.subject);
+  const hook = hookFor(id);
+  const taskNumber = Number(taskData.task_number) || 0;
+
+  const steps = taskData.solution_steps.map((s) => ({
+    id: String(s.id),
+    title: String(s.title),
+    lines: s.lines.map((l) => String(l)),
+  }));
+
+  const audioSyncSegments = segments.map((s) => ({
+    id: s.id,
+    kind: s.kind,
+    startSec: s.startSec,
+    endSec: s.endSec,
+    ...(s.kind === "solution" ? { stepId: s.stepId } : {}),
+  }));
+
+  const audioSync = {
+    src: audioSrc,
+    totalSec,
+    segments: audioSyncSegments,
+  };
+
+  const source = `// АВТОГЕНЕРИРОВАНО build-dynamic-task.mjs — не редактировать руками.
+// Источник: render-on-demand.yml, task_id = ${j(String(taskId ?? ""))}.
+// video_structure_version="profile-math-steps-v2". Перезаписывается
+// транзитно в CI и никогда не коммитится обратно.
+
+import type { ProfileMathStepsTaskDef, TaskDef } from "./types";
+
+const audioSync: ProfileMathStepsTaskDef["audioSync"] = ${JSON.stringify(audioSync, null, 2)};
+
+const steps: ProfileMathStepsTaskDef["steps"] = ${JSON.stringify(steps, null, 2)};
+
+export const DYNAMIC_TASK: ProfileMathStepsTaskDef = {
+  id: ${j(id)},
+  number: ${taskNumber},
+  examType: ${j(examType)},
+  subject: ${j(String(taskData.subject))},
+  palette: ${j(palette)},
+  pillLabel: "Задание",
+  videoStructureVersion: "profile-math-steps-v2",
+  hook: ${JSON.stringify(hook)},
+
+  instruction: ${j(String(taskData.instruction))},
+  conditionText: ${j(String(taskData.condition_text))},
+  steps,
+  ctaText: ${j(String(taskData.cta_text))},
+
+  pauseSeconds: ${JSON.stringify(Number(taskData.pause_seconds))},
+  pausePrompt: ${j(String(taskData.pause_prompt))},
+  renderFps: ${JSON.stringify(Number(taskData.render_fps))},
+
+  audioSync,
+};
+
+export const DYNAMIC_TASKS: TaskDef[] = [DYNAMIC_TASK];
+`;
+
+  writeFileSync(outPath, source, "utf8");
+  if (idOutPath) writeFileSync(idOutPath, id, "utf8");
+  console.log(`Сгенерирован ${outPath} (profile-math-steps-v2, id=${id}, palette=${palette}, fps=${taskData.render_fps})`);
   process.exit(0);
 }
 

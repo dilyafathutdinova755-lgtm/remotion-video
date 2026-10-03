@@ -240,11 +240,12 @@ def main():
         choices=[
             "legacy",
             "four-slides-v1",
+            "profile-math-steps-v2",
         ],
         default="legacy",
         help=(
-            "legacy (по умолчанию, полная обратная совместимость) "
-            "или four-slides-v1."
+            "legacy (по умолчанию, полная обратная совместимость), "
+            "four-slides-v1 или profile-math-steps-v2."
         ),
     )
 
@@ -290,6 +291,10 @@ def main():
 
     if args.mode == "four-slides-v1":
         run_four_slides_v1(args)
+        return
+
+    if args.mode == "profile-math-steps-v2":
+        run_profile_math_steps_v2(args)
         return
 
     run_legacy(args)
@@ -1373,6 +1378,219 @@ def run_four_slides_v1(args):
             indent=2,
         )
     )
+
+
+def run_profile_math_steps_v2(args):
+    """
+    Разметка для video_structure_version="profile-math-steps-v2" (см.
+    scripts/dynamic-task/profile-math-steps.mjs и
+    src/ege/scenes/profile-math-steps/).
+
+    В отличие от legacy и four-slides-v1, здесь ЛЮБОЕ количество spoken-
+    сегментов, а не фиксированный набор: narration_segments — explicit,
+    уже упорядоченный n8n'ом список {id, kind, text, tts_text, step_id?}
+    (intro → task → solution×N → cta). tts_text — ТОЧНО тот текст, что
+    реально ушёл в ElevenLabs (нормализацию делает отдельный узел n8n —
+    этот скрипт её не трогает и не пересчитывает).
+
+    Нужны границы МЕЖДУ КАЖДОЙ ПАРОЙ соседних сегментов (N-1 границ для N
+    сегментов) — не выборочные 2-3, как в four-slides-v1, а все: каждый
+    solution-сегмент становится отдельным слайдом-шагом, и у каждого
+    должна быть собственная реальная (forced-alignment) граница начала.
+
+    Пауза физически НЕ вставлена в исходное аудио (n8n намеренно её не
+    кладёт — см. постановку задачи) — ровно pause_seconds тишины
+    вставляется здесь, сразу после сегмента "task" (перед первым "solution"
+    сегментом), тем же способом (splice_silence/ffmpeg), что и в
+    four-slides-v1. Все границы ПОСЛЕ точки вставки сдвигаются на
+    +pause_seconds.
+
+    Как и в four-slides-v1: TOLERANCE_SEC — confidence gate, запрещающий
+    угадывание по проценту длины текста. Если ЛЮБАЯ из границ не находит
+    рядом правдоподобную реальную паузу — fail-fast, а не приблизительный
+    результат.
+    """
+
+    if not args.task_data:
+        print(
+            "ОШИБКА: --task-data обязателен для --mode profile-math-steps-v2.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    with open(args.task_data, "r", encoding="utf-8") as f:
+        task_data = json.load(f)
+
+    narration_segments = task_data.get("narration_segments")
+    if not isinstance(narration_segments, list) or len(narration_segments) < 4:
+        print(
+            "ОШИБКА: narration_segments должен быть массивом минимум из 4 "
+            "сегментов (intro, task, хотя бы один solution, cta).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    names = []
+    kinds = []
+    texts = []
+    for i, seg in enumerate(narration_segments):
+        seg_id = seg.get("id") if isinstance(seg, dict) else None
+        kind = seg.get("kind") if isinstance(seg, dict) else None
+        tts_text = seg.get("tts_text") if isinstance(seg, dict) else None
+        if not seg_id or not kind or not tts_text or not str(tts_text).strip():
+            print(
+                f"ОШИБКА: narration_segments[{i}] не содержит непустых "
+                "id/kind/tts_text.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        names.append(str(seg_id))
+        kinds.append(str(kind))
+        texts.append(str(tts_text).strip())
+
+    if kinds[0] != "intro" or kinds[1] != "task" or kinds[-1] != "cta":
+        print(
+            "ОШИБКА: narration_segments должен идти в порядке "
+            'intro, task, solution×N, cta — получено kinds: '
+            f"{kinds}.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    pause_seconds = task_data.get("pause_seconds")
+    try:
+        pause_seconds = float(pause_seconds)
+    except (TypeError, ValueError):
+        pause_seconds = 0.0
+
+    if not (pause_seconds > 0):
+        print(
+            "ОШИБКА: task_data.pause_seconds должен быть положительным "
+            f"числом, получено {task_data.get('pause_seconds')!r}.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    for flag, value in (("--audio-in", args.audio_in), ("--audio-out", args.audio_out)):
+        if not value:
+            print(
+                f"ОШИБКА: обязательный флаг {flag} не передан "
+                "(mode=profile-math-steps-v2).",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    word_counts = [len(t.split()) for t in texts]
+    if sum(word_counts) == 0:
+        print(
+            "ОШИБКА: во всех сегментах суммарно 0 слов — размётка невозможна.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    cum = []
+    acc = 0
+    for wc in word_counts:
+        acc += wc
+        cum.append(acc)
+    total_words = cum[-1]
+
+    total_sec = ffmpeg_duration(args.ffmpeg, args.audio_in)
+
+    # Тот же порог 0.25с, что и у four-slides-v1 (см. run_four_slides_v1) —
+    # реальные межсегментные паузы ElevenLabs в этом пайплайне короче
+    # старого 0.3с legacy-порога. Legacy выше не меняется.
+    candidates = silence_ends(args.ffmpeg, args.audio_in, args.noise_db, min_duration=0.25)
+    if not candidates:
+        print(
+            "ОШИБКА: silencedetect не нашёл ни одной паузы ≥0.25с в "
+            "исходном аудио — границы сегментов не определить.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Нужны ВСЕ N-1 границ (не выборочные, как в four-slides-v1) — у
+    # каждого solution-сегмента свой слайд, и каждому нужна своя реальная
+    # граница начала.
+    full_expected = [cum[i] / total_words * total_sec for i in range(len(names) - 1)]
+
+    aligned = align(full_expected, candidates)
+
+    TOLERANCE_SEC = 2.0
+    for i, (expected, got) in enumerate(zip(full_expected, aligned)):
+        if abs(got - expected) > TOLERANCE_SEC:
+            print(
+                "ОШИБКА: не удалось надёжно определить границу между "
+                f'сегментами "{names[i]}" и "{names[i + 1]}" — ожидали паузу '
+                f"около {expected:.2f}с по доле слов, ближайшая реальная "
+                f"пауза {got:.2f}с (расхождение {abs(got - expected):.2f}с "
+                f"превышает допуск {TOLERANCE_SEC}с). Разметить нельзя без "
+                "угадывания.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    # boundaries[i] — граница между сегментом i и сегментом i+1, на исходной
+    # (ещё без вставленной тишины) временной шкале.
+    boundaries = list(aligned)
+
+    # Пауза вставляется сразу после "task" (индекс 1) — перед первым
+    # "solution"-сегментом (индекс 2). cut_sec — это boundaries[1].
+    cut_idx = 1
+    cut_sec = boundaries[cut_idx]
+
+    splice_silence(args.ffmpeg, args.audio_in, args.audio_out, cut_sec, pause_seconds)
+
+    new_total_sec = total_sec + pause_seconds
+
+    spliced_duration = ffmpeg_duration(args.ffmpeg, args.audio_out)
+    if abs(spliced_duration - new_total_sec) > 1.0:
+        print(
+            f"ОШИБКА: после вставки тишины длительность файла "
+            f"({spliced_duration:.2f}с) не сходится с расчётной "
+            f"({new_total_sec:.2f}с) — склейка аудио, похоже, не удалась.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Границы ПОСЛЕ (и включая) точки вставки сдвигаются на +pause_seconds;
+    # до неё — не трогаются.
+    shifted_boundaries = [
+        b + pause_seconds if i >= cut_idx else b for i, b in enumerate(boundaries)
+    ]
+
+    starts = [0.0] + shifted_boundaries
+    ends = shifted_boundaries + [new_total_sec]
+
+    segments_out = []
+    for i, seg in enumerate(narration_segments):
+        entry = {
+            "id": names[i],
+            "kind": kinds[i],
+            "startSec": round(starts[i], 3),
+            "endSec": round(ends[i], 3),
+        }
+        if kinds[i] == "solution":
+            entry["stepId"] = str(seg.get("step_id"))
+        segments_out.append(entry)
+
+    result = {
+        "totalSec": round(new_total_sec, 3),
+        "pauseSeconds": round(pause_seconds, 3),
+        "segments": segments_out,
+        "audioOut": args.audio_out,
+        "_debug": {
+            "names": names,
+            "kinds": kinds,
+            "wordCounts": word_counts,
+            "candidates": candidates,
+            "fullExpected": [round(x, 2) for x in full_expected],
+            "boundaries": [round(x, 3) for x in boundaries],
+            "cutSec": round(cut_sec, 3),
+        },
+    }
+
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

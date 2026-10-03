@@ -250,10 +250,82 @@ export type FourSlidesTaskDef = {
 };
 
 /**
+ * Один сегмент озвучки у video_structure_version="profile-math-steps-v2" —
+ * реальная (forced-alignment) граница в уже склеенном (с реальной паузой
+ * после "task") аудиофайле. kind="solution" дополнительно несёт stepId,
+ * которым сцена находит соответствующий ProfileMathStep.
+ */
+export type ProfileMathNarrationSegment = {
+  id: string;
+  kind: "intro" | "task" | "solution" | "cta";
+  startSec: number;
+  endSec: number;
+  stepId?: string;
+};
+
+/** Один слайд решения — экранные данные (НЕ озвучка: voiceover_text туда не входит). */
+export type ProfileMathStep = {
+  id: string;
+  title: string;
+  lines: string[];
+};
+
+/**
+ * Тайминг для video_structure_version="profile-math-steps-v2" — реальные
+ * (forced-alignment) границы КАЖДОГО сегмента (intro/task/шаги/cta), не
+ * выборочные, как у four-slides-v1: каждому шагу решения нужна собственная
+ * реальная граница начала (см. align.py: run_profile_math_steps_v2).
+ */
+export type ProfileMathAudioSync = {
+  /** Путь к файлу в public/, без ведущего слэша — для staticFile(). */
+  src: string;
+  /** Полная длительность аудио (после вставки паузы) в секундах. */
+  totalSec: number;
+  segments: ProfileMathNarrationSegment[];
+};
+
+/**
+ * Полное описание ролика по контракту profile-math-steps-v2 (см.
+ * build-dynamic-task.mjs: runProfileMathStepsV2). Сознательно НЕ расширяет
+ * TaskCommon — своя жёстко зафиксированная структура, как у FourSlidesTaskDef.
+ *
+ * Ответ — часть последнего ProfileMathStep (его строка lines), отдельного
+ * answer-слайда в этом контракте НЕТ (separate_answer_slide всегда false —
+ * см. profile-math-steps.mjs: validateProfileMathStepsTaskData).
+ */
+export type ProfileMathStepsTaskDef = {
+  id: string;
+  number: number;
+  examType?: "ege" | "oge";
+  subject?: string;
+  palette?: PaletteName;
+  pillLabel?: string;
+  videoStructureVersion: "profile-math-steps-v2";
+  /** Хук-вопрос титульного слайда — тот же визуальный язык, что у HookVisual. */
+  hook?: string | string[];
+
+  /** Неизменные экранные instruction/condition_text — ровно то, что прислал n8n. */
+  instruction: string;
+  conditionText: string;
+  steps: ProfileMathStep[];
+  ctaText: string;
+
+  pauseSeconds: number;
+  pausePrompt: string;
+  /** Композиция рендерится на этом fps (а не на общем VIDEO.fps) — см. Root.tsx: fpsFor. */
+  renderFps: number;
+
+  audioSync: ProfileMathAudioSync;
+};
+
+/**
  * Полное описание задачи. Всё, что меняется от ролика к ролику, живёт
  * здесь; сцены забирают это из контекста и остаются общими.
  */
-export type TaskDef = (TaskCommon & (ValueAnswer | ConceptAnswer)) | FourSlidesTaskDef;
+export type TaskDef =
+  | (TaskCommon & (ValueAnswer | ConceptAnswer))
+  | FourSlidesTaskDef
+  | ProfileMathStepsTaskDef;
 
 /** Задача с ответом-значением: сцена ответа работает только с такими. */
 export type ValueTask = TaskCommon & ValueAnswer;
@@ -261,6 +333,10 @@ export type ValueTask = TaskCommon & ValueAnswer;
 /** Различает контракт four-slides-v1 от старой модели без приведения типов. */
 export const isFourSlidesTask = (task: TaskDef): task is FourSlidesTaskDef =>
   "videoStructureVersion" in task && task.videoStructureVersion === "four-slides-v1";
+
+/** Различает контракт profile-math-steps-v2 от старой модели без приведения типов. */
+export const isProfileMathStepsTask = (task: TaskDef): task is ProfileMathStepsTaskDef =>
+  "videoStructureVersion" in task && task.videoStructureVersion === "profile-math-steps-v2";
 
 /**
  * Кегль ответа: длинное слово вроде «преследовало» в 132 пункта не влезает

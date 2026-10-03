@@ -55,16 +55,18 @@ jobs:
         env:
           TASK_ID: ${{ inputs.task_id }}
         run: |
-          # video_structure_version="four-slides-v1" — совсем другой набор
-          # обязательных полей (intro_text/instruction/.../answer_voiceover_
-          # text/cta_text/pause_seconds, см. scripts/dynamic-task/four-
-          # slides.mjs), а не condition_text/voiceover_text старой модели.
-          # Полная fail-fast проверка происходит позже, в build-dynamic-
-          # task.mjs (validateFourSlidesTaskData) — здесь только минимум,
-          # без которого не собрать даже safe_id/дальнейшие шаги.
+          # video_structure_version="four-slides-v1"/"profile-math-steps-v2"
+          # — у каждого совсем другой набор обязательных полей (см.
+          # scripts/dynamic-task/four-slides.mjs и
+          # scripts/dynamic-task/profile-math-steps.mjs), а не condition_text/
+          # voiceover_text старой модели. Полная fail-fast проверка
+          # происходит позже, в build-dynamic-task.mjs
+          # (validateFourSlidesTaskData/validateProfileMathStepsTaskData) —
+          # здесь только минимум, без которого не собрать даже safe_id/
+          # дальнейшие шаги.
           node -e "
             const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
-            const fields = d.video_structure_version === 'four-slides-v1'
+            const fields = (d.video_structure_version === 'four-slides-v1' || d.video_structure_version === 'profile-math-steps-v2')
               ? ['exam','subject','task_number']
               : ['exam','subject','task_number','condition_text','answer','voiceover_text'];
             for (const f of fields) {
@@ -102,6 +104,26 @@ jobs:
           if [ "$VERSION" = "four-slides-v1" ]; then
             python3 scripts/dynamic-task/align.py \
               --mode four-slides-v1 \
+              --task-data task_data.json \
+              --audio-in audio_raw.mp3 \
+              --audio-out audio_spliced.mp3 \
+              --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
+              > align.json
+            cat align.json
+            exit 0
+          fi
+
+          # profile-math-steps-v2 (математический профиль №10) — N spoken-
+          # сегментов (intro/task/шаги решения/cta), explicit список в
+          # task_data.narration_segments; align.py находит РЕАЛЬНУЮ границу
+          # между КАЖДОЙ парой сегментов и физически вставляет pause_seconds
+          # тишины сразу после "task" (см. align.py: run_profile_math_steps_v2).
+          # Нормализацию произношения этот шаг не делает и не трогает —
+          # narration_segments[].tts_text уже готов (отдельный узел n8n +
+          # ChatGPT, затем ElevenLabs).
+          if [ "$VERSION" = "profile-math-steps-v2" ]; then
+            python3 scripts/dynamic-task/align.py \
+              --mode profile-math-steps-v2 \
               --task-data task_data.json \
               --audio-in audio_raw.mp3 \
               --audio-out audio_spliced.mp3 \

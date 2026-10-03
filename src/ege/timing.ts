@@ -7,14 +7,21 @@
  */
 
 import { VIDEO } from "./theme";
-import { isFourSlidesTask, type FourSlidesTaskDef, type TaskDef, type Token } from "./tasks/types";
+import {
+  isFourSlidesTask,
+  isProfileMathStepsTask,
+  type FourSlidesTaskDef,
+  type ProfileMathStepsTaskDef,
+  type TaskDef,
+  type Token,
+} from "./tasks/types";
 
 /**
- * Старая модель задачи (всё, кроме four-slides-v1) — buildScenes() и всё,
- * что она использует, рассчитаны только на эту форму; four-slides-v1 своя
- * тайминг-логика ниже (buildFourSlidesScenes/totalFourSlidesFrames).
+ * Старая модель задачи (всё, кроме four-slides-v1 и profile-math-steps-v2)
+ * — buildScenes() и всё, что она использует, рассчитаны только на эту
+ * форму; у остальных контрактов своя тайминг-логика ниже.
  */
-type OldTaskDef = Exclude<TaskDef, FourSlidesTaskDef>;
+type OldTaskDef = Exclude<TaskDef, FourSlidesTaskDef | ProfileMathStepsTaskDef>;
 
 export const sec = (s: number) => Math.round(s * VIDEO.fps);
 
@@ -182,8 +189,64 @@ export const totalFrames = (task: OldTaskDef): number => {
   );
 };
 
+/**
+ * Тайминг для video_structure_version="profile-math-steps-v2". В отличие
+ * от sec()/f30() выше (которые читают ОБЩИЙ VIDEO.fps — 60 для всех
+ * остальных предметов), здесь кадры считаются от task.renderFps: эта
+ * композиция рендерится на СВОЁМ fps (120), не трогая общий VIDEO.fps и
+ * поведение любых других предметов (см. Root.tsx: fpsFor).
+ *
+ * Границы всех сцен (Title/Task/каждый Step/CTA) приходят НАПРЯМУЮ из
+ * audioSync.segments — реальных forced-alignment границ (см. align.py:
+ * run_profile_math_steps_v2), а не оценки по словам. Title (intro) и
+ * Task(condition) — отдельные сцены; каждый solution-сегмент — отдельный
+ * слайд-шаг; CTA — последний сегмент.
+ */
+export const secAt = (fps: number, s: number): number => Math.round(s * fps);
+
+export type ProfileMathScenes = {
+  title: number;
+  task: number;
+  steps: number[];
+  outro: number;
+};
+
+export const buildProfileMathStepsScenes = (
+  task: ProfileMathStepsTaskDef,
+): ProfileMathScenes => {
+  const fps = task.renderFps;
+  const segs = task.audioSync.segments;
+
+  const introSeg = segs.find((s) => s.kind === "intro");
+  const taskSeg = segs.find((s) => s.kind === "task");
+  const ctaSeg = segs.find((s) => s.kind === "cta");
+  const solutionSegs = segs.filter((s) => s.kind === "solution");
+
+  if (!introSeg || !taskSeg || !ctaSeg || solutionSegs.length === 0) {
+    throw new Error(
+      "buildProfileMathStepsScenes: audioSync.segments не содержит " +
+        "intro/task/solution×N/cta — тайминг не собран (см. align.py).",
+    );
+  }
+
+  return {
+    title: secAt(fps, introSeg.endSec - introSeg.startSec),
+    task: secAt(fps, taskSeg.endSec - taskSeg.startSec),
+    steps: solutionSegs.map((s) => secAt(fps, s.endSec - s.startSec)),
+    outro: secAt(fps, ctaSeg.endSec - ctaSeg.startSec),
+  };
+};
+
+export const totalProfileMathStepsFrames = (task: ProfileMathStepsTaskDef): number => {
+  const s = buildProfileMathStepsScenes(task);
+  return s.title + s.task + s.steps.reduce((a, b) => a + b, 0) + s.outro;
+};
+
 /** Диспетчер по video_structure_version — нужен там, где список задач
- * смешивает старую модель и four-slides-v1 (Root.tsx: <Composition>
- * перебирает все TASKS одним циклом). */
-export const totalFramesFor = (task: TaskDef): number =>
-  isFourSlidesTask(task) ? totalFourSlidesFrames(task) : totalFrames(task);
+ * смешивает старую модель, four-slides-v1 и profile-math-steps-v2
+ * (Root.tsx: <Composition> перебирает все TASKS одним циклом). */
+export const totalFramesFor = (task: TaskDef): number => {
+  if (isFourSlidesTask(task)) return totalFourSlidesFrames(task);
+  if (isProfileMathStepsTask(task)) return totalProfileMathStepsFrames(task);
+  return totalFrames(task);
+};

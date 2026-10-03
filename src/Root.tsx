@@ -3,7 +3,17 @@ import { Composition } from "remotion";
 import { EgeVideo } from "./ege/EgeVideo";
 import { totalFramesFor } from "./ege/timing";
 import { VIDEO } from "./ege/theme";
-import type { TaskDef } from "./ege/tasks/types";
+import { isProfileMathStepsTask, type TaskDef } from "./ege/tasks/types";
+
+/**
+ * profile-math-steps-v2 рендерится на СВОЁМ render_fps (120), а не на общем
+ * VIDEO.fps (60, как у всех остальных предметов) — см. отчёт по фиксу №4.
+ * Composition поддерживает это нативно (fps — проп на уровне композиции),
+ * поэтому достаточно разного значения в этом единственном месте; остальные
+ * предметы продолжают рендериться на VIDEO.fps без единого изменения.
+ */
+const fpsFor = (task: TaskDef): number =>
+  isProfileMathStepsTask(task) ? task.renderFps : VIDEO.fps;
 
 import { task10 } from "./ege/tasks/task10";
 import { task11 } from "./ege/tasks/task11";
@@ -66,7 +76,7 @@ export const RemotionRoot: React.FC = () => (
         id={task.id}
         component={() => <EgeVideo task={task} />}
         durationInFrames={totalFramesFor(task)}
-        fps={VIDEO.fps}
+        fps={fpsFor(task)}
         width={VIDEO.width}
         height={VIDEO.height}
       />
