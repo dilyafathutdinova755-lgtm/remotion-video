@@ -1,0 +1,39 @@
+name: Check short math video
+on:
+  push:
+    branches: [profile-math-10]
+    paths:
+      - 'src/ege/scenes/profile-math-steps/**'
+      - '.github/workflows/render-on-demand.yml'
+      - '.github/workflows/check-short-math.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - name: Type-check all scenes
+        run: npx tsc --noEmit
+      - name: Existing math, four-slide and pronunciation regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t tests < <(find scripts -type f \( -name 'test-profile-math-steps.mjs' -o -name 'test-four-slides.mjs' -o -name 'test-normalize-for-voiceover.mjs' \))
+          if [ "${#tests[@]}" -lt 3 ]; then echo 'Required regression suites missing'; exit 1; fi
+          for test in "${tests[@]}"; do node "$test"; done
+      - name: Real audio alignment regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t tests < <(find scripts -type f \( -name 'test_align_profile_math_steps.py' -o -name 'test_align_four_slides.py' \))
+          if [ "${#tests[@]}" -lt 2 ]; then echo 'Required audio suites missing'; exit 1; fi
+          for test in "${tests[@]}"; do python3 "$test"; done
