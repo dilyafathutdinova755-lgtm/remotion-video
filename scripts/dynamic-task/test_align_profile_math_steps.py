@@ -6,13 +6,13 @@ subprocess'ом — тот же подход, что и test_align_four_slides.p
 
 Проверяет:
   - все N-1 границ между сегментами (intro/task/шаг×N/cta) находятся
-    реальным forced alignment, а не оценкой по доле длины текста;
+    по измеренным timestamps ElevenLabs, а не по доле длины текста;
   - ровно pause_seconds (ИМЕННО то, что прислал n8n, здесь 2с = 240 кадров
     на render_fps=120 — проверяется отдельно арифметически) реальной тишины
     физически вставляется сразу после "task", перед первым "solution";
   - все границы ПОСЛЕ точки вставки корректно сдвинуты на +pause_seconds;
-  - когда в аудио нет пауз рядом с ожидаемой позицией — fail-fast
-    (exit != 0), а не угадывание по проценту длины текста;
+  - отсутствие timestamps, несовпадение transcript и пересечение сегментов
+    приводят к fail-fast без угадывания границ;
   - структурный fail-fast (отсутствует narration_segments/неверный порядок).
 
 Использование:
@@ -22,6 +22,7 @@ subprocess'ом — тот же подход, что и test_align_four_slides.p
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -29,7 +30,7 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(os.path.dirname(HERE))
 ALIGN_PY = os.path.join(HERE, "align.py")
-FFMPEG = os.path.join(REPO_ROOT, "node_modules", "@remotion", "compositor-linux-x64-gnu", "ffmpeg")
+FFMPEG = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or ""
 
 passed = 0
 failed = 0
@@ -111,7 +112,7 @@ def run_align(task_data, tmp, audio_in, audio_out):
 
 
 def base_task_data(pause_seconds=2, render_fps=120):
-    return {
+    data = {
         "video_structure_version": "profile-math-steps-v2",
         "exam": "ЕГЭ",
         "subject": "профильная математика",
@@ -137,6 +138,14 @@ def base_task_data(pause_seconds=2, render_fps=120):
             {"id": "cta", "kind": "cta", "text": "...", "tts_text": "Скачивай бесплатно ссылка в шапке профиля"},
         ],
     }
+    data["voiceover_tts_text"] = "\n\n".join(s["tts_text"] for s in data["narration_segments"])
+    measured = []
+    start = 1.0
+    for segment, duration in zip(data["narration_segments"], [1.8, 3.5, 2.5, 2.3, 3.0, 1.5]):
+        measured.append({**segment, "start_sec": start, "end_sec": start + duration})
+        start += duration + 0.5
+    data["narration_timing"] = {"source": "elevenlabs-character-alignment-v1", "segments": measured}
+    return data
 
 
 def main():
@@ -158,6 +167,13 @@ def main():
             data = json.loads(out)
 
             segments = data["segments"]
+            measured = task_data["narration_timing"]["segments"]
+            expected = [(a["end_sec"] + b["start_sec"]) / 2 for a,b in zip(measured, measured[1:])]
+            assert data["_debug"]["timingSource"] == "elevenlabs-character-alignment-v1"
+            for actual, boundary in zip(data["_debug"]["boundaries"], expected):
+                assert abs(actual - boundary) < 1e-8
+            for i, boundary in enumerate(expected):
+                assert abs(segments[i]["endSec"] - boundary - (2 if i >= 1 else 0)) < 1e-4
             assert [s["id"] for s in segments] == [
                 "intro", "task", "step-1", "step-2", "step-3", "cta",
             ], f"неверный порядок/состав сегментов: {segments}"
@@ -202,26 +218,29 @@ def main():
             t_happy_path,
         )
 
-        audio_bad = os.path.join(tmp, "bad.mp3")
-        audio_bad_out = os.path.join(tmp, "bad_out.mp3")
-        # Сегменты идут вплотную, без пауз — реальных границ в файле нет.
-        build_tone_audio(audio_bad, [1.8, 3.5, 2.5, 2.3, 3.0, 1.5], gap=0.0, lead=1.0)
-
-        def t_no_reliable_boundary():
-            task_data = base_task_data()
-            code, out, err = run_align(task_data, tmp, audio_bad, audio_bad_out)
-            assert code != 0, "align.py должен был отказаться (fail-fast), но завершился успешно"
-            assert "надёжно определить границу" in err, f"ожидали сообщение про ненадёжную границу: {err}"
-            assert not os.path.exists(audio_bad_out), "audio_out не должен быть создан при fail-fast"
-
-        check("невозможно надёжно определить границу → fail-fast, файл не создан", t_no_reliable_boundary)
+        def t_invalid_timing():
+            for mode in ["missing", "transcript", "overlap", "no_gap"]:
+                task_data = base_task_data()
+                if mode == "missing":
+                    del task_data["narration_timing"]
+                elif mode == "transcript":
+                    task_data["narration_timing"]["segments"][1]["tts_text"] = "другое условие"
+                elif mode == "overlap":
+                    task_data["narration_timing"]["segments"][2]["start_sec"] = 0
+                else:
+                    task_data["narration_timing"]["segments"][2]["start_sec"] = task_data["narration_timing"]["segments"][1]["end_sec"]
+                output = os.path.join(tmp, mode + ".mp3")
+                code, out, err = run_align(task_data, tmp, audio_in, output)
+                assert code != 0, f"invalid timing accepted: {mode}"
+                assert not os.path.exists(output), mode
+        check("нет timestamps / другой transcript / пересечение / нет места для стыка → fail-fast", t_invalid_timing)
 
         def t_missing_narration_segments():
             task_data = base_task_data()
             del task_data["narration_segments"]
             code, out, err = run_align(task_data, tmp, audio_in, os.path.join(tmp, "unused1.mp3"))
             assert code != 0
-            assert "narration_segments" in err
+            assert "missing narration segments" in err
 
         check("narration_segments отсутствует → fail-fast", t_missing_narration_segments)
 
@@ -232,7 +251,7 @@ def main():
             segs[1], segs[2] = segs[2], segs[1]
             code, out, err = run_align(task_data, tmp, audio_in, os.path.join(tmp, "unused2.mp3"))
             assert code != 0
-            assert "intro, task, solution" in err or "kinds" in err
+            assert "invalid narration order" in err
 
         check("narration_segments не в порядке intro→task→solution×N→cta → fail-fast", t_wrong_order)
 
@@ -240,7 +259,7 @@ def main():
             task_data = base_task_data(pause_seconds=0)
             code, out, err = run_align(task_data, tmp, audio_in, os.path.join(tmp, "unused3.mp3"))
             assert code != 0
-            assert "pause_seconds" in err
+            assert "2 second pause" in err
 
         check("pause_seconds=0 → fail-fast", t_zero_pause)
 
