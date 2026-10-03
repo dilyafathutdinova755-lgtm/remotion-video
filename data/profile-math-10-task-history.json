@@ -1,5 +1,16 @@
 {
   "schema_version": 1,
   "scope": "ege_profile_math_10",
-  "entries": []
+  "entries": [
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37134833204",
+      "reserved_at": "2026-10-03T15:55:22.240Z",
+      "task_number": 10,
+      "condition_text": "В сосуд, содержащий 13 литров 29–процентного водного раствора некоторого вещества, добавили 16 литров воды. Сколько процентов составляет концентрация получившегося раствора?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/23160",
+      "source_task_id": "23160"
+    }
+  ]
 }
