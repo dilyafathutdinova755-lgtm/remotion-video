@@ -129,6 +129,15 @@
       "condition_text": "модных САПОГОВ\nоколо ШЕСТИСОТ рублей\nнет ТУФЕЛЬ\nДЕВЯТЬЮСТАМИ отдыхающими\nуважаемые ПРОФЕССОРА",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=97"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37207630466",
+      "reserved_at": "2026-10-04T14:03:21.474Z",
+      "task_number": 6,
+      "condition_text": "Судьба подарила нам бесплатно этот безоблачно-яркий день, и мы стоим на снежной вершине Альп.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=45"
     }
   ]
 }
