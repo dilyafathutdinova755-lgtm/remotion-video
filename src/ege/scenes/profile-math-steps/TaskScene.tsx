@@ -74,6 +74,19 @@ export const ProfileMathTaskScene: React.FC = () => {
           transform: `translateY(${interpolate(enter, [0, 1], [30, 0])}px)`,
         }}
       >
+        {task.instruction ? (
+          <div style={{
+            fontFamily: FONTS.body,
+            fontWeight: 400,
+            fontSize: problemSizeFor(task.instruction),
+            lineHeight: 1.3,
+            color: COLORS.text,
+            marginBottom: 30,
+            whiteSpace: "pre-line",
+          }}>
+            {task.instruction}
+          </div>
+        ) : null}
         <div
           style={{
             position: "relative",

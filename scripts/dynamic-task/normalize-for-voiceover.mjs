@@ -1461,7 +1461,7 @@ export function normalizeChemistry(text) {
     (_, name, locants) => name + ' ' + locants.split(',').map(numberToRussianWords).join(', '));
   out = out.replace(/(?<![\p{L}\p{N}])(\d+(?:,\d+)*)[-–](?=[А-Яа-яЁё])/gu,
     (_, locants) => locants.split(',').map(numberToRussianWords).join(', ') + ' ');
-  out = out.replace(/(^|\s)([1-9])\)\s*/gu, (_, space, n) => space + 'Вариант ' + numberToRussianWords(n) + '. ');
+  out = out.replace(/(^|\s)([1-9])\)\s*/gu, (_, space) => space ? '. ' : '');
   return normalizeCommon(out);
 }
 

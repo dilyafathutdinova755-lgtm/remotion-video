@@ -320,6 +320,10 @@ check(
   checkTrue("full example: нет голых цифр", !/\d/.test(normalized));
 }
 
+check("chem: option labels silent", N("1) Стирол 2) Гептен-1", "chemistry"), "Стирол. Гептен один");
+check("chem: locants retained", N("Гептен-1; пентадиен-1,4", "chemistry"), "Гептен один; пентадиен один, четыре");
+checkTrue("chem: no variant announcements", !N("1) Пропеновая кислота 2) Гептен-1", "chemistry").includes("Вариант"));
+
 if (failed > 0) {
   console.error(`\nПровалено: ${failed}. Пройдено: ${passed}.`);
   process.exit(1);
