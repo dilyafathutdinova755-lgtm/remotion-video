@@ -111,6 +111,15 @@
       "condition_text": "самый МОЛОДОЙ сотрудник\nнет ЗАМОРОЗКОВ\nмного спелых ВИШЕН\nследы на СНЕГУ\nон более УГРЮМЕЕ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=96"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37181490290",
+      "reserved_at": "2026-10-04T06:03:48.858Z",
+      "task_number": 6,
+      "condition_text": "Главную суть своей книги учёный изложил на научной конференции.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=97"
     }
   ]
 }
