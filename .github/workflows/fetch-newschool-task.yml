@@ -1,6 +1,6 @@
-# Biology-only dispatch entrypoint on biology-3.
+# Chemistry-only dispatch entrypoint on chemistry-11.
 # The production Russian branch is unchanged.
-name: Fetch biology task 3
+name: Fetch chemistry task 3
 
 on:
   workflow_dispatch: {}
@@ -9,12 +9,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: ege-biology-3-production
+  group: ege-chemistry-11-production
   cancel-in-progress: false
 
 jobs:
   fetch:
-    if: github.ref == 'refs/heads/biology-3'
+    if: github.ref == 'refs/heads/chemistry-11'
     runs-on: ubuntu-24.04
     timeout-minutes: 35
 
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: biology-3
+          ref: chemistry-11
           persist-credentials: false
 
       - uses: actions/setup-node@v4
@@ -38,14 +38,14 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.63.0
           ./node_modules/.bin/playwright install --with-deps chromium
 
-      - name: Check biology source files
+      - name: Check chemistry source files
         run: |
-          node --check scripts/task-source/biology-task-history.mjs
-          node --check scripts/task-source/biology-github-history.mjs
-          node --check scripts/task-source/fetch-newschool-biology-3.mjs
+          node --check scripts/task-source/chemistry-task-history.mjs
+          node --check scripts/task-source/chemistry-github-history.mjs
+          node --check scripts/task-source/fetch-newschool-chemistry-11.mjs
 
-      - name: Find unique task 3 and send to biology n8n
+      - name: Find unique task 3 and send to chemistry n8n
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_BIOLOGY_WEBHOOK_URL }}
-        run: node scripts/task-source/fetch-newschool-biology-3.mjs
+          N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_CHEMISTRY_WEBHOOK_URL }}
+        run: node scripts/task-source/fetch-newschool-chemistry-11.mjs

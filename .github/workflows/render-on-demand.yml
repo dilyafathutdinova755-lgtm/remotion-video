@@ -23,7 +23,7 @@ on:
 
 jobs:
   render:
-    if: github.ref == 'refs/heads/biology-3'
+    if: github.ref == 'refs/heads/chemistry-11'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -56,7 +56,7 @@ jobs:
         env:
           TASK_ID: ${{ inputs.task_id }}
         run: |
-          # video_structure_version="four-slides-v1"/"biology-steps-v1"
+          # video_structure_version="four-slides-v1"/"chemistry-steps-v1"
           # — у каждого совсем другой набор обязательных полей (см.
           # scripts/dynamic-task/four-slides.mjs и
           # scripts/dynamic-task/profile-math-steps.mjs), а не condition_text/
@@ -67,8 +67,8 @@ jobs:
           # дальнейшие шаги.
           node -e "
             const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
-            if (d.exam !== 'ЕГЭ' || d.subject !== 'биология' || Number(d.task_number) !== 3 || d.account !== 'ege_biology' || d.video_structure_version !== 'biology-steps-v1') { throw new Error('Wrong biology scope'); }
-            const fields = (d.video_structure_version === 'four-slides-v1' || d.video_structure_version === 'biology-steps-v1')
+            if (d.exam !== 'ЕГЭ' || d.subject !== 'химия' || Number(d.task_number) !== 11 || d.account !== 'ege_chemistry' || d.video_structure_version !== 'chemistry-steps-v1') { throw new Error('Wrong chemistry scope'); }
+            const fields = (d.video_structure_version === 'four-slides-v1' || d.video_structure_version === 'chemistry-steps-v1')
               ? ['exam','subject','task_number']
               : ['exam','subject','task_number','condition_text','answer','voiceover_text'];
             for (const f of fields) {
@@ -115,7 +115,7 @@ jobs:
             exit 0
           fi
 
-          # biology-steps-v1 (биология №3) — N spoken-
+          # chemistry-steps-v1 (химия №11) — N spoken-
           # сегментов (intro/task/шаги решения/cta), explicit список в
           # task_data.narration_segments; align.py находит РЕАЛЬНУЮ границу
           # между КАЖДОЙ парой сегментов и физически вставляет pause_seconds
@@ -123,13 +123,13 @@ jobs:
           # Нормализацию произношения этот шаг не делает и не трогает —
           # narration_segments[].tts_text уже готов (отдельный узел n8n +
           # ChatGPT, затем ElevenLabs).
-          if [ "$VERSION" = "biology-steps-v1" ]; then
+          if [ "$VERSION" = "chemistry-steps-v1" ]; then
             if ! command -v ffmpeg >/dev/null 2>&1; then
               sudo apt-get update
               sudo apt-get install -y ffmpeg
             fi
             python3 scripts/dynamic-task/align.py \
-              --mode biology-steps-v1 \
+              --mode chemistry-steps-v1 \
               --task-data task_data.json \
               --audio-in audio_raw.mp3 \
               --audio-out audio_spliced.mp3 \
@@ -185,7 +185,7 @@ jobs:
         run: |
           node -e '
             const fs=require("fs"),d=JSON.parse(fs.readFileSync("task_data.json")),a=JSON.parse(fs.readFileSync("align.json"));
-            if(d.video_structure_version==="biology-steps-v1" && (d.playback_speed!==1.2 || d.max_video_seconds!==90 || (a.totalSec-2)/1.2+2>89.9)) throw Error("Shorten biology script before render: maximum 90 seconds, fixed 1.2x pace");
+            if(d.video_structure_version==="chemistry-steps-v1" && (d.playback_speed!==1.2 || d.max_video_seconds!==90 || (a.totalSec-2)/1.2+2>89.9)) throw Error("Shorten chemistry script before render: maximum 90 seconds, fixed 1.2x pace");
           '
           COMPOSITION_ID=$(cat composition_id.txt)
 
@@ -193,10 +193,10 @@ jobs:
 
           npx remotion render "$COMPOSITION_ID" out/dynamic.mp4
 
-      - name: Проверить FPS и длительность биологического видео
+      - name: Проверить FPS и длительность химического видео
         run: |
           VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).video_structure_version || '')")
-          if [ "$VERSION" != "biology-steps-v1" ]; then exit 0; fi
+          if [ "$VERSION" != "chemistry-steps-v1" ]; then exit 0; fi
           ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate,avg_frame_rate,nb_frames,duration -of json out/dynamic.mp4 > out/video-probe.json
           node -e '
             const fs=require("fs");
@@ -215,7 +215,7 @@ jobs:
           
           def finish(task_path='task_data.json', align_path='align.json', video_path='out/dynamic.mp4'):
               d=json.load(open(task_path)); a=json.load(open(align_path))
-              if d.get('video_structure_version')!='biology-steps-v1': return
+              if d.get('video_structure_version')!='chemistry-steps-v1': return
               if d.get('playback_speed')!=1.2 or d.get('max_video_seconds')!=90:
                   raise ValueError('Missing explicit 1.2x / 90 second safety contract')
               if a.get('pauseSeconds')!=2: raise ValueError('Expected two second pause')
@@ -392,7 +392,7 @@ jobs:
       - name: Сообщить n8n, что видео готово
         env:
           TASK_ID: ${{ inputs.task_id }}
-          N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL }}
+          N8N_CHEMISTRY_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_CHEMISTRY_VIDEO_READY_WEBHOOK_URL }}
           VIDEO_URL: ${{ steps.drive_upload.outputs.link || steps.video_artifact.outputs.artifact-url }}
         run: |
           ACCOUNT=$(node -e "
@@ -436,4 +436,4 @@ jobs:
             -X POST \
             -H "Content-Type: application/json" \
             -d "$BODY" \
-            "$N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL"
+            "$N8N_CHEMISTRY_VIDEO_READY_WEBHOOK_URL"
