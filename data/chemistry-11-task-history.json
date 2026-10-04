@@ -21,6 +21,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/85766",
       "source_task_id": "85766"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_chemistry_11:github-run:37200168331",
+      "reserved_at": "2026-10-04T11:54:13.422Z",
+      "task_number": 11,
+      "condition_text": "Из предложенного перечня веществ выберите два вещества, которые являются межклассовыми изомерами по отношению друг к другу.\n\n1) \n\nбутанон\n\n2) \n\nпропанол-2\n\n3) \n\nбутанол-1\n\n4) \n\nпропанол-1\n\n5) \n\nдиэтиловый эфир\n\nЗапишите в поле ответа номера выбранных веществ.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84531",
+      "source_task_id": "84531"
     }
   ]
 }
