@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regression-тесты контракта video_structure_version="biology-steps-v1"
+ * Regression-тесты контракта video_structure_version="chemistry-steps-v1"
  * — см. scripts/dynamic-task/profile-math-steps.mjs (единственный источник
  * правды для этой логики).
  *
@@ -33,7 +33,7 @@ function check(name, fn) {
 
 // Biological fixture: a coding sequence for 55 amino acids, one DNA strand.
 const BIO3 = {
-  video_structure_version: "biology-steps-v1", exam: "ЕГЭ", subject: "биология", task_number: 3,
+  video_structure_version: "chemistry-steps-v1", exam: "ЕГЭ", subject: "химия", task_number: 11,
   render_fps: 120, pause_seconds: 2, pause_prompt: "Ставь на паузу", separate_answer_slide: false, instruction: "",
   condition_text: "Сколько нуклеотидов кодирует 55 аминокислот в одной цепи ДНК?", cta_text: "ЕГЭ Тренажёр — ссылка в профиле.",
   solution_steps: [
@@ -43,13 +43,13 @@ const BIO3 = {
   ],
 };
 BIO3.narration_segments = [
-  {id:"intro",kind:"intro",text:"Решаем задание три по биологии из приложения ЕГЭ Тренажёр.",tts_text:"Решаем задание три по биологии из приложения ЕГЭ Тренажёр."},
+  {id:"intro",kind:"intro",text:"Решаем задание одиннадцать по химии из приложения ЕГЭ Тренажёр.",tts_text:"Решаем задание одиннадцать по химии из приложения ЕГЭ Тренажёр."},
   {id:"task",kind:"task",text:BIO3.condition_text,tts_text:"Сколько нуклеотидов кодирует пятьдесят пять аминокислот в одной цепи дэ-эн-ка?"},
   ...BIO3.solution_steps.map(s=>({id:s.id,kind:"solution",step_id:s.id,text:s.voiceover_text,tts_text:s.voiceover_text})),
   {id:"cta",kind:"cta",text:BIO3.cta_text,tts_text:BIO3.cta_text}
 ];
 
-console.log("--- 1. ЕГЭ биология №3: базовая структура ---");
+console.log("--- 1. ЕГЭ химия №11: базовая структура ---");
 
 check("валидный BIO3 task_data проходит validateProfileMathStepsTaskData", () => {
   const result = validateProfileMathStepsTaskData(BIO3);
@@ -73,7 +73,7 @@ check("ответ — часть последнего шага (lines), отде
 
 console.log("\n--- 2. Fail-fast: top-level поля ---");
 
-check("video_structure_version не 'biology-steps-v1' → fail-fast", () => {
+check("video_structure_version не 'chemistry-steps-v1' → fail-fast", () => {
   const bad = { ...BIO3, video_structure_version: "four-slides-v1" };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);

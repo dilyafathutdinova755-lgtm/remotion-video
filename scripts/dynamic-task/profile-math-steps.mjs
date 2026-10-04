@@ -1,6 +1,6 @@
 /**
  * Общая, testable-без-Remotion логика контракта video_structure_version=
- * "biology-steps-v1": fail-fast валидация task_data ДО рендера.
+ * "chemistry-steps-v1": fail-fast валидация task_data ДО рендера.
  *
  * Используется build-dynamic-task.mjs (реальная сборка TaskDef) и
  * test-profile-math-steps.mjs (regression-тесты) — единственный источник
@@ -167,14 +167,14 @@ export function validateProfileMathStepsTaskData(taskData) {
   }
   if (errors.length > 0) return { ok: false, errors };
 
-  if (taskData.video_structure_version !== "biology-steps-v1") {
+  if (taskData.video_structure_version !== "chemistry-steps-v1") {
     errors.push(
-      `video_structure_version должен быть "biology-steps-v1", получено: ${JSON.stringify(taskData.video_structure_version)}`,
+      `video_structure_version должен быть "chemistry-steps-v1", получено: ${JSON.stringify(taskData.video_structure_version)}`,
     );
   }
 
-  if (taskData.exam !== "ЕГЭ" || taskData.subject !== "биология" || Number(taskData.task_number) !== 3) {
-    errors.push("Разрешено только ЕГЭ биология №3");
+  if (taskData.exam !== "ЕГЭ" || taskData.subject !== "химия" || Number(taskData.task_number) !== 11) {
+    errors.push("Разрешено только ЕГЭ химия №11");
   }
   const renderFps = Number(taskData.render_fps);
   if (!Number.isFinite(renderFps) || renderFps <= 0 || !Number.isInteger(renderFps)) {

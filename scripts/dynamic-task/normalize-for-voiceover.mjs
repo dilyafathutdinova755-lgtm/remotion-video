@@ -1456,7 +1456,13 @@ export function normalizePhysics(text) {
 }
 
 export function normalizeChemistry(text) {
-  return normalizeCommon(text);
+  // Locants in organic names are positions, never decimals or negative numbers.
+  let out = String(text).replace(/([А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*)[-–](\d+(?:,\d+)*)/gu,
+    (_, name, locants) => name + ' ' + locants.split(',').map(numberToRussianWords).join(', '));
+  out = out.replace(/(?<![\p{L}\p{N}])(\d+(?:,\d+)*)[-–](?=[А-Яа-яЁё])/gu,
+    (_, locants) => locants.split(',').map(numberToRussianWords).join(', ') + ' ');
+  out = out.replace(/(^|\s)([1-9])\)\s*/gu, (_, space, n) => space + 'Вариант ' + numberToRussianWords(n) + '. ');
+  return normalizeCommon(out);
 }
 
 export function normalizeBiology(text) {

@@ -148,7 +148,7 @@ const FourSlidesVideo: React.FC<{ task: Extract<TaskDef, { videoStructureVersion
 };
 
 /**
- * biology-steps-v1: Title → Task(condition, включая вставленную
+ * chemistry-steps-v1: Title → Task(condition, включая вставленную
  * реальную паузу + pause_prompt) → Step×N (один логический шаг решения на
  * слайд, ответ — часть последнего шага) → CTA. Все границы — реальные
  * forced-alignment секунды из audioSync.segments (align.py:
@@ -158,7 +158,7 @@ const FourSlidesVideo: React.FC<{ task: Extract<TaskDef, { videoStructureVersion
  * этапе build-dynamic-task.mjs (validateProfileMathStepsTaskData).
  */
 const ProfileMathStepsVideo: React.FC<{
-  task: Extract<TaskDef, { videoStructureVersion: "biology-steps-v1" }>;
+  task: Extract<TaskDef, { videoStructureVersion: "chemistry-steps-v1" }>;
 }> = ({ task }) => {
   const scenes = buildProfileMathStepsScenes(task);
 

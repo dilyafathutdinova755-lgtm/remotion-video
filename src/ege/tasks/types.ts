@@ -250,7 +250,7 @@ export type FourSlidesTaskDef = {
 };
 
 /**
- * Один сегмент озвучки у video_structure_version="biology-steps-v1" —
+ * Один сегмент озвучки у video_structure_version="chemistry-steps-v1" —
  * реальная (forced-alignment) граница в уже склеенном (с реальной паузой
  * после "task") аудиофайле. kind="solution" дополнительно несёт stepId,
  * которым сцена находит соответствующий ProfileMathStep.
@@ -271,7 +271,7 @@ export type ProfileMathStep = {
 };
 
 /**
- * Тайминг для video_structure_version="biology-steps-v1" — реальные
+ * Тайминг для video_structure_version="chemistry-steps-v1" — реальные
  * (forced-alignment) границы КАЖДОГО сегмента (intro/task/шаги/cta), не
  * выборочные, как у four-slides-v1: каждому шагу решения нужна собственная
  * реальная граница начала (см. align.py: run_profile_math_steps_v2).
@@ -285,7 +285,7 @@ export type ProfileMathAudioSync = {
 };
 
 /**
- * Полное описание ролика по контракту biology-steps-v1 (см.
+ * Полное описание ролика по контракту chemistry-steps-v1 (см.
  * build-dynamic-task.mjs: runProfileMathStepsV2). Сознательно НЕ расширяет
  * TaskCommon — своя жёстко зафиксированная структура, как у FourSlidesTaskDef.
  *
@@ -300,7 +300,7 @@ export type ProfileMathStepsTaskDef = {
   subject?: string;
   palette?: PaletteName;
   pillLabel?: string;
-  videoStructureVersion: "biology-steps-v1";
+  videoStructureVersion: "chemistry-steps-v1";
   /** Хук-вопрос титульного слайда — тот же визуальный язык, что у HookVisual. */
   hook?: string | string[];
 
@@ -334,9 +334,9 @@ export type ValueTask = TaskCommon & ValueAnswer;
 export const isFourSlidesTask = (task: TaskDef): task is FourSlidesTaskDef =>
   "videoStructureVersion" in task && task.videoStructureVersion === "four-slides-v1";
 
-/** Различает контракт biology-steps-v1 от старой модели без приведения типов. */
+/** Различает контракт chemistry-steps-v1 от старой модели без приведения типов. */
 export const isProfileMathStepsTask = (task: TaskDef): task is ProfileMathStepsTaskDef =>
-  "videoStructureVersion" in task && task.videoStructureVersion === "biology-steps-v1";
+  "videoStructureVersion" in task && task.videoStructureVersion === "chemistry-steps-v1";
 
 /**
  * Кегль ответа: длинное слово вроде «преследовало» в 132 пункта не влезает

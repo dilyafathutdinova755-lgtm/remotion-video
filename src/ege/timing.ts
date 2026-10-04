@@ -17,7 +17,7 @@ import {
 } from "./tasks/types";
 
 /**
- * Старая модель задачи (всё, кроме four-slides-v1 и biology-steps-v1)
+ * Старая модель задачи (всё, кроме four-slides-v1 и chemistry-steps-v1)
  * — buildScenes() и всё, что она использует, рассчитаны только на эту
  * форму; у остальных контрактов своя тайминг-логика ниже.
  */
@@ -190,7 +190,7 @@ export const totalFrames = (task: OldTaskDef): number => {
 };
 
 /**
- * Тайминг для video_structure_version="biology-steps-v1". В отличие
+ * Тайминг для video_structure_version="chemistry-steps-v1". В отличие
  * от sec()/f30() выше (которые читают ОБЩИЙ VIDEO.fps — 60 для всех
  * остальных предметов), здесь кадры считаются от task.renderFps: эта
  * композиция рендерится на СВОЁМ fps (120), не трогая общий VIDEO.fps и
@@ -243,7 +243,7 @@ export const totalProfileMathStepsFrames = (task: ProfileMathStepsTaskDef): numb
 };
 
 /** Диспетчер по video_structure_version — нужен там, где список задач
- * смешивает старую модель, four-slides-v1 и biology-steps-v1
+ * смешивает старую модель, four-slides-v1 и chemistry-steps-v1
  * (Root.tsx: <Composition> перебирает все TASKS одним циклом). */
 export const totalFramesFor = (task: TaskDef): number => {
   if (isFourSlidesTask(task)) return totalFourSlidesFrames(task);

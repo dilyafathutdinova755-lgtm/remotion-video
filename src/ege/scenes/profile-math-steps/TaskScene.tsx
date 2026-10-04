@@ -20,7 +20,7 @@ const problemSizeFor = (text: string): number => {
 };
 
 /**
- * СЛАЙД 2 — TASK/CONDITION (video_structure_version="biology-steps-v1").
+ * СЛАЙД 2 — TASK/CONDITION (video_structure_version="chemistry-steps-v1").
  *
  * Фикс №1: эта сцена — ЕДИНСТВЕННОЕ место, где начинает звучать условие
  * (audioSync "task"-сегмент = ровно длительность этой сцены, реальная
@@ -92,10 +92,11 @@ export const ProfileMathTaskScene: React.FC = () => {
               fontWeight: 300,
               fontSize: size,
               lineHeight: 1.3,
+              whiteSpace: "pre-line",
               color: COLORS.text,
             }}
           >
-            {task.conditionText}
+            {task.conditionText.replace(/\s+(?=[1-9]\))/g, "\n")}
           </div>
         {/* Полоса является нижним краем карточки; тайминг — до task/pause. */}
         <div role="progressbar" aria-label="Чтение условия"

@@ -12,7 +12,7 @@ import { isProfileMathStepsTask } from "../../tasks/types";
 import { fAt } from "./shared";
 
 /**
- * СЛАЙД — CTA (video_structure_version="biology-steps-v1"). Визуально
+ * СЛАЙД — CTA (video_structure_version="chemistry-steps-v1"). Визуально
  * идентичен общему OutroScene.tsx (та же иконка/текст/плашка) — НЕ
  * импортирован напрямую, потому что OutroScene использует f30()
  * (= общий VIDEO.fps=60), а эта композиция рендерится на 120fps (см.

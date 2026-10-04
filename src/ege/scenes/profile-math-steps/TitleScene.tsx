@@ -11,7 +11,7 @@ import { isProfileMathStepsTask } from "../../tasks/types";
 import { fAt } from "./shared";
 
 /**
- * СЛАЙД 1 — TITLE (video_structure_version="biology-steps-v1").
+ * СЛАЙД 1 — TITLE (video_structure_version="chemistry-steps-v1").
  *
  * Визуально — тот же язык, что у HookVisual (крупный хук-вопрос + плашка
  * «ЕГЭ · предмет · задание N»), НЕ продублирован импортом (см. shared.ts —
@@ -38,7 +38,7 @@ const examLabel = (subject?: string): string => {
   if (subject.includes("информатик")) return "информатика";
   if (subject.includes("истори")) return "история";
   if (subject.includes("базов")) return "база";
-  if (subject.includes("биолог")) return "биология";
+  if (subject.includes("хими")) return "химия";
   if (subject.includes("хими")) return "химия";
   return "профиль";
 };
