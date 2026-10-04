@@ -1,5 +1,16 @@
 {
   "schema_version": 1,
   "scope": "ege_chemistry_11",
-  "entries": []
+  "entries": [
+    {
+      "state": "reserved",
+      "reservation_id": "ege_chemistry_11:github-run:37194096332",
+      "reserved_at": "2026-10-04T10:05:13.542Z",
+      "task_number": 11,
+      "condition_text": "Из предложенного перечня выберите два вещества, в составе которых только один атом углерода находится в состоянии \nsp\n2\n-гибридизации.\n\n1) Пропеновая кислота\n\n2) Гептен-1\n\n3) Стирол\n\n4) Бутират калия\n\n5) Ацетальдегид\n\n6) Циклопропан\n\nЗапишите номера выбранных ответов.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/28385",
+      "source_task_id": "28385"
+    }
+  ]
 }
