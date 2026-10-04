@@ -11,7 +11,7 @@ import { isProfileMathStepsTask } from "../../tasks/types";
 import { fAt } from "./shared";
 
 /**
- * СЛАЙД 1 — TITLE (video_structure_version="profile-math-steps-v2").
+ * СЛАЙД 1 — TITLE (video_structure_version="biology-steps-v1").
  *
  * Визуально — тот же язык, что у HookVisual (крупный хук-вопрос + плашка
  * «ЕГЭ · предмет · задание N»), НЕ продублирован импортом (см. shared.ts —

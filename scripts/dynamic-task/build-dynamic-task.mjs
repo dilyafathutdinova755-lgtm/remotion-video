@@ -103,7 +103,7 @@ const hookFor = (id) => {
 
 if (taskData.video_structure_version === "four-slides-v1") {
   runFourSlidesV1();
-} else if (taskData.video_structure_version === "profile-math-steps-v2") {
+} else if (taskData.video_structure_version === "biology-steps-v1") {
   runProfileMathStepsV2();
 } else {
   runLegacy();
@@ -215,7 +215,7 @@ export const DYNAMIC_TASKS: TaskDef[] = [DYNAMIC_TASK];
 }
 
 /**
- * video_structure_version="profile-math-steps-v2": жёсткая fail-fast
+ * video_structure_version="biology-steps-v1": жёсткая fail-fast
  * проверка ДО генерации TaskDef (validateProfileMathStepsTaskData/
  * validateProfileMathStepsTiming — единственный источник правды, см.
  * profile-math-steps.mjs), затем прямая сборка ProfileMathStepsTaskDef из
@@ -232,7 +232,7 @@ function runProfileMathStepsV2() {
   const validation = validateProfileMathStepsTaskData(taskData);
   if (!validation.ok) {
     console.error(
-      'ОШИБКА: task_data не проходит fail-fast проверку video_structure_version="profile-math-steps-v2":',
+      'ОШИБКА: task_data не проходит fail-fast проверку video_structure_version="biology-steps-v1":',
     );
     for (const e of validation.errors) console.error(`  - ${e}`);
     process.exit(1);
@@ -240,13 +240,13 @@ function runProfileMathStepsV2() {
 
   const segments = align.segments;
   if (!Array.isArray(segments) || segments.length === 0) {
-    console.error('ОШИБКА: align.json (profile-math-steps-v2) не содержит непустого массива "segments".');
+    console.error('ОШИБКА: align.json (biology-steps-v1) не содержит непустого массива "segments".');
     process.exit(1);
   }
 
   const timing = validateProfileMathStepsTiming(segments);
   if (!timing.ok) {
-    console.error("ОШИБКА: тайминг profile-math-steps-v2 не проходит fail-fast проверку (см. segments):");
+    console.error("ОШИБКА: тайминг biology-steps-v1 не проходит fail-fast проверку (см. segments):");
     for (const e of timing.errors) console.error(`  - ${e}`);
     process.exit(1);
   }
@@ -269,7 +269,7 @@ function runProfileMathStepsV2() {
 
   const totalSec = align.totalSec;
   if (typeof totalSec !== "number" || Number.isNaN(totalSec)) {
-    console.error('ОШИБКА: align.json (profile-math-steps-v2) не содержит числового поля "totalSec".');
+    console.error('ОШИБКА: align.json (biology-steps-v1) не содержит числового поля "totalSec".');
     process.exit(1);
   }
 
@@ -300,7 +300,7 @@ function runProfileMathStepsV2() {
 
   const source = `// АВТОГЕНЕРИРОВАНО build-dynamic-task.mjs — не редактировать руками.
 // Источник: render-on-demand.yml, task_id = ${j(String(taskId ?? ""))}.
-// video_structure_version="profile-math-steps-v2". Перезаписывается
+// video_structure_version="biology-steps-v1". Перезаписывается
 // транзитно в CI и никогда не коммитится обратно.
 
 import type { ProfileMathStepsTaskDef, TaskDef } from "./types";
@@ -316,7 +316,7 @@ export const DYNAMIC_TASK: ProfileMathStepsTaskDef = {
   subject: ${j(String(taskData.subject))},
   palette: ${j(palette)},
   pillLabel: "Задание",
-  videoStructureVersion: "profile-math-steps-v2",
+  videoStructureVersion: "biology-steps-v1",
   hook: ${JSON.stringify(hook)},
 
   instruction: ${j(String(taskData.instruction))},
@@ -336,7 +336,7 @@ export const DYNAMIC_TASKS: TaskDef[] = [DYNAMIC_TASK];
 
   writeFileSync(outPath, source, "utf8");
   if (idOutPath) writeFileSync(idOutPath, id, "utf8");
-  console.log(`Сгенерирован ${outPath} (profile-math-steps-v2, id=${id}, palette=${palette}, fps=${taskData.render_fps})`);
+  console.log(`Сгенерирован ${outPath} (biology-steps-v1, id=${id}, palette=${palette}, fps=${taskData.render_fps})`);
   process.exit(0);
 }
 

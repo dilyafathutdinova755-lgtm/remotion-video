@@ -6,7 +6,6 @@ import {
   interpolate,
 } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../../theme";
-import { Pill } from "../../ProblemText";
 import { useTask } from "../../TaskContext";
 import { isProfileMathStepsTask } from "../../tasks/types";
 import { fAt } from "./shared";
@@ -21,7 +20,7 @@ const problemSizeFor = (text: string): number => {
 };
 
 /**
- * СЛАЙД 2 — TASK/CONDITION (video_structure_version="profile-math-steps-v2").
+ * СЛАЙД 2 — TASK/CONDITION (video_structure_version="biology-steps-v1").
  *
  * Фикс №1: эта сцена — ЕДИНСТВЕННОЕ место, где начинает звучать условие
  * (audioSync "task"-сегмент = ровно длительность этой сцены, реальная
@@ -75,23 +74,6 @@ export const ProfileMathTaskScene: React.FC = () => {
           transform: `translateY(${interpolate(enter, [0, 1], [30, 0])}px)`,
         }}
       >
-        <Pill>{task.pillLabel ?? "Задание"}</Pill>
-
-        {/* instruction — всегда снаружи карточки. */}
-        <div
-          style={{
-            fontFamily: FONTS.body,
-            fontWeight: 300,
-            fontSize: size * 0.62,
-            lineHeight: 1.3,
-            color: COLORS.textMuted,
-            opacity: 0.82,
-            marginBottom: 22,
-          }}
-        >
-          {task.instruction}
-        </div>
-
         <div
           style={{
             position: "relative",

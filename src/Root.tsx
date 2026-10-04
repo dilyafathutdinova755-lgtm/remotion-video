@@ -6,7 +6,7 @@ import { VIDEO } from "./ege/theme";
 import { isProfileMathStepsTask, type TaskDef } from "./ege/tasks/types";
 
 /**
- * profile-math-steps-v2 рендерится на СВОЁМ render_fps (120), а не на общем
+ * biology-steps-v1 рендерится на СВОЁМ render_fps (120), а не на общем
  * VIDEO.fps (60, как у всех остальных предметов) — см. отчёт по фиксу №4.
  * Composition поддерживает это нативно (fps — проп на уровне композиции),
  * поэтому достаточно разного значения в этом единственном месте; остальные

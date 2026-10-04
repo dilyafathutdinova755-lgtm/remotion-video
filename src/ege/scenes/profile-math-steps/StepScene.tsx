@@ -14,7 +14,7 @@ import { fAt } from "./shared";
 const TAIL = 80;
 
 /**
- * СЛАЙД — ОДИН ШАГ РЕШЕНИЯ (video_structure_version="profile-math-steps-v2").
+ * СЛАЙД — ОДИН ШАГ РЕШЕНИЯ (video_structure_version="biology-steps-v1").
  *
  * Фикс №3: решение показывается последовательно, по шагам — один логический
  * шаг на отдельном слайде (а не единый слайд «ответ+всё решение»). Строки

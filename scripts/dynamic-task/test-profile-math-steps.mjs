@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regression-тесты контракта video_structure_version="profile-math-steps-v2"
+ * Regression-тесты контракта video_structure_version="biology-steps-v1"
  * — см. scripts/dynamic-task/profile-math-steps.mjs (единственный источник
  * правды для этой логики).
  *
@@ -31,57 +31,35 @@ function check(name, fn) {
   }
 }
 
-// Регрессионный пример из постановки задачи: 13 литров 29%-раствора + 16
-// литров воды.
-const MATH10 = {
-  video_structure_version: "profile-math-steps-v2",
-  exam: "ЕГЭ",
-  subject: "профильная математика",
-  task_number: 10,
-  render_fps: 120,
-  pause_seconds: 2,
-  pause_prompt: "Ставь на паузу",
-  separate_answer_slide: false,
-  instruction: "Решите задачу.",
-  condition_text:
-    "В сосуд, содержащий 13 литров 29-процентного водного раствора некоторого вещества, добавили 16 литров воды. Сколько процентов составляет концентрация получившегося раствора?",
-  cta_text: "Скачивай бесплатно. Ссылка в шапке профиля.",
+// Biological fixture: a coding sequence for 55 amino acids, one DNA strand.
+const BIO3 = {
+  video_structure_version: "biology-steps-v1", exam: "ЕГЭ", subject: "биология", task_number: 3,
+  render_fps: 120, pause_seconds: 2, pause_prompt: "Ставь на паузу", separate_answer_slide: false, instruction: "",
+  condition_text: "Сколько нуклеотидов кодирует 55 аминокислот в одной цепи ДНК?", cta_text: "ЕГЭ Тренажёр — ссылка в профиле.",
   solution_steps: [
-    { id: "step-1", title: "Сколько вещества в растворе", lines: ["13 × 0,29 = 3,77 л вещества"], voiceover_text: "..." },
-    { id: "step-2", title: "Сколько стало раствора", lines: ["13 + 16 = 29 л раствора"], voiceover_text: "..." },
-    {
-      id: "step-3",
-      title: "Новая концентрация",
-      lines: ["3,77 / 29 × 100% = 13%", "Ответ: 13"],
-      voiceover_text: "...",
-    },
-  ],
-  narration_segments: [
-    { id: "intro", kind: "intro", text: "Решаем задание 10 по профильной математике.", tts_text: "Решаем задание десять по профильной математике." },
-    {
-      id: "task",
-      kind: "task",
-      text: "В сосуд, содержащий 13 литров 29-процентного раствора, добавили 16 литров воды. Сколько процентов составляет концентрация получившегося раствора?",
-      tts_text: "В сосуд, содержащий тринадцать литров двадцати девяти процентного водного раствора некоторого вещества, добавили шестнадцать литров воды. Сколько процентов составляет концентрация получившегося раствора?",
-    },
-    { id: "step-1", kind: "solution", step_id: "step-1", text: "Найдём сколько вещества в растворе", tts_text: "Найдём, сколько вещества в растворе. Тринадцать умножить на ноль целых двадцать девять сотых равно три целых семьдесят семь сотых литра вещества." },
-    { id: "step-2", kind: "solution", step_id: "step-2", text: "Найдём сколько стало раствора", tts_text: "Теперь найдём, сколько стало раствора. Тринадцать плюс шестнадцать равно двадцать девять литров раствора." },
-    { id: "step-3", kind: "solution", step_id: "step-3", text: "Найдём новую концентрацию", tts_text: "Найдём новую концентрацию. Три целых семьдесят семь сотых разделить на двадцать девять и умножить на сто процентов равно тринадцать процентов. Ответ: тринадцать." },
-    { id: "cta", kind: "cta", text: "Скачивай бесплатно. Ссылка в шапке профиля.", tts_text: "Скачивай бесплатно. Ссылка в шапке профиля." },
+    {id:"step-1",title:"Триплетность",lines:["1 аминокислота — 3 нуклеотида"],voiceover_text:"Одну аминокислоту кодируют три нуклеотида."},
+    {id:"step-2",title:"Расчёт",lines:["55 × 3 = 165"],voiceover_text:"Умножаем количество аминокислот на три."},
+    {id:"step-3",title:"Проверка цепи",lines:["Считаем одну цепь: не удваиваем", "Ответ: 165"],voiceover_text:"Нужна одна цепь, поэтому результат не удваиваем. Ответ: сто шестьдесят пять."}
   ],
 };
+BIO3.narration_segments = [
+  {id:"intro",kind:"intro",text:"Решаем задание три по биологии из приложения ЕГЭ Тренажёр.",tts_text:"Решаем задание три по биологии из приложения ЕГЭ Тренажёр."},
+  {id:"task",kind:"task",text:BIO3.condition_text,tts_text:"Сколько нуклеотидов кодирует пятьдесят пять аминокислот в одной цепи дэ-эн-ка?"},
+  ...BIO3.solution_steps.map(s=>({id:s.id,kind:"solution",step_id:s.id,text:s.voiceover_text,tts_text:s.voiceover_text})),
+  {id:"cta",kind:"cta",text:BIO3.cta_text,tts_text:BIO3.cta_text}
+];
 
-console.log("--- 1. ЕГЭ профильная математика №10: базовая структура ---");
+console.log("--- 1. ЕГЭ биология №3: базовая структура ---");
 
-check("валидный MATH10 task_data проходит validateProfileMathStepsTaskData", () => {
-  const result = validateProfileMathStepsTaskData(MATH10);
+check("валидный BIO3 task_data проходит validateProfileMathStepsTaskData", () => {
+  const result = validateProfileMathStepsTaskData(BIO3);
   assert.deepEqual(result.errors, []);
   assert.equal(result.ok, true);
 });
 
 check("3 шага решения, у каждого непустые id/title/lines", () => {
-  assert.equal(MATH10.solution_steps.length, 3);
-  for (const s of MATH10.solution_steps) {
+  assert.equal(BIO3.solution_steps.length, 3);
+  for (const s of BIO3.solution_steps) {
     assert.ok(s.id);
     assert.ok(s.title);
     assert.ok(s.lines.length > 0);
@@ -89,21 +67,21 @@ check("3 шага решения, у каждого непустые id/title/li
 });
 
 check("ответ — часть последнего шага (lines), отдельного answer-поля нет", () => {
-  const lastStep = MATH10.solution_steps[MATH10.solution_steps.length - 1];
+  const lastStep = BIO3.solution_steps[BIO3.solution_steps.length - 1];
   assert.ok(lastStep.lines.some((l) => l.includes("Ответ")));
 });
 
 console.log("\n--- 2. Fail-fast: top-level поля ---");
 
-check("video_structure_version не 'profile-math-steps-v2' → fail-fast", () => {
-  const bad = { ...MATH10, video_structure_version: "four-slides-v1" };
+check("video_structure_version не 'biology-steps-v1' → fail-fast", () => {
+  const bad = { ...BIO3, video_structure_version: "four-slides-v1" };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /video_structure_version/i.test(e)));
 });
 
 check("render_fps отсутствует → fail-fast", () => {
-  const bad = { ...MATH10 };
+  const bad = { ...BIO3 };
   delete bad.render_fps;
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
@@ -111,50 +89,50 @@ check("render_fps отсутствует → fail-fast", () => {
 });
 
 check("render_fps нецелый → fail-fast", () => {
-  const bad = { ...MATH10, render_fps: 119.5 };
+  const bad = { ...BIO3, render_fps: 119.5 };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /render_fps/i.test(e)));
 });
 
 check("pause_seconds <= 0 → fail-fast", () => {
-  const bad = { ...MATH10, pause_seconds: 0 };
+  const bad = { ...BIO3, pause_seconds: 0 };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /pause_seconds/i.test(e)));
 });
 
 check("pause_prompt пуст → fail-fast", () => {
-  const bad = { ...MATH10, pause_prompt: "   " };
+  const bad = { ...BIO3, pause_prompt: "   " };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /pause_prompt/i.test(e)));
 });
 
 check("separate_answer_slide=true → fail-fast (не реализовано)", () => {
-  const bad = { ...MATH10, separate_answer_slide: true };
+  const bad = { ...BIO3, separate_answer_slide: true };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /separate_answer_slide/i.test(e)));
 });
 
 check("separate_answer_slide отсутствует → fail-fast", () => {
-  const bad = { ...MATH10 };
+  const bad = { ...BIO3 };
   delete bad.separate_answer_slide;
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /separate_answer_slide/i.test(e)));
 });
 
-check("instruction пуст → fail-fast", () => {
-  const bad = { ...MATH10, instruction: "" };
+check("instruction не строка → fail-fast", () => {
+  const bad = { ...BIO3, instruction: null };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /instruction/i.test(e)));
 });
 
 check("condition_text пуст → fail-fast", () => {
-  const bad = { ...MATH10, condition_text: "   " };
+  const bad = { ...BIO3, condition_text: "   " };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /condition_text/i.test(e)));
@@ -163,7 +141,7 @@ check("condition_text пуст → fail-fast", () => {
 console.log("\n--- 3. Fail-fast: solution_steps ---");
 
 check("solution_steps пуст → fail-fast", () => {
-  const bad = { ...MATH10, solution_steps: [] };
+  const bad = { ...BIO3, solution_steps: [] };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /solution_steps/i.test(e)));
@@ -171,9 +149,9 @@ check("solution_steps пуст → fail-fast", () => {
 
 check("solution_steps[i].lines пуст → fail-fast", () => {
   const bad = {
-    ...MATH10,
+    ...BIO3,
     solution_steps: [{ id: "step-1", title: "T", lines: [] }],
-    narration_segments: MATH10.narration_segments.filter((s) => s.kind !== "solution" || s.step_id === "step-1"),
+    narration_segments: BIO3.narration_segments.filter((s) => s.kind !== "solution" || s.step_id === "step-1"),
   };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
@@ -182,7 +160,7 @@ check("solution_steps[i].lines пуст → fail-fast", () => {
 
 check("solution_steps с повторяющимся id → fail-fast", () => {
   const bad = {
-    ...MATH10,
+    ...BIO3,
     solution_steps: [
       { id: "step-1", title: "A", lines: ["x"] },
       { id: "step-1", title: "B", lines: ["y"] },
@@ -197,10 +175,10 @@ console.log("\n--- 4. Fail-fast: narration_segments (порядок/контра
 
 check("narration_segments[0].kind не 'intro' → fail-fast", () => {
   const bad = {
-    ...MATH10,
+    ...BIO3,
     narration_segments: [
-      { ...MATH10.narration_segments[0], kind: "task" },
-      ...MATH10.narration_segments.slice(1),
+      { ...BIO3.narration_segments[0], kind: "task" },
+      ...BIO3.narration_segments.slice(1),
     ],
   };
   const result = validateProfileMathStepsTaskData(bad);
@@ -210,12 +188,12 @@ check("narration_segments[0].kind не 'intro' → fail-fast", () => {
 
 check('narration_segments[1].kind не "task" (сразу после intro) → fail-fast', () => {
   const bad = {
-    ...MATH10,
+    ...BIO3,
     narration_segments: [
-      MATH10.narration_segments[0],
-      { ...MATH10.narration_segments[2] },
-      MATH10.narration_segments[1],
-      ...MATH10.narration_segments.slice(3),
+      BIO3.narration_segments[0],
+      { ...BIO3.narration_segments[2] },
+      BIO3.narration_segments[1],
+      ...BIO3.narration_segments.slice(3),
     ],
   };
   const result = validateProfileMathStepsTaskData(bad);
@@ -225,8 +203,8 @@ check('narration_segments[1].kind не "task" (сразу после intro) → 
 
 check("последний сегмент не 'cta' → fail-fast", () => {
   const bad = {
-    ...MATH10,
-    narration_segments: MATH10.narration_segments.slice(0, -1),
+    ...BIO3,
+    narration_segments: BIO3.narration_segments.slice(0, -1),
   };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
@@ -235,8 +213,8 @@ check("последний сегмент не 'cta' → fail-fast", () => {
 
 check("narration_segments step_id не совпадает с solution_steps id (порядок) → fail-fast", () => {
   const bad = {
-    ...MATH10,
-    narration_segments: MATH10.narration_segments.map((s) =>
+    ...BIO3,
+    narration_segments: BIO3.narration_segments.map((s) =>
       s.id === "step-2" ? { ...s, step_id: "step-does-not-exist" } : s,
     ),
   };
@@ -247,8 +225,8 @@ check("narration_segments step_id не совпадает с solution_steps id (
 
 check('solution-сегмент без step_id → fail-fast', () => {
   const bad = {
-    ...MATH10,
-    narration_segments: MATH10.narration_segments.map((s) =>
+    ...BIO3,
+    narration_segments: BIO3.narration_segments.map((s) =>
       s.id === "step-1" ? { id: s.id, kind: s.kind, text: s.text, tts_text: s.tts_text } : s,
     ),
   };
@@ -259,8 +237,8 @@ check('solution-сегмент без step_id → fail-fast', () => {
 
 check("narration_segments[i].tts_text пуст → fail-fast", () => {
   const bad = {
-    ...MATH10,
-    narration_segments: MATH10.narration_segments.map((s) => (s.id === "task" ? { ...s, tts_text: "" } : s)),
+    ...BIO3,
+    narration_segments: BIO3.narration_segments.map((s) => (s.id === "task" ? { ...s, tts_text: "" } : s)),
   };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
@@ -269,8 +247,8 @@ check("narration_segments[i].tts_text пуст → fail-fast", () => {
 
 check("kind вне intro/task/solution/cta → fail-fast", () => {
   const bad = {
-    ...MATH10,
-    narration_segments: MATH10.narration_segments.map((s) => (s.id === "step-2" ? { ...s, kind: "explanation" } : s)),
+    ...BIO3,
+    narration_segments: BIO3.narration_segments.map((s) => (s.id === "step-2" ? { ...s, kind: "explanation" } : s)),
   };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);

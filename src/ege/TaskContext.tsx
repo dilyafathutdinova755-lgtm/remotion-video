@@ -20,7 +20,7 @@ export const useTask = (): TaskDef => {
 
 /** Только для old-модели (video_structure_version не задан): старые сцены
  * (HookScene/ProblemScene/AnswerScene/ConceptScene) никогда не монтируются
- * для four-slides-v1/profile-math-steps-v2 задачи (см. EgeVideo.tsx —
+ * для four-slides-v1/biology-steps-v1 задачи (см. EgeVideo.tsx —
  * ветвление происходит раньше), поэтому throw здесь на практике недостижим
  * и служит только явной типовой границей вместо приведения типов в каждой
  * сцене. */

@@ -1215,6 +1215,13 @@ function normalizeInformatics(text) {
 
 function normalizeBiologyNotation(text) {
   let out = text;
+  // Russian nucleotide sequences are spelled, never pronounced as words.
+  const bioAbbreviations = {'иРНК':'и-эр-эн-ка','мРНК':'эм-эр-эн-ка','тРНК':'тэ-эр-эн-ка','рРНК':'эр-эр-эн-ка','ДНК':'дэ-эн-ка','РНК':'эр-эн-ка','АТФ':'а-тэ-эф','АДФ':'а-дэ-эф','АМФ':'а-эм-эф'};
+  out = out.replace(/(?<!\p{L})(?:иРНК|мРНК|тРНК|рРНК|ДНК|РНК|АТФ|АДФ|АМФ)(?!\p{L})/gu, word => bioAbbreviations[word]);
+  const nucleotideNames = {'А':'а','Т':'тэ','Г':'гэ','Ц':'цэ','У':'у'};
+  out = out.replace(/(?<!\p{L})[АТГЦУ]{2,}(?!\p{L})/gu, word => [...word].map(ch => nucleotideNames[ch]).join(', '));
+  out = out.replace(/(?<!\p{L})из\s+(\d+)\s+(аминокислот|нуклеотидов|хромосом)(?!\p{L})/gu,
+    (full, number, unit) => `из ${numberToGenitiveWords(number)} ${unit}`);
   // "2n = 46", "4n", "2n4c", "2n2c" — n/c читаем буквами.
   out = out.replace(/\b(\d*)n(\d*c)?\b/g, (full, coef, cSuffix) => {
     if (!coef && !cSuffix) return full;

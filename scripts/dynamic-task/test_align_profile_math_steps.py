@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Regression-тесты align.py --mode profile-math-steps-v2: реальный ffmpeg,
+Regression-тесты align.py --mode biology-steps-v1: реальный ffmpeg,
 реальные синтетические аудио (тон + тишина), реальный запуск align.py
 subprocess'ом — тот же подход, что и test_align_four_slides.py.
 
@@ -97,7 +97,7 @@ def run_align(task_data, tmp, audio_in, audio_out):
         sys.executable,
         ALIGN_PY,
         "--mode",
-        "profile-math-steps-v2",
+        "biology-steps-v1",
         "--task-data",
         task_data_path,
         "--audio-in",
@@ -113,7 +113,7 @@ def run_align(task_data, tmp, audio_in, audio_out):
 
 def base_task_data(pause_seconds=2, render_fps=120):
     data = {
-        "video_structure_version": "profile-math-steps-v2",
+        "video_structure_version": "biology-steps-v1",
         "exam": "ЕГЭ",
         "subject": "профильная математика",
         "task_number": 10,

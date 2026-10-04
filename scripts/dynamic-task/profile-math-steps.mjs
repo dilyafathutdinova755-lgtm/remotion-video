@@ -1,6 +1,6 @@
 /**
  * Общая, testable-без-Remotion логика контракта video_structure_version=
- * "profile-math-steps-v2": fail-fast валидация task_data ДО рендера.
+ * "biology-steps-v1": fail-fast валидация task_data ДО рендера.
  *
  * Используется build-dynamic-task.mjs (реальная сборка TaskDef) и
  * test-profile-math-steps.mjs (regression-тесты) — единственный источник
@@ -21,7 +21,6 @@ const REQUIRED_TOP_LEVEL_FIELDS = [
   "render_fps",
   "pause_seconds",
   "pause_prompt",
-  "instruction",
   "condition_text",
   "cta_text",
   "solution_steps",
@@ -168,12 +167,15 @@ export function validateProfileMathStepsTaskData(taskData) {
   }
   if (errors.length > 0) return { ok: false, errors };
 
-  if (taskData.video_structure_version !== "profile-math-steps-v2") {
+  if (taskData.video_structure_version !== "biology-steps-v1") {
     errors.push(
-      `video_structure_version должен быть "profile-math-steps-v2", получено: ${JSON.stringify(taskData.video_structure_version)}`,
+      `video_structure_version должен быть "biology-steps-v1", получено: ${JSON.stringify(taskData.video_structure_version)}`,
     );
   }
 
+  if (taskData.exam !== "ЕГЭ" || taskData.subject !== "биология" || Number(taskData.task_number) !== 3) {
+    errors.push("Разрешено только ЕГЭ биология №3");
+  }
   const renderFps = Number(taskData.render_fps);
   if (!Number.isFinite(renderFps) || renderFps <= 0 || !Number.isInteger(renderFps)) {
     errors.push(`render_fps должен быть положительным целым числом, получено: ${JSON.stringify(taskData.render_fps)}`);
@@ -197,8 +199,8 @@ export function validateProfileMathStepsTaskData(taskData) {
     );
   }
 
-  if (typeof taskData.instruction !== "string" || taskData.instruction.trim() === "") {
-    errors.push("instruction пуст после trim()");
+  if (typeof taskData.instruction !== "string") {
+    errors.push("instruction должен быть строкой, допускается пустая");
   }
   if (typeof taskData.condition_text !== "string" || taskData.condition_text.trim() === "") {
     errors.push("condition_text пуст после trim()");

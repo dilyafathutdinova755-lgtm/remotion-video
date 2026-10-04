@@ -240,12 +240,12 @@ def main():
         choices=[
             "legacy",
             "four-slides-v1",
-            "profile-math-steps-v2",
+            "biology-steps-v1",
         ],
         default="legacy",
         help=(
             "legacy (по умолчанию, полная обратная совместимость), "
-            "four-slides-v1 или profile-math-steps-v2."
+            "four-slides-v1 или biology-steps-v1."
         ),
     )
 
@@ -293,7 +293,7 @@ def main():
         run_four_slides_v1(args)
         return
 
-    if args.mode == "profile-math-steps-v2":
+    if args.mode == "biology-steps-v1":
         run_profile_math_steps_v2(args)
         return
 
@@ -1385,7 +1385,7 @@ def run_profile_math_steps_v2(args):
     import math
 
     def fail(message):
-        raise ValueError('profile-math-steps-v2: ' + message)
+        raise ValueError('biology-steps-v1: ' + message)
 
     if not args.task_data or not args.audio_in or not args.audio_out:
         fail('--task-data, --audio-in, --audio-out are required')
@@ -1393,7 +1393,7 @@ def run_profile_math_steps_v2(args):
         task = json.load(f)
     narration = task.get('narration_segments')
     timing = task.get('narration_timing') or {}
-    if task.get('video_structure_version') != 'profile-math-steps-v2':
+    if task.get('video_structure_version') != 'biology-steps-v1':
         fail('wrong contract version')
     if task.get('render_fps') != 120 or task.get('pause_seconds') != 2:
         fail('expected 120 FPS and 2 second pause')
