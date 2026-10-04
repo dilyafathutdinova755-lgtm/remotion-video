@@ -37,3 +37,13 @@ jobs:
           mapfile -t tests < <(find scripts -type f \( -name 'test_align_profile_math_steps.py' -o -name 'test_align_four_slides.py' \))
           if [ "${#tests[@]}" -lt 2 ]; then echo 'Required audio suites missing'; exit 1; fi
           for test in "${tests[@]}"; do python3 "$test"; done
+      - name: Free chemistry layout preview (no TTS, no publication)
+        run: |
+          mkdir -p public/audio out
+          ffmpeg -hide_banner -loglevel error -f lavfi -i anullsrc=r=44100:cl=stereo -t 58 -q:a 9 public/audio/layout-check.mp3
+          node scripts/dynamic-task/build-dynamic-task.mjs --task-id chemistry-layout-check --task-data scripts/dynamic-task/fixtures/chemistry-layout-task.json --align scripts/dynamic-task/fixtures/chemistry-layout-align.json --audio-src audio/layout-check.mp3 --out src/ege/tasks/_dynamic.generated.tsx
+          npx remotion still src/index.ts Dyn-chemistry-layout-check out/chemistry-layout-preview.png --frame=1200
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chemistry-layout-preview
+          path: out/chemistry-layout-preview.png
