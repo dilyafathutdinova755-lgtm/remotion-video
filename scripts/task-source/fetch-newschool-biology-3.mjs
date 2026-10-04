@@ -167,13 +167,10 @@ async function readTask3(
   const hasTaskImage = await page.evaluate(() => {
     const label = [...document.querySelectorAll('a')].find(a => /№\s*3\s+по\s+КИМ/i.test(a.textContent || ''));
     if (!label) return true;
-    let region = label.parentElement;
-    while (region && !/Ответ/.test(region.innerText || '')) region = region.parentElement;
-    if (!region || region === document.body) return true;
-    return [...region.querySelectorAll('img,canvas,video,object,iframe')].some(el => {
-      const box = el.getBoundingClientRect();
-      return box.width > 40 && box.height > 40;
-    });
+    const region = label.closest('ns-trainer-task')?.querySelector('.condition');
+    if (!region) return true;
+    // The solution/login panel contains a QR image: it is NOT part of the condition.
+    return region.querySelector('img,svg,canvas,video,object,iframe') !== null;
   });
   if (hasTaskImage) return null;
 
