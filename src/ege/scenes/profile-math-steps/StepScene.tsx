@@ -22,7 +22,7 @@ const TAIL = 80;
  * равномерно внутри РЕАЛЬНОЙ длительности этого слайда (из audioSync —
  * forced-alignment граница, не оценка по словам). Ответ уже находится в
  * lines последнего шага — отдельного answer-слайда здесь нет и быть не
- * должно (contract: separate_answer_slide=false).
+ * должно при separate_answer_slide=true: тогда ответ вынесен в AnswerScene.
  *
  * Визуально — тот же SceneHeading/Line, что у старой makeSolution()
  * (src/ege/Solution.tsx) — тот же "кружок с номером шага + заголовок +

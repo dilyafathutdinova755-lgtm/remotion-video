@@ -257,7 +257,7 @@ export type FourSlidesTaskDef = {
  */
 export type ProfileMathNarrationSegment = {
   id: string;
-  kind: "intro" | "task" | "solution" | "cta";
+  kind: "intro" | "task" | "solution" | "answer" | "cta";
   startSec: number;
   endSec: number;
   stepId?: string;
@@ -290,7 +290,7 @@ export type ProfileMathAudioSync = {
  * TaskCommon — своя жёстко зафиксированная структура, как у FourSlidesTaskDef.
  *
  * Ответ — часть последнего ProfileMathStep (его строка lines), отдельного
- * answer-слайда в этом контракте НЕТ (separate_answer_slide всегда false —
+ * answer-слайд включается через separate_answer_slide=true —
  * см. profile-math-steps.mjs: validateProfileMathStepsTaskData).
  */
 export type ProfileMathStepsTaskDef = {
@@ -308,6 +308,8 @@ export type ProfileMathStepsTaskDef = {
   instruction: string;
   conditionText: string;
   steps: ProfileMathStep[];
+  answer?: string;
+  separateAnswerSlide?: boolean;
   ctaText: string;
 
   pauseSeconds: number;

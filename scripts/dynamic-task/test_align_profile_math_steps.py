@@ -218,6 +218,23 @@ def main():
             t_happy_path,
         )
 
+        def t_separate_answer():
+            task_data = base_task_data()
+            task_data['separate_answer_slide'] = True
+            task_data['solution_steps'].pop()
+            for items in [task_data['narration_segments'], task_data['narration_timing']['segments']]:
+                items[-2].update(id='answer', kind='answer', text='Ответ: 2, 3.', tts_text='Ответ: два, три.')
+                items[-2].pop('step_id', None)
+            task_data['voiceover_tts_text'] = '\n\n'.join(s['tts_text'] for s in task_data['narration_segments'])
+            code, out, err = run_align(task_data, tmp, audio_in, audio_out)
+            assert code == 0, err
+            segments = json.loads(out)['segments']
+            assert [s['kind'] for s in segments] == ['intro','task','solution','solution','answer','cta']
+            assert segments[-2]['endSec'] == segments[-1]['startSec']
+            assert segments[-3]['endSec'] == segments[-2]['startSec']
+            assert 'stepId' not in segments[-2]
+        check('Chemistry: measured standalone answer between solution and CTA', t_separate_answer)
+
         def t_invalid_timing():
             for mode in ["missing", "transcript", "overlap", "no_gap"]:
                 task_data = base_task_data()

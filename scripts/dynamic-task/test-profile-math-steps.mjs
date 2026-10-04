@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {readFileSync} from 'node:fs';
 /**
  * Regression-тесты контракта video_structure_version="chemistry-steps-v1"
  * — см. scripts/dynamic-task/profile-math-steps.mjs (единственный источник
@@ -109,11 +110,11 @@ check("pause_prompt пуст → fail-fast", () => {
   assert.ok(result.errors.some((e) => /pause_prompt/i.test(e)));
 });
 
-check("separate_answer_slide=true → fail-fast (не реализовано)", () => {
+check("separate_answer_slide=true без отдельного сегмента → fail-fast", () => {
   const bad = { ...BIO3, separate_answer_slide: true };
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => /separate_answer_slide/i.test(e)));
+  assert.ok(result.errors.length > 0);
 });
 
 check("separate_answer_slide отсутствует → fail-fast", () => {
@@ -253,6 +254,19 @@ check("kind вне intro/task/solution/cta → fail-fast", () => {
   const result = validateProfileMathStepsTaskData(bad);
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => /kind/i.test(e)));
+});
+
+check("chemistry separate answer fixture: instruction-only, answer before CTA", () => {
+  const task = JSON.parse(readFileSync(new URL('./fixtures/chemistry-layout-task.json', import.meta.url), 'utf8'));
+  assert.equal(task.separate_answer_slide, true);
+  assert.equal(task.read_options_aloud, false);
+  assert.equal(task.task_voiceover_text, task.instruction);
+  assert.deepEqual(validateProfileMathStepsTaskData(task), {ok:true,errors:[]});
+  assert.equal(task.narration_segments.at(-2).kind, 'answer');
+  assert.equal(task.narration_segments.at(-2).tts_text, 'Ответ: два, три.');
+  assert.equal(task.voiceover_tts_text.match(/два, три/g).length, 1);
+  const bad=structuredClone(task);bad.narration_segments.splice(-2,1);
+  assert.equal(validateProfileMathStepsTaskData(bad).ok,false);
 });
 
 console.log("\n--- 5. Тайминг (после align.py) ---");

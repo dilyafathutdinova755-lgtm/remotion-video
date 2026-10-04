@@ -322,6 +322,8 @@ export const DYNAMIC_TASK: ProfileMathStepsTaskDef = {
   instruction: ${j(String(taskData.instruction))},
   conditionText: ${j(String(taskData.condition_text))},
   steps,
+  answer: ${j(String(taskData.answer ?? ""))},
+  separateAnswerSlide: ${JSON.stringify(taskData.separate_answer_slide === true)},
   ctaText: ${j(String(taskData.cta_text))},
 
   pauseSeconds: ${JSON.stringify(Number(taskData.pause_seconds))},

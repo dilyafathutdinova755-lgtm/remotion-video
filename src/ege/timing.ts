@@ -208,6 +208,7 @@ export type ProfileMathScenes = {
   title: number;
   task: number;
   steps: number[];
+  answer: number;
   outro: number;
 };
 
@@ -221,6 +222,8 @@ export const buildProfileMathStepsScenes = (
   const taskSeg = segs.find((s) => s.kind === "task");
   const ctaSeg = segs.find((s) => s.kind === "cta");
   const solutionSegs = segs.filter((s) => s.kind === "solution");
+  const answerSeg = segs.find((s) => s.kind === "answer");
+  if (Boolean(answerSeg) !== Boolean(task.separateAnswerSlide)) throw new Error("Answer scene/timing mismatch");
 
   if (!introSeg || !taskSeg || !ctaSeg || solutionSegs.length === 0) {
     throw new Error(
@@ -233,13 +236,14 @@ export const buildProfileMathStepsScenes = (
     title: secAt(fps, introSeg.endSec - introSeg.startSec),
     task: secAt(fps, taskSeg.endSec - taskSeg.startSec),
     steps: solutionSegs.map((s) => secAt(fps, s.endSec - s.startSec)),
+    answer: answerSeg ? secAt(fps, answerSeg.endSec - answerSeg.startSec) : 0,
     outro: secAt(fps, ctaSeg.endSec - ctaSeg.startSec),
   };
 };
 
 export const totalProfileMathStepsFrames = (task: ProfileMathStepsTaskDef): number => {
   const s = buildProfileMathStepsScenes(task);
-  return s.title + s.task + s.steps.reduce((a, b) => a + b, 0) + s.outro;
+  return s.title + s.task + s.steps.reduce((a, b) => a + b, 0) + s.answer + s.outro;
 };
 
 /** Диспетчер по video_structure_version — нужен там, где список задач

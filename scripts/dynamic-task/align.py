@@ -1405,7 +1405,11 @@ def run_profile_math_steps_v2(args):
     if not isinstance(measured, list) or len(measured) != len(narration):
         fail('timing count differs from narration')
     kinds = [s.get('kind') for s in narration]
-    if kinds[:2] != ['intro', 'task'] or kinds[-1] != 'cta' or any(k != 'solution' for k in kinds[2:-1]):
+    separate_answer = task.get('separate_answer_slide') is True
+    middle = kinds[2:-2] if separate_answer else kinds[2:-1]
+    if separate_answer and kinds[-2] != 'answer':
+        fail('missing separate answer before CTA')
+    if kinds[:2] != ['intro', 'task'] or kinds[-1] != 'cta' or not middle or any(k != 'solution' for k in middle):
         fail('invalid narration order')
     if '\n\n'.join(s.get('tts_text', '') for s in narration) != task.get('voiceover_tts_text'):
         fail('transcript differs from synthesized text')

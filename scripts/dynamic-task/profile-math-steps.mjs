@@ -27,7 +27,7 @@ const REQUIRED_TOP_LEVEL_FIELDS = [
   "narration_segments",
 ];
 
-const VALID_KINDS = new Set(["intro", "task", "solution", "cta"]);
+const VALID_KINDS = new Set(["intro", "task", "solution", "answer", "cta"]);
 
 /**
  * Проверяет solution_steps: непустой массив, у каждого шага непустые
@@ -77,7 +77,7 @@ function validateSolutionSteps(solutionSteps, errors) {
  * fail-fast: отсюда движок align.py берёт spoken-секции, и именно этот
  * порядок разметка предполагает жёстко (intro → task → шаги → cta).
  */
-function validateNarrationSegments(narrationSegments, solutionStepIds, errors) {
+function validateNarrationSegments(narrationSegments, solutionStepIds, errors, separateAnswer) {
   if (!Array.isArray(narrationSegments) || narrationSegments.length === 0) {
     errors.push("narration_segments должен быть непустым массивом");
     return;
@@ -123,7 +123,10 @@ function validateNarrationSegments(narrationSegments, solutionStepIds, errors) {
     errors.push('последний narration_segments[].kind должен быть "cta"');
   }
 
-  const middle = kinds.slice(2, kinds.length - 1);
+  if (separateAnswer && kinds[kinds.length - 2] !== "answer") {
+    errors.push('Отдельный answer должен идти непосредственно перед cta');
+  }
+  const middle = kinds.slice(2, kinds.length - (separateAnswer ? 2 : 1));
   if (middle.some((k) => k !== "solution")) {
     errors.push(
       'между "task" и "cta" в narration_segments должны быть только kind="solution" сегменты, по порядку',
@@ -190,13 +193,20 @@ export function validateProfileMathStepsTaskData(taskData) {
     errors.push("pause_prompt пуст после trim()");
   }
 
-  // Контракт реализует ТОЛЬКО separate_answer_slide=false (ответ — часть
-  // последнего шага). Любое другое значение — явный отказ, а не молчаливое
-  // игнорирование несовпавшего контракта (см. постановку задачи).
-  if (taskData.separate_answer_slide !== false) {
-    errors.push(
-      `separate_answer_slide должен быть ровно false — этот рендерер не поддерживает отдельный слайд ответа, получено: ${JSON.stringify(taskData.separate_answer_slide)}`,
-    );
+  if (typeof taskData.separate_answer_slide !== "boolean") {
+    errors.push("separate_answer_slide должен быть boolean");
+  }
+  if (taskData.separate_answer_slide === true) {
+    if (!/^[1-9]{1,6}$/.test(taskData.answer ?? "")) errors.push("Отсутствует цифровой ответ");
+    if (taskData.read_options_aloud !== false || taskData.task_voiceover_text !== taskData.instruction) {
+      errors.push("Новая структура читает только instruction, без вариантов");
+    }
+    const answerSegments = taskData.narration_segments.filter(s => s.kind === "answer");
+    const expected = `Ответ: ${String(taskData.answer).split('').join(', ')}.`;
+    if (answerSegments.length !== 1 || answerSegments[0].text !== expected) errors.push("Нужен ровно один канонический сегмент ответа");
+    if (taskData.solution_steps.some(s => /ответ\s*:/iu.test([s.title,...s.lines,s.voiceover_text ?? ''].join(' ')))) {
+      errors.push("Ответ должен быть только на отдельном слайде");
+    }
   }
 
   if (typeof taskData.instruction !== "string") {
@@ -210,7 +220,7 @@ export function validateProfileMathStepsTaskData(taskData) {
   }
 
   const solutionStepIds = validateSolutionSteps(taskData.solution_steps, errors);
-  validateNarrationSegments(taskData.narration_segments, solutionStepIds, errors);
+  validateNarrationSegments(taskData.narration_segments, solutionStepIds, errors, taskData.separate_answer_slide);
 
   return { ok: errors.length === 0, errors };
 }

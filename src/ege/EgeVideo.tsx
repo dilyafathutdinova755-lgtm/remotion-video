@@ -1,3 +1,4 @@
+import { ChemistryAnswerScene } from "./scenes/profile-math-steps/AnswerScene";
 import { AbsoluteFill, Audio, Sequence, Series, staticFile } from "remotion";
 import { Background } from "./Background";
 import { Watermark } from "./Watermark";
@@ -154,7 +155,7 @@ const FourSlidesVideo: React.FC<{ task: Extract<TaskDef, { videoStructureVersion
  * forced-alignment секунды из audioSync.segments (align.py:
  * run_profile_math_steps_v2), переведённые в кадры на task.renderFps (НЕ
  * на общем VIDEO.fps — см. timing.ts: buildProfileMathStepsScenes). Никакого
- * отдельного answer-слайда: separate_answer_slide=false гарантирован ещё на
+ * Отдельный answer-слайд поддерживается при separate_answer_slide=true на
  * этапе build-dynamic-task.mjs (validateProfileMathStepsTaskData).
  */
 const ProfileMathStepsVideo: React.FC<{
@@ -181,6 +182,9 @@ const ProfileMathStepsVideo: React.FC<{
                 <ProfileMathStepScene step={step} index={i} />
               </Series.Sequence>
             ))}
+            {task.separateAnswerSlide && <Series.Sequence durationInFrames={scenes.answer}>
+              <ChemistryAnswerScene />
+            </Series.Sequence>}
             <Series.Sequence durationInFrames={scenes.outro}>
               <ProfileMathOutroScene />
             </Series.Sequence>
