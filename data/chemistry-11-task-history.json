@@ -11,6 +11,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/28385",
       "source_task_id": "28385"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_chemistry_11:github-run:37197064312",
+      "reserved_at": "2026-10-04T10:59:49.030Z",
+      "task_number": 11,
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются изомерами по отношению друг к другу.\n\n1) триэтиламин\n\n2) диэтиламин\n\n3) изобутиламин\n\n4) анилин\n\n5) аланин\n\nЗапишите номера выбранных ответов.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/85766",
+      "source_task_id": "85766"
     }
   ]
 }
