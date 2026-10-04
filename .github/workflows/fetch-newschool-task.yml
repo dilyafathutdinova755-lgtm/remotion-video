@@ -1,6 +1,6 @@
 # Chemistry-only dispatch entrypoint on chemistry-11.
 # The production Russian branch is unchanged.
-name: Fetch chemistry task 3
+name: Fetch chemistry task 11
 
 on:
   workflow_dispatch: {}
@@ -44,7 +44,7 @@ jobs:
           node --check scripts/task-source/chemistry-github-history.mjs
           node --check scripts/task-source/fetch-newschool-chemistry-11.mjs
 
-      - name: Find unique task 3 and send to chemistry n8n
+      - name: Find unique task 11 and send to chemistry n8n
         env:
           GITHUB_TOKEN: ${{ github.token }}
           N8N_NEWSCHOOL_WEBHOOK_URL: ${{ secrets.N8N_CHEMISTRY_WEBHOOK_URL }}
