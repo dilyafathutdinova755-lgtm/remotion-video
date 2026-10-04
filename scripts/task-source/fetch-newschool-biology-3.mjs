@@ -19,7 +19,7 @@ import {
 } from 'node:fs';
 
 const LISTING_URL =
-  'https://thenewschool.ru/trainer/biology/6?enableSolvedTasks=false&randomTask=true&taskNumbers=112';
+  'https://thenewschool.ru/trainer/biology/6?enableSolvedTasks=false&randomTask=true&taskNumberIn=112&topicIdIn=';
 
 const TASK_URL =
   'https://thenewschool.ru/trainer/task/';
