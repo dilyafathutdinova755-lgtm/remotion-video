@@ -120,6 +120,15 @@
       "condition_text": "Главную суть своей книги учёный изложил на научной конференции.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=97"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37197208700",
+      "reserved_at": "2026-10-04T11:03:27.753Z",
+      "task_number": 7,
+      "condition_text": "модных САПОГОВ\nоколо ШЕСТИСОТ рублей\nнет ТУФЕЛЬ\nДЕВЯТЬЮСТАМИ отдыхающими\nуважаемые ПРОФЕССОРА",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=97"
     }
   ]
 }
