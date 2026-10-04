@@ -1,5 +1,16 @@
 {
   "schema_version": 1,
   "scope": "ege_biology_3",
-  "entries": []
+  "entries": [
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37191489311",
+      "reserved_at": "2026-10-04T09:16:18.627Z",
+      "task_number": 3,
+      "condition_text": "Сперматозоид коня содержит 32 хромосомы. Какой набор хромосом имеет соматическая клетка тела лошади? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84366",
+      "source_task_id": "84366"
+    }
+  ]
 }
