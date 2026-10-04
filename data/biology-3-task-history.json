@@ -11,6 +11,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84366",
       "source_task_id": "84366"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37215115484",
+      "reserved_at": "2026-10-04T16:02:31.237Z",
+      "task_number": 3,
+      "condition_text": "В процессе диссимиляции произошло образование 26 молекул молочной кислоты. Определите, сколько молекул АТФ образовалось на третьем этапе диссимиляции при дальнейшем окислении молекул молочной кислоты до углекислого газа? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/57632",
+      "source_task_id": "57632"
     }
   ]
 }
