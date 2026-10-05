@@ -21,6 +21,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/57632",
       "source_task_id": "57632"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37280925845",
+      "reserved_at": "2026-10-05T08:02:47.073Z",
+      "task_number": 3,
+      "condition_text": "Сколько витков имеет участок двойной спирали ДНК, контролирующий синтез белка с молекулярной массой 4000, если молекулярная масса одной аминокислоты составляет в среднем 100, а на один виток спирали ДНК приходится 10 нуклеотидов?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/48244",
+      "source_task_id": "48244"
     }
   ]
 }
