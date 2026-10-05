@@ -138,6 +138,15 @@
       "condition_text": "Судьба подарила нам бесплатно этот безоблачно-яркий день, и мы стоим на снежной вершине Альп.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=45"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37270257228",
+      "reserved_at": "2026-10-05T06:03:12.817Z",
+      "task_number": 7,
+      "condition_text": "о ЧЕТЫРЁХСТАХ городах\nс ПЯТИСТА рублями\nв ДВУХТЫСЯЧНОМ году\nКЛАДИ на место\nваши ПАСПОРТА",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=45"
     }
   ]
 }
