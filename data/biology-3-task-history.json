@@ -41,6 +41,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/13924",
       "source_task_id": "13924"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37337350870",
+      "reserved_at": "2026-10-05T16:02:49.845Z",
+      "task_number": 3,
+      "condition_text": "Фрагмент зрелой молекулы иРНК содержит 2130 нуклеотидов. Определите количество аминокислот в составе полипептида, закодированного на данном фрагменте иРНК. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/71203",
+      "source_task_id": "71203"
     }
   ]
 }
