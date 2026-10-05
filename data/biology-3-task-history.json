@@ -31,6 +31,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/48244",
       "source_task_id": "48244"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37313471844",
+      "reserved_at": "2026-10-05T13:02:55.910Z",
+      "task_number": 3,
+      "condition_text": "Сколько половых хромосом содержит соматическая клетка млекопитающего, если в ней содержится 60 хромосом? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/13924",
+      "source_task_id": "13924"
     }
   ]
 }
