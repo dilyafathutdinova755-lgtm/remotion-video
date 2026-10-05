@@ -147,6 +147,15 @@
       "condition_text": "о ЧЕТЫРЁХСТАХ городах\nс ПЯТИСТА рублями\nв ДВУХТЫСЯЧНОМ году\nКЛАДИ на место\nваши ПАСПОРТА",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=45"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37300111485",
+      "reserved_at": "2026-10-05T11:03:23.836Z",
+      "task_number": 6,
+      "condition_text": "По воспоминаниям К. С. Станиславского, первая премьера одного из его спектаклей чуть не обернулась катастрофой: за час до начала спектакля упали все ширмы, служившие декорациями.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=47"
     }
   ]
 }
