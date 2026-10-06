@@ -165,6 +165,15 @@
       "condition_text": "СКОРЕЙШЕГО выздоровления\nИСПЕКЁТ пирожок\nОБОИМИ столами\nКОЛЫШЕТСЯ листва\nизвестные КОНСТРУКТОРЫ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=47"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37421359443",
+      "reserved_at": "2026-10-06T06:03:35.167Z",
+      "task_number": 6,
+      "condition_text": "Я решил ознакомиться с полным прейскурантом цен на продукцию фабрики.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=49"
     }
   ]
 }
