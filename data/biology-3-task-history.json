@@ -61,6 +61,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/86524",
       "source_task_id": "86524"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37467368838",
+      "reserved_at": "2026-10-06T13:02:53.706Z",
+      "task_number": 3,
+      "condition_text": "В клетке эндосперма семени кукурузы 30 хромосом. Какой набор хромосом имеет яйцеклетка кукурузы? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/36654",
+      "source_task_id": "36654"
     }
   ]
 }
