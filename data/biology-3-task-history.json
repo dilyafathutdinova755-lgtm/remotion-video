@@ -51,6 +51,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/71203",
       "source_task_id": "71203"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37433204184",
+      "reserved_at": "2026-10-06T08:02:36.185Z",
+      "task_number": 3,
+      "condition_text": "В некоторой молекуле РНК на долю нуклеотидов с урацилом приходится 13%. Определите долю нуклеотидов с аденином на матричной цепи молекулы ДНК. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/86524",
+      "source_task_id": "86524"
     }
   ]
 }
