@@ -61,6 +61,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/86509",
       "source_task_id": "86509"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37426968148",
+      "reserved_at": "2026-10-06T07:02:48.151Z",
+      "task_number": 10,
+      "condition_text": "На изготовление 99 деталей первый рабочий тратит на 2 часа меньше, чем второй рабочий на изготовление 110 таких же деталей. Известно, что первый рабочий за час делает на 1 деталь больше, чем второй. Сколько деталей в час делает второй рабочий?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/1293",
+      "source_task_id": "1293"
     }
   ]
 }
