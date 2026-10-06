@@ -71,6 +71,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/1293",
       "source_task_id": "1293"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37460162482",
+      "reserved_at": "2026-10-06T12:03:14.387Z",
+      "task_number": 10,
+      "condition_text": "Расстояние между городами A и B равно 470 км. Из города A в город B выехал первый автомобиль, а через 3 часа после этого навстречу ему из города B выехал со скоростью 60 км/ч второй автомобиль. Найдите скорость первого автомобиля, если автомобили встретились на расстоянии 350 км от города A. Ответ дайте в км/ч.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/1295",
+      "source_task_id": "1295"
     }
   ]
 }
