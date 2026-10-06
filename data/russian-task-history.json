@@ -183,6 +183,15 @@
       "condition_text": "он более МОЛОЖЕ\nпосле БУДНЕЙ\nнет СВЕЧЕЙ\nпять ОЛАДИЙ\nИХ тетрадей",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=49"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37475291376",
+      "reserved_at": "2026-10-06T14:04:07.688Z",
+      "task_number": 6,
+      "condition_text": "Автор трактата поднимает сложную философскую дилемму: «В чём смысл и цель существования человека?»",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=52"
     }
   ]
 }
