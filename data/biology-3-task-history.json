@@ -81,6 +81,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/50180",
       "source_task_id": "50180"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37590866840",
+      "reserved_at": "2026-10-07T08:02:41.674Z",
+      "task_number": 3,
+      "condition_text": "В клетке листа лука 16 хромосом. Какой набор хромосом имеют клетки эндосперма семени лука? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84368",
+      "source_task_id": "84368"
     }
   ]
 }
