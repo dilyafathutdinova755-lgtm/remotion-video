@@ -192,6 +192,15 @@
       "condition_text": "Автор трактата поднимает сложную философскую дилемму: «В чём смысл и цель существования человека?»",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=52"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37579129015",
+      "reserved_at": "2026-10-07T06:04:39.453Z",
+      "task_number": 7,
+      "condition_text": "цепь ОБЛАКОВ\nДЕВЯТЬЮСТАМИ отдыхающими\nВЫЛОЖИ на сайт\nопытные ДОКТОРА\nмного ВАФЛЕЙ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=52"
     }
   ]
 }
