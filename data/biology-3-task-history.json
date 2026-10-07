@@ -101,6 +101,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/36653",
       "source_task_id": "36653"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37648538322",
+      "reserved_at": "2026-10-07T16:02:39.146Z",
+      "task_number": 3,
+      "condition_text": "В молекуле ДНК количество нуклеотидов с гуанином составляет 21 процент от общего числа. Какой процент нуклеотидов с аденином в этой молекуле? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/22581",
+      "source_task_id": "22581"
     }
   ]
 }
