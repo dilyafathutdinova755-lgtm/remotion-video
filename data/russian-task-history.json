@@ -201,6 +201,15 @@
       "condition_text": "цепь ОБЛАКОВ\nДЕВЯТЬЮСТАМИ отдыхающими\nВЫЛОЖИ на сайт\nопытные ДОКТОРА\nмного ВАФЛЕЙ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=52"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37611096665",
+      "reserved_at": "2026-10-07T11:03:56.260Z",
+      "task_number": 7,
+      "condition_text": "урожай ПОМИДОРОВ\nБЛИЖАЙШАЯ станция\nу наших ВОРОТ\nнет ПОЛТОРАСТА рублей\nдетские ДОКТОРА",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=39"
     }
   ]
 }
