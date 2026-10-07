@@ -91,6 +91,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/37674",
       "source_task_id": "37674"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37584665741",
+      "reserved_at": "2026-10-07T07:02:24.678Z",
+      "task_number": 10,
+      "condition_text": "Имеется два сплава. Первый содержит 20% меди, второй — 40% меди. Из этих двух сплавов получили третий сплав массой 300 кг, содержащий 30% меди. На сколько килограммов масса первого сплава была меньше массы второго?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/72584",
+      "source_task_id": "72584"
     }
   ]
 }
