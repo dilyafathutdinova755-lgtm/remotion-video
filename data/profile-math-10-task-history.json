@@ -111,6 +111,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/86515",
       "source_task_id": "86515"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37641376427",
+      "reserved_at": "2026-10-07T15:02:10.708Z",
+      "task_number": 10,
+      "condition_text": "Из двух городов, расстояние между которыми равно 560 км, навстречу друг другу одновременно выехали два автомобиля. Через сколько часов автомобили встретятся, если их скорости равны 65 км/ч и 75 км/ч?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/85778",
+      "source_task_id": "85778"
     }
   ]
 }
