@@ -91,6 +91,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84368",
       "source_task_id": "84368"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37625100653",
+      "reserved_at": "2026-10-07T13:01:57.947Z",
+      "task_number": 3,
+      "condition_text": "В клетке листа ржи 14 хромосом. Какой набор хромосом имеют клетки эндосперма семени ржи? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/36653",
+      "source_task_id": "36653"
     }
   ]
 }
