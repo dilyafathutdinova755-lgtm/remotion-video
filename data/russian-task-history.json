@@ -210,6 +210,15 @@
       "condition_text": "урожай ПОМИДОРОВ\nБЛИЖАЙШАЯ станция\nу наших ВОРОТ\nнет ПОЛТОРАСТА рублей\nдетские ДОКТОРА",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=39"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37633031414",
+      "reserved_at": "2026-10-07T14:04:20.525Z",
+      "task_number": 7,
+      "condition_text": "опытные ТРЕНЕРЫ\nпо ОБОИМ сторонам\nзвучит не менее ГРОМКО\nПОЕЗЖАЙТЕ вперёд\nнет ТУФЕЛЬ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=93"
     }
   ]
 }
