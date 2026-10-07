@@ -101,6 +101,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/72584",
       "source_task_id": "72584"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37617902659",
+      "reserved_at": "2026-10-07T12:02:33.112Z",
+      "task_number": 10,
+      "condition_text": "Две трубы наполняют бассейн за 3 часа 36 минут, а одна первая труба наполняет бассейн за 6 часов. За сколько часов наполняет бассейн одна вторая труба?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/86515",
+      "source_task_id": "86515"
     }
   ]
 }
