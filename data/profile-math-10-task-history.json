@@ -121,6 +121,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/85778",
       "source_task_id": "85778"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:37927200716",
+      "reserved_at": "2026-10-09T12:03:03.505Z",
+      "task_number": 10,
+      "condition_text": "В 2017 году в сельском округе проживало 15000 человек. В 2018 году, благодаря программам поддержки, число жителей увеличилось на 8%, а в 2019 году на 5% по сравнению с 2018 годом. Сколько человек стало проживать в округе в 2019 году?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/72566",
+      "source_task_id": "72566"
     }
   ]
 }
