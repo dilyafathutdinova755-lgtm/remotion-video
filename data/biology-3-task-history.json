@@ -111,6 +111,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/22581",
       "source_task_id": "22581"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37933765271",
+      "reserved_at": "2026-10-09T13:02:24.217Z",
+      "task_number": 3,
+      "condition_text": "Сколько хромосом имеет соматическая клетка животного, если гаметы содержат 38 хромосом? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/49819",
+      "source_task_id": "49819"
     }
   ]
 }
