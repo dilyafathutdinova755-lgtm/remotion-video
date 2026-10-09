@@ -219,6 +219,15 @@
       "condition_text": "опытные ТРЕНЕРЫ\nпо ОБОИМ сторонам\nзвучит не менее ГРОМКО\nПОЕЗЖАЙТЕ вперёд\nнет ТУФЕЛЬ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=93"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:37921024029",
+      "reserved_at": "2026-10-09T11:05:16.079Z",
+      "task_number": 6,
+      "condition_text": "Первый тур стартовавшего в Швеции чемпионата мира по хоккею не принёс никаких неожиданных сюрпризов.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=41"
     }
   ]
 }
