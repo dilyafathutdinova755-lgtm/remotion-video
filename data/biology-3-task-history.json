@@ -121,6 +121,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/49819",
       "source_task_id": "49819"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:37955874101",
+      "reserved_at": "2026-10-09T16:03:11.609Z",
+      "task_number": 3,
+      "condition_text": "В некоторой молекуле ДНК эукариотического организма на долю нуклеотидов с тимином приходится 18 %. Определите долю нуклеотидов с аденином, входящих в состав этой молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/51462",
+      "source_task_id": "51462"
     }
   ]
 }
