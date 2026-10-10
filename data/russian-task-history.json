@@ -237,6 +237,15 @@
       "condition_text": "нет ТУФЕЛЬ\nмягких КРЕСЕЛ\nСЕМИСТАМИ жителями\nбез САПОГ\nДВУМСТАМ пятидесяти рублям",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=41"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38029402403",
+      "reserved_at": "2026-10-10T06:04:35.676Z",
+      "task_number": 7,
+      "condition_text": "золочёные КУПОЛА\nПОЕЗЖАЙ вперёд\nпирожки с ПОВИДЛОЙ\nболее СТРОГО\nпара ПОЛОТЕНЕЦ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=202"
     }
   ]
 }
