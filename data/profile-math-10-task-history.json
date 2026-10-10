@@ -141,6 +141,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/88502",
       "source_task_id": "88502"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:38032876954",
+      "reserved_at": "2026-10-10T07:02:43.922Z",
+      "task_number": 10,
+      "condition_text": "Имеются два сплава. Первый сплав содержит 30% цинка, второй — 40% цинка. Масса второго сплава больше массы первого на 6 кг. Из этих двух сплавов получили третий сплав, содержащий 35% цинка. Найдите массу третьего сплава. Ответ дайте в килограммах.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/72607",
+      "source_task_id": "72607"
     }
   ]
 }
