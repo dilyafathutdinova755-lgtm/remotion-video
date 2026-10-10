@@ -151,6 +151,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/72607",
       "source_task_id": "72607"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:38050370139",
+      "reserved_at": "2026-10-10T12:03:34.099Z",
+      "task_number": 10,
+      "condition_text": "Первая труба пропускает на 8 литров воды в минуту меньше, чем вторая. Сколько литров воды в минуту пропускает первая труба, если резервуар объемом 660 литров она заполняет на 11 минут дольше, чем вторая труба заполняет резервуар объемом 570 литров?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/23400",
+      "source_task_id": "23400"
     }
   ]
 }
