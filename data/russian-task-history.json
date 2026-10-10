@@ -246,6 +246,15 @@
       "condition_text": "золочёные КУПОЛА\nПОЕЗЖАЙ вперёд\nпирожки с ПОВИДЛОЙ\nболее СТРОГО\nпара ПОЛОТЕНЕЦ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=202"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38046843128",
+      "reserved_at": "2026-10-10T11:07:05.978Z",
+      "task_number": 6,
+      "condition_text": "Чтобы постичь науку, нужно знать первые ее азы.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=513"
     }
   ]
 }
