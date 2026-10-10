@@ -151,6 +151,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/14817",
       "source_task_id": "14817"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38065862534",
+      "reserved_at": "2026-10-10T16:02:38.533Z",
+      "task_number": 3,
+      "condition_text": "Яйцеклетка человека содержит 23 хромосомы. Сколько хромосом содержит соматическая клетка человека? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/69226",
+      "source_task_id": "69226"
     }
   ]
 }
