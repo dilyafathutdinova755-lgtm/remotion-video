@@ -1,0 +1,9 @@
+{
+  "name": "vessels-3d-experiment",
+  "private": true,
+  "type": "module",
+  "description": "Standalone experiment: own 3D renderer (Three.js + headless Chromium + ffmpeg), no Remotion.",
+  "dependencies": {
+    "three": "0.170.0"
+  }
+}

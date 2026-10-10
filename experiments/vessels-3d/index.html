@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Vessels 3D</title>
+<style>
+@font-face { font-family: "Inter"; font-weight: 500; src: url(/public/fonts/Inter-500-cyrillic.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Inter"; font-weight: 500; src: url(/public/fonts/Inter-500-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2190-21FF, U+2212, U+2713; }
+@font-face { font-family: "Inter"; font-weight: 600; src: url(/public/fonts/Inter-600-cyrillic.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Inter"; font-weight: 600; src: url(/public/fonts/Inter-600-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2190-21FF, U+2212, U+2713; }
+@font-face { font-family: "Inter"; font-weight: 700; src: url(/public/fonts/Inter-700-cyrillic.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Inter"; font-weight: 700; src: url(/public/fonts/Inter-700-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2190-21FF, U+2212, U+2713; }
+@font-face { font-family: "Inter"; font-weight: 800; src: url(/public/fonts/Inter-800-cyrillic.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Inter"; font-weight: 800; src: url(/public/fonts/Inter-800-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2190-21FF, U+2212, U+2713; }
+
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Inter", sans-serif;
+  --text: #121528; --sub: #6a6f8e; --accent: #5653f0; -webkit-font-smoothing: antialiased; }
+#gl { position: absolute; inset: 0; width: 1080px; height: 1920px; z-index: 2; }
+
+.bg { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
+.glow { position: absolute; left: 0; top: 0; border-radius: 50%; }
+.vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 85% 62% at 50% 46%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.6) 100%); }
+
+.plaque { position: absolute; z-index: 1; border-radius: 999px; background: rgba(255,255,255,0.94);
+  box-shadow: 0 18px 50px rgba(30,40,100,0.20), inset 0 1px 0 #fff; display: flex; align-items: center; overflow: hidden; transform-origin: 60px 50%; }
+.plaque-slot { width: 80px; height: 80px; margin-left: 12px; flex: none; }
+.plaque-text { margin-left: 22px; font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
+
+.dots { position: absolute; z-index: 3; top: 382px; left: 0; right: 0; display: flex; justify-content: center; gap: 12px; }
+.dot { height: 14px; width: 14px; border-radius: 7px; }
+
+.head { position: absolute; z-index: 3; top: 424px; left: 30px; right: 30px; text-align: center; }
+.hf { position: relative; }
+.hf .hl { position: absolute; left: 0; right: 0; top: 0; white-space: nowrap; }
+.hf.eyebrow { height: 46px; }
+.hf.eyebrow .hl { font-size: 30px; font-weight: 700; color: var(--accent); letter-spacing: 0.01em; }
+.hf.title { height: 100px; }
+.hf.title .hl { font-size: 86px; line-height: 100px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+.hf.sub { height: 52px; }
+.hf.sub .hl { font-size: 37px; line-height: 52px; font-weight: 500; color: var(--sub); }
+
+.stickers, .flyers { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.flyers { z-index: 7; }
+.sticker { position: absolute; left: 0; top: 0; padding: 14px 30px; border-radius: 999px; background: #fff; color: #121528;
+  font-weight: 800; font-size: 42px; letter-spacing: -0.01em; white-space: nowrap;
+  box-shadow: 0 16px 36px rgba(20,25,70,0.24), inset 0 -3px 0 rgba(20,25,70,0.06); }
+.sticker b { font-weight: 600; color: #7a7f9a; }
+.sticker.accent { background: linear-gradient(135deg, #6b86ff, #3a46ff); color: #fff; box-shadow: 0 18px 44px rgba(58,70,255,0.5); }
+.sticker.accent b { color: #ffe066; font-weight: 800; }
+.sticker.violet { background: linear-gradient(135deg, #a77bff, #6c3bff); color: #fff; box-shadow: 0 18px 44px rgba(108,59,255,0.45); }
+.sticker.ghosty { background: rgba(255,255,255,0.5); border: 3px dashed rgba(110,100,200,0.65); color: #5b5b8f; box-shadow: none; }
+.sticker.result { background: #fff; border: 4px solid var(--accent); font-size: 46px; }
+.sticker.answer { font-size: 64px; padding: 20px 44px; background: linear-gradient(135deg, #6b86ff, #3a46ff); color: #fff; box-shadow: 0 22px 54px rgba(58,70,255,0.5); }
+.sticker.answer b { color: #ffe066; font-weight: 800; }
+.sticker.answer.done { background: linear-gradient(135deg, #3ef0a8, #10b67a); box-shadow: 0 22px 60px rgba(30,220,140,0.55); }
+.sticker em { font-style: normal; }
+
+.notes { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.note-wrap { position: absolute; left: 90px; width: 900px; top: 1345px; }
+.note { position: relative; background: #fff; border-radius: 40px; padding: 24px 40px 26px; box-shadow: 0 30px 70px rgba(20,25,70,0.26); transform-origin: 50% 100%; }
+.note-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.note-top i { width: 16px; height: 16px; border-radius: 50%; background: #ff5f57; display: block; }
+.note-top i:nth-child(2) { background: #febc2e; }
+.note-top i:nth-child(3) { background: #28c840; }
+.note-top span { margin-left: 14px; font-size: 26px; font-weight: 600; color: #8a8fa8; }
+.note-line { display: flex; align-items: center; height: 74px; font-size: 54px; font-weight: 700; color: #121528; letter-spacing: -0.01em; }
+.caret { width: 5px; height: 54px; background: var(--accent); margin-left: 5px; border-radius: 3px; }
+mark { color: inherit; padding: 0 6px; border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,205,60,0.9) calc(var(--hk) * 100%), rgba(255,205,60,0) calc(var(--hk) * 100%));
+  background-size: 100% 52%; background-position: 0 92%; background-repeat: no-repeat; }
+.floor-shadow { position: absolute; left: 6%; right: 6%; height: 90px; bottom: -78px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(15,15,45,0.55), rgba(15,15,45,0)); }
+
+.eq-wrap { position: absolute; z-index: 4; left: 75px; width: 930px; }
+.eq-wrap .floor-shadow { bottom: auto; }
+.eq-card { position: relative; background: #fff; border-radius: 46px; box-shadow: 0 36px 90px rgba(20,25,70,0.3); overflow: hidden; transform-origin: 50% 0%; }
+.eq-box { position: absolute; inset: 0; }
+.eq-tok { position: absolute; left: 50%; top: 0; font-size: 66px; font-weight: 800; color: #121528; white-space: nowrap; letter-spacing: -0.015em; }
+.eq-tok.final { font-size: 84px; color: #0c9e66; text-shadow: 0 0 calc(var(--glow, 0) * 34px) rgba(46,229,157,0.85); }
+
+.pause-veil { position: absolute; z-index: 2; left: 0; right: 0; top: 365px; bottom: 0; backdrop-filter: blur(10px) saturate(0.75); -webkit-backdrop-filter: blur(10px) saturate(0.75); background: rgba(255,255,255,0.18); }
+.pause-wrap { position: absolute; z-index: 4; left: 290px; top: 760px; width: 500px; height: 500px; }
+.pause-wrap .floor-shadow { bottom: -110px; height: 110px; }
+.pause-card { width: 500px; height: 500px; border-radius: 120px; background: linear-gradient(160deg, #ffffff, #eef0ff);
+  box-shadow: 0 40px 100px rgba(30,30,100,0.32), inset 0 2px 0 #fff; display: flex; align-items: center; justify-content: center; position: relative; }
+.ring { position: absolute; width: 400px; height: 400px; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 14; }
+.ring-bg { stroke: rgba(86,83,240,0.13); }
+.ring-fg { stroke: #5653f0; stroke-linecap: round; stroke-dasharray: 540.4; }
+.bars { display: flex; gap: 46px; }
+.bars i { display: block; width: 64px; height: 196px; border-radius: 26px; background: linear-gradient(180deg, #7c79ff, #4643e6); box-shadow: 0 16px 34px rgba(70,67,230,0.42); }
+
+.chip { position: absolute; z-index: 8; left: 540px; white-space: nowrap; border-radius: 999px; font-weight: 800; }
+.cta-a { top: 1385px; padding: 26px 58px; font-size: 48px; color: #fff; background: linear-gradient(135deg, #3b7bff, #1652f0); box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
+.cta-b { top: 1515px; padding: 20px 46px; font-size: 40px; background: #fff; color: #121528; box-shadow: 0 16px 36px rgba(20,25,70,0.22); }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js",
+  "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="stage"><canvas id="gl" width="1080" height="1920"></canvas></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
