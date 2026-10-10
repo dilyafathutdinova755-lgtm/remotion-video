@@ -131,6 +131,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/51462",
       "source_task_id": "51462"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38036349428",
+      "reserved_at": "2026-10-10T08:02:33.516Z",
+      "task_number": 3,
+      "condition_text": "В некоторой молекуле ДНК на долю нуклеотидов с цитозином приходится 42%. Определите процентное содержание нуклеотидов с аденином, входящих в состав этой молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84447",
+      "source_task_id": "84447"
     }
   ]
 }
