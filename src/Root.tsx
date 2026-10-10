@@ -37,6 +37,11 @@ import { CHEMISTRY_TASKS } from "./ege/tasks/chemistry";
 import { OGE8_TASKS } from "./ege/tasks/oge8";
 import { OGE9_TASKS } from "./ege/tasks/oge9";
 import { DYNAMIC_TASKS } from "./ege/tasks/_dynamic.generated";
+import {
+  MathVesselsVideo,
+  MATH_VESSELS_DURATION_FRAMES,
+  MATH_VESSELS_FPS,
+} from "./experiments/math-vessels/MathVesselsVideo";
 
 /**
  * Композиции задаются описанием задачи из src/ege/tasks. Чтобы добавить
@@ -81,5 +86,17 @@ export const RemotionRoot: React.FC = () => (
         height={VIDEO.height}
       />
     ))}
+
+    {/* Отдельный локальный эксперимент (вне контент-завода, см. отчёт):
+        ЕГЭ профильная математика №10, визуализация условия сосудами. Не
+        часть TASKS/task_data-пайплайна — ни align.py, ни n8n её не видят. */}
+    <Composition
+      id="MathVesselsExperiment"
+      component={MathVesselsVideo}
+      durationInFrames={MATH_VESSELS_DURATION_FRAMES}
+      fps={MATH_VESSELS_FPS}
+      width={VIDEO.width}
+      height={VIDEO.height}
+    />
   </>
 );
