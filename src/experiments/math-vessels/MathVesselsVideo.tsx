@@ -1,6 +1,6 @@
 import { AbsoluteFill, Audio, Series, staticFile } from "remotion";
-import { Background } from "../../ege/Background";
 import { paletteFor, paletteVars } from "../../ege/theme";
+import { ExperimentBackground } from "./ExperimentBackground";
 import { MathVesselsMain } from "./MathVesselsMain";
 import { CtaScene } from "./CtaScene";
 import { TOTAL_SEC, beat, secToFrame } from "./timing";
@@ -22,7 +22,7 @@ export const MathVesselsVideo: React.FC = () => {
 
   return (
     <AbsoluteFill style={paletteVars(paletteFor("blue"))}>
-      <Background />
+      <ExperimentBackground />
       <Audio src={staticFile("audio/experiment-math-vessels.mp3")} />
 
       <Series>

@@ -1,4 +1,4 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate, Easing } from "remotion";
 import { COLORS, FONTS, PAD, SAFE } from "../../ege/theme";
 import { AppLogo } from "../../ege/AppLogo";
 import { SceneHeading } from "../../ege/MathBits";
@@ -80,32 +80,45 @@ export const MathVesselsMain: React.FC = () => {
   });
   const cardOpacity = 1 - cardCollapse;
   const cardScale = interpolate(cardCollapse, [0, 1], [1, 0.92]);
+  // Текст условия должен ПОЛНОСТЬЮ покидать экран (не просто гаснуть на
+  // месте) — к схлопыванию высоты добавлен уход вверх, чтобы на этапе
+  // решения в кадре оставалась только иллюстрация с сосудами.
+  const cardExitY = interpolate(cardCollapse, [0, 1], [0, -70]);
 
   // --- "Камера": лёгкий зум к активному сосуду во время чтения условия ----
-  let camScale = 1;
-  let camX = 0;
-  if (!isStepsPhase) {
-    const focusVessel1 = interpolate(
-      sec,
-      [beat("c1").startSec, beat("c1").endSec, beat("c2").startSec],
-      [0, 1, 0],
-      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-    );
-    const focusVessel2 = interpolate(
-      sec,
-      [beat("c2").startSec, beat("c2").endSec, beat("c3").startSec + 0.4],
-      [0, 1, 0],
-      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-    );
-    camScale = 1 + focusVessel1 * 0.06 + focusVessel2 * 0.03;
-    camX = focusVessel1 * -26 + focusVessel2 * 18;
-  } else {
-    // Шаги решения — камера чуть ближе к сосудам в целом (общий→крупный план).
-    camScale = interpolate(sec, [stepsStartSec - 0.6, stepsStartSec + 0.3], [1, 1.1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-  }
+  // ВАЖНО: раньше тут была ветка if(!isStepsPhase)/else с ДВУМЯ разными
+  // формулами camScale, переключаемыми булевым флагом — на границе
+  // stepsStartSec значение прыгало мгновенно (это и была часть "обрывистого"
+  // перехода из фидбека). Теперь обе фазы считаются одной непрерывной
+  // интерполяцией: conditionZoom/conditionX гаснут сами по себе задолго до
+  // stepsStartSec (окна c1/c2 давно позади), а vesselTransition плавно
+  // подмешивает к ним stepsZoom — переключения по кадру больше нет.
+  const focusVessel1 = interpolate(
+    sec,
+    [beat("c1").startSec, beat("c1").endSec, beat("c2").startSec],
+    [0, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const focusVessel2 = interpolate(
+    sec,
+    [beat("c2").startSec, beat("c2").endSec, beat("c3").startSec + 0.4],
+    [0, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const conditionZoom = 1 + focusVessel1 * 0.06 + focusVessel2 * 0.03;
+  const conditionX = focusVessel1 * -26 + focusVessel2 * 18;
+
+  // Единое плавное окно условие→решение — используется И для камеры, И для
+  // масштаба/расстояния сосудов ниже, так фон/камера/сосуды переходят
+  // синхронно, а не рассинхронизированными отдельными "скачками".
+  const vesselTransition = interpolate(sec, [stepsStartSec - 0.6, stepsStartSec + 0.3], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const stepsZoom = interpolate(vesselTransition, [0, 1], [1, 1.1]);
+
+  const camScale = conditionZoom * (1 - vesselTransition) + stepsZoom * vesselTransition;
+  const camX = conditionX * (1 - vesselTransition);
 
   // Лёгкое дыхание поверхности жидкости — сцена не статична даже в покое.
   const wobble = Math.sin(frame / fps / 1.7) * 1.6;
@@ -120,9 +133,31 @@ export const MathVesselsMain: React.FC = () => {
   const d7In = useReveal(frame, fps, beat("d7").startSec);
   const d8In = useReveal(frame, fps, beat("d8").startSec);
 
-  const vesselScale = isStepsPhase ? 0.62 : 1;
-  const vesselGap = isStepsPhase ? 16 : 46;
-  const vesselWidth = 228;
+  // Было: isStepsPhase ? 0.62 : 1 — мгновенный скачок масштаба/зазора на
+  // границе фаз (ровно баг "неаккуратный переход обрывистый" из фидбека).
+  // Теперь — та же непрерывная vesselTransition, что и у камеры/фона выше:
+  // сосуды уменьшаются ПЛАВНО в том же окне, где меняется фон и наезжает
+  // камера, а не дискретным прыжком за один кадр. Базовая ширина сосуда
+  // увеличена (228 → 272 px) — крупнее по просьбе фидбека.
+  // --- Быстрый "оборот вокруг своей оси" логотипа в начале (по референсу:
+  // объект крутится вокруг вертикальной оси с лёгким блюром в движении,
+  // затем чётко "приземляется" лицом к зрителю ровно на 0°/360° — без рывка
+  // на стыке). Логотип при этом виден с кадра 0 (п. "видна с первого
+  // кадра" из прежнего ТЗ не нарушается — он просто уже вращается).
+  const LOGO_SPIN_SEC = 1.5;
+  const spinProgress = interpolate(sec, [0, LOGO_SPIN_SEC], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.cubic),
+  });
+  const spinAngle = spinProgress * 3 * 360; // 3 полных оборота → заканчивается на том же "лице"
+  const spinBlur = (1 - spinProgress) * 5;
+  const spinLift = (1 - spinProgress) * 10;
+
+  const vesselScale = interpolate(vesselTransition, [0, 1], [1, 0.72]);
+  const vesselGap = interpolate(vesselTransition, [0, 1], [50, 18]);
+  const vesselsMarginTop = interpolate(vesselTransition, [0, 1], [46, 18]);
+  const vesselWidth = 272;
 
   return (
     <AbsoluteFill
@@ -140,10 +175,21 @@ export const MathVesselsMain: React.FC = () => {
           alignItems: "center",
           gap: 16,
           marginBottom: 22,
-          // Видна с первого кадра (ТЗ п.2) — без fade-in из невидимости.
+          // Видна с первого кадра (ТЗ п.2) — без fade-in из невидимости,
+          // просто уже в процессе быстрого вращения (см. spinAngle выше).
         }}
       >
-        <AppLogo size={68} compact examType="ege" />
+        <div style={{ perspective: 700 }}>
+          <div
+            style={{
+              transform: `rotateY(${spinAngle}deg) translateY(${-spinLift}px)`,
+              transformStyle: "preserve-3d",
+              filter: `blur(${spinBlur}px) drop-shadow(0 ${10 + spinLift}px ${18 + spinLift * 1.6}px rgba(11,46,138,0.30))`,
+            }}
+          >
+            <AppLogo size={68} compact examType="ege" />
+          </div>
+        </div>
         <span
           style={{
             fontFamily: FONTS.display,
@@ -168,7 +214,7 @@ export const MathVesselsMain: React.FC = () => {
           maxHeight: interpolate(cardCollapse, [0, 1], [460, 0]),
           overflow: "hidden",
           opacity: cardOpacity,
-          transform: `scale(${cardScale})`,
+          transform: `scale(${cardScale}) translateY(${cardExitY}px)`,
           transformOrigin: "top center",
           pointerEvents: "none",
         }}
@@ -223,12 +269,12 @@ export const MathVesselsMain: React.FC = () => {
       {/* Сцена с сосудами — "камера" двигает/масштабирует эту обёртку. */}
       <div
         style={{
-          marginTop: isStepsPhase ? 18 : 46,
+          marginTop: vesselsMarginTop,
           display: "flex",
           alignItems: "flex-end",
           justifyContent: "center",
           gap: vesselGap,
-          transform: `scale(${camScale * vesselScale}) translateX(${isStepsPhase ? 0 : camX}px)`,
+          transform: `scale(${camScale * vesselScale}) translateX(${camX}px)`,
           transition: "none",
         }}
       >
@@ -247,7 +293,9 @@ export const MathVesselsMain: React.FC = () => {
             <VesselLabel opacity={interpolate(vessel1In, [0, 1], [0, 1])}>8 кг</VesselLabel>
             <VesselLabel opacity={interpolate(vessel1In, [0, 1], [0, 1])}>10%</VesselLabel>
           </div>
-          <Vessel fill={0.58} tone="a" width={vesselWidth} wobble={wobble} />
+          <div style={{ filter: "drop-shadow(0 30px 36px rgba(20,33,61,0.30))" }}>
+            <Vessel fill={0.58} tone="a" width={vesselWidth} wobble={wobble} />
+          </div>
           {isStepsPhase ? (
             <div
               style={{
@@ -286,7 +334,9 @@ export const MathVesselsMain: React.FC = () => {
             </VesselLabel>
             <VesselLabel opacity={interpolate(vessel2In, [0, 1], [0, 1])}>30%</VesselLabel>
           </div>
-          <Vessel fill={0.5} tone="b" width={vesselWidth} wobble={-wobble} />
+          <div style={{ filter: "drop-shadow(0 30px 36px rgba(20,33,61,0.30))" }}>
+            <Vessel fill={0.5} tone="b" width={vesselWidth} wobble={-wobble} />
+          </div>
           {isStepsPhase ? (
             <div
               style={{
@@ -319,12 +369,14 @@ export const MathVesselsMain: React.FC = () => {
           }}
         >
           <VesselLabel opacity={interpolate(vessel3GhostIn, [0, 1], [0, 1])}>20%</VesselLabel>
-          <Vessel
-            fill={isStepsPhase ? 0.6 : 0}
-            tone={isStepsPhase ? "result" : "ghost"}
-            width={vesselWidth}
-            wobble={wobble * 0.6}
-          />
+          <div style={{ filter: "drop-shadow(0 30px 36px rgba(20,33,61,0.30))" }}>
+            <Vessel
+              fill={isStepsPhase ? 0.6 : 0}
+              tone={isStepsPhase ? "result" : "ghost"}
+              width={vesselWidth}
+              wobble={wobble * 0.6}
+            />
+          </div>
           {isStepsPhase ? (
             <div
               style={{
