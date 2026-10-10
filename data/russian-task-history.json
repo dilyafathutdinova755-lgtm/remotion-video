@@ -255,6 +255,15 @@
       "condition_text": "Чтобы постичь науку, нужно знать первые ее азы.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=513"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38057870582",
+      "reserved_at": "2026-10-10T14:07:42.534Z",
+      "task_number": 6,
+      "condition_text": "Целью соревнований было не достижение хороших высоких результатов, а обмен опытом между дружественными командами.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=513"
     }
   ]
 }
