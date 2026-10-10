@@ -141,6 +141,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84447",
       "source_task_id": "84447"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38054031489",
+      "reserved_at": "2026-10-10T13:02:30.112Z",
+      "task_number": 3,
+      "condition_text": "Сколько аутосом содержит соматическая клетка птицы, если её диплоидный набор составляет 78 хромосом? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/14817",
+      "source_task_id": "14817"
     }
   ]
 }
