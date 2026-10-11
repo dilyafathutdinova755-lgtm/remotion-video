@@ -181,6 +181,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/67307",
       "source_task_id": "67307"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38153608736",
+      "reserved_at": "2026-10-11T16:02:50.566Z",
+      "task_number": 3,
+      "condition_text": "В некоторой молекуле ДНК эукариотического организма на долю нуклеотидов с цитозином приходится 31%. Определите долю нуклеотидов с тимином, входящих в состав этой молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/69688",
+      "source_task_id": "69688"
     }
   ]
 }
