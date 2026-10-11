@@ -5,7 +5,7 @@ on:
       mode:
         type: choice
         description: Isolated visual director render
-        options: [stills, video]
+        options: [stills, video, repair4]
         default: stills
       data_source:
         type: choice
@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        part: ${{ fromJSON(inputs.mode == 'video' && '[0,1,2,3,4,5]' || '[0]') }}
+        part: ${{ fromJSON(inputs.mode == 'video' && '[0,1,2,3,4,5]' || inputs.mode == 'repair4' && '[4]' || '[0]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -30,6 +30,7 @@ jobs:
         with:
           node-version: 22
       - run: unzip -o visual-director-test-bundle.zip
+      - run: unzip -o visual-director-render-fix.zip
       - if: inputs.data_source == 'live'
         run: cp visual-director-live-inputs.json render-inputs.json
       - run: npm ci --prefix experiments/vessels-3d
@@ -52,7 +53,7 @@ jobs:
           cp experiments/vessels-3d/assets/director-voice.wav.qa.json experiments/vessels-3d/out/audio-qa.json
           cp experiments/vessels-3d/director-timeline.json experiments/vessels-3d/out/director-timeline.json
       - name: Render unique 120fps frames
-        if: inputs.mode == 'video'
+        if: inputs.mode != 'stills'
         env:
           PART: ${{ matrix.part }}
         run: |
