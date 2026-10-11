@@ -171,6 +171,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84362",
       "source_task_id": "84362"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38141423043",
+      "reserved_at": "2026-10-11T13:03:43.561Z",
+      "task_number": 3,
+      "condition_text": "Из мегаспоры свеклы обыкновенной в результате митоза образовался восьмиядерный зародышевый мешок, ядра которого содержат по 9 хромосом. Определите количество хромосом в мегаспоре. В ответ запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/67307",
+      "source_task_id": "67307"
     }
   ]
 }
