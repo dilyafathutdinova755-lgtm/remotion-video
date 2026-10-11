@@ -1,37 +1,15 @@
 // Story timing (from measured voice marks) + color worlds per section.
 import { ease, seg } from "./lib.js";
 
+// One main color for the subject (the app's blue/indigo). Stages are marked by
+// light, a small hue shift and camera motion — never by switching color worlds.
+const COMMON = { text: "#121528", sub: "#6A6F8E", accent: "#5653F0", shadow: [38, 40, 110], shadowA: 0.42, dark: 0 };
 export const PALETTES = {
-  lavender: {
-    top: "#F5F4FF", bottom: "#E6E9FB",
-    glows: ["#C3CEFF", "#EBC7F6", "#BCE2FF"],
-    text: "#121528", sub: "#6A6F8E", accent: "#5653F0",
-    shadow: [38, 40, 110], shadowA: 0.42, dark: 0,
-  },
-  peach: {
-    top: "#FFF5EC", bottom: "#FFE3CF",
-    glows: ["#FFAF78", "#FFD0A6", "#FF9A86"],
-    text: "#261309", sub: "#8D6A57", accent: "#F06418",
-    shadow: [130, 62, 22], shadowA: 0.4, dark: 0,
-  },
-  sun: {
-    top: "#FFFBE8", bottom: "#FFEDB8",
-    glows: ["#FFD64A", "#FFE79A", "#FFBE63"],
-    text: "#2A2108", sub: "#8A7742", accent: "#D99A00",
-    shadow: [125, 92, 10], shadowA: 0.4, dark: 0,
-  },
-  violet: {
-    top: "#1E1440", bottom: "#0C0820",
-    glows: ["#6C3BFF", "#B64DFF", "#3B2BA8"],
-    text: "#FFFFFF", sub: "#BDB3E0", accent: "#CDAEFF",
-    shadow: [0, 0, 0], shadowA: 0.75, dark: 1,
-  },
-  emerald: {
-    top: "#08301F", bottom: "#03160F",
-    glows: ["#1DB57A", "#40E6A0", "#0C6B4C"],
-    text: "#FFFFFF", sub: "#A5DCC4", accent: "#5CF2AF",
-    shadow: [0, 0, 0], shadowA: 0.75, dark: 1,
-  },
+  lavender: { ...COMMON, top: "#F5F4FF", bottom: "#E6E9FB", glows: ["#C3CEFF", "#EBC7F6", "#BCE2FF"] },
+  sky: { ...COMMON, top: "#F2F5FF", bottom: "#E0E8FC", glows: ["#B8CDFF", "#D5CCFA", "#B5E0FF"] },
+  indigo: { ...COMMON, top: "#F4F3FF", bottom: "#E4E3FC", glows: ["#C0C2FF", "#E0C6F8", "#B2D4FF"] },
+  peri: { ...COMMON, top: "#F0F1FF", bottom: "#DDE0FB", glows: ["#AEB8FF", "#CBBCFF", "#A6C8FF"] },
+  bright: { ...COMMON, top: "#F4F8FF", bottom: "#E3EEFF", glows: ["#BFD8FF", "#D3C9FF", "#B9EAFF"] },
 };
 
 export function makeStory(tl) {
@@ -43,6 +21,9 @@ export function makeStory(tl) {
     ...M,
     pauseStart: sent.pause.start,
     pauseEnd: sent.pause.end,
+    // the countdown starts only when the task text and the timer card are in place
+    timerStart: sent.pause.start + 1.0,
+    timerEnd: sent.pause.end,
     s7end: sent.s7.end,
     ansEnd: sent.ans.end,
     ctaEnd: sent.cta.end,
@@ -50,12 +31,13 @@ export function makeStory(tl) {
   // Section worlds: [startOfTransition, paletteName]
   const worlds = [
     [0, "lavender"],
-    [T.pauseEnd - 0.1, "peach"],
-    [T.h2 - 0.3, "sun"],
-    [T.h3 - 0.35, "violet"],
-    [T.ans - 0.35, "emerald"],
+    [T.pauseEnd - 0.1, "sky"],
+    [T.h2 - 0.3, "indigo"],
+    [T.h3 - 0.35, "peri"],
+    [T.ans - 0.35, "bright"],
     [T.cta - 0.35, "lavender"],
   ];
+  T.sweeps = worlds.slice(1).map((w) => w[0]);
   const WORLD_FADE = 0.9;
   function world(t) {
     let i = 0;

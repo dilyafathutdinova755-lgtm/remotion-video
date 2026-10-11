@@ -23,13 +23,39 @@ export function makeChoreo(T) {
   const pourB = pourA + 0.3;
   const flow = { a0: pourA + 0.75, a1: pourA + 2.55, b0: pourB + 0.75, b1: pourB + 2.55 };
 
+  /** One main object of attention at a time: 1 → vessel 1, 2 → vessel 2, 3 → the mix. */
+  function focusW(t) {
+    return {
+      f1: ramp(t, T.s1a - 0.2, T.s1a + 0.5) * (1 - ramp(t, T.s2a - 0.2, T.s2a + 0.5)),
+      f2: ramp(t, T.s2a - 0.2, T.s2a + 0.5) * (1 - ramp(t, T.h2 - 0.1, T.h2 + 0.6)),
+      f3: ramp(t, T.m2 - 0.2, T.m2 + 0.5) * (1 - ramp(t, T.eq0 - 0.2, T.eq0 + 0.4)),
+    };
+  }
+  /** 0 = scene visible, 1 = hidden (the task text takes the whole screen during the pause). */
+  const pauseHide = (t) =>
+    ramp(t, T.pauseStart, T.pauseStart + 0.5) * (1 - ramp(t, T.pauseEnd - 0.15, T.pauseEnd + 0.6));
+
+  /** Camera dolly/pan toward whichever object is being explained. */
+  function camera(t) {
+    const { f1, f2, f3 } = focusW(t);
+    const f4 = ramp(t, T.eq0 - 0.2, T.eq0 + 0.5) * (1 - ramp(t, T.h3 - 0.35, T.h3 + 0.4)); // salt merges over the mix
+    const a = ramp(t, T.ans - 0.1, T.ans + 0.9) * (1 - ramp(t, T.cta - 0.2, T.cta + 0.6));
+    const slow = Math.sin(t * 0.21);
+    const any = f1 + f2 + f3 + f4;
+    return {
+      dx: f1 * -1.05 + f2 * 1.05 + slow * 0.12,
+      dz: (f1 + f2) * 5.2 + (f3 + f4) * 3.8 + a * 2.4,
+      dy: any * -0.1,
+      ly: any * -0.28,
+    };
+  }
+
   function states(t, pal) {
     const shadowRGB = pal.shadow, shadowA = pal.shadowA;
     const toPair = ramp(t, T.v2, T.v2 + 0.85);
     const toRow = ramp(t, T.v3 - 0.05, T.v3 + 0.9);
-    const f1 = ramp(t, T.s1a - 0.2, T.s1a + 0.5) * (1 - ramp(t, T.s2a - 0.2, T.s2a + 0.5));
-    const f2 = ramp(t, T.s2a - 0.2, T.s2a + 0.5) * (1 - ramp(t, T.h2 - 0.1, T.h2 + 0.6));
-    const f3 = ramp(t, T.m2 - 0.2, T.m2 + 0.5) * (1 - ramp(t, T.eq0 - 0.2, T.eq0 + 0.4));
+    const { f1, f2, f3 } = focusW(t);
+    const hide = pauseHide(t);
 
     // ---- v1
     const s1 = { scale: 1.55, fill: 0.56, color: COL.a, opacity: 1, tilt: 0, shadowRGB, shadowA };
@@ -42,9 +68,8 @@ export function makeChoreo(T) {
     s1.slosh = decaySin(t, T.v1 + 0.3, 0.09, 2.5, 9) + decaySin(t, T.v2, 0.05, 2.5, 9);
     s1.opacity = t < T.v1 ? 0 : 1;
     s1.scale *= 1 + f1 * 0.1;
-    p1[1] += f1 * 0.08;
     p1[0] += f1 * 0.12;
-    s1.opacity *= 1 - (f2 + f3) * 0.6;
+    s1.opacity *= 1 - (f2 + f3) * 0.82;
     const lift1 = ramp(t, pourA, pourA + 0.75);
     p1 = vlerp(p1, P.pour1, lift1);
     s1.tilt = -track(t, [[pourA + 0.1, 0], [pourA + 0.9, 1.05], [pourA + 2.4, 1.5, ease.inOutSine], [pourA + 3.0, 0.2]]);
@@ -72,9 +97,8 @@ export function makeChoreo(T) {
     p2 = vlerp(p2, P.row2, toRow);
     s2.scale = lerp(1.32, 0.9, toRow);
     s2.scale *= 1 + f2 * 0.1;
-    p2[1] += f2 * 0.08;
     p2[0] -= f2 * 0.12;
-    s2.opacity *= 1 - (f1 + f3) * 0.6;
+    s2.opacity *= 1 - (f1 + f3) * 0.82;
     const lift2 = ramp(t, pourB, pourB + 0.75);
     p2 = vlerp(p2, P.pour2, lift2);
     s2.tilt += track(t, [[pourB + 0.1, 0], [pourB + 0.9, 1.05], [pourB + 2.4, 1.5, ease.inOutSine], [pourB + 3.0, 0.2]]);
@@ -90,11 +114,11 @@ export function makeChoreo(T) {
       const back = spring(t, T.ans - 0.1, { freq: 1.1, damping: 0.55 });
       const gone = ramp(t, T.cta - 0.1, T.cta + 0.5, ease.inCubic);
       s2.opacity = clamp((t - T.h3 - 0.3) * 5) * (1 - gone);
-      const WAIT = [0, -2.55, 0.3];
+      const WAIT = [0, -2.9, 0.3];
       p2 = vlerp([0, -6, 0.3], WAIT, wait);
       p2 = vlerp(p2, [0, -0.6, 0.6], clamp(back, 0, 1.15));
       p2[1] -= gone * 4;
-      s2.scale = lerp(0.95, 1.6, clamp(back, 0, 1.1));
+      s2.scale = lerp(1.2, 1.6, clamp(back, 0, 1.1));
       s2.tilt = 0;
       s2.fill = 0.5;
       s2.squash = 0;
@@ -118,7 +142,7 @@ export function makeChoreo(T) {
     const mk = ramp(t, flow.a0 + 0.2, flow.b1 - 0.2);
     s3.color = mk < 0.5 ? mixHex(COL.a, "#6f66ff", mk * 2) : mixHex("#6f66ff", COL.mix, (mk - 0.5) * 2);
     s3.slosh = 0.05 * Math.sin(t * 6) * ramp(t, flow.a0 + 0.3, flow.a0 + 0.8) * (1 - ramp(t, flow.b1, flow.b1 + 1));
-    s3.opacity *= 1 - (f1 + f2) * 0.6;
+    s3.opacity *= 1 - (f1 + f2) * 0.82;
     s3.scale *= 1 + f3 * 0.1;
     const center3 = ramp(t, T.eq0 + 0.3, T.eq0 + 1.3);
     s3.scale = lerp(s3.scale, 1.15, center3);
@@ -128,6 +152,13 @@ export function makeChoreo(T) {
     s3.rotY = Math.sin(t * 0.45 + 2.6) * 0.2;
     p3[1] += Math.sin(t * 1.15 + 4) * 0.03 * ramp(t, T.v3 + 1, T.v3 + 1.6);
     s3.pos = p3;
+    if (hide > 0) {
+      for (const sx of [s1, s2, s3]) {
+        sx.opacity *= 1 - hide;
+        sx.scale *= 1 - 0.12 * hide;
+        sx.pos = [sx.pos[0], sx.pos[1] - 0.45 * hide, sx.pos[2]];
+      }
+    }
     return { s1, s2, s3 };
   }
 
@@ -135,11 +166,11 @@ export function makeChoreo(T) {
   function heapCenter(i, t, st) {
     if (i === 3) {
       const s = st.s3;
-      return [s.pos[0], s.pos[1] + 0.75 * s.scale + 0.38, s.pos[2]];
+      return [s.pos[0], s.pos[1] + 0.75 * s.scale + 0.3, s.pos[2]];
     }
     const s = i === 1 ? st.s1 : st.s2;
     const side = i === 1 ? -1 : 1;
-    const above = [s.pos[0], s.pos[1] + 0.75 * s.scale + 0.42, s.pos[2]];
+    const above = [s.pos[0], s.pos[1] + 0.75 * s.scale + 0.3, s.pos[2]];
     const aside = [side * 1.62, -0.5, 0.1];
     const k = ramp(t, pourA - 0.35, pourA + 0.45);
     return vlerp(above, aside, k);
@@ -151,11 +182,11 @@ export function makeChoreo(T) {
     const side = i === 1 ? -1 : 1;
     const hc = heapCenter(i, t, st);
     const k = ramp(t, pourA - 0.35, pourA + 0.45);
-    const near = vlerp([hc[0] - side * 0.82, hc[1] + 0.22, hc[2]], [hc[0], hc[1] - 0.36, hc[2] + 0.3], k);
+    const near = vlerp([hc[0] - side * 0.82, hc[1] + 0.22, hc[2]], [side * 1.45, -1.3, 0.35], k);
     const h3 = heapCenter(3, t, st);
     const fin = [h3[0] + side * 1.0, h3[1] + 0.22, h3[2] + 0.2];
     return vlerp(near, fin, merge);
   }
 
-  return { states, heapCenter, heapSticker, pourA, pourB, flow };
+  return { states, camera, pauseHide, focusW, heapCenter, heapSticker, pourA, pourB, flow };
 }

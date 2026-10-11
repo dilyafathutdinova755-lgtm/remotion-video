@@ -133,8 +133,13 @@ for i in range(40):
     put(clink(), T["v2b"] + 0.35 + rng.uniform(0, 1.25) + 0.62, 0.45)
 put(thud(0.45), T["q"] + 0.55)                     # hop
 put(whoosh(0.9, 250, 2200, 0.35), T["v3"])         # row + mix vessel rises
-put(pop(700, 350, 0.1, 0.4), T["pauseStart"])      # pause card
-put(whoosh(0.9, 400, 4000, 0.3), T["pauseEnd"] - 0.1)  # world change
+put(whoosh(0.6, 500, 3500, 0.3), T["pauseStart"])  # scene gives way to the task text
+put(pop(700, 350, 0.1, 0.4), T["pauseStart"] + 0.3)   # task card
+put(pop(900, 450, 0.1, 0.4), T["pauseStart"] + 0.65)  # timer card
+for k in (3, 2, 1):                                # countdown ticks
+    put(pop(1500, 1300, 0.07, 0.38), T["pauseEnd"] - k)
+put(chime(990, 0.22), T["pauseEnd"] - 0.05)        # time is up
+put(whoosh(0.9, 400, 4000, 0.3), T["pauseEnd"] - 0.1)  # scene returns
 # stickers popping in
 for t in [T["v1"] + 0.5, T["salt"] + 0.55, T["v2b"] + 0.15, T["q"] + 0.25, T["v3"] + 0.7, T["p20"] + 0.05,
           T["m1"] + 0.6, T["s1b"] + 1.9, T["s2b"] + 1.7, T["m3"] + 1.95, T["h3"] + 0.9, T["link"], T["cta"] + 1.0]:
@@ -164,6 +169,8 @@ for t in [T["eq1"] + 0.15, T["eq1"] + 0.4, T["eq2"], T["eq2"] + 0.1, T["br"] + 0
     put(whoosh(0.4, 600, 4000, 0.16), t)
     put(pop(1300, 800, 0.06, 0.25), t + 0.6)
 put(chime(660, 0.28), T["r2"] + 0.3)               # x = 8
+put(whoosh(0.45, 600, 3500, 0.2), T["r2"] + 0.6)   # the 8 flies to the vessel
+put(pop(1000, 600, 0.12, 0.45), T["r2"] + 1.05)    # x кг ? → 8 кг
 put(whoosh(0.9, 300, 3500, 0.3), T["ans"] - 0.35)
 put(chime(880, 0.35), T["a8"])                     # ✓ 8 кг
 for i in range(30):

@@ -52,7 +52,7 @@ export function createOverlay(root, story) {
     [T.v2b, "Профиль · задание 10", "Добавили 30%", "раствор той же соли"],
     [T.q, "Профиль · задание 10", "Сколько добавить?", "килограммов 30%-го раствора"],
     [T.v3, "Профиль · задание 10", "Чтобы вышло 20%", "концентрация смеси"],
-    [T.pauseStart + 0.05, "Пауза", "Попробуй сам", "ставь на паузу"],
+    [T.pauseStart + 0.05, "Пауза", "Условие задачи", "прочитай и попробуй сам"],
     [T.h1 - 0.05, "Шаг 1 из 3", "Считаем соль", "в каждом растворе"],
     [T.s1a, "Шаг 1 из 3", "Считаем соль", "первый раствор"],
     [T.s2a, "Шаг 1 из 3", "Считаем соль", "второй раствор"],
@@ -95,18 +95,39 @@ export function createOverlay(root, story) {
   const eqCard = el(eqWrap, "eq-card");
   const eqBox = el(eqCard, "eq-box");
 
-  // ------------------------------------------------------------ pause card
-  const pauseVeil = el(root, "pause-veil");
+  // ------------------------------------------- task text + countdown (pause)
+  const COND = [
+    ["К"], ["8 кг", "a"], ["десятипроцентного", "a"], ["раствора"], ["соли"], ["добавили"],
+    ["тридцатипроцентный", "b"], ["раствор"], ["той"], ["же"], ["соли."],
+    ["Сколько", "q"], ["килограммов", "q"], ["тридцатипроцентного", "b"], ["раствора"], ["нужно"], ["добавить,"],
+    ["чтобы"], ["получить"], ["двадцатипроцентный", "c"], ["раствор?"],
+  ];
+  const condWrap = el(root, "cond-wrap");
+  const condShadow = el(condWrap, "floor-shadow");
+  const condCard = el(condWrap, "cond-card");
+  const condWords = COND.map(([w, k]) => {
+    const sp = document.createElement("span");
+    sp.className = "cw" + (k ? ` ${k}` : "");
+    sp.innerHTML = w.replace(/ /g, "&nbsp;");
+    condCard.appendChild(sp);
+    condCard.appendChild(document.createTextNode(" "));
+    return sp;
+  });
   const pauseWrap = el(root, "pause-wrap");
   const pauseShadow = el(pauseWrap, "floor-shadow");
   const pauseCard = el(pauseWrap, "pause-card",
-    `<svg viewBox="0 0 200 200" class="ring"><circle cx="100" cy="100" r="86" class="ring-bg"/><circle cx="100" cy="100" r="86" class="ring-fg"/></svg>
-     <div class="bars"><i></i><i></i></div>`);
+    `<div class="timer"><svg viewBox="0 0 200 200" class="ring"><circle cx="100" cy="100" r="86" class="ring-bg"/><circle cx="100" cy="100" r="86" class="ring-fg"/></svg><div class="digit">4</div></div>
+     <div class="pause-text"><div class="pt-1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt-2">и подумай над решением</div></div>`);
   const ringFg = pauseCard.querySelector(".ring-fg");
+  const digit = pauseCard.querySelector(".digit");
+  let lastDigit = null;
+
+  const sweep = el(root, "sweep");
 
   // ------------------------------------------------------------------ flyers
   const flyLayer = el(root, "flyers");
   const flyers = [];
+  const ansFly = el(flyLayer, "sticker result flyer big", "8");
 
   // ---------------------------------------------------------------- CTA chips
   const ctaA = el(root, "chip cta-a", "Скачивай бесплатно");
@@ -118,7 +139,7 @@ export function createOverlay(root, story) {
   // ----------------------------------------------------------- definitions
   let notes = [];
   let eqTokens = [];
-  const EQ = { lh: 108, font: 66, cardW: 930 };
+  const EQ = { lh: 126, font: 80, cardW: 990 };
 
   api.init = (w) => {
     world = w;
@@ -126,22 +147,23 @@ export function createOverlay(root, story) {
     plaqueW = PLQ.pad + PLQ.slotPx + 22 + plaqueText.getBoundingClientRect().width + 40;
     api.plaque.slotX = W / 2 - plaqueW / 2 + PLQ.pad + PLQ.slotPx / 2;
 
-    const v = () => world;
+    const condBottom = condWrap.getBoundingClientRect().bottom;
+    css(pauseWrap, { top: `${Math.round(condBottom + 46)}px` });
     const VH = w.VH;
     const Z = 0.64; // front surface of the glass: labels are literally stuck on it
     const UP = 0.42, LOW = -0.2;
-    sticker({ html: "8&nbsp;кг", anchor: () => w.v1.local(0, UP, Z), tIn: T.v1 + 0.5, tOut: T.m1 - 0.15, tilt: -5 });
-    sticker({ html: "10%&nbsp;<b>соли</b>", anchor: () => w.v1.local(0, LOW, Z), tIn: T.salt + 0.55, tOut: T.m1 - 0.1, tilt: 3 });
-    sticker({ html: "x&nbsp;кг&nbsp;<b>?</b>", variant: "accent", anchor: () => w.v2.local(0, UP, Z), tIn: T.q + 0.25, tOut: T.m1 + 0.05, tilt: -6, pulseFrom: T.q + 0.6 });
-    sticker({ html: "30%", anchor: () => w.v2.local(0, LOW, Z), tIn: T.v2b + 0.15, tOut: T.m1 + 0.1, tilt: 4 });
-    sticker({ html: "?&nbsp;кг", variant: "ghosty", anchor: () => w.v3.local(0, UP, Z), tIn: T.v3 + 0.7, tOut: T.m1 + 0.5, tilt: -4 });
-    sticker({ html: "8&nbsp;+&nbsp;x&nbsp;кг", anchor: () => w.v3.local(0, UP, Z), tIn: T.m1 + 0.6, tOut: T.h3 - 0.25, tilt: -4 });
-    sticker({ html: "20%", variant: "violet", anchor: () => w.v3.local(0, LOW, Z), tIn: T.p20 + 0.05, tOut: T.h3 - 0.25, tilt: 4, pulseFrom: T.m2, pulseTo: T.m2 + 1.4 });
+    sticker({ vessel: 1, html: "8&nbsp;кг", anchor: () => w.v1.local(0, UP, Z), tIn: T.v1 + 0.5, tOut: T.m1 - 0.15, tilt: -5 });
+    sticker({ vessel: 1, html: "10%&nbsp;<b>соли</b>", anchor: () => w.v1.local(0, LOW, Z), tIn: T.salt + 0.55, tOut: T.m1 - 0.1, tilt: 3 });
+    sticker({ vessel: 2, html: "x&nbsp;кг&nbsp;<b>?</b>", variant: "accent", anchor: () => w.v2.local(0, UP, Z), tIn: T.q + 0.25, tOut: T.m1 + 0.05, tilt: -6, pulseFrom: T.q + 0.6 });
+    sticker({ vessel: 2, html: "30%", anchor: () => w.v2.local(0, LOW, Z), tIn: T.v2b + 0.15, tOut: T.m1 + 0.1, tilt: 4 });
+    sticker({ vessel: 3, html: "?&nbsp;кг", variant: "ghosty", anchor: () => w.v3.local(0, UP, Z), tIn: T.v3 + 0.7, tOut: T.m1 + 0.5, tilt: -4 });
+    sticker({ vessel: 3, html: "8&nbsp;+&nbsp;x&nbsp;кг", anchor: () => w.v3.local(0, UP, Z), tIn: T.m1 + 0.6, tOut: T.h3 - 0.25, tilt: -4 });
+    sticker({ vessel: 3, html: "20%", variant: "violet", anchor: () => w.v3.local(0, LOW, Z), tIn: T.p20 + 0.05, tOut: T.h3 - 0.25, tilt: 4, pulseFrom: T.m2, pulseTo: T.m2 + 1.4 });
     // results: arrive from the note cards onto the salt heaps, then into the equation
-    sticker({ id: "r1", html: "0,8&nbsp;кг&nbsp;<b>соли</b>", variant: "result", anchor: (t) => w.heapSticker(1, t), tIn: T.s1b + 1.9, tOut: T.eq1 + 0.15, outDur: 0.12, tilt: -3 });
-    sticker({ id: "r2", html: "0,3x&nbsp;<b>соли</b>", variant: "result", anchor: (t) => w.heapSticker(2, t), tIn: T.s2b + 1.7, tOut: T.eq1 + 0.4, outDur: 0.12, tilt: 3 });
+    sticker({ id: "r1", dim: (f) => f.f2, html: "0,8&nbsp;кг&nbsp;<b>соли</b>", variant: "result", anchor: (t) => w.heapSticker(1, t), tIn: T.s1b + 1.9, tOut: T.eq1 + 0.15, outDur: 0.12, tilt: -3 });
+    sticker({ id: "r2", dim: (f) => f.f1, html: "0,3x&nbsp;<b>соли</b>", variant: "result", anchor: (t) => w.heapSticker(2, t), tIn: T.s2b + 1.7, tOut: T.eq1 + 0.4, outDur: 0.12, tilt: 3 });
     sticker({ id: "r3", html: "0,2(8&nbsp;+&nbsp;x)", variant: "result", anchor: () => w.v3.local(0, -0.75 - 0.32, 0.5), tIn: T.m3 + 1.95, tOut: T.eq2 + 0.1, outDur: 0.12, tilt: -2 });
-    sticker({ id: "ans", html: "", variant: "answer", anchor: () => w.v2.local(0, 0.3, Z), tIn: T.h3 + 0.9, tOut: T.cta - 0.15, tilt: -3, flipAt: T.a8, pulseFrom: T.h3 + 1.3, pulseTo: T.ans });
+    sticker({ id: "ans", html: "", variant: "answer", anchor: () => w.v2.local(0, 0.3, Z), tIn: T.h3 + 0.9, tOut: T.cta - 0.15, tilt: -3, flipAt: T.r2 + 1.05, pulseFrom: T.h3 + 1.3, pulseTo: T.r2 });
 
     notes = [
       noteCard({ title: "Раствор 1 · соль", tIn: T.s1a - 0.15, tOut: T.s2a - 0.2, lines: [
@@ -177,7 +199,7 @@ export function createOverlay(root, story) {
     const meas = el(eqBox, "eq-tok");
     css(meas, { visibility: "hidden", position: "absolute" });
     const tokW = (s, fin) => { meas.className = "eq-tok" + (fin ? " final" : ""); meas.textContent = s; return meas.getBoundingClientRect().width; };
-    const GAP = 22;
+    const GAP = 28;
     eqTokens = [];
     rows.forEach((row, ri) => {
       const all = row.parts.flatMap((p) => p.toks.map((tk) => ({ tk, part: p })));
@@ -279,11 +301,17 @@ export function createOverlay(root, story) {
     fields.forEach((fd, fi) => setTextSwap(fd, idx, HEAD, t, fi));
 
     // stickers
+    const hideK = world.pauseHide(t);
+    const fw = world.focusW(t);
     for (const s of stickers) {
       const env = popEnv(t, s.tIn, s.tOut, s.outDur ?? 0.35);
-      if (!env.vis) { s.node.style.display = "none"; continue; }
+      if (!env.vis || hideK > 0.995) { s.node.style.display = "none"; continue; }
+      const dimK = s.dim ? s.dim(fw) : s.vessel === 1 ? fw.f2 + fw.f3 : s.vessel === 2 ? fw.f1 + fw.f3 : s.vessel === 3 ? fw.f1 + fw.f2 : 0;
+      env.o *= (1 - 0.88 * clamp(dimK)) * (1 - hideK);
       s.node.style.display = "";
       const p = stickerScreen(s, t);
+      const hw = s.node.offsetWidth / 2 + 26;
+      p.x = clamp(p.x, hw, W - hw);
       let pulse = 0;
       if (s.pulseFrom != null && t > s.pulseFrom && t < (s.pulseTo ?? 1e9)) pulse = 0.06 * Math.max(0, Math.sin((t - s.pulseFrom) * 6.5));
       const bob = Math.sin(t * 2.1 + s.tIn * 3) * 4;
@@ -296,7 +324,7 @@ export function createOverlay(root, story) {
         s.node.classList.toggle("done", fk >= 0.5);
         if (fk >= 0.5) rx -= 180;
       }
-      const scale = clamp(env.s, 0, 1.3) * (1 + pulse) * lerp(0.85, 1, env.o);
+      const scale = clamp(env.s, 0, 1.3) * (1 + pulse) * lerp(0.85, 1, env.o) * (1 - 0.1 * hideK);
       css(s.node, {
         opacity: env.o * env.k,
         transform: `translate(${p.x}px, ${p.y + bob}px) translate(-50%, -50%) perspective(600px) rotateX(${rx}deg) rotate(${(s.tilt || 0) * (2 - clamp(env.s, 0, 1.3))}deg) scale(${scale})`,
@@ -357,6 +385,7 @@ export function createOverlay(root, story) {
       }
     }
 
+    ansFly.style.display = "none";
     // equation card
     const eqIn = spring(t, T.eq1 - 0.25, { freq: 1.25, damping: 0.62 });
     const eqOut = ease.inCubic(seg(t, T.ans - 0.4, T.ans + 0.15));
@@ -365,11 +394,11 @@ export function createOverlay(root, story) {
     if (eqVis) {
       const up = ease.inOutCubic(seg(t, T.h3 - 0.25, T.h3 + 0.7));
       const rowsShown = t < T.br + 0.1 ? 1 : t < T.mv + 0.1 ? 2 : t < T.r1 + 0.1 ? 3 : t < T.r2 + 0.25 ? 4 : 5;
-      const hTarget = 70 + EQ.lh * rowsShown;
+      const hTarget = 76 + EQ.lh * rowsShown;
       const hk = ease.inOutCubic(clamp(((t - [T.eq1, T.br + 0.1, T.mv + 0.1, T.r1 + 0.1, T.r2 + 0.25][rowsShown - 1]) / 0.5)));
-      const hPrev = 70 + EQ.lh * Math.max(1, rowsShown - 1);
+      const hPrev = 76 + EQ.lh * Math.max(1, rowsShown - 1);
       const ch = rowsShown === 1 ? hTarget : lerp(hPrev, hTarget, hk);
-      const top = lerp(1395, 650, up);
+      const top = lerp(1395, 676, up);
       const scale = lerp(0.92, 1.0, up);
       css(eqWrap, { top: `${top}px` });
       css(eqCard, {
@@ -385,12 +414,12 @@ export function createOverlay(root, story) {
         const on = t >= k.at;
         k.node.style.display = on ? "" : "none";
         if (!on) continue;
-        const X = k.x, Y = 52 + k.row * EQ.lh;
+        const X = k.x, Y = 62 + k.row * EQ.lh;
         let x = X, y = Y, sc = 1, op = 1, rot = 0;
         const fk = ease.inOutCubic(seg(t, k.at, k.at + 0.7));
         if (k.from && byId[k.from]) {
           const src = byId[k.from];
-          const sx = src.x, sy = 52 + src.row * EQ.lh;
+          const sx = src.x, sy = 62 + src.row * EQ.lh;
           x = lerp(sx, X, fk);
           y = lerp(sy, Y, fk) + Math.sin(fk * Math.PI) * -18;
           sc = 1 + Math.sin(fk * Math.PI) * 0.12;
@@ -419,25 +448,65 @@ export function createOverlay(root, story) {
           k.node.style.setProperty("--glow", g.toFixed(3));
         }
       }
+      // the found value travels to the vessel and replaces "x кг ?"
+      const f0 = T.r2 + 0.6, f1 = T.r2 + 1.05;
+      const flying = t >= f0 && t < f1 && byId.z2;
+      ansFly.style.display = flying ? "" : "none";
+      if (flying) {
+        const r = byId.z2.node.getBoundingClientRect();
+        const a = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        const b = stickerScreen(stickers.find((x) => x.id === "ans"), t);
+        const e = ease.inOutCubic(seg(t, f0, f1));
+        css(ansFly, {
+          transform: `translate(${lerp(a.x, b.x, e)}px, ${lerp(a.y, b.y, e) - Math.sin(e * Math.PI) * 120}px) translate(-50%, -50%) rotate(${Math.sin(e * Math.PI) * 10}deg) scale(${lerp(1.2, 0.9, e)})`,
+        });
+      }
     }
 
-    // pause card + canvas blur
-    const pIn = spring(t, T.pauseStart, { freq: 1.6, damping: 0.55 });
-    const pOut = ease.inCubic(seg(t, T.pauseEnd - 0.05, T.pauseEnd + 0.35));
-    const pVis = t >= T.pauseStart && t < T.pauseEnd + 0.4;
+    // pause: the whole scene gives way to the task text, with a countdown below
+    const exitK = ease.inCubic(seg(t, T.pauseEnd - 0.1, T.pauseEnd + 0.4));
+    const cIn = spring(t, T.pauseStart + 0.25, { freq: 1.3, damping: 0.75 });
+    const cVis = t >= T.pauseStart + 0.2 && t < T.pauseEnd + 0.45;
+    condWrap.style.display = cVis ? "" : "none";
+    if (cVis) {
+      css(condCard, {
+        transform: `perspective(1600px) translateY(${(1 - clamp(cIn)) * 140 - exitK * 70}px) rotateX(${(1 - clamp(cIn)) * 22 + Math.sin(t * 0.8) * 1.2}deg) scale(${lerp(0.93, 1, clamp(cIn)) * (1 - exitK * 0.05)})`,
+        opacity: clamp(cIn * 1.6) * (1 - exitK),
+      });
+      css(condShadow, { opacity: clamp(cIn) * (1 - exitK) * 0.55 });
+      condWords.forEach((sp, i) => {
+        const o = ease.outCubic(seg(t, T.pauseStart + 0.4 + i * 0.024, T.pauseStart + 0.75 + i * 0.024));
+        sp.style.opacity = o;
+        sp.style.transform = `translateY(${(1 - o) * 14}px)`;
+      });
+    }
+    const pIn = spring(t, T.pauseStart + 0.55, { freq: 1.4, damping: 0.62 });
+    const pVis = t >= T.pauseStart + 0.5 && t < T.pauseEnd + 0.45;
     pauseWrap.style.display = pVis ? "" : "none";
     if (pVis) {
       css(pauseCard, {
-        transform: `perspective(1400px) translateY(${(1 - clamp(pIn)) * 120 - pOut * 80}px) rotateX(${(1 - clamp(pIn)) * 50 + Math.sin(t * 1.4) * 3}deg) rotateY(${Math.sin(t * 1.1) * 6}deg) scale(${clamp(pIn, 0, 1.2) * (1 - pOut * 0.3)})`,
-        opacity: clamp(pIn * 2) * (1 - pOut),
+        transform: `perspective(1400px) translateY(${(1 - clamp(pIn)) * 220 + exitK * 90}px) rotateX(${(1 - clamp(pIn)) * 38 + Math.sin(t * 1.2) * 1.5}deg) scale(${lerp(0.9, 1, clamp(pIn, 0, 1.15)) * (1 - exitK * 0.06)})`,
+        opacity: clamp(pIn * 1.8) * (1 - exitK),
       });
-      css(pauseShadow, { opacity: clamp(pIn) * (1 - pOut) * 0.6 });
-      const pk = seg(t, T.pauseStart + 0.1, T.pauseEnd);
-      ringFg.style.strokeDashoffset = `${(1 - pk) * 540.4}`;
+      css(pauseShadow, { opacity: clamp(pIn) * (1 - exitK) * 0.6 });
+      const len = T.timerEnd - T.timerStart;
+      const el_ = clamp((t - T.timerStart) / len);
+      ringFg.style.strokeDashoffset = `${el_ * 540.4}`;
+      const rem = Math.max(0, T.timerEnd - Math.max(t, T.timerStart));
+      const n = Math.max(1, Math.ceil(rem - 1e-6));
+      if (n !== lastDigit) { digit.textContent = n; lastDigit = n; }
+      const since = t >= T.timerStart ? t - (T.timerEnd - n) : 1;
+      digit.style.transform = `scale(${1 + 0.22 * Math.exp(-7 * Math.max(0, since))})`;
     }
-    const blurK = window01(t, T.pauseStart, 0.35, T.pauseEnd - 0.15, 0.45);
-    css(pauseVeil, { display: blurK > 0.001 ? "" : "none", opacity: blurK });
-    stickerLayer.style.filter = blurK > 0.001 ? `blur(${blurK * 9}px)` : "none";
+
+    // light sweep marks every stage change (instead of switching color worlds)
+    let sw = -1;
+    for (const ts of T.sweeps) if (t >= ts && t < ts + 1.3) sw = seg(t, ts, ts + 1.3);
+    css(sweep, {
+      display: sw < 0 ? "none" : "",
+      transform: `translateX(${lerp(-130, 130, ease.inOutSine(Math.max(0, sw)))}%) skewX(-14deg)`,
+      opacity: Math.sin(Math.max(0, sw) * Math.PI) * 0.6,
+    });
 
     // CTA chips
     const ca = popEnv(t, T.cta + 1.0, 1e9);
@@ -445,10 +514,6 @@ export function createOverlay(root, story) {
     const cb = popEnv(t, T.link, 1e9);
     css(ctaB, { display: cb.vis ? "" : "none", opacity: cb.k, transform: `translate(-50%, 0) scale(${clamp(cb.s, 0, 1.3)}) rotate(${(1 - clamp(cb.s)) * 8}deg)`, filter: `blur(${(1 - cb.k) * 6}px)` });
   };
-
-  function window01(t, a, din, b, dout) {
-    return ease.inOutCubic(seg(t, a, a + din)) * (1 - ease.inOutCubic(seg(t, b, b + dout)));
-  }
 
   return api;
 }

@@ -342,7 +342,7 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
   const N_CRYST = 230;
   const crystGeo = new THREE.BoxGeometry(1, 1, 1);
   const crystMat = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05, emissive: 0xffffff, emissiveIntensity: 0.12,
+    color: 0xf1f4ff, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05, emissive: 0xdfe6ff, emissiveIntensity: 0.06,
   });
   const cryst = new THREE.InstancedMesh(crystGeo, crystMat, N_CRYST);
   cryst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -389,6 +389,7 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
   }
 
   // ------------------------------------------------------------- crystals
+  const mkLate = (t) => ease.inOutCubic(seg(t, T.eq0 + 0.1, T.eq0 + 0.6));
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e3 = new THREE.Euler(), sc = new THREE.Vector3();
   function setCrystal(i, pos, scale, rot) {
     e3.set(rot[0], rot[1], rot[2]);
@@ -411,7 +412,7 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
         const surf = vessel.surfaceCenter();
         const x = surf.x + (c.b - 0.5) * 0.7 * vessel.state.scale;
         const z = surf.z + (c.c - 0.5) * 0.45 * vessel.state.scale;
-        const yTop = surf.y + 1.5 + c.d * 0.6;
+        const yTop = surf.y + 1.1 + c.d * 0.5;
         const tf = 0.62;
         let y, s = c.size;
         if (lt < tf) { const k = lt / tf; y = lerp(yTop, surf.y, k * k); s *= clamp(lt / 0.12); }
@@ -426,7 +427,9 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
     // Heaps: crystals rise out of the liquid and pile up above the vessel
     // (world-space, so they don't tilt with a pouring vessel), step aside
     // during pouring, then merge over the mix on "соль никуда не исчезает".
+    const fwH = choreo.focusW(t);
     const heap = (vessel, which, n, t0, base, mergeOffset) => {
+      const dimK = which === 1 ? fwH.f2 : fwH.f1;
       const hc = new THREE.Vector3(...choreo.heapCenter(which, t, vs));
       const h3 = new THREE.Vector3(...choreo.heapCenter(3, t, vs));
       for (let k = 0; k < n; k++) {
@@ -440,7 +443,7 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
         const k1 = ease.outCubic(clamp(lt / 0.9));
         let p = lt < 0.9 ? src.clone().lerp(dest, k1) : dest.clone();
         p.y += Math.sin(k1 * Math.PI) * 0.35;
-        const s = c.size * 1.25 * clamp(lt / 0.25);
+        const s = c.size * 1.25 * clamp(lt / 0.25) * (1 - 0.94 * clamp(dimK) * (1 - mkLate(t)));
         const mk = ease.inOutCubic(seg(t, T.eq0 + 0.1 + c.a * 0.5, T.eq0 + 1.1 + c.a * 0.5));
         if (mk > 0) {
           const d3 = h3.clone().add(heapPos(mergeOffset + k, 48, 0.55, 0.5));
@@ -533,14 +536,14 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
       shadow: w.a.shadow.map((x, i) => lerp(x, w.b.shadow[i], w.k)),
       shadowA: lerp(w.a.shadowA, w.b.shadowA, w.k),
     };
-    // Camera: slow handheld drift + gentle push-ins per section
-    const push = track(t, [[0, 0], [T.v3, 0], [T.v3 + 1, 0.15], [T.h1, 0.15], [T.s1a, 0.3], [T.h2, 0.2], [T.eq0 + 1, 0.4], [T.h3, 0], [T.ans, 0], [T.ans + 1, 0.6], [T.cta, 0.6], [T.cta + 1, 0]]);
-    camera.position.set(Math.sin(t * 0.21) * 0.22, 0.9 + Math.sin(t * 0.29) * 0.1, 17 - push);
-    camera.lookAt(Math.sin(t * 0.17) * 0.06, -0.38, 0);
-    camera.updateMatrixWorld(true);
-
     const vs = choreo.states(t, pal);
     lastStates = vs;
+    // Camera: handheld drift + dolly/pan toward the object being explained
+    const cm = choreo.camera(t);
+    camera.position.set(Math.sin(t * 0.21) * 0.22 + cm.dx, 0.9 + Math.sin(t * 0.29) * 0.1 + cm.dy, 17 - cm.dz);
+    camera.lookAt(Math.sin(t * 0.17) * 0.06 + cm.dx, -0.38 + cm.ly, 0);
+    camera.updateMatrixWorld(true);
+
     v1.set(vs.s1);
     v2.set(vs.s2);
     v3.set(vs.s3);
@@ -588,6 +591,7 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
 
   return {
     update, render, project, camera, v1, v2, v3, VH, VR,
+    pauseHide: choreo.pauseHide, focusW: choreo.focusW,
     heapSticker: (i, t) => new THREE.Vector3(...choreo.heapSticker(i, t, lastStates)),
   };
 }
