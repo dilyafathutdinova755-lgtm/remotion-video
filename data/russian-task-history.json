@@ -273,6 +273,15 @@
       "condition_text": "КУХОНЬ\nСТОРОЖИ\nЯСЛЕЙ\nСЕМЬЮСТАМИ листами\nв городе СОЧИ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=514"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38133950415",
+      "reserved_at": "2026-10-11T11:06:38.234Z",
+      "task_number": 7,
+      "condition_text": "детские ДОКТОРЫ\nджем СЛАЩЕ\nГОЛЬФОВ\nдвести ГРАММОВ\nпачка ВАФЕЛЬ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=514"
     }
   ]
 }
