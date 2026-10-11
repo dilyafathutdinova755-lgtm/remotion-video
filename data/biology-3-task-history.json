@@ -161,6 +161,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/69226",
       "source_task_id": "69226"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38123265100",
+      "reserved_at": "2026-10-11T08:02:17.476Z",
+      "task_number": 3,
+      "condition_text": "В соматической клетке тела мыши 40 хромосом. Какой набор хромосом имеет сперматозоид мыши? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84362",
+      "source_task_id": "84362"
     }
   ]
 }
