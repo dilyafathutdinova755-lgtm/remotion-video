@@ -7,29 +7,86 @@ on:
         description: Isolated visual director render
         options: [stills, video]
         default: stills
+      data_source:
+        type: choice
+        description: Reviewed input source
+        options: [bundled, live]
+        default: bundled
 permissions:
   contents: read
 jobs:
-  visual-director-test:
+  render:
     if: github.ref == 'refs/heads/feature/visual-director-v1'
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        part: ${{ fromJSON(inputs.mode == 'video' && '[0,1,2,3,4,5]' || '[0]') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: unzip -o visual-director-test-bundle.zip
+      - if: inputs.data_source == 'live'
+        run: cp visual-director-live-inputs.json render-inputs.json
       - run: npm ci --prefix experiments/vessels-3d
       - run: pip install numpy
       - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
-      - name: Render isolated Three.js experiment
+      - name: Validate and prepare measured audio
+        run: |
+          node scripts/visual-director/test.mjs
+          node scripts/visual-director/test-timing.mjs
+          node scripts/visual-director/build-render-inputs.mjs render-inputs.json
+          node scripts/visual-director/test-choreography.mjs
+          python scripts/visual-director/montage-audio.py experiments/vessels-3d/assets/director-voice.mp3 experiments/vessels-3d/director-timing.json experiments/vessels-3d/assets/director-voice.wav
+      - name: Inspect settled keyframes
+        if: matrix.part == 0
+        run: |
+          TIMES=$(node --input-type=module -e "import fs from 'node:fs';const t=JSON.parse(fs.readFileSync('experiments/vessels-3d/director-timeline.json'));console.log([0.7,1.8,...t.timing.scenes.map(s=>s.startSec+1),t.timing.pause.countdownStartSec+0.1,t.timing.pause.endSec-0.2,t.marks.a8+0.8,t.marks.cta+2.5].join(' '))")
+          CHROME=$(which google-chrome) node experiments/vessels-3d/render.mjs stills $TIMES
+          node -e "const q=require('./experiments/vessels-3d/out/layout-qa.json');if(q.some(x=>x.issues.length))throw Error('Layout QA failed')"
+          cp experiments/vessels-3d/assets/director-voice.wav experiments/vessels-3d/out/voice.wav
+          cp experiments/vessels-3d/assets/director-voice.wav.qa.json experiments/vessels-3d/out/audio-qa.json
+          cp experiments/vessels-3d/director-timeline.json experiments/vessels-3d/out/director-timeline.json
+      - name: Render unique 120fps frames
+        if: inputs.mode == 'video'
         env:
-          RENDER_MODE: ${{ inputs.mode }}
-        run: CHROME=$(which google-chrome) bash scripts/visual-director/run-render.sh
+          PART: ${{ matrix.part }}
+        run: |
+          read FROM TO < <(node -e "const t=require('./experiments/vessels-3d/director-timeline.json');const n=Math.round(t.total*120),p=Number(process.env.PART);console.log(Math.floor(n*p/6)/120,Math.floor(n*(p+1)/6)/120)")
+          CHROME=$(which google-chrome) node experiments/vessels-3d/render.mjs video --fps 120 --workers 1 --from "$FROM" --to "$TO"
+          mv experiments/vessels-3d/out/video-silent.mp4 experiments/vessels-3d/out/part-${PART}.mp4
+          rm experiments/vessels-3d/out/seg-*.mp4 experiments/vessels-3d/out/segs.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: visual-director-${{ inputs.mode }}
+          name: visual-director-part-${{ matrix.part }}
           path: experiments/vessels-3d/out/
+          retention-days: 7
+  assemble:
+    if: inputs.mode == 'video'
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: visual-director-part-*
+          merge-multiple: true
+          path: parts
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Join exact frame ranges and measured audio
+        run: |
+          mkdir final
+          for p in 0 1 2 3 4 5; do echo "file 'part-${p}.mp4'"; done > parts/concat.txt
+          ffmpeg -y -v error -f concat -safe 0 -i parts/concat.txt -i parts/voice.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -af apad -shortest -movflags +faststart final/visual-director-test.mp4
+          ffprobe -v error -show_streams -show_format -of json final/visual-director-test.mp4 > final/video-probe.json
+          cp parts/*.json parts/still-*.png final/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-director-video
+          path: final/
           retention-days: 7
