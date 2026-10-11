@@ -1,49 +1,35 @@
 name: Check Remotion (no publication)
-
 on:
-  push:
-    branches:
-      - claude/create-video-setup-u21u42
-  pull_request:
   workflow_dispatch:
-
+    inputs:
+      mode:
+        type: choice
+        description: Isolated visual director render
+        options: [stills, video]
+        default: stills
 permissions:
   contents: read
-
-concurrency:
-  group: check-remotion-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  check:
+  visual-director-test:
+    if: github.ref == 'refs/heads/feature/visual-director-v1'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Установить зафиксированные зависимости
-        run: npm ci
-
-      - name: Проверить код, регрессии и сборку
-        run: bash scripts/qa/check-project.sh
-
-      - name: Контрольные кадры и переход без озвучки и публикации
-        run: node scripts/qa/preview.mjs
-
+      - run: unzip -o visual-director-test-bundle.zip
+      - run: npm ci --prefix experiments/vessels-3d
+      - run: pip install numpy
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Render isolated Three.js experiment
+        env:
+          RENDER_MODE: ${{ inputs.mode }}
+        run: CHROME=$(which google-chrome) bash scripts/visual-director/run-render.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: remotion-check-${{ github.sha }}
-          path: out/qa/preview/
-          if-no-files-found: ignore
+          name: visual-director-${{ inputs.mode }}
+          path: experiments/vessels-3d/out/
           retention-days: 7
