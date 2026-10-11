@@ -171,6 +171,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/71523",
       "source_task_id": "71523"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:38119884695",
+      "reserved_at": "2026-10-11T07:05:37.565Z",
+      "task_number": 10,
+      "condition_text": "В помощь садовому насосу, перекачивающему 5 литров воды за 2 минуты, подключили второй насос, перекачивающий тот же объем воды за 3 минуты. Сколько минут эти два насоса должны работать совместно, чтобы перекачать 25 литров воды?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/86518",
+      "source_task_id": "86518"
     }
   ]
 }
