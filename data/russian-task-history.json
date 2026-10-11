@@ -282,6 +282,15 @@
       "condition_text": "детские ДОКТОРЫ\nджем СЛАЩЕ\nГОЛЬФОВ\nдвести ГРАММОВ\nпачка ВАФЕЛЬ",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=514"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38145392705",
+      "reserved_at": "2026-10-11T14:06:51.969Z",
+      "task_number": 7,
+      "condition_text": "ДВУМЯСТАМИ волнами\nНАПОИВ кофе\nНАИБОЛЕЕ ТОЧНО\nбанка ШПРОТОВ\nв ПЯТИСТАХ метрах",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=514"
     }
   ]
 }
