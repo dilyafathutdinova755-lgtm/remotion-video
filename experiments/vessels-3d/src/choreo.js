@@ -44,9 +44,9 @@ export function makeChoreo(T) {
     const any = f1 + f2 + f3 + f4;
     return {
       dx: f1 * -1.05 + f2 * 1.05 + slow * 0.12,
-      dz: (f1 + f2) * 5.2 + (f3 + f4) * 3.8 + a * 2.4,
+      dz: (f1 + f2) * 4.4 + (f3 + f4) * 3.4 + a * 2.0,
       dy: any * -0.1,
-      ly: any * -0.28,
+      ly: any * -0.2,
     };
   }
 

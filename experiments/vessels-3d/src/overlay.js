@@ -46,13 +46,15 @@ export function createOverlay(root, story) {
     const box = el(head, `hf ${f}`);
     return { f, box, a: el(box, "hl"), b: el(box, "hl"), cacheA: null, cacheB: null };
   });
+  // Only what matters right now: no subject / task number, no text during the pause,
+  // no app name on the last slide (the logo itself is there).
   const HEAD = [
-    [T.v1 - 0.05, "Профиль · задание 10", "8 кг раствора", "раствор соли"],
-    [T.salt + 0.05, "Профиль · задание 10", "Соли — 10%", "остальное — вода"],
-    [T.v2b, "Профиль · задание 10", "Добавили 30%", "раствор той же соли"],
-    [T.q, "Профиль · задание 10", "Сколько добавить?", "килограммов 30%-го раствора"],
-    [T.v3, "Профиль · задание 10", "Чтобы вышло 20%", "концентрация смеси"],
-    [T.pauseStart + 0.05, "Пауза", "Условие задачи", "прочитай и попробуй сам"],
+    [T.v1 - 0.05, "", "8 кг раствора", "раствор соли"],
+    [T.salt + 0.05, "", "Соли — 10%", "остальное — вода"],
+    [T.v2b, "", "Добавили 30%", "раствор той же соли"],
+    [T.q, "", "Сколько добавить?", "килограммов 30%-го раствора"],
+    [T.v3, "", "Чтобы вышло 20%", "концентрация смеси"],
+    [T.pauseStart + 0.05, "", "", ""],
     [T.h1 - 0.05, "Шаг 1 из 3", "Считаем соль", "в каждом растворе"],
     [T.s1a, "Шаг 1 из 3", "Считаем соль", "первый раствор"],
     [T.s2a, "Шаг 1 из 3", "Считаем соль", "второй раствор"],
@@ -62,7 +64,7 @@ export function createOverlay(root, story) {
     [T.mv, "Шаг 3 из 3", "Решаем уравнение", "иксы — влево, числа — вправо"],
     [T.r1, "Шаг 3 из 3", "Решаем уравнение", "почти готово"],
     [T.ans - 0.05, "Ответ", "8 кг", "тридцатипроцентного раствора"],
-    [T.cta - 0.05, "ЕГЭ Тренажёр", "Больше заданий", "в приложении — бесплатно"],
+    [T.cta - 0.05, "", "Больше заданий", "в приложении — бесплатно"],
   ];
 
   // --------------------------------------------------------------- stickers
@@ -96,12 +98,8 @@ export function createOverlay(root, story) {
   const eqBox = el(eqCard, "eq-box");
 
   // ------------------------------------------- task text + countdown (pause)
-  const COND = [
-    ["К"], ["8 кг", "a"], ["десятипроцентного", "a"], ["раствора"], ["соли"], ["добавили"],
-    ["тридцатипроцентный", "b"], ["раствор"], ["той"], ["же"], ["соли."],
-    ["Сколько", "q"], ["килограммов", "q"], ["тридцатипроцентного", "b"], ["раствора"], ["нужно"], ["добавить,"],
-    ["чтобы"], ["получить"], ["двадцатипроцентный", "c"], ["раствор?"],
-  ];
+  const COND = "К 8 кг десятипроцентного раствора соли добавили тридцатипроцентный раствор той же соли. Сколько килограммов тридцатипроцентного раствора нужно добавить, чтобы получить двадцатипроцентный раствор?"
+    .split(" ").map((w) => [w]);
   const condWrap = el(root, "cond-wrap");
   const condShadow = el(condWrap, "floor-shadow");
   const condCard = el(condWrap, "cond-card");
@@ -139,7 +137,7 @@ export function createOverlay(root, story) {
   // ----------------------------------------------------------- definitions
   let notes = [];
   let eqTokens = [];
-  const EQ = { lh: 126, font: 80, cardW: 990 };
+  const EQ = { lh: 108, font: 66, cardW: 930 };
 
   api.init = (w) => {
     world = w;
@@ -199,7 +197,7 @@ export function createOverlay(root, story) {
     const meas = el(eqBox, "eq-tok");
     css(meas, { visibility: "hidden", position: "absolute" });
     const tokW = (s, fin) => { meas.className = "eq-tok" + (fin ? " final" : ""); meas.textContent = s; return meas.getBoundingClientRect().width; };
-    const GAP = 28;
+    const GAP = 22;
     eqTokens = [];
     rows.forEach((row, ri) => {
       const all = row.parts.flatMap((p) => p.toks.map((tk) => ({ tk, part: p })));
@@ -312,6 +310,7 @@ export function createOverlay(root, story) {
       const p = stickerScreen(s, t);
       const hw = s.node.offsetWidth / 2 + 26;
       p.x = clamp(p.x, hw, W - hw);
+      if (s.id !== "ans") p.y = clamp(p.y, 700, 1250);
       let pulse = 0;
       if (s.pulseFrom != null && t > s.pulseFrom && t < (s.pulseTo ?? 1e9)) pulse = 0.06 * Math.max(0, Math.sin((t - s.pulseFrom) * 6.5));
       const bob = Math.sin(t * 2.1 + s.tIn * 3) * 4;
@@ -394,11 +393,11 @@ export function createOverlay(root, story) {
     if (eqVis) {
       const up = ease.inOutCubic(seg(t, T.h3 - 0.25, T.h3 + 0.7));
       const rowsShown = t < T.br + 0.1 ? 1 : t < T.mv + 0.1 ? 2 : t < T.r1 + 0.1 ? 3 : t < T.r2 + 0.25 ? 4 : 5;
-      const hTarget = 76 + EQ.lh * rowsShown;
+      const hTarget = 70 + EQ.lh * rowsShown;
       const hk = ease.inOutCubic(clamp(((t - [T.eq1, T.br + 0.1, T.mv + 0.1, T.r1 + 0.1, T.r2 + 0.25][rowsShown - 1]) / 0.5)));
-      const hPrev = 76 + EQ.lh * Math.max(1, rowsShown - 1);
+      const hPrev = 70 + EQ.lh * Math.max(1, rowsShown - 1);
       const ch = rowsShown === 1 ? hTarget : lerp(hPrev, hTarget, hk);
-      const top = lerp(1395, 676, up);
+      const top = lerp(1395, 650, up);
       const scale = lerp(0.92, 1.0, up);
       css(eqWrap, { top: `${top}px` });
       css(eqCard, {
@@ -414,12 +413,12 @@ export function createOverlay(root, story) {
         const on = t >= k.at;
         k.node.style.display = on ? "" : "none";
         if (!on) continue;
-        const X = k.x, Y = 62 + k.row * EQ.lh;
+        const X = k.x, Y = 52 + k.row * EQ.lh;
         let x = X, y = Y, sc = 1, op = 1, rot = 0;
         const fk = ease.inOutCubic(seg(t, k.at, k.at + 0.7));
         if (k.from && byId[k.from]) {
           const src = byId[k.from];
-          const sx = src.x, sy = 62 + src.row * EQ.lh;
+          const sx = src.x, sy = 52 + src.row * EQ.lh;
           x = lerp(sx, X, fk);
           y = lerp(sy, Y, fk) + Math.sin(fk * Math.PI) * -18;
           sc = 1 + Math.sin(fk * Math.PI) * 0.12;

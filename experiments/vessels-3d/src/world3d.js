@@ -424,40 +424,40 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
     fall(v1, 26, T.salt + 0.05, 1.3);
     fall(v2, 40, T.v2b + 0.35, 1.25);
 
-    // Heaps: crystals rise out of the liquid and pile up above the vessel
-    // (world-space, so they don't tilt with a pouring vessel), step aside
-    // during pouring, then merge over the mix on "соль никуда не исчезает".
+    // Heaps: crystals rise out of the liquid and pile up above the vessel (world-space,
+    // so they don't tilt with a pouring vessel). Once the solutions are about to be
+    // mixed, the salt sinks back into its own vessel and disappears: no salt is left
+    // hanging in the air while the vessels move and pour.
     const fwH = choreo.focusW(t);
-    const heap = (vessel, which, n, t0, base, mergeOffset) => {
+    const heap = (vessel, which, n, t0, base) => {
       const dimK = which === 1 ? fwH.f2 : fwH.f1;
       const hc = new THREE.Vector3(...choreo.heapCenter(which, t, vs));
-      const h3 = new THREE.Vector3(...choreo.heapCenter(3, t, vs));
+      const van = ease.inOutCubic(seg(t, T.h2 + 0.25, T.h2 + 1.0));
       for (let k = 0; k < n; k++) {
         const c = crystals[idx];
         const start = t0 + c.e * 1.1;
         const lt = t - start;
-        if (lt < 0 || t > T.h3 + 0.7) { hide(1); continue; }
+        if (lt < 0 || van >= 0.999) { hide(1); continue; }
         const dest = hc.clone().add(heapPos(base + k, n, 0.4, 0.4));
         const surf = vessel.surfaceCenter();
         const src = new THREE.Vector3(surf.x + (c.b - 0.5) * 0.6, surf.y - 0.25 - c.d * 0.35, surf.z + (c.c - 0.5) * 0.3);
         const k1 = ease.outCubic(clamp(lt / 0.9));
         let p = lt < 0.9 ? src.clone().lerp(dest, k1) : dest.clone();
         p.y += Math.sin(k1 * Math.PI) * 0.35;
-        const s = c.size * 1.25 * clamp(lt / 0.25) * (1 - 0.94 * clamp(dimK) * (1 - mkLate(t)));
-        const mk = ease.inOutCubic(seg(t, T.eq0 + 0.1 + c.a * 0.5, T.eq0 + 1.1 + c.a * 0.5));
-        if (mk > 0) {
-          const d3 = h3.clone().add(heapPos(mergeOffset + k, 48, 0.55, 0.5));
-          p = p.clone().lerp(d3, mk);
-          p.y += Math.sin(mk * Math.PI) * 0.8;
+        let sz = c.size * 1.25 * clamp(lt / 0.25) * (1 - 0.94 * clamp(dimK));
+        if (van > 0) {
+          const home = new THREE.Vector3(surf.x + (c.b - 0.5) * 0.5, surf.y - 0.3 - c.d * 0.3, surf.z + (c.c - 0.5) * 0.25);
+          const v2 = clamp(van * 1.15 - c.a * 0.15);
+          p = p.clone().lerp(home, ease.inCubic(v2));
+          sz *= 1 - ease.inCubic(clamp((v2 - 0.45) / 0.55));
         }
-        p.y -= ramp(t, T.h3 - 0.2, T.h3 + 0.6, ease.inCubic) * 5;
-        p.y += Math.sin(t * 1.6 + c.d * 6) * 0.015;
+        p.y += Math.sin(t * 1.6 + c.d * 6) * 0.015 * (1 - van);
         const sp = lt < 1 ? c.spin * lt : c.spin + Math.sin(t + c.e * 5) * 0.2;
-        setCrystal(idx++, p, s, [c.rx + sp, c.ry + sp, c.rz]);
+        setCrystal(idx++, p, sz, [c.rx + sp, c.ry + sp, c.rz]);
       }
     };
-    heap(v1, 1, 24, T.s1a + 0.35, 0, 0);
-    heap(v2, 2, 24, T.s2a + 0.35, 24, 24);
+    heap(v1, 1, 24, T.s1a + 0.35, 0);
+    heap(v2, 2, 24, T.s2a + 0.35, 24);
 
     // Answer burst
     for (let k = 0; k < 60; k++) {
