@@ -191,6 +191,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/69688",
       "source_task_id": "69688"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38220929376",
+      "reserved_at": "2026-10-12T08:05:24.690Z",
+      "task_number": 3,
+      "condition_text": "Из генеративной клетки пыльцевого зерна красной смородины в результате митоза образовался спермий, содержащий 8 хромосом. Определите количество хромосом в генеративной клетке пыльцевого зерна. В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/58932",
+      "source_task_id": "58932"
     }
   ]
 }
