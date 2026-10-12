@@ -300,6 +300,15 @@
       "condition_text": "с ОБЕИМИ подругами\nсвыше СТА километров\nПРОМОКНУЛ до нитки\nнесколько ПРЕТЕНЗИЙ\nПОЕЗЖАЙ в Подмосковье",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=514"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38239820470",
+      "reserved_at": "2026-10-12T11:11:43.190Z",
+      "task_number": 7,
+      "condition_text": "золочёные КУПОЛА\nнарисовал КРАСИВЕЕ\nмодных ДЖИНСОВ\nмного ПЛАТИЙ\nИХ друзья",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=514"
     }
   ]
 }
