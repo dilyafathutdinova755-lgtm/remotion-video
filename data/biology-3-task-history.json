@@ -201,6 +201,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/58932",
       "source_task_id": "58932"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38252632744",
+      "reserved_at": "2026-10-12T13:02:15.629Z",
+      "task_number": 3,
+      "condition_text": "Какой набор хромосом содержится в ядре одной клетки в анафазу митоза, если в исходной соматической клетке было 15 хромосом? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/37221",
+      "source_task_id": "37221"
     }
   ]
 }
