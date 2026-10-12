@@ -211,6 +211,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/85773",
       "source_task_id": "85773"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:38246248355",
+      "reserved_at": "2026-10-12T12:02:58.733Z",
+      "task_number": 10,
+      "condition_text": "В сосуд, содержащий 20 литров 50-процентного водного раствора соли, добавили 10 литров воды. Сколько процентов составляет концентрация получившегося раствора? Ответ округлите до десятых.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/72581",
+      "source_task_id": "72581"
     }
   ]
 }
