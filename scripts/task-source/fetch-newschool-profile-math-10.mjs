@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { chromium } from 'playwright';
+import { supportedTrafficTask } from './profile-math-3d-source-filter.mjs';
 
 import {
   findDuplicate,
@@ -347,6 +348,8 @@ async function* candidates(
       if (!task) {
         continue;
       }
+
+      if (!supportedTrafficTask(task, process.env.SOURCE_STORYBOARD_FILTER || 'traffic_meeting_whole_hours')) continue;
 
       if (
         findDuplicate(
