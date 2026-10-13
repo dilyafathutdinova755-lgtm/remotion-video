@@ -221,6 +221,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/36658",
       "source_task_id": "36658"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38366302217",
+      "reserved_at": "2026-10-13T08:02:10.406Z",
+      "task_number": 3,
+      "condition_text": "Двуцепочечный фрагмент ДНК содержит 24 нуклеотида с гуанином и 28 нуклеотидов с аденином. Определите общее количество нуклеотидов, входящих в состав молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84376",
+      "source_task_id": "84376"
     }
   ]
 }
