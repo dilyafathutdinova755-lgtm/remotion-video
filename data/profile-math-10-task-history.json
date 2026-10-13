@@ -251,6 +251,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/85812",
       "source_task_id": "85812"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:38418232589",
+      "reserved_at": "2026-10-13T15:02:06.553Z",
+      "task_number": 10,
+      "condition_text": "Имеется два сплава. Первый содержит 5% никеля, второй — 30% никеля. Из этих двух сплавов получили третий сплав массой 150 кг, содержащий 25% никеля. На сколько килограммов масса первого сплава была меньше массы второго?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/18410",
+      "source_task_id": "18410"
     }
   ]
 }
