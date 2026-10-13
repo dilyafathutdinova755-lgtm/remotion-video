@@ -318,6 +318,15 @@
       "condition_text": "много СВАДЕБ\nнет БОТИНКОВ\nпримерить КРОССОВКУ\nпара ТУФЕЛЬ\nЧЕТЫРЬМЯСТАМИ способами",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=270"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38387180845",
+      "reserved_at": "2026-10-13T11:06:24.553Z",
+      "task_number": 7,
+      "condition_text": "около ПЯТИСОТ тысяч\nболее НАДЕЖНЫЙ прибор\nзнаменитые ПОВАРА\nПОЕЗЖАЙТЕ прямо\nв ПОЛУТОРАХ литрах",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=271"
     }
   ]
 }
