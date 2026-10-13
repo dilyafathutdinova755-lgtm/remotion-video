@@ -231,6 +231,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/88517",
       "source_task_id": "88517"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_profile_math_10:github-run:38359952081",
+      "reserved_at": "2026-10-13T07:02:56.687Z",
+      "task_number": 10,
+      "condition_text": "В понедельник акции компании подорожали на некоторое количество процентов, а во вторник подешевели на то же самое количество процентов. В результате они стали стоить на 4% дешевле, чем при открытии торгов в понедельник. На сколько процентов подорожали акции компании в понедельник?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/86526",
+      "source_task_id": "86526"
     }
   ]
 }
