@@ -560,8 +560,7 @@ async function main() {
 
     const deliver =
       webhookSender(
-        process.env
-          .N8N_NEWSCHOOL_WEBHOOK_URL,
+        "https://dilyafathutdinova755.app.n8n.cloud/webhook/math10-fresh-3d-source-2058fa50b17e48aea3bd36b21979f5c6",
       );
 
     await deliver(
