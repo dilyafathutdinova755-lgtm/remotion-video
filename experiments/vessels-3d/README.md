@@ -73,3 +73,13 @@ ffmpeg -i out/video-silent.mp4 -i out/final.wav -c:v copy -c:a aac -b:a 192k -sh
 7. **Финал без дублирования**: большая иконка приложения, «Скачивай бесплатно»,
    «Ссылка в профиле» — без текстового названия приложения сверху.
 8. **Логотип — только настоящая картинка приложения** (`assets/logo.png`).
+
+
+## Русский ролик («ошибка в слове»)
+
+Лежит в `ru/`: DOM-сцена `ru/index.html` + `ru/scene.js` (детерминированный `renderFrame(t)`), голос и замеренные метки слов `make_audio_ru.py` → `ru/timeline.json`, звук `make_mix_ru.py` → `ru/out/final.wav`.
+Шрифт Huninn (`ru/fonts/Huninn.ttf`, в git не кладём): `curl -o ru/fonts/Huninn.ttf https://fonts.gstatic.com/s/huninn/v9/OpNNnoINg9bQ4xkpjg.ttf`.
+
+    python3 make_audio_ru.py && python3 make_mix_ru.py
+    PAGE=experiments/vessels-3d/ru/index.html OUT=ru/out node render.mjs video --workers 4
+    ffmpeg -i ru/out/video-silent.mp4 -i ru/out/final.wav -c:v copy -c:a aac -b:a 192k -shortest ru/out/ru-video.mp4

@@ -14,11 +14,11 @@ import { chromium } from "playwright";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..");
-const OUT = path.join(HERE, "out");
+const OUT = process.env.OUT ? path.resolve(process.env.OUT) : path.join(HERE, "out");
 fs.mkdirSync(OUT, { recursive: true });
 const EXE = process.env.CHROME || "/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell";
 
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".png": "image/png", ".json": "application/json", ".woff2": "font/woff2" };
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".png": "image/png", ".json": "application/json", ".woff2": "font/woff2", ".ttf": "font/ttf", ".css": "text/css" };
 function serve() {
   return new Promise((resolve) => {
     const srv = http.createServer((req, res) => {
@@ -43,7 +43,7 @@ async function openPage(port) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-  await page.goto(`http://127.0.0.1:${port}/experiments/vessels-3d/index.html`);
+  await page.goto(`http://127.0.0.1:${port}/${process.env.PAGE || "experiments/vessels-3d/index.html"}`);
   try {
     await page.waitForFunction("window.ready === true", null, { timeout: 60000 });
   } catch (e) {
