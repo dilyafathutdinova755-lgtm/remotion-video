@@ -231,6 +231,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84376",
       "source_task_id": "84376"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38401507934",
+      "reserved_at": "2026-10-13T13:03:13.243Z",
+      "task_number": 3,
+      "condition_text": "В молекуле полипептида содержится 115 пептидных связей. Определите число кодонов иРНК, содержащей информацию о первичной структуре данного полипептида. В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/57656",
+      "source_task_id": "57656"
     }
   ]
 }
