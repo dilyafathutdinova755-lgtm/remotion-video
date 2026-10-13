@@ -126,10 +126,9 @@ INS = "В одном из этих слов допущена грамматич�
 PH = ["уборка яслей", "наиболее сильный", "восьмьюдесятью словами", "полощет бельё", "красивый подчерк"]
 WIN = [(S["c0"]["start"], S["c0"]["end"] - 0.15)] + [(S["c%d" % (i + 1)]["start"], S["c%d" % (i + 1)]["end"] - 0.1) for i in range(5)]
 T_FULL = S["c5"]["end"] + 0.05
-T_TIMER = S["c5"]["end"] + 0.45
-T_C0 = S["pause"]["start"] + 0.7
+T_TIMER = S["c5"]["end"] + 0.95
+T_C0 = S["pause"]["start"] + 1.4
 T_EX0 = T_C0 + 4 - 0.02
-T_BAND0, T_BAND1 = T["f0"] - 0.05, T["w"]
 T_MORPH = T["w"] + 0.9
 T_GROW = T_MORPH + 0.8
 
@@ -143,7 +142,7 @@ for (a, b), text in zip(WIN, [INS] + PH):
         if ch != " ":
             put(tick(), a + (b - a) * i / n, rng.uniform(0.6, 1.0))
     put(pop(1000, 700, 0.06, 0.2), b + 0.02)         # soft "return" at the end of a line
-put(whoosh(0.8, 250, 2400, 0.34), T_FULL)            # curtain reaches the bottom
+put(whoosh(1.4, 220, 2000, 0.3), T_FULL)            # curtain glides to the bottom
 put(pop(900, 450, 0.1, 0.4), T_TIMER + 0.15)         # timer card
 for k in range(4):                                   # countdown ticks 4-3-2-1
     put(pop(1500, 1300, 0.07, 0.38), T_C0 + k)
@@ -152,9 +151,6 @@ put(whoosh(0.9, 400, 4200, 0.36), T_EX0)             # curtain drops away
 put(pop(800, 400, 0.1, 0.35), T_EX0 + 0.45)          # headline
 for i in range(5):
     put(pop(rng.uniform(900, 1100), 600, 0.06, 0.2), T_EX0 + 0.45 + 0.07 * i)
-d = (T_BAND1 - T_BAND0) / 3
-for k in range(3):                                   # the band sweeps three times
-    put(whoosh(max(0.2, d * 0.95), 500 + 300 * k, 3200 + 900 * k, 0.28 + 0.06 * k), T_BAND0 + k * d)
 put(thud(0.6), T["w"])                               # stops on the wrong phrase
 put(pop(700, 380, 0.1, 0.4), T["w"] + 0.45)          # the wrong word turns red
 put(whoosh(0.8, 300, 2800, 0.32), T_MORPH)           # other phrases leave
@@ -163,7 +159,9 @@ put(chime(740, 0.2), T["h2"])                        # step two
 put(pop(900, 450, 0.1, 0.35), T["h2"] + 0.1)
 put(clink(2900, 0.5), T["d2"])                       # д jumps
 put(pop(1100, 600, 0.1, 0.35), T["d2"] + 0.05)
-put(whoosh(0.7, 500, 5200, 0.42), T["d3"])           # д flies off
+put(whoosh(0.55, 700, 2200, 0.3), T["d3"] + 0.05)    # д falls out
+for k, tt in enumerate((0.0, 0.12, 0.25)):
+    put(tick(0.25), T["d2"] + 0.1 + tt)               # д rattles loose
 put(pop(600, 300, 0.1, 0.3), T["d3"] + 0.6)          # letters close up
 put(chime(880, 0.32), T["po"])                       # the word turns green
 for t0 in (T["pr"], T["ko"]):

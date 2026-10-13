@@ -17,7 +17,7 @@ SCRIPT = [
     ("c3", 0.3, "Восьмьюдесятью словами."),
     ("c4", 0.3, "Полощет бельё."),
     ("c5", 0.3, "Красивый подчерк."),
-    ("__pause__", 5.0),   # 0.6 s curtain finishes + timer in, 4 s countdown, 0.4 s exit
+    ("__pause__", 5.6),   # curtain finishes smoothly, timer in, 4 s countdown, exit
     ("s1", 0.5, "|h1|Шаг первый: |f0|найдём ошибку. |w|Она в слове подчерк."),
     ("__gap__", 1.5),     # silent: found phrase morphs into the big word
     ("s2", 0.0, "|h2|Шаг второй: исправляем."),

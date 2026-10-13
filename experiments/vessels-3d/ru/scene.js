@@ -1,10 +1,14 @@
 // Russian "find the error" video: deterministic DOM scene, window.renderFrame(t).
+import * as THREE from "three";
+import { createLogo3d } from "./logo3d.js";
 const W = 1080, H = 1920;
 const $ = (id) => document.getElementById(id);
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
 const lerp = (a, b, k) => a + (b - a) * k;
 const eOut = (k) => 1 - Math.pow(1 - k, 3);
+const eBackOut = (k) => { const c1 = 1.2, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+const eSine = (k) => 0.5 - Math.cos(Math.PI * k) / 2;
 const eIO = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const eBack = (k) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
 const hx = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -27,10 +31,9 @@ const WIN = [[S.c0.start, S.c0.end - 0.15], ...PH.map((_, i) => [S["c" + (i + 1)
 const EDGE = [800, 936, 1020, 1104, 1188, 1272];
 const T_CUR = 2.0;
 const T_FULL = S.c5.end + 0.05;
-const T_TIMER = S.c5.end + 0.45;
-const T_C0 = S.pause.start + 0.7, T_C1 = T_C0 + 4;
+const T_TIMER = S.c5.end + 0.95;
+const T_C0 = S.pause.start + 1.4, T_C1 = T_C0 + 4;
 const T_EX0 = T_C1 - 0.02, T_EX1 = T_EX0 + 0.8;
-const T_BAND0 = T.f0 - 0.05, T_BAND1 = T.w;
 const T_RED = T.w + 0.45;
 const T_MORPH = T.w + 0.9;             // other phrases fade, found phrase moves to the centre
 const T_GROW = T_MORPH + 0.8;          // «красивый» leaves, «подчерк» grows and turns raspberry
@@ -62,12 +65,26 @@ function typed(el, full, n, caret) {
   const key = n + "|" + caret;
   if (cache.get(el) === key) return;
   cache.set(el, key);
-  el.innerHTML = esc(full.slice(0, n)) + (caret ? '<span class="cr"></span>' : "") + `<span class="rest">${esc(full.slice(n))}</span>`;
+  // every word is a nowrap unit laid out at full width: it can never jump to the next line while typing
+  let pos = 0, html = "";
+  full.split(" ").forEach((w, wi, arr) => {
+    const a = pos, b = pos + w.length; pos = b + 1;
+    const vis = clamp(n - a, 0, w.length);
+    const hasCaret = caret && n >= a && n <= b + (wi === arr.length - 1 ? 0 : 0) && (n < b || wi === arr.length - 1 || n === b);
+    html += `<span style="white-space:nowrap">${esc(w.slice(0, vis))}${hasCaret ? '<span class="cr"></span>' : ""}<span class="rest">${esc(w.slice(vis))}</span></span>`;
+    if (wi < arr.length - 1) html += n > b ? " " : '<span class="rest"> </span>';
+  });
+  el.innerHTML = html;
 }
 function typing(t, i) { // i: 0 = instruction, 1..5 phrases
   const [a, b] = WIN[i];
   return clamp((t - a) / (b - a));
 }
+
+const logoTex = await new THREE.TextureLoader().loadAsync("/experiments/vessels-3d/ru/logo.png");
+logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 8;
+const logo3d = createLogo3d(logoTex, 4.2);
+const lctx = $("logoc").getContext("2d");
 
 const dots = [...$("dots").children];
 const DOT_ST = [1.9, T_EX1 - 0.4, S.s2.start, 1e9];
@@ -83,6 +100,25 @@ function headline(el, o) {
   css(el, { opacity: o, transform: `translateY(${(1 - o) * 26}px)`, filter: `blur(${(1 - o) * 6}px)`, display: o <= 0.001 ? "none" : "" });
 }
 
+const pwOf = (tt) => lerp(104, 560, eOut(seg(tt, 2.0, 2.55)) * (1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15))));
+function logoAt(tt) {
+  const slot = { x: 540 - pwOf(tt) / 2 + 52, y: 300 };
+  const c0 = T.cta - 0.05;
+  if (tt < c0) {
+    const pop = eBack(clamp(tt / 0.6)), fly = eIO(seg(tt, 1.05, 1.95)), u = seg(tt, 0, 1.95);
+    const o = { cx: lerp(540, slot.x, fly), cy: lerp(930, slot.y, fly) - Math.sin(fly * Math.PI) * 70,
+      span: lerp(560 * lerp(0.35, 1, clamp(pop, 0, 1.15)), 80, fly),
+      rotY: eOut(u) * Math.PI * 6, rotX: Math.sin(u * Math.PI) * 0.25, rotZ: Math.sin(u * Math.PI) * -0.08, shadow: tt < 1.6 ? 1 - seg(tt, 1.0, 1.6) : 0 };
+    if (tt > 1.95) { o.rotY = Math.sin((tt - 1.95) * 0.8) * 0.12 * seg(tt, 1.95, 3); o.rotX = 0; o.rotZ = 0; }
+    return o;
+  }
+  const k = eIO(seg(tt, c0, c0 + 1.15)), settle = seg(tt, c0 + 1.3, c0 + 2);
+  return { cx: lerp(slot.x, 540, k), cy: lerp(slot.y, 970, k) - Math.sin(k * Math.PI) * 90 + Math.sin(tt * 1.5) * 10 * settle,
+    span: lerp(80, 540, k),
+    rotY: eIO(seg(tt, c0, c0 + 1.3)) * Math.PI * 4 + Math.sin(Math.max(0, tt - c0 - 1.3) * 0.9) * 0.18 + Math.sin((c0 - 1.95) * 0.8) * 0.12 * (1 - seg(tt, c0, c0 + 0.4)),
+    rotX: Math.sin(k * Math.PI) * 0.2 + Math.sin(tt * 1.1) * 0.04 * settle, rotZ: 0, shadow: seg(tt, c0 + 0.6, c0 + 1.3) };
+}
+
 function renderFrame(t) {
   // ----- background glows
   GL.forEach((g, i) => {
@@ -92,40 +128,22 @@ function renderFrame(t) {
       background: `radial-gradient(closest-side, ${g.c} 0%, ${g.c}99 40%, ${g.c}00 100%)`, opacity: 0.9 });
   });
 
-  // ----- intro logo: spin, fly into the plaque
-  const big = $("biglogo"), gh = [$("gh0"), $("gh1")], sh = $("shadow");
-  const SPIN = 1.35, FLY0 = 1.35, FLY1 = 2.0;
-  const ang = (tt) => 1080 * eOut(clamp(tt / SPIN));
-  const spinV = (tt) => (1080 * 3 * Math.pow(1 - clamp(tt / SPIN), 2)) / SPIN; // deg/s
-  let logo = { vis: 0, cx: 540, cy: 960, size: 540, a: 0, v: 0, shadow: 0 };
-  if (t < FLY1) {
-    const fk = eIO(seg(t, FLY0, FLY1));
-    logo = { vis: clamp(t / 0.25), cx: 540, cy: lerp(960, 300, fk) + (1 - fk) * Math.sin(t * 3) * 6, size: lerp(540, 80, fk) * lerp(0.82, 1, eOut(clamp(t / 0.35))),
-      a: ang(t) % 360, v: spinV(Math.min(t, SPIN)), shadow: (1 - seg(t, 1.35, 1.7)) * clamp(t / 0.25) };
-  } else if (t >= T.cta + 0.1) {
-    const u = seg(t, T.cta + 0.1, T.cta + 1.5), fk = eOut(u);
-    logo = { vis: 1, cx: 540, cy: lerp(300, 960, fk) + (u >= 1 ? Math.sin(t * 1.8) * 6 : 0), size: lerp(80, 540, fk),
-      a: (720 * eOut(u)) % 360, v: (720 * 3 * Math.pow(1 - u, 2)) / 1.4, shadow: seg(t, T.cta + 1.0, T.cta + 1.6) };
-  }
-  const radius = logo.size * 0.25;
-  const place = (el, o, ang_, blur, opa) => css(el, { display: opa > 0.01 ? "" : "none", left: logo.cx - logo.size / 2 + "px", top: logo.cy - logo.size / 2 + "px",
-    width: logo.size + "px", height: logo.size + "px", borderRadius: radius + "px", opacity: opa,
-    transform: `perspective(1600px) rotateY(${ang_}deg) rotateX(${logo.v > 80 ? 6 : 0}deg)`, filter: `blur(${blur}px)` });
-  const blurMain = Math.min(9, logo.v / 140);
-  place(big, 0, logo.a, blurMain, logo.vis);
-  place(gh[0], 0, logo.a - logo.v * 0.02, 8, logo.v > 60 ? logo.vis * 0.32 : 0);
-  place(gh[1], 0, logo.a - logo.v * 0.045, 8, logo.v > 60 ? logo.vis * 0.2 : 0);
-  big.style.boxShadow = logo.size > 200 ? "0 40px 80px rgba(90,20,50,0.3)" : "none";
-  css(sh, { opacity: logo.shadow * (logo.size / 540), transform: `translateY(${(logo.cy - 960) * 0.2}px) scale(${logo.size / 540})` });
-
   // ----- plaque
-  const ctaOpen = 1 - eIO(seg(t, T.cta - 0.35, T.cta + 0.15));
-  const open = eOut(seg(t, 2.0, 2.55)) * ctaOpen;
-  const pw = lerp(104, 560, open);
+  const pw = pwOf(t);
   const pv = seg(t, 1.85, 2.0) * (1 - seg(t, T.cta + 0.1, T.cta + 0.25));
   css($("plaque"), { width: pw + "px", left: 540 - pw / 2 + "px", opacity: pv, display: pv <= 0 ? "none" : "" });
-  $("plaque").firstElementChild.style.opacity = (t >= FLY1 - 0.02 && t < T.cta + 0.1) ? 1 : 0;
+  $("plaque").firstElementChild.style.opacity = 0; // the 3D slab sits in this slot
   $("plaque").lastElementChild.style.opacity = eOut(seg(t, 2.3, 2.75)) * (1 - seg(t, T.cta - 0.4, T.cta - 0.1));
+
+  // ----- 3D logo (motion blur by sub-frame accumulation during the fast spins)
+  const c0 = T.cta - 0.05;
+  const nS = (t < 2.0 || (t > c0 - 0.1 && t < c0 + 1.35)) ? 9 : 1;
+  lctx.globalCompositeOperation = "source-over"; lctx.globalAlpha = 1; lctx.clearRect(0, 0, W, H);
+  if (nS > 1) { lctx.globalCompositeOperation = "lighter"; lctx.globalAlpha = 1 / nS; }
+  for (let i = 0; i < nS; i++) {
+    logo3d.render(logoAt(nS === 1 ? t : Math.max(0, t + (1 / 60) * (i / (nS - 1) - 0.5))));
+    lctx.drawImage(logo3d.canvas, 0, 0);
+  }
 
   // ----- curtain with typewriter
   let edge = 0;
@@ -133,7 +151,7 @@ function renderFrame(t) {
   const startK = seg(t, T_CUR, WIN[0][1]);
   edge = EDGE[0] * eIO(seg(t, T_CUR, T_CUR + 0.95));
   for (let i = 1; i <= 5; i++) edge = lerp(edge, EDGE[i], eIO(seg(t, WIN[i][0] - 0.1, WIN[i][1])));
-  const fullK = eIO(seg(t, T_FULL, T_FULL + 0.65));
+  const fullK = eSine(seg(t, T_FULL, T_FULL + 1.35));
   edge = lerp(edge, 1960, fullK);
   const exitK = eIO(seg(t, T_EX0, T_EX1));
   const dy = exitK * 2060;
@@ -179,23 +197,9 @@ function renderFrame(t) {
   headline($("h2"), seg(t, S.s2.start - 0.05, S.s2.start + 0.4) * (1 - seg(t, T.cta - 0.5, T.cta - 0.1)));
   headline($("h3"), seg(t, T.cta + 1.0, T.cta + 1.5));
 
-  // ----- find stage: phrases, band
+  // ----- find stage: phrases (no scanning: the wrong one is simply marked, the rest step back)
   const rowsIn = (i) => eOut(seg(t, T_EX0 + 0.35 + i * 0.07, T_EX0 + 0.95 + i * 0.07));
-  const bandActive = seg(t, T_BAND0, T_BAND0 + 0.1) * (1 - seg(t, T_MORPH - 0.1, T_MORPH + 0.3));
-  const d = (T_BAND1 - T_BAND0) / 3, p = (t - T_BAND0) / d;
-  const bands = [$("b0"), $("b1"), $("b2")];
-  const yb = (off) => {
-    const q = p - off; if (q <= 0) return 820;
-    const k = Math.min(2, Math.floor(q)), u = q >= 3 ? 1 : q - k;
-    return lerp(820, ROW_Y(4) + 40, eIO(u));
-  };
-  [0, 0.14, 0.28].forEach((off, i) => {
-    css(bands[i], { top: yb(off) - 75 + "px", opacity: bandActive * [1, 0.5, 0.25][i], display: bandActive > 0.01 ? "" : "none" });
-  });
-  const dimOf = (i) => {
-    const near = clamp(1 - Math.abs(yb(0) - (ROW_Y(i) + 40)) / 120);
-    return lerp(1, 0.45 + 0.55 * near, bandActive);
-  };
+  const dimOf = (i) => (i === 4 ? 1 : lerp(1, 0.5, eIO(seg(t, T.w + 0.1, T.w + 0.6))));
   const fo = eIO(seg(t, T_MORPH, T_MORPH + 0.55));
   rows.forEach((r, i) => {
     const rin = rowsIn(i);
@@ -215,7 +219,7 @@ function renderFrame(t) {
   const krK = eIO(seg(t, T_GROW, T_GROW + 0.7));
   const wIn = rowsIn(4);
   const exitW = 1 - seg(t, T.cta - 0.5, T.cta - 0.1);
-  const wOp = (t > T_EX0 ? wIn : 0) * (t < T_MORPH ? dimOf(4) : 1) * exitW;
+  const wOp = (t > T_EX0 ? wIn : 0) * 1 * exitW;
   css(wrow, { display: wOp > 0.001 ? "" : "none", fontSize: fsW + "px", top: cy + "px", fontWeight: bold ? 800 : 400, opacity: wOp,
     transform: `translateY(calc(-50% + ${(1 - wIn) * 30}px)) scale(${1 + 0.05 * bump})` });
   const kr = $("kr"), krin = $("krin");
@@ -235,12 +239,18 @@ function renderFrame(t) {
   const dEl = $("L2i"), dOuter = $("L2");
   const redD = seg(t, T.d2, T.d2 + 0.2);
   dEl.style.backgroundImage = grad(mixPair(mixPair(mixPair(COL.ink, COL.red, seg(t, T_RED, T_RED + 0.25)), COL.mag, seg(t, T_GROW + 0.1, T_GROW + 0.9)), COL.red, redD));
-  const jk = eOut(seg(t, T.d2, T.d2 + 0.4)), fk = seg(t, T.d3, T.d3 + 0.7);
-  const fx = 520 * eIO(fk), fy = -130 * jk + (1020 * fk * fk);
-  css(dEl, { transform: `translate(${fx}px, ${fy}px) rotate(${-10 * jk + 70 * fk}deg) scale(${1 + 0.15 * jk})`, opacity: 1 - Math.pow(fk, 2),
-    filter: (big_ ? "drop-shadow(0 14px 18px rgba(110,30,70,0.2)) " : "") + (redD > 0 ? `drop-shadow(0 0 ${30 * redD}px rgba(229,72,58,0.5)) ` : "") + `blur(${7 * fk}px)` });
-  const wk = eIO(seg(t, T.d3 + 0.1, T.d3 + 0.65));
-  dOuter.style.width = (WD * fsW / 100 + 0.0 * fsW) * (1 - wk) + "px";
+  // «д» works loose (wobble + lift) on «лишняя», then drops out of the word under gravity and tumbles off-screen
+  const loose = seg(t, T.d2, T.d2 + 0.5);
+  const wob = Math.sin((t - T.d2) * 38) * 5 * loose * (1 - seg(t, T.d3 - 0.05, T.d3));
+  const lift = -42 * eOut(seg(t, T.d2, T.d2 + 0.45)) * (1 - seg(t, T.d3, T.d3 + 0.12));
+  const fl = Math.max(0, t - T.d3);
+  const fy = lift + 0.5 * 5600 * fl * fl - 60 * Math.min(fl, 0.12) / 0.12 * (fl > 0 ? 1 : 0) * 0;
+  const fx = 70 * fl + 160 * fl * fl;
+  const frot = wob * 0.6 + (t > T.d3 ? 38 * fl + 160 * fl * fl : 0);
+  css(dEl, { transform: `translate(${fx}px, ${fy}px) rotate(${frot}deg) scale(${1 + 0.1 * loose})`, opacity: fy > 1500 ? 0 : 1,
+    filter: (big_ ? "drop-shadow(0 14px 18px rgba(110,30,70,0.2)) " : "") + (redD > 0 ? `drop-shadow(0 0 ${30 * redD}px rgba(229,72,58,0.5)) ` : "") });
+  const wk = eBackOut(seg(t, T.d3 + 0.18, T.d3 + 0.7));
+  dOuter.style.width = (WD * fsW / 100) * Math.max(0, 1 - wk) + "px";
   dOuter.style.display = wk >= 1 ? "none" : "";
 
   // brackets under «по» / «черк»
