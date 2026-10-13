@@ -241,6 +241,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/57656",
       "source_task_id": "57656"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38426843370",
+      "reserved_at": "2026-10-13T16:02:48.413Z",
+      "task_number": 3,
+      "condition_text": "Фрагмент двуцепочечной молекулы ДНК содержит 180 нуклеотидов, 49 из которых в качестве азотистого основания имеют цитозин. Определите количество нуклеотидов с тимином, входящих в состав молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84373",
+      "source_task_id": "84373"
     }
   ]
 }
