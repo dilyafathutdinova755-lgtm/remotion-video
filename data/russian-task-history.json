@@ -327,6 +327,15 @@
       "condition_text": "около ПЯТИСОТ тысяч\nболее НАДЕЖНЫЙ прибор\nзнаменитые ПОВАРА\nПОЕЗЖАЙТЕ прямо\nв ПОЛУТОРАХ литрах",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=271"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38409607245",
+      "reserved_at": "2026-10-13T14:06:11.764Z",
+      "task_number": 7,
+      "condition_text": "к ПОЛУТОРАСТА ящикам\nс ТРЕМЯСТАМИ студентами\nболее ВЫСОКИЙ коэффициент\nКЛАДИ аккуратно\nк ОБОИМ фигуристкам",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=289"
     }
   ]
 }
