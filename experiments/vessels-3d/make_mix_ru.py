@@ -208,6 +208,9 @@ idx = np.arange(int(len(v) * SR / vsr)) * vsr / SR
 voice = np.interp(idx, np.arange(len(v)), v)
 vv = np.zeros(N)
 vv[: min(N, len(voice))] = voice[:N]
+import os
+if os.environ.get('NO_VOICE'):
+    vv[:] = 0  # silent variant: SFX + ambient only; timings are unchanged
 
 # duck pad under speech
 speech = onepole_lp(np.abs(vv), 6)
@@ -219,7 +222,7 @@ final = final / np.abs(final).max() * 0.93
 final = final[: int(TOTAL * SR)]
 stereo = np.stack([final, final], axis=1)
 (HERE / "out").mkdir(exist_ok=True)
-with wave.open(str(HERE / "out" / "final.wav"), "wb") as w:
+with wave.open(str(HERE / "out" / ("final-novoice.wav" if os.environ.get("NO_VOICE") else "final.wav")), "wb") as w:
     w.setnchannels(2)
     w.setsampwidth(2)
     w.setframerate(SR)
