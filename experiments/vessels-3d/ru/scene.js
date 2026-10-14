@@ -2,6 +2,7 @@
 import * as THREE from "three";
 import { createLogo3d } from "./logo3d.js";
 const W = 1080, H = 1920;
+const SC = Number(new URLSearchParams(location.search).get("s") || 1); // output scale (2 = 4K)
 const $ = (id) => document.getElementById(id);
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
@@ -85,7 +86,8 @@ function typing(t, i) { // i: 0 = instruction, 1..5 phrases
 
 const logoTex = await new THREE.TextureLoader().loadAsync("/experiments/vessels-3d/ru/logo.png");
 logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 8;
-const logo3d = createLogo3d(logoTex, 4.2);
+const logo3d = createLogo3d(logoTex, 4.2, SC);
+$("logoc").width = W * SC; $("logoc").height = H * SC;
 const lctx = $("logoc").getContext("2d");
 
 const dots = [...$("dots").children];
@@ -140,7 +142,7 @@ function renderFrame(t) {
   // ----- 3D logo (motion blur by sub-frame accumulation during the fast spins)
   const c0 = T.cta - 0.05;
   const nS = (t < 2.0 || (t > c0 - 0.1 && t < c0 + 1.35)) ? 9 : 1;
-  lctx.globalCompositeOperation = "source-over"; lctx.globalAlpha = 1; lctx.clearRect(0, 0, W, H);
+  lctx.globalCompositeOperation = "source-over"; lctx.globalAlpha = 1; lctx.clearRect(0, 0, W * SC, H * SC);
   if (nS > 1) { lctx.globalCompositeOperation = "lighter"; lctx.globalAlpha = 1 / nS; }
   for (let i = 0; i < nS; i++) {
     logo3d.render(logoAt(nS === 1 ? t : Math.max(0, t + (1 / 60) * (i / (nS - 1) - 0.5))));

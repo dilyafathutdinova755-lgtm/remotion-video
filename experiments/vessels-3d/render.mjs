@@ -39,11 +39,11 @@ async function openPage(port) {
     executablePath: EXE,
     args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--force-color-profile=srgb", "--hide-scrollbars"],
   });
-  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: Number(process.env.SCALE || 1) });
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-  await page.goto(`http://127.0.0.1:${port}/${process.env.PAGE || "experiments/vessels-3d/index.html"}`);
+  await page.goto(`http://127.0.0.1:${port}/${process.env.PAGE || "experiments/vessels-3d/index.html"}${process.env.SCALE ? "?s=" + process.env.SCALE : ""}`);
   try {
     await page.waitForFunction("window.ready === true", null, { timeout: 60000 });
   } catch (e) {
@@ -56,9 +56,10 @@ async function openPage(port) {
 
 async function shot(ctx, t, format = "jpeg") {
   await ctx.page.evaluate((tt) => window.renderFrame(tt), t);
+  const clip = { x: 0, y: 0, width: 1080, height: 1920, scale: Number(process.env.SCALE || 1) };
   const { data } = await ctx.cdp.send("Page.captureScreenshot", format === "png"
-    ? { format: "png", optimizeForSpeed: true }
-    : { format: "jpeg", quality: 94, optimizeForSpeed: true });
+    ? { format: "png", optimizeForSpeed: true, clip }
+    : { format: "jpeg", quality: Number(process.env.JPEGQ || 94), optimizeForSpeed: true, clip });
   return Buffer.from(data, "base64");
 }
 
@@ -103,7 +104,7 @@ if (mode === "video") {
     segs[w] = segFile;
     const ctx = await openPage(port);
     const ff = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(fps), "-c:v", "mjpeg", "-i", "-",
-      "-c:v", "libx264", "-preset", "medium", "-crf", "15", "-pix_fmt", "yuv420p", "-r", String(fps), "-g", String(fps * 2), segFile],
+      "-c:v", "libx264", "-preset", process.env.X264PRESET || "medium", "-crf", process.env.CRF || "15", "-pix_fmt", "yuv420p", "-r", String(fps), "-g", String(fps * 2), segFile],
       { stdio: ["pipe", "inherit", "inherit"] });
     for (let f = a; f < b; f++) {
       const buf = await shot(ctx, f / fps);

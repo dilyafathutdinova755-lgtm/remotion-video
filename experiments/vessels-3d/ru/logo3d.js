@@ -27,11 +27,11 @@ function radialTexture(size = 256) {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-export function createLogo3d(logoTexture, n = 4.2) {
+export function createLogo3d(logoTexture, n = 4.2, S = 1) {
   const canvas = document.createElement("canvas");
-  canvas.width = W; canvas.height = H;
+  canvas.width = W * S; canvas.height = H * S;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-  renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(1); renderer.setSize(W * S, H * S, false); renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.NeutralToneMapping;
 
   const scene = new THREE.Scene();
