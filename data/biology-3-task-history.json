@@ -261,6 +261,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84446",
       "source_task_id": "84446"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38568183470",
+      "reserved_at": "2026-10-14T13:03:22.707Z",
+      "task_number": 3,
+      "condition_text": "В некоторой молекуле ДНК на долю нуклеотидов с гуанином приходится 15%. Определите процентное содержание нуклеотидов с цитозином, входящих в состав этой молекулы. В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/53762",
+      "source_task_id": "53762"
     }
   ]
 }
