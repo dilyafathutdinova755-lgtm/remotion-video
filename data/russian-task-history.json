@@ -336,6 +336,15 @@
       "condition_text": "к ПОЛУТОРАСТА ящикам\nс ТРЕМЯСТАМИ студентами\nболее ВЫСОКИЙ коэффициент\nКЛАДИ аккуратно\nк ОБОИМ фигуристкам",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=289"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38519668642",
+      "reserved_at": "2026-10-14T06:05:57.367Z",
+      "task_number": 6,
+      "condition_text": "Четыре мальчика и две девочки шли на смену к памятному мемориалу, где на плитах из гранита были перечислены все военные части и корабли, защищавшие город в последней войне.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=290"
     }
   ]
 }
