@@ -354,6 +354,16 @@
       "condition_text": "много спелых ВИШЕН\nон более УГРЮМЕЕ\nс ДЕВЯНОСТА тетрадями\nдо ДВЕ тысячи пятого года\nГЛОЖУТ сомнения",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=290"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:tiktok-control:50347",
+      "reserved_at": "2026-10-14T12:27:25.401Z",
+      "task_number": 7,
+      "condition_text": "ПРОМОК под дождём\nболее ПЯТИСОТ заявлений\nвкусные КРЕНДЕЛИ\nпирог с ПОВИДЛОЙ\nголос ЗВОНЧЕ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/50347",
+      "source_task_id": "50347"
     }
   ]
 }
