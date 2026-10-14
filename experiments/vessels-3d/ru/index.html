@@ -12,10 +12,10 @@ html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; backgro
 .a { position: absolute; }
 .glow { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform; }
 .lg { background: url(/experiments/vessels-3d/ru/logo.png) center/cover; border-radius: 22px; }
-#plaque { left: 488px; top: 248px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.94); box-shadow: 0 18px 50px rgba(110,30,70,0.2); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
+#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.94); box-shadow: 0 18px 50px rgba(110,30,70,0.2); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
 #plaque .lg { width: 80px; height: 80px; flex: none; }
-#plaque b { font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
-#dots { left: 0; top: 382px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
+#plaque b { flex: none; font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
+#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
 #dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(40,10,30,0.18); }
 .hh { left: 30px; top: 424px; width: 1020px; text-align: center; z-index: 4; }
 .ey { font-size: 30px; font-weight: 700; color: #B03A63; height: 46px; }
@@ -60,6 +60,7 @@ html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; backgro
 <body>
 <div id="stage">
   <div class="glow" id="g0"></div><div class="glow" id="g1"></div><div class="glow" id="g2"></div>
+  <div class="a" id="content" style="left:0;top:0;width:1080px;height:1920px;transform:translateY(-110px)">
   <div class="a hh" id="h1"><div class="ey">Шаг 1 из 2</div><div class="t1">Находим ошибку</div></div>
   <div class="a hh" id="h2"><div class="ey">Шаг 2 из 2</div><div class="t1">Исправляем</div></div>
   <div class="a hh" id="h3"><div class="ey">&nbsp;</div><div class="t1">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
@@ -70,8 +71,12 @@ html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; backgro
   <div class="a" id="wrow"><span id="kr"><span id="krin">красивый</span></span><span id="L0" class="lt">п</span><span id="L1" class="lt">о</span><span id="L2"><span id="L2i" class="lt">д</span></span><span id="L3" class="lt">ч</span><span id="L4" class="lt">е</span><span id="L5" class="lt">р</span><span id="L6" class="lt">к</span></div>
   <div class="a br" id="br0"></div><div class="a bl" id="bl0">приставка</div>
   <div class="a br" id="br1"></div><div class="a bl" id="bl1">корень</div>
+  <div class="a" id="cta1"><div class="cp" style="background:linear-gradient(135deg,#3b7bff,#1652f0);color:#fff;font-size:48px;padding:26px 58px;box-shadow:0 22px 54px rgba(22,82,240,0.45)">Скачивай бесплатно</div></div>
+  <div class="a" id="cta2"><div class="cp">Ссылка в профиле ↑</div></div>
+  </div>
   <div class="a" id="cgroup">
     <div class="a" id="cur"><div class="a" id="curglow"></div></div>
+    <div class="a" id="ccontent" style="left:0;top:0;width:1080px;height:1920px;transform:translateY(-110px)">
     <div class="a ins" id="ins"></div>
     <div class="a" id="rail"></div>
     <div class="a ph" id="p0" style="top:756px"></div>
@@ -80,12 +85,11 @@ html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; backgro
     <div class="a ph" id="p3" style="top:1008px"></div>
     <div class="a ph" id="p4" style="top:1092px"></div>
     <div class="a" id="timer"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#FF8DB8" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и подумай над решением</div></div></div>
+    </div>
   </div>
   <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
   <div class="a" id="plaque"><div class="lg"></div><b>ЕГЭ Тренажёр</b></div>
   <canvas class="a" id="logoc" width="1080" height="1920" style="left:0;top:0;z-index:30"></canvas>
-  <div class="a" id="cta1"><div class="cp" style="background:linear-gradient(135deg,#3b7bff,#1652f0);color:#fff;font-size:48px;padding:26px 58px;box-shadow:0 22px 54px rgba(22,82,240,0.45)">Скачивай бесплатно</div></div>
-  <div class="a" id="cta2"><div class="cp">Ссылка в профиле ↑</div></div>
 </div>
 <script type="importmap">
 { "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }

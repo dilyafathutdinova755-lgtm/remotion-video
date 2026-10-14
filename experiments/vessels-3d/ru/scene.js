@@ -28,7 +28,8 @@ await new Promise((res) => { const im = new Image(); im.onload = res; im.onerror
 const INS = "В одном из этих слов допущена грамматическая ошибка. Найдите её и запишите слово правильно.";
 const PH = ["уборка яслей", "наиболее сильный", "восьмьюдесятью словами", "полощет бельё", "красивый подчерк"];
 const WIN = [[S.c0.start, S.c0.end - 0.15], ...PH.map((_, i) => [S["c" + (i + 1)].start, S["c" + (i + 1)].end - 0.1])];
-const EDGE = [800, 936, 1020, 1104, 1188, 1272];
+const SH = -110; // the whole composition sits 110 px higher (no dead band above the plaque)
+const EDGE = [690, 826, 910, 994, 1078, 1162];
 const T_CUR = 2.0;
 const T_FULL = S.c5.end + 0.05;
 const T_TIMER = S.c5.end + 0.95;
@@ -56,6 +57,7 @@ function measure(txt, weight = 800) {
   s.textContent = txt; document.body.appendChild(s);
   const w = s.getBoundingClientRect().width; s.remove(); return w;
 }
+const PW_MAX = 12 + 80 + 22 + $("plaque").lastElementChild.getBoundingClientRect().width + 38;
 const WK = measure("красивый"), WD = measure("д");
 
 // ---- typewriter
@@ -100,20 +102,20 @@ function headline(el, o) {
   css(el, { opacity: o, transform: `translateY(${(1 - o) * 26}px)`, filter: `blur(${(1 - o) * 6}px)`, display: o <= 0.001 ? "none" : "" });
 }
 
-const pwOf = (tt) => lerp(104, 560, eOut(seg(tt, 2.0, 2.55)) * (1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15))));
+const pwOf = (tt) => lerp(104, PW_MAX, eOut(seg(tt, 2.0, 2.55)) * (1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15))));
 function logoAt(tt) {
-  const slot = { x: 540 - pwOf(tt) / 2 + 52, y: 300 };
+  const slot = { x: 540 - pwOf(tt) / 2 + 52, y: 190 };
   const c0 = T.cta - 0.05;
   if (tt < c0) {
     const pop = eBack(clamp(tt / 0.6)), fly = eIO(seg(tt, 1.05, 1.95)), u = seg(tt, 0, 1.95);
-    const o = { cx: lerp(540, slot.x, fly), cy: lerp(930, slot.y, fly) - Math.sin(fly * Math.PI) * 70,
+    const o = { cx: lerp(540, slot.x, fly), cy: lerp(850, slot.y, fly) - Math.sin(fly * Math.PI) * 70,
       span: lerp(560 * lerp(0.35, 1, clamp(pop, 0, 1.15)), 80, fly),
       rotY: eOut(u) * Math.PI * 6, rotX: Math.sin(u * Math.PI) * 0.25, rotZ: Math.sin(u * Math.PI) * -0.08, shadow: tt < 1.6 ? 1 - seg(tt, 1.0, 1.6) : 0 };
     if (tt > 1.95) { o.rotY = Math.sin((tt - 1.95) * 0.8) * 0.12 * seg(tt, 1.95, 3); o.rotX = 0; o.rotZ = 0; }
     return o;
   }
   const k = eIO(seg(tt, c0, c0 + 1.15)), settle = seg(tt, c0 + 1.3, c0 + 2);
-  return { cx: lerp(slot.x, 540, k), cy: lerp(slot.y, 970, k) - Math.sin(k * Math.PI) * 90 + Math.sin(tt * 1.5) * 10 * settle,
+  return { cx: lerp(slot.x, 540, k), cy: lerp(slot.y, 860, k) - Math.sin(k * Math.PI) * 90 + Math.sin(tt * 1.5) * 10 * settle,
     span: lerp(80, 540, k),
     rotY: eIO(seg(tt, c0, c0 + 1.3)) * Math.PI * 4 + Math.sin(Math.max(0, tt - c0 - 1.3) * 0.9) * 0.18 + Math.sin((c0 - 1.95) * 0.8) * 0.12 * (1 - seg(tt, c0, c0 + 0.4)),
     rotX: Math.sin(k * Math.PI) * 0.2 + Math.sin(tt * 1.1) * 0.04 * settle, rotZ: 0, shadow: seg(tt, c0 + 0.6, c0 + 1.3) };
@@ -184,7 +186,7 @@ function renderFrame(t) {
 
   // dots
   const dv = seg(t, 1.9, 2.4) * (1 - seg(t, T.cta - 0.3, T.cta + 0.2));
-  const covered = clamp((edge + dy - 382) / 50) * clamp((382 - dy) / 50);
+  const covered = clamp((edge + dy - 279) / 50) * clamp((279 - dy) / 50);
   css($("dots"), { opacity: dv });
   dots.forEach((d, i) => {
     const on = eIO(seg(t, DOT_ST[i], DOT_ST[i] + 0.3)) * (1 - eIO(seg(t, DOT_ST[i + 1] ?? 1e9, (DOT_ST[i + 1] ?? 1e9) + 0.3)));
@@ -244,14 +246,14 @@ function renderFrame(t) {
   const wob = Math.sin((t - T.d2) * 38) * 5 * loose * (1 - seg(t, T.d3 - 0.05, T.d3));
   const lift = -42 * eOut(seg(t, T.d2, T.d2 + 0.45)) * (1 - seg(t, T.d3, T.d3 + 0.12));
   const fl = Math.max(0, t - T.d3);
-  const fy = lift + 0.5 * 5600 * fl * fl - 60 * Math.min(fl, 0.12) / 0.12 * (fl > 0 ? 1 : 0) * 0;
+  const fy = lift + 0.5 * 7200 * fl * fl - 60 * Math.min(fl, 0.12) / 0.12 * (fl > 0 ? 1 : 0) * 0;
   const fx = 70 * fl + 160 * fl * fl;
   const frot = wob * 0.6 + (t > T.d3 ? 38 * fl + 160 * fl * fl : 0);
-  css(dEl, { transform: `translate(${fx}px, ${fy}px) rotate(${frot}deg) scale(${1 + 0.1 * loose})`, opacity: fy > 1500 ? 0 : 1,
+  css(dEl, { transform: `translate(${fx}px, ${fy}px) rotate(${frot}deg) scale(${1 + 0.1 * loose})`, 
     filter: (big_ ? "drop-shadow(0 14px 18px rgba(110,30,70,0.2)) " : "") + (redD > 0 ? `drop-shadow(0 0 ${30 * redD}px rgba(229,72,58,0.5)) ` : "") });
-  const wk = eBackOut(seg(t, T.d3 + 0.18, T.d3 + 0.7));
+  const wk = eIO(seg(t, T.d3 + 0.3, T.d3 + 0.85));
   dOuter.style.width = (WD * fsW / 100) * Math.max(0, 1 - wk) + "px";
-  dOuter.style.display = wk >= 1 ? "none" : "";
+  dOuter.style.display = t > T.d3 + 1.4 ? "none" : "";
 
   // brackets under «по» / «черк»
   const brs = [$("br0"), $("br1")], bls = [$("bl0"), $("bl1")];
@@ -261,7 +263,7 @@ function renderFrame(t) {
     const vis = k * exitW;
     if (vis <= 0.001) { brs[i].style.display = "none"; bls[i].style.display = "none"; return; }
     const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
-    const x0 = ra.left + 6, x1 = rb.right - 6, y = Math.max(ra.bottom, rb.bottom) - 4;
+    const x0 = ra.left + 6, x1 = rb.right - 6, y = Math.max(ra.bottom, rb.bottom) - 4 - SH;
     css(brs[i], { display: "", left: x0 + "px", width: x1 - x0 + "px", top: y + "px", opacity: vis, transform: `scaleX(${k})` });
     css(bls[i], { display: "", left: x0 + "px", width: x1 - x0 + "px", top: y + 32 + "px", opacity: seg(t, t0 + 0.2, t0 + 0.55) * exitW });
   });
