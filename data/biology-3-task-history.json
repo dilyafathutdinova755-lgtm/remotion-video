@@ -271,6 +271,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/53762",
       "source_task_id": "53762"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38594271917",
+      "reserved_at": "2026-10-14T16:02:35.306Z",
+      "task_number": 3,
+      "condition_text": "В триплоидной клетке эндосперма ржи содержится 21 хромосома. Сколько хромосом содержит клетка ее листа? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/69689",
+      "source_task_id": "69689"
     }
   ]
 }
