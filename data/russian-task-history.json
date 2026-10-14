@@ -345,6 +345,15 @@
       "condition_text": "Четыре мальчика и две девочки шли на смену к памятному мемориалу, где на плитах из гранита были перечислены все военные части и корабли, защищавшие город в последней войне.",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=290"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:github-run:38553470310",
+      "reserved_at": "2026-10-14T11:06:15.684Z",
+      "task_number": 7,
+      "condition_text": "много спелых ВИШЕН\nон более УГРЮМЕЕ\nс ДЕВЯНОСТА тетрадями\nдо ДВЕ тысячи пятого года\nГЛОЖУТ сомнения",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/ru_lang/2/probniki?variant=290"
     }
   ]
 }
