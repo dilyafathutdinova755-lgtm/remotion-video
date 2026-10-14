@@ -251,6 +251,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84373",
       "source_task_id": "84373"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38532055616",
+      "reserved_at": "2026-10-14T08:02:14.880Z",
+      "task_number": 3,
+      "condition_text": "В некоторой молекуле ДНК на долю нуклеотидов с аденином приходится 37%. Определите процентное содержание нуклеотидов с тимином, входящих в состав этой молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84446",
+      "source_task_id": "84446"
     }
   ]
 }
