@@ -291,6 +291,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/20647",
       "source_task_id": "20647"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38739027253",
+      "reserved_at": "2026-10-15T13:02:36.837Z",
+      "task_number": 3,
+      "condition_text": "Какой антикодон транспортной РНК соответствует триплету ЦГЦ в молекуле ДНК?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/37238",
+      "source_task_id": "37238"
     }
   ]
 }
