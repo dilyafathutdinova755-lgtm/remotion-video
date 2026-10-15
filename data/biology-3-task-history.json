@@ -301,6 +301,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/37238",
       "source_task_id": "37238"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38765232341",
+      "reserved_at": "2026-10-15T16:02:49.934Z",
+      "task_number": 3,
+      "condition_text": "Из микроспоры свеклы обыкновенной в результате митоза образовались клетки, которые содержат по 9 хромосом. Определите количество хромосом микроспоры. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/58947",
+      "source_task_id": "58947"
     }
   ]
 }
