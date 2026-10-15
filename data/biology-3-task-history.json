@@ -281,6 +281,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/69689",
       "source_task_id": "69689"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38702554263",
+      "reserved_at": "2026-10-15T08:02:23.555Z",
+      "task_number": 3,
+      "condition_text": "Каким будет общее увеличение микроскопа, если увеличение окуляра 10, а увеличение объектива 40?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/20647",
+      "source_task_id": "20647"
     }
   ]
 }
