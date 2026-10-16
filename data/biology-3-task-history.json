@@ -321,6 +321,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84377",
       "source_task_id": "84377"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38904522415",
+      "reserved_at": "2026-10-16T13:01:55.267Z",
+      "task_number": 3,
+      "condition_text": "Белок имеет относительную молекулярную массу 2040. Определите количество кодонов в молекуле иРНК, кодирующей последовательность аминокислот в этом белке, если относительная молекулярная масса одного аминокислотного остатка 120. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/37193",
+      "source_task_id": "37193"
     }
   ]
 }
