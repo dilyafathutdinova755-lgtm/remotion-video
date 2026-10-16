@@ -311,6 +311,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/58947",
       "source_task_id": "58947"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38870765574",
+      "reserved_at": "2026-10-16T08:02:46.963Z",
+      "task_number": 3,
+      "condition_text": "Двуцепочечный фрагмент ДНК содержит 65 нуклеотидов с цитозином и 71 нуклеотид с тимином. Определите общее количество нуклеотидов, входящих в состав молекулы. В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84377",
+      "source_task_id": "84377"
     }
   ]
 }
