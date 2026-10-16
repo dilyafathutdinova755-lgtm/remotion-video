@@ -331,6 +331,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/37193",
       "source_task_id": "37193"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:38928429593",
+      "reserved_at": "2026-10-16T16:02:25.856Z",
+      "task_number": 3,
+      "condition_text": "Какое число триплетов кодируют 27 аминокислот? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/14737",
+      "source_task_id": "14737"
     }
   ]
 }
