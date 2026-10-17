@@ -377,6 +377,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/55272",
       "source_task_id": "55272"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-acceptance-987",
+      "reserved_at": "2026-10-17T15:40:01.870Z",
+      "task_number": 7,
+      "condition_text": "прошли наиболее УСПЕШНО\nзимние МЕСЯЦА\nСЕМЬЮСТАМИ солдатами\nПРОПОЛОЩИ бельё\nв ТЫСЯЧА девятисотом году",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84599",
+      "source_task_id": "84599"
     }
   ]
 }
