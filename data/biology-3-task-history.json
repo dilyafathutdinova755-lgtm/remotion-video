@@ -341,6 +341,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/14737",
       "source_task_id": "14737"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39015703990",
+      "reserved_at": "2026-10-17T08:02:19.986Z",
+      "task_number": 3,
+      "condition_text": "Белок состоит из 120 аминокислот. Установите число нуклеотидов матричной цепи ДНК, кодирующей данный белок.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/51832",
+      "source_task_id": "51832"
     }
   ]
 }
