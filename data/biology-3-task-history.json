@@ -361,6 +361,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/36263",
       "source_task_id": "36263"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39047483908",
+      "reserved_at": "2026-10-17T16:02:40.294Z",
+      "task_number": 3,
+      "condition_text": "Сколько нуклеотидов из зрелой и-РНК кодируют фрагмент полипептида из 45 аминокислот? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/51314",
+      "source_task_id": "51314"
     }
   ]
 }
