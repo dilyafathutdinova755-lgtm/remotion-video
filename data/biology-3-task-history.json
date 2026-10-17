@@ -351,6 +351,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/51832",
       "source_task_id": "51832"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39034752349",
+      "reserved_at": "2026-10-17T13:02:35.099Z",
+      "task_number": 3,
+      "condition_text": "Соматическая клетка пчелиной матки содержит 32 хромосомы. Сколько хромосом содержится в соматической клетке трутня? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/36263",
+      "source_task_id": "36263"
     }
   ]
 }
