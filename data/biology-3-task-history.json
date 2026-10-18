@@ -371,6 +371,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/51314",
       "source_task_id": "51314"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39109746977",
+      "reserved_at": "2026-10-18T08:02:15.644Z",
+      "task_number": 3,
+      "condition_text": "В молекуле ДНК количество аденина составляет 36% от общего числа. Какой процент пиримидиновых нуклеотидов в этой молекуле? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/48238",
+      "source_task_id": "48238"
     }
   ]
 }
