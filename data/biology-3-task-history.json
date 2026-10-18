@@ -381,6 +381,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/48238",
       "source_task_id": "48238"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39129626982",
+      "reserved_at": "2026-10-18T13:02:35.751Z",
+      "task_number": 3,
+      "condition_text": "Сколько молекул ДНК содержится в ядре клетки после репликации, если в диплоидном наборе содержится 46 молекул ДНК? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/57654",
+      "source_task_id": "57654"
     }
   ]
 }
