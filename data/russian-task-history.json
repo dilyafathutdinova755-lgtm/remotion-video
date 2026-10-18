@@ -369,14 +369,17 @@
       "published_at": "2026-10-14T13:40:55.101788+00:00"
     },
     {
-      "state": "reserved",
+      "state": "published",
       "reservation_id": "ege_russian:factory-pilot:55272:v1",
       "reserved_at": "2026-10-15T08:03:18.162Z",
       "task_number": 7,
       "condition_text": "КРАСИВШЕ\nДВЕ седьмых\nмного ВИШЕН\nПОСАДИ дерево\nпара БОТИНОК",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/55272",
-      "source_task_id": "55272"
+      "source_task_id": "55272",
+      "tiktok_post_url": "https://www.tiktok.com/@egerus1/video/7697981859292073249",
+      "tiktok_post_id": "7697981859292073249",
+      "published_at": "2026-10-18T12:27:46.586Z"
     },
     {
       "state": "reserved",
