@@ -391,6 +391,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/57654",
       "source_task_id": "57654"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39142990216",
+      "reserved_at": "2026-10-18T16:02:26.388Z",
+      "task_number": 3,
+      "condition_text": "Определите число хромосом в конце телофазы митоза в клетках листа сирени, если микроспоры сирени содержат 10 хромосом. В ответ запишите только соответствующее число хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/46184",
+      "source_task_id": "46184"
     }
   ]
 }
