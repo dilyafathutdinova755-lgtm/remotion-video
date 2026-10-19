@@ -1,0 +1,31 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-19T15:45:00Z" },
+  "title": "Раскадровка: биология, белок и ДНК",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1280, "h": 1480, "title": "Обзор" },
+    "looks.dc.html": { "x": 0, "y": 1600, "w": 1850, "h": 1080, "title": "5 вариантов зелёного и фона" },
+    "s1-intro.dc.html": { "x": 0, "y": 2800, "w": 1280, "h": 760, "title": "1 · Заставка (как в математике и русском)" },
+    "s2-cond.dc.html": { "x": 0, "y": 3680, "w": 1480, "h": 1080, "title": "2 · Условие: каждое слово — 3D-картинка" },
+    "s3-pause.dc.html": { "x": 0, "y": 4880, "w": 1280, "h": 760, "title": "3 · Пауза: условие и таймер" },
+    "s4-step1.dc.html": { "x": 0, "y": 5760, "w": 1700, "h": 760, "title": "4 · Шаг 1: триплет" },
+    "s5-step2.dc.html": { "x": 0, "y": 6640, "w": 1700, "h": 760, "title": "5 · Шаг 2: умножаем на 3" },
+    "s6-step3.dc.html": { "x": 0, "y": 7520, "w": 1700, "h": 760, "title": "6 · Шаг 3: одна цепь" },
+    "s7-cta.dc.html": { "x": 0, "y": 8400, "w": 1280, "h": 760, "title": "7 · Финал (как в математике и русском)" }
+  },
+  "order": [
+    "Main.dc.html",
+    "looks.dc.html",
+    "s1-intro.dc.html",
+    "s2-cond.dc.html",
+    "s3-pause.dc.html",
+    "s4-step1.dc.html",
+    "s5-step2.dc.html",
+    "s6-step3.dc.html",
+    "s7-cta.dc.html"
+  ],
+  "notes": {},
+  "designSystems": []
+}

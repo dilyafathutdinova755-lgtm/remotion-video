@@ -1,0 +1,147 @@
+/* Раскадровка «Биология»: лист сцены + мини-экраны ролика (1080×1920, масштаб 0.26667) */
+:root { --sheet:#0C1511; --sheet2:#121F19; --line:rgba(198,255,77,0.14); --txt:#E6F2EA; --mut:#9DB3A6; --lime:#C6FF4D; --mint:#5BE3A6; }
+body { margin:0; background:var(--sheet); }
+
+/* ---------- лист сцены ---------- */
+.card { position:relative; box-sizing:border-box; background:var(--sheet); color:var(--txt); font-family:Onest,system-ui,sans-serif; overflow:hidden;
+  background-image:radial-gradient(rgba(198,255,77,0.07) 1.2px, transparent 1.4px); background-size:22px 22px; }
+.hd { position:absolute; left:40px; right:40px; top:26px; display:flex; align-items:center; gap:16px; }
+.num { min-width:54px; height:54px; padding:0 14px; box-sizing:border-box; border-radius:16px; background:var(--lime); color:#0B1A10; font-family:Unbounded,sans-serif; font-weight:700; font-size:22px; display:flex; align-items:center; justify-content:center; flex:none; }
+.ttl { font-family:Unbounded,sans-serif; font-size:24px; font-weight:600; letter-spacing:-0.01em; }
+.tm { margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:16px; color:var(--lime); border:1px solid var(--line); border-radius:999px; padding:8px 16px; white-space:nowrap; }
+.fr { position:absolute; top:104px; }
+.fc { position:absolute; top:628px; width:288px; text-align:center; font-family:"JetBrains Mono",monospace; font-size:13px; line-height:1.4; color:var(--mut); }
+.arr { position:absolute; top:352px; }
+.pn { position:absolute; top:104px; display:flex; flex-direction:column; gap:20px; }
+.pn3 { position:absolute; left:40px; top:700px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:40px; }
+.pn3 > div { display:flex; flex-direction:column; gap:8px; }
+.lb { font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--lime); margin-bottom:6px; }
+.tx { font-size:17px; line-height:1.5; color:var(--txt); }
+.tx.v { font-size:19px; line-height:1.45; font-weight:500; color:#F4FFF7; }
+.tx ul, ul.tx { margin:0; padding-left:20px; }
+.tx li { margin-bottom:6px; }
+
+/* ---------- мини-экран ---------- */
+.scr { position:relative; width:288px; height:512px; overflow:hidden; border-radius:30px; background:#000; box-shadow:0 22px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(198,255,77,0.22); }
+.u { position:absolute; left:0; top:0; width:1080px; height:1920px; overflow:hidden; transform:scale(0.26667); transform-origin:0 0;
+  font-family:Onest,sans-serif; color:var(--ink); --ink:#EAF7EE; --sub:#9FC2AE; --acc:#C6FF4D; --acc2:#5BE3A6;
+  background:linear-gradient(180deg,#07150F 0%,#0A2016 60%,#0C281B 100%); }
+.u > * { position:absolute; z-index:2; }
+
+/* фон: вариант 1 «Терминал» — точечная матрица, которая «дышит» под светом */
+.pat { left:0; top:0; width:1080px; height:1920px; z-index:0;
+  background-image:radial-gradient(rgba(198,255,77,0.30) 2.6px, transparent 3px); background-size:40px 40px;
+  -webkit-mask-image:radial-gradient(700px 900px at 70% 35%, #000 0%, rgba(0,0,0,0.35) 55%, transparent 80%); mask-image:radial-gradient(700px 900px at 70% 35%, #000 0%, rgba(0,0,0,0.35) 55%, transparent 80%); }
+.glw { z-index:1; border-radius:50%; background:radial-gradient(closest-side, rgba(198,255,77,0.22), rgba(198,255,77,0)); }
+
+/* вариант 2 «Мята» — светлый, полутоновые точки растут к низу */
+.u.mint { --ink:#0D2A1B; --sub:#4E6E5B; --acc:#13A05C; --acc2:#0D7A45; background:linear-gradient(180deg,#F3FBF5 0%,#E2F4E8 100%); }
+.u.mint .pat { background-image:radial-gradient(rgba(19,160,92,0.35) 3.4px, transparent 3.8px); background-size:34px 34px;
+  -webkit-mask-image:linear-gradient(180deg, transparent 30%, #000 100%); mask-image:linear-gradient(180deg, transparent 30%, #000 100%); }
+.u.mint .glw { background:radial-gradient(closest-side, rgba(120,230,160,0.45), rgba(120,230,160,0)); }
+
+/* вариант 3 «Матча-бенто» — шалфей, тихая сетка из скруглённых плиток */
+.u.matcha { --ink:#1E2B14; --sub:#5C6B4C; --acc:#4E7A2C; --acc2:#7FA94A; background:linear-gradient(180deg,#E8EDDB 0%,#D6DFC4 100%); }
+.u.matcha .pat { background:none; -webkit-mask-image:none; mask-image:none; }
+.u.matcha .glw { background:radial-gradient(closest-side, rgba(255,255,255,0.6), rgba(255,255,255,0)); }
+
+/* вариант 4 «Кислота / ASCII» — почти чёрный, поле из букв А Т Г Ц */
+.u.acid { --ink:#E9FFE6; --sub:#87B98A; --acc:#7CFF6B; --acc2:#3BE38F; background:#030A06; }
+.u.acid .pat { background:none; -webkit-mask-image:none; mask-image:none; }
+.ascii { left:-20px; top:-20px; width:1120px; height:1960px; z-index:0; font-family:"JetBrains Mono",monospace; font-size:30px; line-height:40px; letter-spacing:6px;
+  color:rgba(124,255,107,0.13); word-break:break-all; white-space:normal; }
+
+/* вариант 5 «Изумрудное стекло» — глубокий изумруд, матовые стеклянные плиты по диагонали */
+.u.emer { --ink:#F0FFF6; --sub:#A9D9C0; --acc:#9CFFCB; --acc2:#5BE3A6; background:radial-gradient(900px 900px at 80% 10%, #1F7A55 0%, rgba(31,122,85,0) 70%), radial-gradient(900px 900px at 0% 90%, #0F5C40 0%, rgba(15,92,64,0) 70%), #062A1D; }
+.u.emer .pat { background:none; -webkit-mask-image:none; mask-image:none; }
+.slab { z-index:0; border-radius:80px; background:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03)); box-shadow:inset 0 2px 0 rgba(255,255,255,0.25); transform:rotate(-24deg); }
+
+/* ---------- шапка: плашка, точки шага, заголовок ---------- */
+.pl { left:260px; top:138px; width:560px; height:104px; box-sizing:border-box; border-radius:52px; background:rgba(255,255,255,0.95); box-shadow:0 18px 50px rgba(0,0,0,0.28); display:flex; align-items:center; gap:22px; padding-left:12px; z-index:5; }
+.pl b { font-family:Onest,sans-serif; font-weight:800; font-size:36px; letter-spacing:0.06em; text-transform:uppercase; color:#10162f; white-space:nowrap; }
+.dt { left:0; top:272px; width:1080px; display:flex; justify-content:center; gap:12px; z-index:5; }
+.dt i { display:block; width:14px; height:14px; border-radius:7px; background:rgba(255,255,255,0.22); }
+.u.mint .dt i, .u.matcha .dt i { background:rgba(10,40,20,0.18); }
+.dt i.on { width:46px; background:var(--acc); }
+.hh { left:40px; top:314px; width:1000px; text-align:center; z-index:4; }
+.ey { font-family:"JetBrains Mono",monospace; font-size:30px; font-weight:600; color:var(--acc); height:48px; letter-spacing:0.04em; }
+.t1 { font-family:Unbounded,sans-serif; font-size:72px; line-height:88px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); }
+
+/* ---------- 3D-предметы (на экране — настоящий Three.js) ---------- */
+.bd { border-radius:50%; background:radial-gradient(circle at 34% 28%, #F6FFE6 0%, #C6FF4D 20%, #46C774 56%, #0E5530 100%); box-shadow:0 14px 22px rgba(0,0,0,0.35), inset -6px -8px 14px rgba(0,40,20,0.35); }
+.bd.dim { opacity:0.28; }
+.u.mint .bd, .u.matcha .bd { box-shadow:0 14px 22px rgba(20,70,40,0.25), inset -6px -8px 14px rgba(0,40,20,0.25); }
+.lnk { height:10px; border-radius:5px; background:linear-gradient(90deg, rgba(198,255,77,0.5), rgba(91,227,166,0.5)); transform-origin:0 50%; }
+.nt { width:92px; height:150px; box-sizing:border-box; border-radius:30px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:16px;
+  background:linear-gradient(180deg,#E6FFB0 0%,#7EE07F 45%,#1F8C4E 100%); box-shadow:0 18px 30px rgba(0,0,0,0.35), inset 0 6px 0 rgba(255,255,255,0.5), inset 0 -10px 16px rgba(0,50,20,0.35);
+  font-family:Unbounded,sans-serif; font-weight:700; font-size:46px; color:#0A2A16; }
+.nt.s { width:22px; height:36px; border-radius:8px; padding:0; font-size:0; }
+.rail { height:30px; border-radius:15px; }
+.rail.tpl { background:linear-gradient(180deg,#F1FFC9,#C6FF4D 45%,#5FB82E); box-shadow:0 0 40px rgba(198,255,77,0.55), 0 12px 20px rgba(0,0,0,0.35); }
+.rail.cmp { background:linear-gradient(180deg,#B8E8CC,#4FA57A 50%,#1E5B3E); box-shadow:0 12px 20px rgba(0,0,0,0.35); }
+.rung { width:12px; border-radius:6px; }
+.rung.t { background:linear-gradient(180deg,#C6FF4D,#7DD96A); }
+.rung.c { background:linear-gradient(180deg,#5FB98A,#2B7A52); }
+.brk { height:26px; box-sizing:border-box; border:7px solid var(--acc); border-top:none; border-radius:0 0 22px 22px; }
+
+/* ---------- плашки-заметки, счётчик, ярлык ---------- */
+.note { box-sizing:border-box; padding:22px 34px; border-radius:30px; font-family:"JetBrains Mono",monospace; font-size:36px; line-height:1.25; color:var(--ink); white-space:nowrap;
+  background:linear-gradient(160deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)); box-shadow:0 20px 50px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.18); border:1.5px solid rgba(198,255,77,0.28); }
+.u.mint .note, .u.matcha .note { background:rgba(255,255,255,0.8); border-color:rgba(19,160,92,0.25); box-shadow:0 20px 50px rgba(20,70,40,0.15); }
+.note b { color:var(--acc); font-weight:700; }
+.big { font-family:Unbounded,sans-serif; font-weight:800; letter-spacing:-0.04em; color:var(--acc); line-height:1; }
+.tag { box-sizing:border-box; padding:16px 30px; border-radius:999px; font-family:"JetBrains Mono",monospace; font-size:36px; white-space:nowrap; color:var(--ink);
+  background:rgba(7,21,15,0.72); border:2px solid rgba(198,255,77,0.5); box-shadow:0 14px 34px rgba(0,0,0,0.4); }
+.tag.on { background:var(--acc); color:#0A1E10; border-color:var(--acc); font-weight:700; }
+.lbl { font-family:"JetBrains Mono",monospace; font-size:32px; color:var(--sub); white-space:nowrap; }
+
+/* ---------- пауза: условие и таймер ---------- */
+.cc { left:70px; width:940px; box-sizing:border-box; border-radius:44px; padding:46px 52px; font-size:44px; line-height:1.34; font-weight:500; color:var(--ink);
+  background:linear-gradient(160deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04)); box-shadow:0 30px 80px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.16); }
+.pcs { left:70px; width:940px; height:196px; box-sizing:border-box; border-radius:64px; display:flex; align-items:center; gap:36px; padding:0 48px 0 40px;
+  background:linear-gradient(160deg, rgba(198,255,77,0.16), rgba(198,255,77,0.05)); box-shadow:0 30px 80px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.2); }
+.rg { position:relative; width:144px; height:144px; flex:none; }
+.rg svg { position:absolute; left:0; top:0; width:144px; height:144px; transform:rotate(-90deg); }
+.rg i { position:absolute; left:0; top:0; width:144px; height:144px; display:flex; align-items:center; justify-content:center; font-style:normal; font-family:Unbounded,sans-serif; font-size:76px; font-weight:700; color:var(--acc); }
+.pt1 { display:flex; align-items:center; gap:22px; font-family:Unbounded,sans-serif; font-size:44px; font-weight:700; color:var(--ink); white-space:nowrap; }
+.pt2 { font-size:32px; margin-top:6px; color:var(--sub); white-space:nowrap; }
+.bars { display:flex; gap:9px; }
+.bars i { display:block; width:14px; height:42px; border-radius:6px; background:var(--acc); }
+
+/* ---------- финал ---------- */
+.cp { padding:18px 40px; border-radius:999px; background:#fff; color:#0E1A12; font-weight:700; font-size:40px; white-space:nowrap; box-shadow:0 18px 40px rgba(0,0,0,0.35); }
+.cp.blue { background:linear-gradient(135deg,#3b7bff,#1652f0); color:#fff; font-size:48px; padding:26px 58px; box-shadow:0 22px 54px rgba(22,82,240,0.45); }
+.sh { border-radius:50%; background:radial-gradient(closest-side, rgba(0,0,0,0.45), rgba(0,0,0,0)); }
+
+/* ---------- обзор ---------- */
+.mn { box-sizing:border-box; width:1280px; padding:56px 64px; display:flex; flex-direction:column; gap:30px; background:var(--sheet); color:var(--txt); font-family:Onest,system-ui,sans-serif;
+  background-image:radial-gradient(rgba(198,255,77,0.07) 1.2px, transparent 1.4px); background-size:22px 22px; }
+.eyb { font-family:"JetBrains Mono",monospace; font-size:15px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--lime); }
+.h1 { margin:10px 0 12px; font-family:Unbounded,sans-serif; font-size:52px; line-height:1.08; font-weight:700; letter-spacing:-0.02em; }
+.lead { margin:0; max-width:1040px; font-size:20px; line-height:1.5; color:#C9DDD0; }
+.row { display:flex; gap:22px; }
+.bx { box-sizing:border-box; border-radius:24px; padding:24px 28px; background:var(--sheet2); border:1px solid var(--line); }
+.bx h3 { margin:0 0 12px; font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--lime); }
+.bx p { margin:0 0 10px; font-size:17px; line-height:1.5; }
+.grid6 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.pr { box-sizing:border-box; border-radius:20px; padding:18px 20px; background:var(--sheet2); border:1px solid var(--line); display:flex; flex-direction:column; gap:6px; }
+.pr b { font-size:17px; }
+.pr span { font-size:15px; line-height:1.45; color:var(--mut); }
+.sws { display:flex; gap:14px; flex-wrap:wrap; }
+.sw1 { width:140px; display:flex; flex-direction:column; gap:6px; }
+.sw1 i { display:block; height:62px; border-radius:16px; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08); }
+.sw1 b { font-size:14px; }
+.sw1 span { font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--mut); }
+.tlb { display:flex; gap:6px; height:58px; }
+.sg { box-sizing:border-box; border-radius:12px; padding:8px 10px; background:rgba(198,255,77,0.12); border:1px solid var(--line); font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:600; color:var(--lime); display:flex; flex-direction:column; justify-content:center; overflow:hidden; white-space:nowrap; }
+.sg small { font-weight:400; font-size:11px; color:var(--mut); }
+.warn { border-radius:16px; padding:14px 18px; background:rgba(255,196,77,0.1); border:1px solid rgba(255,196,77,0.35); font-size:16px; line-height:1.5; color:#FFE3A8; }
+.lst { margin:0; padding-left:22px; font-size:17px; line-height:1.55; }
+
+/* ---------- объёмная иконка (в ролике — настоящий 3D-блок с фаской) ---------- */
+.lg3 { width:500px; height:500px; transform-style:preserve-3d; }
+.lg3 .ly { position:absolute; left:0; top:0; width:500px; height:500px; border-radius:125px; }
+.lg3 .fimg { position:absolute; left:0; top:0; width:500px; height:500px; border-radius:125px; transform:translateZ(1px); box-shadow:inset 0 0 0 5px rgba(255,255,255,0.3); }
+.lg3 .gloss { position:absolute; left:0; top:0; width:500px; height:500px; border-radius:125px; transform:translateZ(2px);
+  background:linear-gradient(140deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0) 38%), linear-gradient(320deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 40%); }
+.pl img { box-shadow:0 5px 0 #0A3FB8, 0 8px 14px rgba(0,0,0,0.25); }

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сцена 1 · Заставка</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="bio.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="card" style="width:1280px;height:760px">
+  <div class="hd"><div class="num">1</div><div class="ttl">Заставка: объёмная иконка вращается и садится в плашку</div><div class="tm">0,0 – 2,0 с · без голоса</div></div>
+
+  <div class="fr" style="left:40px"><div class="scr"><div class="u">
+    <div class="pat"></div>
+    <div class="glw" style="left:140px;top:500px;width:800px;height:800px"></div>
+    <div class="sh" style="left:200px;top:1240px;width:680px;height:90px"></div>
+    <img src="/_blob/0ebc6263ead22fd6bab855a3857360f5" alt="" style="left:290px;top:600px;width:500px;height:500px;border-radius:125px;opacity:0.25;filter:blur(12px);transform:perspective(1600px) rotateY(24deg)">
+    <div class="lg3" style="left:290px;top:600px;transform:perspective(1800px) rotateY(54deg) rotateX(10deg) rotateZ(-4deg)"><sc-for list="{{layers}}" as="l" hint-placeholder-count="0"><div class="ly" style="transform:translateZ(-{{l.z}}px);background:{{l.bg}}"></div></sc-for><img class="fimg" src="/_blob/0ebc6263ead22fd6bab855a3857360f5" alt="Иконка ЕГЭ Тренажёр"><div class="gloss"></div></div>
+  </div></div></div>
+
+  <svg class="arr" width="60" height="24" viewBox="0 0 60 24" style="left:338px" aria-hidden="true"><path d="M2 12h50M42 3l10 9-10 9" fill="none" stroke="#C6FF4D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+  <div class="fr" style="left:408px"><div class="scr"><div class="u">
+    <div class="pat"></div>
+    <div class="glw" style="left:140px;top:500px;width:800px;height:800px"></div>
+    <div class="pl"><img src="/_blob/0ebc6263ead22fd6bab855a3857360f5" alt="" style="width:80px;height:80px;border-radius:22px;flex:none"><b>ЕГЭ Тренажёр</b></div>
+    <div class="dt"><i class="on"></i><i></i><i></i><i></i></div>
+  </div></div></div>
+
+  <div class="fc" style="left:40px">≈ 0,5 с — три оборота с размытием движения</div>
+  <div class="fc" style="left:408px">≈ 2,0 с — иконка в плашке, точки шагов</div>
+
+  <div class="pn" style="left:740px;width:500px">
+    <div>
+      <div class="lb">Голос</div>
+      <div class="tx v">Тишина.</div>
+    </div>
+    <div>
+      <div class="lb">Что происходит</div>
+      <ul class="tx">
+        <li>Ровно как в роликах по математике и русскому: настоящая иконка приложения — толстый глянцевый 3D-блок с фаской.</li>
+        <li>Три быстрых оборота с размытием, тень на «полу», затем дугой улетает вверх и садится в белую плашку.</li>
+        <li>Плашка раскрывается до «ЕГЭ ТРЕНАЖЁР», под ней загораются четыре точки: условие и три шага.</li>
+        <li>Меняется только фон: здесь он зелёный, точечная матрица с мягким лаймовым светом.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="lb">Звук</div>
+      <div class="tx">«Вжух» вращения, мягкий «поп» при посадке в плашку, тихий эмбиент.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const layers = [];
+    for (let k = 1; k <= 22; k++) {
+      const d = k / 22;
+      const c1 = Math.round(23 - 13 * d), c2 = Math.round(103 - 50 * d), c3 = Math.round(255 - 85 * d);
+      layers.push({ z: k * 3, bg: 'rgb(' + c1 + ',' + c2 + ',' + c3 + ')' });
+    }
+    return { layers };
+  }
+}
+</script>
+</body>
+</html>
