@@ -1,0 +1,1338 @@
+From af7bf1f5288a50146e15af3be03e380eb727a624 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Mon, 19 Oct 2026 19:59:23 +0200
+Subject: [PATCH] Prepare isolated candidate adapter for approved biology scene
+
+---
+ experiments/vessels-3d/bio/dynamic/.gitignore |   4 +
+ experiments/vessels-3d/bio/dynamic/README.md  | 111 +++++
+ .../vessels-3d/bio/dynamic/VALIDATION.md      |  28 ++
+ .../vessels-3d/bio/dynamic/contract.mjs       |  98 +++++
+ .../vessels-3d/bio/dynamic/contract.test.mjs  |  44 ++
+ experiments/vessels-3d/bio/dynamic/index.html | 106 +++++
+ .../vessels-3d/bio/dynamic/make_mix.py        | 239 +++++++++++
+ .../vessels-3d/bio/dynamic/prepare-job.mjs    |  31 ++
+ .../bio/dynamic/render-candidate.mjs          | 135 ++++++
+ experiments/vessels-3d/bio/dynamic/scene.mjs  | 387 ++++++++++++++++++
+ .../bio/dynamic/visual-regression.mjs         |  56 +++
+ 11 files changed, 1239 insertions(+)
+ create mode 100644 experiments/vessels-3d/bio/dynamic/.gitignore
+ create mode 100644 experiments/vessels-3d/bio/dynamic/README.md
+ create mode 100644 experiments/vessels-3d/bio/dynamic/VALIDATION.md
+ create mode 100644 experiments/vessels-3d/bio/dynamic/contract.mjs
+ create mode 100644 experiments/vessels-3d/bio/dynamic/contract.test.mjs
+ create mode 100644 experiments/vessels-3d/bio/dynamic/index.html
+ create mode 100644 experiments/vessels-3d/bio/dynamic/make_mix.py
+ create mode 100644 experiments/vessels-3d/bio/dynamic/prepare-job.mjs
+ create mode 100644 experiments/vessels-3d/bio/dynamic/render-candidate.mjs
+ create mode 100644 experiments/vessels-3d/bio/dynamic/scene.mjs
+ create mode 100644 experiments/vessels-3d/bio/dynamic/visual-regression.mjs
+
+diff --git a/experiments/vessels-3d/bio/dynamic/.gitignore b/experiments/vessels-3d/bio/dynamic/.gitignore
+new file mode 100644
+index 0000000..7a7270c
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/.gitignore
+@@ -0,0 +1,4 @@
++/job.json
++/assets/
++/out/
++/__pycache__/
+diff --git a/experiments/vessels-3d/bio/dynamic/README.md b/experiments/vessels-3d/bio/dynamic/README.md
+new file mode 100644
+index 0000000..07e8249
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/README.md
+@@ -0,0 +1,111 @@
++# Кандидат адаптера утверждённого дизайна — НЕ подключён к заводу
++
++Эталон: `bio-approved-v1`, commit `2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8`.
++Исходные HTML, scene.js, timeline.json, голос, MP4 и сведённый звук не меняются.
++
++Это первая ограниченная часть интеграции. Она переносит точную сцену из
++утверждённого ролика на входные данные. Это НЕ универсальный генератор
++произвольных задач по биологии. Рендеры других семейств и подключение к n8n
++ещё не реализованы. Не считать наличие этого каталога выполненной миграцией.
++
++## Что сделано
++
++- Отдельный HTML и отдельная копия сценического кода сохраняют стили,
++  материалы, освещение, логотип, переходы и временную хореографию эталона.
++- Количество аминокислот, количество нуклеотидов, надписи, условие, заголовки,
++  буквы триплета, раскладка объектов, звуковые события и временные метки
++  читаются из данных кандидата. Сохранённые голоса не переносятся на новые задачи.
++- Вход проверяет область `ege_biology_3`, ответ, тип задачи, число объектов,
++  порядок и границы меток, длительность и хеш аудиофайла.
++- Поддерживается только `protein-template-nucleotides`: число кодирующих
++  нуклеотидов одной матричной цепи по числу аминокислот, без стоп-кодона.
++  Допустимо 1..240 объектов. Более крупные количества НЕ подменяются
++  приблизительным числом шариков. Другие задачи останавливаются явно.
++- Исходные примерные метки, измеренные синтезом префиксов, честно помечены
++  `approved-prefix-estimates` и используются только в режиме эталона.
++  Новым задачам нужны измеренные метки новой озвучки.
++- Renderer и микшер работают локально. Нет вызовов TTS, n8n, GitHub API,
++  Postmypost, записи истории задач или блокировок публикации.
++
++## Локальная проверка
++
++Из корня репозитория:
++
++```bash
++cd experiments/vessels-3d
++npm ci --ignore-scripts
++cd ../..
++node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs
++node experiments/vessels-3d/bio/dynamic/prepare-job.mjs --reference
++python3 experiments/vessels-3d/bio/dynamic/make_mix.py
++```
++
++Для визуальной проверки установите Chromium версии Playwright 1.56.1,
++укажите путь в `CHROME` (при необходимости также доступный для записи `TMPDIR`):
++
++```bash
++node experiments/vessels-3d/bio/dynamic/visual-regression.mjs
++node experiments/vessels-3d/bio/dynamic/render-candidate.mjs stills 4 17 27 36
++node experiments/vessels-3d/bio/dynamic/render-candidate.mjs video --workers 4 --fps 60
++```
++
++Изображение без звука и сведённая дорожка создаются в `dynamic/out/`.
++Для тестового MP4 объедините их локально ffmpeg. Никаких production callback.
++`visual-regression.mjs` сравнивает PNG обеих версий на 17 позициях и проверяет
++совпадение звука; до его успешного завершения визуальная идентичность не доказана.
++
++Для НОВОЙ задачи: `prepare-job.mjs --job input.json --audio voice.wav`.
++Файл `job.json` режима эталона служит примером структуры; `reference_only`
++необходимо убрать, аудио, тексты и все метки заменить реальными данными.
++Поля `amino_acids`, `answer_nucleotides` и описание сцены должны быть проверены
++независимым решателем. Этот валидатор не является проверкой биологического смысла
++произвольного текста, достоверности alignment или качества будущего ролика.
++
++## Подтверждённые различия с рабочим заводом
++
++Рабочая ветка `biology-3` на момент чтения:
++`bfb8843b44b1c6201262ca4b5e94ca65eb202b0f`.
++
++- `.github/workflows/render-on-demand.yml` разрешает выполнение только на
++  `refs/heads/biology-3` и проверяет `biology-steps-v1`.
++- Завод использует Remotion. Утверждённый ролик — Three.js + собственный
++  покадровый renderer; это замена реального движка, а не одного CSS-параметра.
++- Эталон 60 FPS, 43.068 секунды, скорость 1. Рабочий путь требует 120 FPS,
++  финальное ускорение 1.2x и паузу 2 секунды.
++- В эталоне пауза для анимированного таймера 5.6 секунды, счётчик 4 секунды.
++  Применение старой паузы/ускорения нарушит точную хореографию эталона.
++- Production workflow загружает файл в Postmypost и вызывает
++  `N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL`. Использовать его для тестов НЕЛЬЗЯ.
++- Реальная история содержит задачи о хромосомах, эндосперме, АТФ, РНК и ДНК.
++  Текущий один scene family их не покрывает.
++
++В n8n лично прочитана часть параметров `HTTP Request2`: перед dispatch
++проверяются версия, 120 FPS, структура, область, история и соответствие озвучки.
++Полный JSON n8n не получен из-за блокировки браузерной сессии. Остальные узлы
++известны по схеме/подписям, но полная проверка кода каждого НЕ завершена.
++Особенно проверить `Format biology script`, `Code in JavaScript1`,
++`Prepare timed audio`, `Validate video callback`, `Biology readiness gate`.
++Видны сохранённые credentials `Header Auth account 2` и `GitHub Math Lock`;
++секретные значения не читались и не переносились.
++
++## До включения по умолчанию
++
++1. Восстановить управляемый доступ к n8n и получить полный экспорт.
++2. Сохранить текущую конфигурацию и актуальный production commit. Рабочая ветка
++   изменяется автоматикой (история/locks), поэтому нельзя сбрасывать её на старый SHA.
++3. Создать действительно изолированный тестовый путь с собственным dispatch,
++   без webhook/загрузки в публикацию/production locks/таблиц.
++4. Спроектировать и проверить сцены для других семейств задач, сохраняя
++   утверждённые материалы и подачу. Не выдавать текущую сцену за универсальную.
++5. Подключить реальные ElevenLabs timestamp-сегменты, проверить согласованность
++   текста, чисел, ответа, звука и сцен. Не менять голос без запроса пользователя.
++6. Проверить эталон, разные новые задачи, длинные тексты, большие значения,
++   формат файла, синхронизацию и отсутствие прежнего задания в результате.
++7. Только затем согласовать параметры/версию n8n и переключить генератор с
++   сохранённой возможностью отката. Сохранить идентичность задач, историю,
++   блокировки, расписание, аккаунт, таблицы и контракт callback.
++
++Нельзя сливать всю эту ветку поверх production: она основана на замороженной
++экспериментальной версии, а не на актуальной `biology-3`. Переносить только
++проверенные файлы адаптера и необходимые утверждённые assets на свежую
++integration-ветку от актуального production. Секреты не копировать.
+diff --git a/experiments/vessels-3d/bio/dynamic/VALIDATION.md b/experiments/vessels-3d/bio/dynamic/VALIDATION.md
+new file mode 100644
+index 0000000..ec9f95f
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/VALIDATION.md
+@@ -0,0 +1,28 @@
++# Проверка кандидата, 19 октября 2026
++
++Статус: локальная незавершённая подготовка. НЕ внедрено в n8n/GitHub production.
++
++- Скачана ветка `bio-approved-v1`, подтверждён HEAD
++  `2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8`.
++- SHA-256 утверждённого MP4:
++  `1cccfd6351963b001ce31ddd65b4d0411b0c552a767b9f0a30b66f5a37045a0c` — совпал.
++- Успешны 16 тестов `node --test .../contract.test.mjs` и синтаксические
++  проверки JS/Python. Тест нового количества — только структурная фикстура,
++  не проверка нового озвученного видео.
++- Локальный запуск `prepare-job.mjs --reference` и `make_mix.py` успешен.
++  Новая дорожка совпала побайтно с `approved-v1/final.wav`:
++  `7a996b50c52c81a0c85a464f9c77d8474822b51ce2468e46e6f954b6813ca338`.
++- `git diff --exit-code` подтвердил отсутствие изменений исходных файлов
++  эталона и GitHub workflows относительно сохранённого коммита.
++- Визуальная регрессия НЕ выполнена: в среде отсутствует `/tmp`,
++  после задания доступного `TMPDIR` Chromium и Chromium Headless Shell
++  завершаются SIGTRAP до открытия страницы. Скриншотов и доказательств
++  совпадения картинки нет. Нельзя объявлять кандидата принятым.
++- Изменения существуют только в локальной ветке `codex/bio-approved-adapter`.
++  `git push --dry-run` сообщил отсутствие GitHub-аутентификации; реального
++  push, изменения production или запуска Actions не было.
++- Browser n8n возвращает `native credential state cannot be safely resumed`.
++  Полный экспорт схемы и все параметры узлов не прочитаны. Сохранённые
++  подключения GitHub видны по именам, но их секреты не извлекались.
++
++Дальнейшие необходимые действия и ограничения перечислены в README.md.
+diff --git a/experiments/vessels-3d/bio/dynamic/contract.mjs b/experiments/vessels-3d/bio/dynamic/contract.mjs
+new file mode 100644
+index 0000000..b293fc5
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/contract.mjs
+@@ -0,0 +1,98 @@
++// A deliberately bounded adapter, not a universal biology scene generator.
++// No TTS calls, network requests, publication or production-state writes.
++export const VERSION = 'bio-approved-adapter-v1';
++export const FAMILY = 'protein-template-nucleotides';
++export const APPROVED_COMMIT = '2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8';
++const requiredMarks = ['bel', 'quantity', 'amino', 'q', 'dna', 'code', 'h1',
++  'trip', 'three', 'h2', 'x3', 'calc', 'result', 'h3', 'tpl', 'two', 'fin',
++  'answer', 'cta', 'link'];
++const fail = message => { throw new Error(`BIO_ADAPTER_STOP: ${message}`); };
++const number = value => typeof value === 'number' && Number.isFinite(value);
++function text(value, label, max = 300) {
++  if (typeof value !== 'string' || !value.trim() || value.length > max)
++    fail(`${label}: expected nonempty text, max ${max} characters`);
++  return value;
++}
++
++export function validateJob(job) {
++  if (!job || typeof job !== 'object' || Array.isArray(job)) fail('missing job');
++  if (job.version !== VERSION || job.scene_family !== FAMILY) fail('unsupported scene family/version');
++  text(job.task_id, 'task_id', 160);
++  if (job.exam !== 'ЕГЭ' || job.subject !== 'биология' || job.task_number !== 3
++    || job.account !== 'ege_biology' || job.scope !== 'ege_biology_3') fail('wrong factory scope');
++  if (!Number.isSafeInteger(job.amino_acids) || job.amino_acids < 1 || job.amino_acids > 240)
++    fail('scene supports 1..240 amino acids; do not silently substitute or sample');
++  if (job.answer_nucleotides !== job.amino_acids * 3) fail('answer does not equal amino_acids × 3');
++  if (job.target !== 'one-template-strand' || job.include_stop_codon !== false)
++    fail('this scene only explains coding nucleotides in one template strand, excluding stop codon');
++  if (![60, 120].includes(job.render_fps) || job.playback_speed !== 1)
++    fail('render_fps must be 60/120 and approved pacing must remain 1');
++  text(job.condition_text, 'condition_text', 700);
++  if (!Array.isArray(job.step_titles) || job.step_titles.length !== 3) fail('exactly three scene steps required');
++  job.step_titles.forEach((title, i) => text(title, `step_titles[${i}]`, 36));
++  if (!Array.isArray(job.triplet_letters) || job.triplet_letters.length !== 3
++    || job.triplet_letters.some(letter => !['А', 'Т', 'Г', 'Ц'].includes(letter)))
++    fail('triplet_letters must contain three DNA bases');
++  const tl = job.timeline;
++  if (!tl || !number(tl.total) || tl.total <= 0 || tl.total > 90
++    || !number(tl.introSec) || tl.introSec !== 2) fail('invalid timeline duration/intro');
++  if (!tl.marks || !Array.isArray(tl.sentences)) fail('measured timeline required');
++  const byId = new Map();
++  let previousEnd = 0;
++  for (const sentence of tl.sentences) {
++    if (!sentence || typeof sentence.id !== 'string' || byId.has(sentence.id)
++      || !number(sentence.start) || !number(sentence.end)
++      || sentence.start < previousEnd - .001 || sentence.end <= sentence.start
++      || sentence.end > tl.total || typeof sentence.text !== 'string') fail('invalid/overlapping sentences');
++    byId.set(sentence.id, sentence);
++    previousEnd = sentence.end;
++  }
++  if ([...byId.keys()].join(',') !== 'c1,c2,pause,s1,s2,s3,cta') fail('unsupported sentence structure');
++  for (const sentence of tl.sentences) {
++    if (sentence.id === 'pause') {
++      if (sentence.text !== '' || sentence.end - sentence.start < 5.6 - .001)
++        fail('approved pause animation requires at least 5.6 seconds');
++    } else text(sentence.text, `sentence ${sentence.id}`, 1500);
++  }
++  let previous = -Infinity;
++  for (const key of requiredMarks) {
++    const value = tl.marks[key];
++    if (!number(value) || value < previous || value < 0 || value > tl.total)
++      fail(`missing/out-of-order mark ${key}`);
++    previous = value;
++  }
++  const ranges = {c1:['bel','quantity','amino'], c2:['q','dna','code'],
++    s1:['h1','trip','three'], s2:['h2','x3','calc','result'],
++    s3:['h3','tpl','two','fin','answer'], cta:['cta','link']};
++  for (const [id, keys] of Object.entries(ranges)) {
++    const sentence = byId.get(id);
++    for (const key of keys) if (tl.marks[key] < sentence.start - .001 || tl.marks[key] > sentence.end + .001)
++      fail(`mark ${key} is outside measured sentence ${id}`);
++  }
++  if (tl.marks.h1 < byId.get('pause').start + 5.6 || tl.marks.cta + 2.6 > tl.total)
++    fail('insufficient time for pause/CTA choreography');
++  const referenceTiming = job.reference_only === true && job.amino_acids === 120
++    && job.audio?.timing_source === 'approved-prefix-estimates';
++  if (!job.audio || (!referenceTiming && job.audio.timing_source !== 'measured-word-alignment')
++    || !/^[a-f0-9]{64}$/.test(job.audio.sha256 || '')
++    || !number(job.audio.duration_seconds) || Math.abs(job.audio.duration_seconds - tl.total) > .08)
++    fail('audio hash, duration and measured timing provenance required');
++  return job;
++}
++
++// The frozen timeline is permitted ONLY for reconstruction of the original
++// sample. This helper never invents timings for a new voiceover.
++export function makeApprovedReferenceJob(timeline, audioHash) {
++  const tl = structuredClone(timeline);
++  for (const [oldKey, key] of [['n120','quantity'], ['r360','result'], ['a360','answer']]) {
++    tl.marks[key] = tl.marks[oldKey]; delete tl.marks[oldKey];
++  }
++  return validateJob({version: VERSION, scene_family: FAMILY, task_id:'approved-reference-120',
++    exam:'ЕГЭ',subject:'биология',task_number:3,account:'ege_biology',scope:'ege_biology_3',
++    amino_acids:120,answer_nucleotides:360,target:'one-template-strand',include_stop_codon:false,
++    render_fps:60,playback_speed:1,
++    condition_text:'Белок состоит из 120 аминокислот. Сколько нуклеотидов матричной цепи ДНК, кодирующей этот белок?',
++    step_titles:['Триплет','Умножаем','Одна цепь'],triplet_letters:['Т','А','Ц'],timeline:tl,
++    audio:{timing_source:'approved-prefix-estimates',sha256:audioHash,duration_seconds:tl.total},
++    reference_only:true});
++}
+diff --git a/experiments/vessels-3d/bio/dynamic/contract.test.mjs b/experiments/vessels-3d/bio/dynamic/contract.test.mjs
+new file mode 100644
+index 0000000..f0caf24
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/contract.test.mjs
+@@ -0,0 +1,44 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import fs from 'node:fs';
++import crypto from 'node:crypto';
++import {validateJob,makeApprovedReferenceJob} from './contract.mjs';
++const timeline = JSON.parse(fs.readFileSync(new URL('../timeline.json',import.meta.url),'utf8'));
++const bytes = fs.readFileSync(new URL('../assets/voice.wav',import.meta.url));
++const hash = crypto.createHash('sha256').update(bytes).digest('hex');
++const original = () => makeApprovedReferenceJob(timeline,hash);
++test('frozen reference MP4 and audio match approved manifests',()=>{
++  const mp4=fs.readFileSync(new URL('../approved-v1/bio-video-v1.mp4',import.meta.url));
++  assert.equal(crypto.createHash('sha256').update(mp4).digest('hex'),'1cccfd6351963b001ce31ddd65b4d0411b0c552a767b9f0a30b66f5a37045a0c');
++  assert.equal(hash,'4ee2b07786eb394719a841a69f78aa8a049560e46a895da9100b2c21c682ebed');
++  assert.equal(validateJob(original()).answer_nucleotides,360);
++});
++for(const [name,change] of [
++  ['unrelated chromosome task',j=>j.scene_family='chromosome-count'],
++  ['wrong answer',j=>j.answer_nucleotides=720],
++  ['second DNA strand',j=>j.target='both-strands'],
++  ['stop codon ambiguity',j=>j.include_stop_codon=true],
++  ['wrong account',j=>j.account='ege_russian'],
++  ['reusing reference timing for different count',j=>{j.amino_acids=80;j.answer_nucleotides=240;}],
++  ['silent 1.2x pace change',j=>j.playback_speed=1.2],
++  ['unsupported object count',j=>{j.amino_acids=710;j.answer_nucleotides=2130;}],
++  ['out of bounds timing',j=>j.timeline.marks.answer=99],
++  ['wrong sentence for answer',j=>j.timeline.marks.answer=37.9],
++  ['overlapping voice sentences',j=>j.timeline.sentences[3].start=8],
++  ['missing timing',j=>delete j.timeline.marks.calc],
++  ['old two-second timer incompatible with choreography',j=>j.timeline.sentences[2].end-=3.6],
++]) test('reject '+name,()=>{const j=original();change(j);assert.throws(()=>validateJob(j),/BIO_ADAPTER_STOP/);});
++test('changing fps does not change approved pacing or duration',()=>{
++ const j=original();j.render_fps=120;assert.equal(validateJob(j).timeline.total,timeline.total);
++});
++test('new-job contract accepts different quantities only with new timing provenance',()=>{
++ const j=original();delete j.reference_only;
++ j.task_id='contract-fixture-only-80';j.amino_acids=80;j.answer_nucleotides=240;
++ j.condition_text='Белок состоит из 80 аминокислот. Сколько кодирующих нуклеотидов в матричной цепи ДНК?';
++ // Structural fixture only: this does NOT claim real new audio was produced.
++ j.audio.timing_source='measured-word-alignment';
++ j.timeline.sentences[0].text='Белок состоит из восьмидесяти аминокислот.';
++ j.timeline.sentences[4].text='Восемьдесят умножаем на три: двести сорок.';
++ j.timeline.sentences[5].text='В одной матричной цепи двести сорок нуклеотидов.';
++ assert.equal(validateJob(j).answer_nucleotides,240);
++});
+diff --git a/experiments/vessels-3d/bio/dynamic/index.html b/experiments/vessels-3d/bio/dynamic/index.html
+new file mode 100644
+index 0000000..7b15044
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/index.html
+@@ -0,0 +1,106 @@
++<!doctype html>
++<html lang="ru">
++<head>
++<meta charset="utf-8" />
++<title>Биология · кандидат нового шаблона</title>
++<style>
++@font-face { font-family: "Unbounded"; font-weight: 700; src: url(/experiments/vessels-3d/bio/fonts/Unbounded-700.ttf) format("truetype"); }
++@font-face { font-family: "Unbounded"; font-weight: 800; src: url(/experiments/vessels-3d/bio/fonts/Unbounded-800.ttf) format("truetype"); }
++@font-face { font-family: "Onest"; font-weight: 500; src: url(/experiments/vessels-3d/bio/fonts/Onest-500.ttf) format("truetype"); }
++@font-face { font-family: "Onest"; font-weight: 700; src: url(/experiments/vessels-3d/bio/fonts/Onest-700.ttf) format("truetype"); }
++@font-face { font-family: "Onest"; font-weight: 800; src: url(/experiments/vessels-3d/bio/fonts/Onest-800.ttf) format("truetype"); }
++@font-face { font-family: "JB"; font-weight: 600; src: url(/experiments/vessels-3d/bio/fonts/JBMono-600.ttf) format("truetype"); }
++html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
++#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Onest", sans-serif; color: #EAF7EE; -webkit-font-smoothing: antialiased;
++  background: linear-gradient(180deg, #07150F 0%, #0A2016 60%, #0C281B 100%); }
++#stage * { box-sizing: border-box; }
++.a { position: absolute; }
++#pat { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0;
++  background-image: radial-gradient(rgba(198,255,77,0.30) 2.6px, transparent 3px); background-size: 40px 40px; }
++#glow { left: 0; top: 0; width: 1100px; height: 1100px; border-radius: 50%; z-index: 1; background: radial-gradient(closest-side, rgba(198,255,77,0.2), rgba(198,255,77,0)); }
++#world, #logoc { left: 0; top: 0; width: 1080px; height: 1920px; }
++#world { z-index: 3; }
++#logoc { z-index: 30; }
++#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.95); box-shadow: 0 18px 50px rgba(0,0,0,0.3); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
++#plaque .slot { width: 80px; height: 80px; flex: none; }
++#plaque b { flex: none; font-family: "Onest"; font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
++#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
++#dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.22); }
++.hh { left: 40px; top: 314px; width: 1000px; text-align: center; z-index: 8; }
++.ey { font-family: "JB"; font-size: 30px; font-weight: 600; color: #C6FF4D; height: 48px; letter-spacing: 0.04em; }
++.t1 { font-family: "Unbounded"; font-size: 72px; line-height: 88px; font-weight: 700; letter-spacing: -0.02em; color: #EAF7EE; }
++.t2 { font-size: 36px; line-height: 50px; color: #9FC2AE; margin-top: 10px; }
++.ctr { left: 0; width: 1080px; display: flex; justify-content: center; z-index: 8; }
++.note { padding: 22px 34px; border-radius: 30px; font-family: "JB"; font-weight: 600; font-size: 36px; line-height: 1.25; color: #EAF7EE; white-space: nowrap;
++  background: linear-gradient(160deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)); box-shadow: 0 20px 50px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.18); border: 1.5px solid rgba(198,255,77,0.28); }
++.note b { color: #C6FF4D; }
++.lbl { font-family: "JB"; font-weight: 600; font-size: 32px; color: #9FC2AE; white-space: nowrap; z-index: 8; }
++.big { z-index: 8; text-shadow: 0 10px 40px rgba(0,0,0,0.6); font-family: "Unbounded"; font-weight: 800; letter-spacing: -0.04em; color: #C6FF4D; line-height: 1; text-align: center; white-space: nowrap; }
++.tag { padding: 16px 30px; border-radius: 999px; font-family: "JB"; font-weight: 600; font-size: 36px; white-space: nowrap; color: #EAF7EE;
++  background: rgba(7,21,15,0.78); border: 2px solid rgba(198,255,77,0.5); box-shadow: 0 14px 34px rgba(0,0,0,0.4); z-index: 9; }
++.tag.on { background: #C6FF4D; color: #0A1E10; border-color: #C6FF4D; }
++.ray { width: 6px; border-radius: 3px; background: linear-gradient(0deg, rgba(198,255,77,0.95), rgba(198,255,77,0)); z-index: 4; }
++.brk { height: 26px; border: 7px solid #C6FF4D; border-top: none; border-radius: 0 0 22px 22px; z-index: 8; }
++.cc { left: 70px; width: 940px; border-radius: 44px; padding: 46px 52px; font-size: 44px; line-height: 1.34; font-weight: 500; color: #EAF7EE; z-index: 10;
++  background: linear-gradient(160deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04)); box-shadow: 0 30px 80px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.16); }
++#timer { left: 70px; width: 940px; height: 196px; border-radius: 64px; display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; z-index: 10;
++  background: linear-gradient(160deg, rgba(198,255,77,0.16), rgba(198,255,77,0.05)); box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.2); }
++#timer .rg { position: relative; width: 144px; height: 144px; flex: none; }
++#timer svg { position: absolute; left: 0; top: 0; width: 144px; height: 144px; transform: rotate(-90deg); }
++#timer .rg i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-family: "Unbounded"; font-size: 76px; font-weight: 700; color: #C6FF4D; }
++#timer .pt1 { display: flex; align-items: center; gap: 22px; font-family: "Unbounded"; font-size: 44px; font-weight: 700; color: #EAF7EE; white-space: nowrap; }
++#timer .pt2 { font-size: 32px; margin-top: 6px; color: #9FC2AE; white-space: nowrap; }
++.bars { display: flex; gap: 9px; }
++.bars i { display: block; width: 14px; height: 42px; border-radius: 6px; background: #C6FF4D; }
++.cp { padding: 18px 40px; border-radius: 999px; background: #fff; color: #0E1A12; font-weight: 700; font-size: 40px; white-space: nowrap; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
++.cp.blue { background: linear-gradient(135deg,#3b7bff,#1652f0); color: #fff; font-size: 48px; padding: 26px 58px; box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
++</style>
++<script type="importmap">
++{ "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }
++</script>
++</head>
++<body>
++<div id="stage">
++  <div class="a" id="pat"></div>
++  <div class="a" id="glow"></div>
++  <canvas class="a" id="world" width="1080" height="1920"></canvas>
++
++  <div class="a lbl" id="lStrip" style="left:60px;top:470px;font-size:28px"></div>
++  <div class="a lbl" id="lTpl" style="left:60px;top:900px">матричная цепь</div>
++  <div class="a lbl" id="lDna" style="left:870px;top:900px;color:#EAF7EE">ДНК</div>
++  <div id="rays"></div>
++  <div class="a ctr" id="nBelok" style="top:1400px"><div class="note">белок</div></div>
++  <div class="a big" id="cnt" style="left:0;top:1400px;width:1080px;font-size:150px">0</div>
++  <div class="a lbl" id="lAmino" style="left:0;top:1572px;width:1080px;text-align:center">аминокислот</div>
++  <div class="a" id="nCode" style="left:640px;top:740px;z-index:9"><div class="note" style="font-size:32px;padding:16px 26px">кодирует</div></div>
++  <div class="a tag" id="tagQ" style="left:300px;top:1300px">? нуклеотидов</div>
++
++  <div class="a cc" id="cond" style="top:420px"></div>
++  <div class="a" id="timer" style="top:920px"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#C6FF4D" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и подумай над решением</div></div></div>
++
++  <div class="a hh" id="h1"><div class="ey">Шаг 1 из 3</div><div class="t1">Триплет</div></div>
++  <div class="a hh" id="h2"><div class="ey">Шаг 2 из 3</div><div class="t1">Умножаем</div></div>
++  <div class="a hh" id="h3"><div class="ey">Шаг 3 из 3</div><div class="t1">Одна цепь</div></div>
++  <div class="a hh" id="h4"><div class="ey">&nbsp;</div><div class="t1">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
++
++  <div class="a lbl" id="lOne" style="left:0;top:960px;width:1080px;text-align:center">1 аминокислота</div>
++  <div class="a brk" id="brk" style="left:366px;top:1232px;width:348px"></div>
++  <div class="a ctr" id="nTrip" style="top:1300px"><div class="note">1 аминокислота = <b>3 нуклеотида</b></div></div>
++  <div class="a ctr" id="nGrid" style="top:1420px"><div class="note" id="nGridIn"></div></div>
++  <div class="a big" id="calc1" style="left:0;top:1150px;width:1080px;font-size:120px;color:#EAF7EE"></div>
++  <div class="a big" id="calc2" style="left:0;top:1310px;width:1080px;font-size:190px"></div>
++
++  <div class="a lbl" id="lTpl2" style="left:60px;top:820px;color:#C6FF4D">матричная</div>
++  <div class="a lbl" id="lCmp2" style="left:60px;top:1160px">вторая цепь</div>
++  <div class="a ctr" id="nOne" style="top:1520px"><div class="note">одна цепь · <b>на 2 не умножаем</b></div></div>
++  <div class="a" id="tagA" style="left:0;top:690px;width:1080px;display:flex;justify-content:center;z-index:9;perspective:900px"><div class="tag" id="tagAin">? нуклеотидов</div></div>
++
++  <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
++  <div class="a" id="plaque"><div class="slot"></div><b>ЕГЭ Тренажёр</b></div>
++  <canvas class="a" id="logoc" width="1080" height="1920"></canvas>
++  <div class="a ctr" id="cta1" style="top:1290px;z-index:31"><div class="cp blue">Скачивай бесплатно</div></div>
++  <div class="a ctr" id="cta2" style="top:1430px;z-index:31"><div class="cp">Ссылка в профиле ↑</div></div>
++</div>
++<script type="module" src="/experiments/vessels-3d/bio/dynamic/scene.mjs"></script>
++</body>
++</html>
+diff --git a/experiments/vessels-3d/bio/dynamic/make_mix.py b/experiments/vessels-3d/bio/dynamic/make_mix.py
+new file mode 100644
+index 0000000..7f7a3b0
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/make_mix.py
+@@ -0,0 +1,239 @@
++#!/usr/bin/env python3
++"""Sound design + final mix for the BIOLOGY video (fully offline); helpers copied from make_mix.py.
++
++Synthesizes SFX (whoosh, pop, thud, clink, pour, typing tick, chime) and a soft
++ambient pad with numpy, places them on the same measured timeline the visuals
++use (timeline.json), mixes under the voice and writes out/final.wav (48 kHz).
++Cue offsets mirror src/overlay.js / src/choreo.js.
++"""
++import json
++import wave
++from pathlib import Path
++
++import numpy as np
++
++HERE = Path(__file__).resolve().parent
++SR = 48000
++rng = np.random.default_rng(3)
++job = json.loads((HERE / "job.json").read_text(encoding="utf-8"))
++tl = job["timeline"]
++COUNT = job["amino_acids"]
++COLS = 12 if COUNT == 120 else int(np.ceil(np.sqrt(COUNT * 1.2)))
++ROWS = int(np.ceil(COUNT / COLS))
++T = dict(tl["marks"])
++sent = {s["id"]: s for s in tl["sentences"]}
++TOTAL = tl["total"]
++N = int(TOTAL * SR) + SR
++
++
++def env(n, a, d):
++    e = np.ones(n)
++    na, nd = int(a * SR), int(d * SR)
++    if na:
++        e[:na] = np.linspace(0, 1, na)
++    if nd:
++        e[-nd:] *= np.linspace(1, 0, nd) ** 2
++    return e
++
++
++def onepole_lp(x, fc):
++    fc = np.broadcast_to(np.asarray(fc, float), x.shape)
++    y = np.zeros_like(x)
++    acc = 0.0
++    a = 1 - np.exp(-2 * np.pi * fc / SR)
++    for i in range(len(x)):
++        acc += a[i] * (x[i] - acc)
++        y[i] = acc
++    return y
++
++
++def whoosh(dur=0.7, f0=300, f1=3000, amp=0.5):
++    n = int(dur * SR)
++    noise = rng.standard_normal(n)
++    sweep = np.geomspace(f0, f1, n)
++    lp = onepole_lp(noise, sweep)
++    hp = lp - onepole_lp(lp, sweep * 0.25)
++    shape = np.sin(np.linspace(0, np.pi, n)) ** 1.5
++    return hp * shape * amp * 3
++
++
++def pop(f0=900, f1=420, dur=0.09, amp=0.5):
++    n = int(dur * SR)
++    t = np.arange(n) / SR
++    f = np.geomspace(f0, f1, n)
++    ph = 2 * np.pi * np.cumsum(f) / SR
++    return np.sin(ph) * np.exp(-t * 38) * amp
++
++
++def thud(amp=0.7):
++    n = int(0.25 * SR)
++    t = np.arange(n) / SR
++    f = np.geomspace(140, 55, n)
++    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 16) * amp
++
++
++def clink(f=None, amp=0.25):
++    f = f or rng.uniform(2600, 4800)
++    n = int(0.35 * SR)
++    t = np.arange(n) / SR
++    s = np.sin(2 * np.pi * f * t) + 0.5 * np.sin(2 * np.pi * f * 2.71 * t) * np.exp(-t * 30)
++    return s * np.exp(-t * 14) * amp
++
++
++def tick(amp=0.18):
++    n = int(0.018 * SR)
++    x = rng.standard_normal(n) * np.exp(-np.arange(n) / SR * 400)
++    return (x - onepole_lp(x, 2500)) * amp
++
++
++def chime(base=880, amp=0.35):
++    out = np.zeros(int(1.8 * SR))
++    for k, ratio in enumerate([1, 1.26, 1.5, 2.0]):
++        n = len(out) - int(k * 0.07 * SR)
++        t = np.arange(n) / SR
++        f = base * ratio
++        tone = (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t * 6)) * np.exp(-t * 3.2)
++        out[int(k * 0.07 * SR):] += tone * amp / (1 + k * 0.25)
++    return out
++
++
++def pour(dur, amp=0.25):
++    n = int(dur * SR)
++    noise = onepole_lp(rng.standard_normal(n), 900)
++    t = np.arange(n) / SR
++    out = noise * 1.6
++    for _ in range(int(dur * 14)):  # bubbles
++        st = rng.uniform(0, dur - 0.08)
++        bn = int(0.07 * SR)
++        bt = np.arange(bn) / SR
++        f = np.linspace(rng.uniform(250, 420), rng.uniform(500, 800), bn)
++        b = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-bt * 45) * 0.5
++        i = int(st * SR)
++        out[i:i + bn] += b
++    return out * env(n, 0.25, 0.4) * amp
++
++
++mix = np.zeros(N)
++
++
++def put(sig, t, gain=1.0):
++    i = int(t * SR)
++    if i < 0 or i >= N:
++        return
++    j = min(N, i + len(sig))
++    mix[i:j] += sig[: j - i] * gain
++
++
++# ---- cues (mirror bio/scene.js)
++S = sent
++P0 = S["pause"]["start"]
++T_COND, T_TIMER, T_C0 = P0 + 0.4, P0 + 0.95, P0 + 1.3
++T_EX = T_C0 + 4
++
++put(whoosh(1.7, 200, 5000, 0.55), 0.0)                  # logo spin
++put(pop(1200, 600, 0.12, 0.45), 1.95)                   # logo lands
++for i in range(0, COUNT, 4):                              # beads pop into the coil
++    put(clink(rng.uniform(2600, 4600), 0.16), T["bel"] + 0.2 + i * 0.008)
++put(pop(800, 420, 0.1, 0.3), T["bel"] + 0.6)            # "белок" note
++put(whoosh(0.9, 300, 2600, 0.32), T["quantity"])            # coil unfolds into the grid
++for k in range(24):                                     # counter 0 -> 120
++    put(tick(0.22), T["quantity"] + (T["amino"] + 0.6 - T["quantity"]) * (1 - (1 - k / 24) ** 0.33))
++put(whoosh(0.8, 500, 3800, 0.3), T["q"])                # protein shrinks to a strip
++put(whoosh(1.0, 120, 900, 0.45), T["dna"])              # DNA rises
++put(thud(0.5), T["dna"] + 0.8)
++put(pop(900, 450, 0.1, 0.35), T["dna"] + 1.05)          # ? tag
++for k in range(5):                                      # rays: soft pings
++    put(clink(3200 + 300 * k, 0.12), T["code"] + 0.15 + k * 0.22)
++put(pop(800, 420, 0.1, 0.3), T["code"] + 0.3)
++put(whoosh(0.7, 500, 3500, 0.3), P0)                    # 3D leaves
++put(pop(700, 350, 0.1, 0.4), T_COND + 0.2)              # condition card
++put(pop(900, 450, 0.1, 0.4), T_TIMER + 0.15)            # timer card
++for k in range(4):
++    put(pop(1500, 1300, 0.07, 0.38), T_C0 + k)          # 4-3-2-1
++put(chime(990, 0.24), T_C0 + 4)
++put(whoosh(0.9, 400, 4000, 0.32), T_EX)                 # cards leave
++put(pop(800, 400, 0.1, 0.35), T["h1"])                  # headline
++put(pop(600, 300, 0.14, 0.45), T["h1"] + 0.3)           # hero bead
++put(whoosh(0.8, 400, 3000, 0.3), T["trip"])             # capsules fly in
++for j in range(3):
++    put(pop(1300, 900, 0.06, 0.42), T["trip"] + 0.62 + j * 0.18)   # click
++put(chime(880, 0.2), T["three"] + 0.05)
++put(pop(800, 420, 0.1, 0.3), T["three"] + 0.35)
++put(whoosh(0.8, 300, 3000, 0.3), T["h2"] - 0.1)
++for r in range(ROWS):                                     # grid rows appear
++    put(clink(rng.uniform(2800, 4600), 0.14), T["h2"] + 0.45 + r * 0.05)
++for r in range(ROWS):                                     # triplets grow row by row
++    for c in range(0, COLS, 3):
++        put(tick(0.2), T["x3"] + r * 0.12 + c * 0.012 + 0.15)
++put(whoosh(0.7, 300, 2600, 0.3), T["calc"] - 0.1)       # camera on the calculation
++put(pop(900, 450, 0.12, 0.4), T["calc"] + 0.1)
++put(chime(660, 0.32), T["result"] + 0.1)                  # = 360
++put(whoosh(0.9, 250, 3000, 0.3), T["h3"] - 0.3)
++put(thud(0.45), T["h3"] + 0.5)                          # ladder lands
++put(pop(900, 450, 0.1, 0.35), T["h3"] + 1.0)            # ? tag
++put(clink(2400, 0.45), T["two"])                        # second strand unclips
++put(whoosh(1.0, 900, 200, 0.32), T["two"] + 0.05)       # and drops away
++put(pop(800, 420, 0.1, 0.3), T["two"] + 0.7)
++put(whoosh(0.4, 600, 3000, 0.2), T["answer"])             # tag flips
++put(chime(880, 0.36), T["answer"] + 0.25)                 # 360 nucleotides
++put(whoosh(1.4, 200, 5000, 0.5), T["cta"] - 0.05)       # logo spin back
++put(pop(1100, 500, 0.12, 0.4), T["cta"] + 1.1)
++put(pop(900, 450, 0.1, 0.4), T["cta"] + 1.05)
++put(pop(1000, 500, 0.1, 0.4), T["cta"] + 2.2)
++put(pop(1000, 500, 0.1, 0.4), T["link"] + 0.05)
++put(chime(660, 0.2), T["cta"] + 2.3)
++
++# ---- ambient pad (soft chords, slow changes)
++def note(m):
++    return 440 * 2 ** ((m - 69) / 12)
++
++CHORDS = [[48, 55, 59, 64], [45, 52, 57, 60], [41, 48, 53, 57], [43, 50, 55, 59]]  # Cmaj7 Am7 Fmaj7 G
++pad = np.zeros(N)
++seg_len = 4.0
++t_all = np.arange(N) / SR
++for ci in range(int(TOTAL / seg_len) + 1):
++    ch = CHORDS[ci % 4]
++    a = int(ci * seg_len * SR)
++    n = int((seg_len + 1.5) * SR)
++    if a >= N:
++        break
++    n = min(n, N - a)
++    t = np.arange(n) / SR
++    e = np.minimum(1, t / 1.2) * np.clip((seg_len + 1.5 - t) / 1.5, 0, 1)
++    s = np.zeros(n)
++    for m in ch:
++        for det in (-0.12, 0.12):
++            f = note(m + 12) * (1 + det / 100)
++            s += np.sin(2 * np.pi * f * t + rng.uniform(0, 6)) + 0.18 * np.sin(4 * np.pi * f * t)
++    pad[a:a + n] += s * e
++pad = onepole_lp(pad / np.abs(pad).max(), 1800)
++pad *= 0.5 + 0.5 * np.sin(2 * np.pi * t_all / 7.0) * 0.3
++
++# ---- voice
++with wave.open(str(HERE / "assets" / "voice.wav")) as w:
++    vsr = w.getframerate()
++    v = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float64) / 32768
++idx = np.arange(int(len(v) * SR / vsr)) * vsr / SR
++voice = np.interp(idx, np.arange(len(v)), v)
++vv = np.zeros(N)
++vv[: min(N, len(voice))] = voice[:N]
++import os
++if os.environ.get('NO_VOICE'):
++    vv[:] = 0  # silent variant: SFX + ambient only; timings are unchanged
++
++# duck pad under speech
++speech = onepole_lp(np.abs(vv), 6)
++duck = 1 - 0.55 * np.clip(speech / (speech.max() + 1e-9) * 6, 0, 1)
++fade = np.clip(t_all / 1.0, 0, 1) * np.clip((TOTAL - t_all) / 1.2, 0, 1)
++final = vv * 1.0 + mix * 0.42 + pad * 0.075 * duck * fade
++final = np.tanh(final * 1.1) / np.tanh(1.1)
++final = final / np.abs(final).max() * 0.93
++final = final[: int(TOTAL * SR)]
++stereo = np.stack([final, final], axis=1)
++(HERE / "out").mkdir(exist_ok=True)
++with wave.open(str(HERE / "out" / ("final-novoice.wav" if os.environ.get("NO_VOICE") else "final.wav")), "wb") as w:
++    w.setnchannels(2)
++    w.setsampwidth(2)
++    w.setframerate(SR)
++    w.writeframes((stereo * 32767).astype(np.int16).tobytes())
++print("out/final.wav", round(len(final) / SR, 3), "s")
+diff --git a/experiments/vessels-3d/bio/dynamic/prepare-job.mjs b/experiments/vessels-3d/bio/dynamic/prepare-job.mjs
+new file mode 100644
+index 0000000..7989487
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/prepare-job.mjs
+@@ -0,0 +1,31 @@
++#!/usr/bin/env node
++import fs from 'node:fs';
++import path from 'node:path';
++import crypto from 'node:crypto';
++import {execFileSync} from 'node:child_process';
++import {fileURLToPath} from 'node:url';
++import {validateJob, makeApprovedReferenceJob} from './contract.mjs';
++
++const here = path.dirname(fileURLToPath(import.meta.url));
++const args = process.argv.slice(2);
++const readArg = key => { const i = args.indexOf(key); return i < 0 ? null : args[i + 1]; };
++const reference = args.includes('--reference');
++const audioPath = reference ? path.join(here,'../assets/voice.wav') : readArg('--audio');
++if (!audioPath || (!reference && !readArg('--job'))) throw new Error('Use --reference OR --job input.json --audio voice.wav');
++const audioBytes = fs.readFileSync(audioPath);
++const sha256 = crypto.createHash('sha256').update(audioBytes).digest('hex');
++const duration = Number(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','default=nw=1:nk=1',audioPath],{encoding:'utf8'}).trim());
++const frozenTimeline = JSON.parse(fs.readFileSync(path.join(here,'../timeline.json'),'utf8'));
++const job = reference ? makeApprovedReferenceJob(frozenTimeline,sha256)
++  : validateJob(JSON.parse(fs.readFileSync(readArg('--job'),'utf8')));
++if (!reference && job.reference_only) throw new Error('Reference jobs must use --reference');
++if (sha256 !== job.audio.sha256 || Math.abs(duration-job.timeline.total) > .08)
++  throw new Error('Audio bytes/duration do not match the timeline contract');
++if (reference && sha256 !== '4ee2b07786eb394719a841a69f78aa8a049560e46a895da9100b2c21c682ebed')
++  throw new Error('Frozen reference voice has changed');
++// This writes only a local candidate input. It never edits the frozen assets,
++// GitHub workflows, n8n, source history or publication locks.
++fs.mkdirSync(path.join(here,'assets'),{recursive:true});
++fs.writeFileSync(path.join(here,'assets/voice.wav'),audioBytes);
++fs.writeFileSync(path.join(here,'job.json'),JSON.stringify(job,null,2)+'\n');
++console.log(JSON.stringify({candidate:true,reference_only:reference,task_id:job.task_id,audio_sha256:sha256,duration}));
+diff --git a/experiments/vessels-3d/bio/dynamic/render-candidate.mjs b/experiments/vessels-3d/bio/dynamic/render-candidate.mjs
+new file mode 100644
+index 0000000..e9e9bd9
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/render-candidate.mjs
+@@ -0,0 +1,135 @@
++#!/usr/bin/env node
++// Own renderer (no Remotion): serves the page, steps time deterministically
++// via window.renderFrame(t), captures each frame from headless Chromium
++// (WebGL via SwiftShader) and pipes it into ffmpeg.
++//
++//   node render.mjs stills 1.0 3.5 ...      → out/still-<t>.png
++//   node render.mjs video [--workers 3] [--fps 60] [--from s --to s]
++import http from "node:http";
++import fs from "node:fs";
++import path from "node:path";
++import { spawn, execFileSync } from "node:child_process";
++import { fileURLToPath } from "node:url";
++import { chromium } from "playwright";
++
++const HERE = path.dirname(fileURLToPath(import.meta.url));
++const ROOT = path.resolve(HERE, "..", "..", "..", "..");
++const OUT = process.env.OUT ? path.resolve(process.env.OUT) : path.join(HERE, "out");
++fs.mkdirSync(OUT, { recursive: true });
++const EXE = process.env.CHROME || chromium.executablePath();
++
++const TYPES = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".png": "image/png", ".json": "application/json", ".woff2": "font/woff2", ".ttf": "font/ttf", ".css": "text/css" };
++function serve() {
++  return new Promise((resolve) => {
++    const srv = http.createServer((req, res) => {
++      const p = path.join(ROOT, decodeURIComponent(req.url.split("?")[0]));
++      if (!p.startsWith(ROOT)) { res.writeHead(403); res.end(); return; }
++      fs.readFile(p, (err, data) => {
++        if (err) { res.writeHead(404); res.end(); return; }
++        res.writeHead(200, { "Content-Type": TYPES[path.extname(p)] || "application/octet-stream" });
++        res.end(data);
++      });
++    });
++    srv.listen(0, "127.0.0.1", () => resolve(srv));
++  });
++}
++
++async function openPage(port) {
++  const browser = await chromium.launch({
++    executablePath: EXE,
++    args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--force-color-profile=srgb", "--hide-scrollbars"],
++  });
++  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: Number(process.env.SCALE || 1) });
++  const errors = [];
++  page.on("pageerror", (e) => errors.push(String(e)));
++  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
++  await page.goto(`http://127.0.0.1:${port}/${process.env.PAGE || "experiments/vessels-3d/bio/dynamic/index.html"}${process.env.SCALE ? "?s=" + process.env.SCALE : ""}`);
++  try {
++    await page.waitForFunction("window.ready === true", null, { timeout: 60000 });
++  } catch (e) {
++    console.error("page failed to init:", errors.join("\n"));
++    throw e;
++  }
++  const cdp = await page.context().newCDPSession(page);
++  return { browser, page, cdp, errors };
++}
++
++async function shot(ctx, t, format = "jpeg") {
++  await ctx.page.evaluate((tt) => window.renderFrame(tt), t);
++  const clip = { x: 0, y: 0, width: 1080, height: 1920, scale: Number(process.env.SCALE || 1) };
++  const { data } = await ctx.cdp.send("Page.captureScreenshot", format === "png"
++    ? { format: "png", optimizeForSpeed: true, clip }
++    : { format: "jpeg", quality: Number(process.env.JPEGQ || 94), optimizeForSpeed: true, clip });
++  return Buffer.from(data, "base64");
++}
++
++const args = process.argv.slice(2);
++const mode = args[0];
++const opt = (k, d) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : d; };
++const srv = await serve();
++const port = srv.address().port;
++
++if (mode === "stills") {
++  const ctx = await openPage(port);
++  for (const a of args.slice(1)) {
++    if (a.startsWith("--")) continue;
++    const t = Number(a);
++    const buf = await shot(ctx, t, "png");
++    fs.writeFileSync(path.join(OUT, `still-${t.toFixed(2)}.png`), buf);
++    console.log("still", t);
++  }
++  if (ctx.errors.length) console.log("PAGE ERRORS:\n" + ctx.errors.join("\n"));
++  await ctx.browser.close();
++  srv.close();
++  process.exit(0);
++}
++
++if (mode === "video") {
++  const fps = Number(opt("fps", 60));
++  const workers = Number(opt("workers", 3));
++  const probe = await openPage(port);
++  const duration = await probe.page.evaluate(() => window.DURATION);
++  const declaredFps = await probe.page.evaluate(() => window.CANDIDATE_INFO.fps);
++  if (fps !== declaredFps) throw new Error("Requested FPS does not match candidate job");
++  await probe.browser.close();
++  const from = Number(opt("from", 0)), to = Number(opt("to", duration));
++  const f0 = Math.round(from * fps), f1 = Math.round(to * fps);
++  const total = f1 - f0;
++  const per = Math.ceil(total / workers);
++  const started = Date.now();
++  let done = 0;
++  const segs = [];
++  await Promise.all(Array.from({ length: workers }, async (_, w) => {
++    const a = f0 + w * per, b = Math.min(f1, a + per);
++    if (a >= b) return;
++    const segFile = path.join(OUT, `seg-${String(w).padStart(2, "0")}.mp4`);
++    segs[w] = segFile;
++    const ctx = await openPage(port);
++    const ff = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(fps), "-c:v", "mjpeg", "-i", "-",
++      "-c:v", "libx264", "-preset", process.env.X264PRESET || "medium", "-crf", process.env.CRF || "15", "-pix_fmt", "yuv420p", "-r", String(fps), "-g", String(fps * 2), segFile],
++      { stdio: ["pipe", "inherit", "inherit"] });
++    for (let f = a; f < b; f++) {
++      const buf = await shot(ctx, f / fps);
++      if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once("drain", r));
++      done++;
++      if (done % 60 === 0) {
++        const el = (Date.now() - started) / 1000;
++        console.log(`frames ${done}/${total}  ${(el / done).toFixed(2)} s/frame  eta ${((total - done) * el / done / 60).toFixed(1)} min`);
++      }
++    }
++    ff.stdin.end();
++    await new Promise((resolve, reject) => { ff.on("error", reject); ff.on("close", code => code === 0 ? resolve() : reject(new Error(`ffmpeg exit ${code}`))); });
++    if (ctx.errors.length) console.log(`worker ${w} PAGE ERRORS:\n` + ctx.errors.join("\n"));
++    await ctx.browser.close();
++  }));
++  const list = path.join(OUT, "segs.txt");
++  fs.writeFileSync(list, segs.filter(Boolean).map((s) => `file '${s}'`).join("\n"));
++  const silent = path.join(OUT, "video-silent.mp4");
++  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", list, "-c", "copy", silent]);
++  console.log(`done in ${((Date.now() - started) / 60000).toFixed(1)} min → ${silent}`);
++  srv.close();
++  process.exit(0);
++}
++
++console.log("usage: node render.mjs stills <t...> | video [--workers N] [--fps N] [--from s] [--to s]");
++srv.close();
+diff --git a/experiments/vessels-3d/bio/dynamic/scene.mjs b/experiments/vessels-3d/bio/dynamic/scene.mjs
+new file mode 100644
+index 0000000..28ae2f5
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/scene.mjs
+@@ -0,0 +1,387 @@
++// Candidate adapter of the frozen, approved scene. No production integration.
++// Deterministic: window.renderFrame(t). Three.js world (beads, nucleotide capsules, DNA ladder)
++// + the 3D logo slab (../ru/logo3d.js) + DOM overlay (plaque, headlines, small notes, pause card).
++import * as THREE from "three";
++import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
++import { createLogo3d } from "../../ru/logo3d.js";
++import { validateJob } from "./contract.mjs";
++
++const W = 1080, H = 1920;
++const $ = (id) => document.getElementById(id);
++const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
++const seg = (t, a, b) => clamp((t - a) / (b - a));
++const lerp = (a, b, k) => a + (b - a) * k;
++const eOut = (k) => 1 - Math.pow(1 - k, 3);
++const eIO = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
++const eBack = (k) => { const c1 = 1.70158, c3 = c1 + 1; return k <= 0 ? 0 : 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
++const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
++const fadeIO = (t, a0, a1, b0, b1) => seg(t, a0, a1) * (1 - seg(t, b0, b1));
++
++const jobResponse = await fetch("/experiments/vessels-3d/bio/dynamic/job.json");
++if (!jobResponse.ok) throw new Error("Missing validated candidate job");
++const job = validateJob(await jobResponse.json());
++const tl = job.timeline;
++const COUNT = job.amino_acids, RESULT = job.answer_nucleotides;
++const COLS = COUNT === 120 ? 12 : Math.ceil(Math.sqrt(COUNT * 1.2));
++const ROWS = Math.ceil(COUNT / COLS);
++const STRIP_COLS = Math.ceil(COUNT / 2);
++const CELL_X = Math.min(72, 792 / Math.max(1, COLS - 1));
++const CELL_Y = Math.min(72, 648 / Math.max(1, ROWS - 1));
++const COUNT_SCALE = Math.min(1, CELL_X / 72, CELL_Y / 72);
++const noun = (n, one, few, many) => n % 100 >= 11 && n % 100 <= 14 ? many
++  : n % 10 === 1 ? one : n % 10 >= 2 && n % 10 <= 4 ? few : many;
++const AMINO = noun(COUNT, "аминокислота", "аминокислоты", "аминокислот");
++const ANSWER_TEXT = `${RESULT} ${noun(RESULT, "нуклеотид", "нуклеотида", "нуклеотидов")}`;
++const setText = (id, value) => { $(id).textContent = value; };
++setText("cond", job.condition_text);
++setText("lStrip", `белок · ${COUNT}`);
++setText("calc1", `${COUNT} × 3`); setText("calc2", `= ${RESULT}`);
++for (let i = 0; i < 3; i++) $("h" + (i + 1)).querySelector(".t1").textContent = job.step_titles[i];
++const counterNoun = noun(COUNT, "аминокислота", "аминокислоты", "аминокислот");
++setText("lAmino", counterNoun);
++const gridMarkup = multiply => `<b>${COUNT}</b> ${multiply ? "× 3 …" : AMINO}`;
++$("nGridIn").innerHTML = gridMarkup(false);
++
++const T = tl.marks;
++const S = Object.fromEntries(tl.sentences.map((s) => [s.id, s]));
++window.DURATION = tl.total;
++
++await Promise.all(['700 40px "Unbounded"', '800 40px "Unbounded"', '500 40px "Onest"', '800 40px "Onest"', '600 40px "JB"'].map((f) => document.fonts.load(f, "АаЯя0")));
++
++// ---------------------------------------------------------------- key times (mirrored in make_mix_bio.py)
++const P0 = S.pause.start;
++const T_COND = P0 + 0.4, T_TIMER = P0 + 0.95, T_C0 = P0 + 1.3, T_EX = T_C0 + 4;
++
++// ---------------------------------------------------------------- 3D world
++const canvas = $("world");
++const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
++renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.setClearColor(0x000000, 0);
++renderer.toneMapping = THREE.NeutralToneMapping;
++const scene = new THREE.Scene();
++const pmrem = new THREE.PMREMGenerator(renderer);
++scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture;
++scene.environmentIntensity = 0.85;
++scene.add(new THREE.AmbientLight(0xffffff, 0.15));
++const key = new THREE.DirectionalLight(0xffffff, 1.2); key.position.set(-5, 7, 9); scene.add(key);
++const rim = new THREE.DirectionalLight(0xd8ffb0, 1.0); rim.position.set(6, 2, -5); scene.add(rim);
++const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 200);
++const CAMZ = 9.6 / Math.tan((15 * Math.PI) / 180); // 1 world unit = 100 px on the z=0 plane
++const wx = (x) => (x - 540) / 100, wy = (y) => -(y - 960) / 100;
++
++const phys = (o) => new THREE.MeshPhysicalMaterial({ roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.08, transparent: true, ...o });
++
++// beads (amino acids)
++const beadMat = phys({ color: 0xffffff, emissive: 0x0b2a12, envMapIntensity: 1.1 });
++const beads = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 28, 20), beadMat, COUNT);
++const cA = new THREE.Color("#D6FF6A"), cB = new THREE.Color("#2FA866"), tmpC = new THREE.Color();
++for (let i = 0; i < COUNT; i++) { const v = 0.5 + 0.5 * Math.sin(i * 2.399); beads.setColorAt(i, tmpC.copy(cA).lerp(cB, v * 0.75)); }
++scene.add(beads);
++const hero = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), phys({ color: "#B8F25A", emissive: 0x0b2a12 }));
++scene.add(hero);
++
++// nucleotide capsules: 3 big (step 1, with letters) + 360 small (step 2)
++const capMat = phys({ color: "#8BE37A", emissive: 0x08200d });
++function letterTex(ch) {
++  const c = document.createElement("canvas"); c.width = c.height = 256;
++  const g = c.getContext("2d"); g.fillStyle = "#0A2A16"; g.font = '700 170px "Unbounded"'; g.textAlign = "center"; g.textBaseline = "middle";
++  g.fillText(ch, 128, 140);
++  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx;
++}
++const bigCaps = job.triplet_letters.map((ch) => {
++  const g = new THREE.Group();
++  const m = new THREE.Mesh(new THREE.CapsuleGeometry(1, 1.26, 10, 28), capMat);
++  g.add(m);
++  const lp = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicMaterial({ map: letterTex(ch), transparent: true, depthWrite: false }));
++  lp.position.set(0, -0.55, 1.02); g.add(lp);
++  scene.add(g);
++  return g;
++});
++const miniMat = phys({ color: "#8BE37A", emissive: 0x08200d });
++const minis = new THREE.InstancedMesh(new THREE.CapsuleGeometry(1, 1.4, 4, 14), miniMat, RESULT);
++scene.add(minis);
++
++// DNA ladder: template strand (glows) + complementary strand, each with its half-rungs
++const dna = new THREE.Group(), tplG = new THREE.Group(), cmpG = new THREE.Group();
++dna.add(tplG, cmpG); scene.add(dna);
++const tplMat = phys({ color: "#C6FF4D", emissive: "#5c8a12", emissiveIntensity: 0.55 });
++const cmpMat = phys({ color: "#3E9E6E", emissive: 0x06180c });
++const railGeo = new THREE.CapsuleGeometry(0.15, 9.5, 8, 24); railGeo.rotateZ(Math.PI / 2);
++const rungGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.96, 14);
++const tRail = new THREE.Mesh(railGeo, tplMat); tRail.position.y = 1.13; tplG.add(tRail);
++const cRail = new THREE.Mesh(railGeo, cmpMat); cRail.position.y = -1.13; cmpG.add(cRail);
++for (let x = 80; x < 1010; x += 38) {
++  const X = wx(x + 6);
++  const a = new THREE.Mesh(rungGeo, tplMat); a.position.set(X, 0.56, 0); tplG.add(a);
++  const b = new THREE.Mesh(rungGeo, cmpMat); b.position.set(X, -0.56, 0); cmpG.add(b);
++}
++
++const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), SC = new THREE.Vector3(), E = new THREE.Euler();
++function setInst(mesh, i, x, y, z, s, sy = s, rz = 0) {
++  if (s <= 0.0001) { M4.makeScale(0, 0, 0); mesh.setMatrixAt(i, M4); return; }
++  V.set(wx(x), wy(y), z / 100); SC.set(s, sy, s); Q.setFromEuler(E.set(0, 0, rz));
++  M4.compose(V, Q, SC); mesh.setMatrixAt(i, M4);
++}
++
++// ---------------------------------------------------------------- bead layouts (px)
++function coil(i, ang) {
++  const u = i / Math.max(1, COUNT - 1), a = u * Math.PI * 7.2, b = u * Math.PI * 2.3;
++  const r = 230 + 70 * Math.sin(u * Math.PI * 3);
++  let x = Math.cos(a) * r * Math.cos(b * 0.6), z = Math.sin(a) * r;
++  const y = (u - 0.5) * 380 + Math.sin(b) * 108;
++  const x2 = x * Math.cos(ang) + z * Math.sin(ang), z2 = -x * Math.sin(ang) + z * Math.cos(ang);
++  return [540 + x2, 880 + y, z2];
++}
++const grid1 = (i) => [144 + (i % COLS) * CELL_X, 628 + Math.floor(i / COLS) * CELL_Y, 0];
++const strip = (i) => [75 + (i % STRIP_COLS) * Math.min(16, 944 / Math.max(1, STRIP_COLS - 1)), 531 + Math.floor(i / STRIP_COLS) * 30, 0];
++const grid2 = (i) => [144 + (i % COLS) * CELL_X, 578 + Math.floor(i / COLS) * Math.min(78, 702 / Math.max(1, ROWS - 1)), 0];
++
++function updateWorld(t) {
++  const drift = Math.sin(t * 0.21) * 0.05;
++  camera.position.set(drift, Math.sin(t * 0.29) * 0.04, CAMZ);
++  camera.lookAt(drift * 0.5, 0, 0);
++
++  // --- beads
++  const exitCond = eIO(seg(t, P0, P0 + 0.6));
++  let beadOp = 1;
++  const condPhase = t < P0 + 0.7;
++  const step2 = t >= T.h2 && t < T.h3 + 0.4;
++  if (condPhase) {
++    const ang = (t - T.bel) * 0.6;
++    for (let i = 0; i < COUNT; i++) {
++      const ap = eBack(seg(t, T.bel - 0.1 + i * 0.008, T.bel + 0.35 + i * 0.008));
++      let p = coil(i, ang), r = 26 * COUNT_SCALE;
++      const k1 = eIO(seg(t, T.quantity + i * 0.006, T.quantity + 0.8 + i * 0.006));
++      const g = grid1(i); p = [lerp(p[0], g[0], k1), lerp(p[1], g[1], k1), lerp(p[2], 0, k1)];
++      const k2 = eIO(seg(t, T.q + (i % STRIP_COLS) * 0.004, T.q + 0.8 + (i % STRIP_COLS) * 0.004));
++      const s = strip(i); p = [lerp(p[0], s[0], k2), lerp(p[1], s[1], k2), lerp(p[2], 0, k2)]; r = lerp(r, 10 * Math.min(1, 60 / STRIP_COLS), k2);
++      p[1] += 320 * exitCond;
++      setInst(beads, i, p[0], p[1], p[2], (r / 100) * clamp(ap, 0, 1.25));
++    }
++    beadOp = 1 - exitCond;
++  } else if (step2) {
++    const dk = seg(t, T.calc - 0.1, T.calc + 0.45);
++    for (let i = 0; i < COUNT; i++) {
++      const row = Math.floor(i / COLS), col = i % COLS;
++      const ap = eBack(seg(t, T.h2 + 0.3 + row * 0.05 + col * 0.01, T.h2 + 0.75 + row * 0.05 + col * 0.01));
++      const g = grid2(i);
++      setInst(beads, i, g[0], g[1] + 18, 0, 0.18 * COUNT_SCALE * clamp(ap, 0, 1.25));
++    }
++    beadOp = lerp(1, 0.14, dk) * (1 - seg(t, T.h3 - 0.2, T.h3 + 0.3));
++  } else {
++    for (let i = 0; i < COUNT; i++) setInst(beads, i, 0, 0, 0, 0);
++    beadOp = 0;
++  }
++  beads.instanceMatrix.needsUpdate = true;
++  beadMat.opacity = beadOp; beads.visible = beadOp > 0.01;
++
++  // --- mini capsules (step 2): triplets grow row by row
++  if (step2) {
++    for (let i = 0; i < COUNT; i++) {
++      const row = Math.floor(i / COLS), col = i % COLS;
++      const g = grid2(i);
++      for (let k = 0; k < 3; k++) {
++        const gk = eBack(seg(t, T.x3 + row * 0.12 + col * 0.012 + k * 0.03, T.x3 + 0.35 + row * 0.12 + col * 0.012 + k * 0.03));
++        setInst(minis, i * 3 + k, g[0] - 20 * COUNT_SCALE + k * 20 * COUNT_SCALE, g[1] + 56 * COUNT_SCALE, 0, 0.085 * COUNT_SCALE * clamp(gk, 0, 1.2), 0.085 * COUNT_SCALE * clamp(gk, 0, 1.2));
++      }
++    }
++  } else for (let i = 0; i < RESULT; i++) setInst(minis, i, 0, 0, 0, 0);
++  minis.instanceMatrix.needsUpdate = true;
++  minis.visible = step2;
++  miniMat.opacity = step2 ? beadOp : 0;
++
++  // --- hero bead + big capsules (step 1)
++  const hIn = eBack(seg(t, T.h1 + 0.1, T.h1 + 0.7)), hOut = eIO(seg(t, T.h2 - 0.1, T.h2 + 0.45));
++  hero.visible = t > T.h1 && hOut < 1;
++  hero.position.set(wx(540), wy(790 - 120 * hOut), 0);
++  hero.scale.setScalar(1.5 * clamp(hIn, 0, 1.2) * (1 - hOut));
++  hero.rotation.y = t * 0.6;
++  const FROM = [[-160, 1380, -1.4], [540, 2150, 0.4], [1260, 1300, 1.4]];
++  bigCaps.forEach((g, j) => {
++    const k = seg(t, T.trip + j * 0.18, T.trip + 0.75 + j * 0.18), e = eBack(k);
++    const x = lerp(FROM[j][0], 422 + j * 118, e), y = lerp(FROM[j][1], 1135, e);
++    g.visible = k > 0 && hOut < 1;
++    g.position.set(wx(x), wy(y - 160 * hOut), 0);
++    g.scale.setScalar(0.46 * (1 - hOut));
++    g.rotation.set(0, (1 - eOut(k)) * Math.PI * 2, FROM[j][2] * (1 - eOut(k)));
++  });
++  capMat.opacity = 1;
++
++  // --- DNA ladder
++  let dVis = 0, cy = 1108, cmpOp = 1, cmpDy = 0, tplOp = 1;
++  if (t < P0 + 0.7) {
++    const k = eIO(seg(t, T.dna, T.dna + 0.85));
++    dVis = k * (1 - exitCond);
++    cy = lerp(2300, 1108, k) + 320 * exitCond;
++    cmpOp = lerp(1, 0.45, seg(t, T.code, T.code + 0.5));
++  } else if (t > T.h3 - 0.3) {
++    const k = eIO(seg(t, T.h3 - 0.3, T.h3 + 0.6));
++    dVis = k * (1 - seg(t, T.cta - 0.5, T.cta - 0.1));
++    cy = lerp(2300, 1008, k);
++    const two = eIO(seg(t, T.two, T.two + 1.0));
++    cmpDy = 380 * two; cmpOp = lerp(1, 0.25, two);
++  }
++  dna.visible = dVis > 0.01;
++  dna.position.set(0, wy(cy), 0);
++  dna.rotation.set(-0.28 + Math.sin(t * 0.7) * 0.05, Math.sin(t * 0.45) * 0.1, 0);
++  cmpG.position.y = -cmpDy / 100;
++  tplMat.opacity = dVis * tplOp; cmpMat.opacity = dVis * cmpOp;
++  tplMat.emissiveIntensity = 0.55 + 0.35 * seg(t, T.answer, T.answer + 0.3) * (1 - seg(t, T.answer + 0.3, T.answer + 1.2));
++
++  renderer.render(scene, camera);
++}
++
++// ---------------------------------------------------------------- 3D logo (same as the math and Russian videos)
++const logoTex = await new THREE.TextureLoader().loadAsync("/experiments/vessels-3d/ru/logo.png");
++logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 8;
++const logo3d = createLogo3d(logoTex, 4.2, 1);
++const lctx = $("logoc").getContext("2d");
++const PW_MAX = 12 + 80 + 22 + $("plaque").lastElementChild.getBoundingClientRect().width + 38;
++const pwOf = (tt) => lerp(104, PW_MAX, eOut(seg(tt, 2.0, 2.55)) * (1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15))));
++function logoAt(tt) {
++  const slot = { x: 540 - pwOf(tt) / 2 + 52, y: 190 };
++  const c0 = T.cta - 0.05;
++  if (tt < c0) {
++    const pop = eBack(clamp(tt / 0.6)), fly = eIO(seg(tt, 1.05, 1.95)), u = seg(tt, 0, 1.95);
++    const o = { cx: lerp(540, slot.x, fly), cy: lerp(850, slot.y, fly) - Math.sin(fly * Math.PI) * 70,
++      span: lerp(560 * lerp(0.35, 1, clamp(pop, 0, 1.15)), 80, fly),
++      rotY: eOut(u) * Math.PI * 6, rotX: Math.sin(u * Math.PI) * 0.25, rotZ: Math.sin(u * Math.PI) * -0.08, shadow: tt < 1.6 ? 1 - seg(tt, 1.0, 1.6) : 0 };
++    if (tt > 1.95) { o.rotY = Math.sin((tt - 1.95) * 0.8) * 0.12 * seg(tt, 1.95, 3); o.rotX = 0; o.rotZ = 0; }
++    return o;
++  }
++  const k = eIO(seg(tt, c0, c0 + 1.15)), settle = seg(tt, c0 + 1.3, c0 + 2);
++  return { cx: lerp(slot.x, 540, k), cy: lerp(slot.y, 860, k) - Math.sin(k * Math.PI) * 90 + Math.sin(tt * 1.5) * 10 * settle,
++    span: lerp(80, 540, k),
++    rotY: eIO(seg(tt, c0, c0 + 1.3)) * Math.PI * 4 + Math.sin(Math.max(0, tt - c0 - 1.3) * 0.9) * 0.18 + Math.sin((c0 - 1.95) * 0.8) * 0.12 * (1 - seg(tt, c0, c0 + 0.4)),
++    rotX: Math.sin(k * Math.PI) * 0.2 + Math.sin(tt * 1.1) * 0.04 * settle, rotZ: 0, shadow: seg(tt, c0 + 0.6, c0 + 1.3) };
++}
++function drawLogo(t) {
++  const c0 = T.cta - 0.05;
++  const nS = (t < 2.0 || (t > c0 - 0.1 && t < c0 + 1.35)) ? 9 : 1;
++  lctx.globalCompositeOperation = "source-over"; lctx.globalAlpha = 1; lctx.clearRect(0, 0, W, H);
++  if (nS > 1) { lctx.globalCompositeOperation = "lighter"; lctx.globalAlpha = 1 / nS; }
++  for (let i = 0; i < nS; i++) {
++    logo3d.render(logoAt(nS === 1 ? t : Math.max(0, t + (1 / 60) * (i / (nS - 1) - 0.5))));
++    lctx.drawImage(logo3d.canvas, 0, 0);
++  }
++}
++
++// ---------------------------------------------------------------- overlay
++const rays = Array.from({ length: 12 }, (_, i) => {
++  const d = document.createElement("div"); d.className = "a ray";
++  css(d, { left: 90 + i * 82 + "px", top: "600px", height: "370px" });
++  $("rays").appendChild(d); return d;
++});
++const dots = [...$("dots").children];
++function show(el, o, { dy = 0, sc = 1, flex = false } = {}) {
++  css(el, { display: o <= 0.001 ? "none" : flex ? "flex" : "", opacity: o, transform: `translateY(${dy}px) scale(${sc})` });
++}
++const pop = (t, t0, d = 0.4) => { const k = seg(t, t0, t0 + d); return { o: clamp(k * 2), s: k <= 0 ? 0 : eBack(k) }; };
++function popShow(el, t, t0, tOut, extra = {}) {
++  const p = pop(t, t0), out = seg(t, tOut, tOut + 0.3);
++  show(el, p.o * (1 - out), { sc: lerp(0.85, 1, clamp(p.s, 0, 1.1)), dy: (1 - p.o) * 24 - 20 * out, ...extra });
++}
++function headline(el, o) { css(el, { display: o <= 0.001 ? "none" : "", opacity: o, transform: `translateY(${(1 - o) * 26}px)`, filter: `blur(${(1 - o) * 6}px)` }); }
++
++function renderFrame(t) {
++  // background: dot matrix lit by a slow glow that follows the main object
++  const gx = 540 + Math.sin(t * 0.23) * 160, gy = (t < P0 ? 900 : t < T.h3 ? 980 : 1000) + Math.cos(t * 0.31) * 120;
++  css($("glow"), { transform: `translate(${gx - 550}px, ${gy - 550}px)`, opacity: 0.85 + 0.15 * Math.sin(t * 0.9) });
++  const m = `radial-gradient(720px 900px at ${gx}px ${gy}px, #000 0%, rgba(0,0,0,0.35) 55%, transparent 82%)`;
++  css($("pat"), { webkitMaskImage: m, maskImage: m, opacity: 0.85 + 0.15 * Math.sin(t * 1.3) });
++
++  // plaque + logo
++  const pw = pwOf(t);
++  const pv = seg(t, 1.85, 2.0) * (1 - seg(t, T.cta + 0.1, T.cta + 0.25));
++  css($("plaque"), { width: pw + "px", left: 540 - pw / 2 + "px", opacity: pv, display: pv <= 0 ? "none" : "" });
++  $("plaque").lastElementChild.style.opacity = eOut(seg(t, 2.3, 2.75)) * (1 - seg(t, T.cta - 0.4, T.cta - 0.1));
++  drawLogo(t);
++
++  // step dots
++  const st = t < T.h1 - 0.3 ? 0 : t < T.h2 ? 1 : t < T.h3 ? 2 : 3;
++  css($("dots"), { opacity: seg(t, 1.9, 2.4) * (1 - seg(t, T.cta - 0.3, T.cta + 0.2)) });
++  dots.forEach((d, i) => css(d, { width: i === st ? "46px" : "14px", background: i === st ? "#C6FF4D" : "rgba(255,255,255,0.22)" }));
++
++  // world
++  updateWorld(t);
++
++  // condition stage
++  popShow($("nBelok"), t, T.bel + 0.5, T.quantity, { flex: true });
++  const cv = fadeIO(t, T.quantity, T.quantity + 0.3, T.q, T.q + 0.3);
++  show($("cnt"), cv, { sc: lerp(0.9, 1, cv) });
++  $("cnt").textContent = String(Math.round(COUNT * eOut(seg(t, T.quantity, T.amino + 0.6))));
++  show($("lAmino"), fadeIO(t, T.amino, T.amino + 0.3, T.q, T.q + 0.3));
++  show($("lStrip"), fadeIO(t, T.q + 0.6, T.q + 1.0, P0, P0 + 0.4));
++  show($("lTpl"), fadeIO(t, T.dna + 0.6, T.dna + 1.0, P0, P0 + 0.4));
++  show($("lDna"), fadeIO(t, T.dna + 0.6, T.dna + 1.0, P0, P0 + 0.4));
++  popShow($("tagQ"), t, T.dna + 1.0, P0);
++  popShow($("nCode"), t, T.code + 0.2, P0);
++  const rv = fadeIO(t, T.code, T.code + 0.4, P0, P0 + 0.4);
++  rays.forEach((r, i) => {
++    const ph = (t * 1.6 + i * 0.37) % 1;
++    css(r, { display: rv > 0 ? "" : "none", opacity: rv * (0.35 + 0.65 * Math.abs(Math.sin(t * 3 + i * 1.7))), transform: `scaleY(${lerp(0.6, 1, ph)})`, transformOrigin: "50% 100%" });
++  });
++
++  // pause: whole condition + timer
++  const cin = seg(t, T_COND, T_COND + 0.5), cout = eIO(seg(t, T_EX, T_EX + 0.45));
++  show($("cond"), cin * (1 - cout), { dy: (1 - cin) * 40 - 160 * cout });
++  const tp = pop(t, T_TIMER, 0.45);
++  show($("timer"), tp.o * (1 - cout), { dy: (1 - tp.o) * 60 - 160 * cout, sc: lerp(0.9, 1, tp.o), flex: true });
++  const rem = clamp(4 - (t - T_C0), 0, 4);
++  $("tnum").textContent = String(t < T_C0 ? 4 : Math.max(1, Math.ceil(rem - 1e-6)));
++  $("arc").setAttribute("stroke-dashoffset", String(540.4 * (1 - (t < T_C0 ? 4 : rem) / 4)));
++
++  // headlines
++  headline($("h1"), seg(t, T.h1 - 0.2, T.h1 + 0.3) * (1 - seg(t, T.h2 - 0.2, T.h2 + 0.2)));
++  headline($("h2"), seg(t, T.h2, T.h2 + 0.4) * (1 - seg(t, T.h3 - 0.2, T.h3 + 0.2)));
++  headline($("h3"), seg(t, T.h3, T.h3 + 0.4) * (1 - seg(t, T.cta - 0.5, T.cta - 0.1)));
++  headline($("h4"), seg(t, T.cta + 1.0, T.cta + 1.5));
++
++  // step 1
++  show($("lOne"), fadeIO(t, T.h1 + 0.6, T.h1 + 1.0, T.h2 - 0.1, T.h2 + 0.2));
++  const bk = eOut(seg(t, T.three, T.three + 0.4)) * (1 - seg(t, T.h2 - 0.1, T.h2 + 0.2));
++  css($("brk"), { display: bk > 0 ? "" : "none", opacity: bk, transform: `scaleX(${bk})` });
++  popShow($("nTrip"), t, T.three + 0.3, T.h2 - 0.1, { flex: true });
++
++  // step 2
++  popShow($("nGrid"), t, T.h2 + 0.8, T.calc - 0.2, { flex: true });
++  const gtxt = gridMarkup(t >= T.x3 + 0.3);
++  if ($("nGridIn").innerHTML !== gtxt) $("nGridIn").innerHTML = gtxt;
++  const c1 = pop(t, T.calc, 0.45), c2 = pop(t, T.result, 0.5), cOut = seg(t, T.h3 - 0.3, T.h3 + 0.1);
++  show($("calc1"), c1.o * (1 - cOut), { sc: lerp(0.85, 1, clamp(c1.s, 0, 1.1)) });
++  show($("calc2"), c2.o * (1 - cOut), { sc: lerp(0.7, 1, clamp(c2.s, 0, 1.15)) });
++
++  // step 3
++  show($("lTpl2"), fadeIO(t, T.h3 + 0.6, T.h3 + 1.0, T.cta - 0.5, T.cta - 0.1));
++  show($("lCmp2"), fadeIO(t, T.h3 + 0.6, T.h3 + 1.0, T.two, T.two + 0.5), { dy: 380 * eIO(seg(t, T.two, T.two + 1.0)) });
++  popShow($("nOne"), t, T.two + 0.6, T.cta - 0.5, { flex: true });
++  const ta = pop(t, T.h3 + 0.9, 0.45), taOut = seg(t, T.cta - 0.5, T.cta - 0.1);
++  const flip = eIO(seg(t, T.answer, T.answer + 0.5));
++  const tagIn = $("tagAin");
++  const done = flip >= 0.5;
++  if (tagIn.classList.contains("on") !== done) { tagIn.classList.toggle("on", done); tagIn.textContent = done ? ANSWER_TEXT : "? нуклеотидов"; }
++  css($("tagA"), { display: ta.o * (1 - taOut) > 0 ? "flex" : "none", opacity: ta.o * (1 - taOut) });
++  css(tagIn, { transform: `rotateX(${done ? (flip - 1) * 180 : flip * 180}deg) scale(${lerp(0.85, 1, clamp(ta.s, 0, 1.1)) * (done ? 1 + 0.12 * (1 - seg(t, T.answer + 0.5, T.answer + 0.9)) : 1)})`,
++    fontSize: done ? "44px" : "36px", padding: done ? "20px 40px" : "16px 30px" });
++
++  // CTA
++  const k1 = pop(t, T.cta + 2.1, 0.45), k2 = pop(t, T.link, 0.45);
++  show($("cta1"), k1.o, { dy: (1 - k1.o) * 40, sc: lerp(0.9, 1, k1.o), flex: true });
++  show($("cta2"), k2.o, { dy: (1 - k2.o) * 40, sc: lerp(0.9, 1, k2.o), flex: true });
++}
++
++for (const selector of ["#h1 .t1", "#h2 .t1", "#h3 .t1", "#calc1", "#calc2"]) {
++  const el = document.querySelector(selector);
++  let size = parseFloat(getComputedStyle(el).fontSize);
++  const textWidth = () => { const range = document.createRange(); range.selectNodeContents(el); return range.getBoundingClientRect().width; };
++  while (textWidth() > 1000 && size > 36) { size -= 1; el.style.fontSize = size + "px"; }
++  if (textWidth() > 1000) throw new Error("Candidate text exceeds safe area: " + selector);
++}
++const conditionHeight = $("cond").getBoundingClientRect().height;
++const timerTop = Math.max(920, 420 + conditionHeight + 60);
++if (timerTop + 196 > 1700) throw new Error("Condition too long; paginate before rendering");
++$("timer").style.top = timerTop + "px";
++window.CANDIDATE_INFO = {version: job.version, task_id: job.task_id, count: COUNT, result: RESULT,
++  reference_only: job.reference_only === true, fps: job.render_fps, scene_family: job.scene_family};
++window.renderFrame = renderFrame;
++renderFrame(0);
++window.ready = true;
+diff --git a/experiments/vessels-3d/bio/dynamic/visual-regression.mjs b/experiments/vessels-3d/bio/dynamic/visual-regression.mjs
+new file mode 100644
+index 0000000..02312f8
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/visual-regression.mjs
+@@ -0,0 +1,56 @@
++// Local app rendering test only. Never connects to n8n or GitHub APIs.
++import http from 'node:http';
++import fs from 'node:fs/promises';
++import path from 'node:path';
++import {fileURLToPath} from 'node:url';
++import {createHash} from 'node:crypto';
++import {chromium} from 'playwright';
++const here=path.dirname(fileURLToPath(import.meta.url));
++const root=path.resolve(here,'../../../..');
++const out=path.join(here,'out/visual-regression');
++await fs.mkdir(out,{recursive:true});
++const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript',
++ '.json':'application/json','.png':'image/png','.ttf':'font/ttf'};
++const server=http.createServer(async(req,res)=>{
++ try {
++  const file=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]));
++  if(!file.startsWith(root+path.sep)) {res.writeHead(403).end();return;}
++  const data=await fs.readFile(file);res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});res.end(data);
++ } catch {res.writeHead(404).end();}
++});
++await new Promise(r=>server.listen(0,'127.0.0.1',r));
++let browser;
++try {
++ browser=await chromium.launch({executablePath:process.env.CHROME||chromium.executablePath(),
++  args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-color-profile=srgb','--hide-scrollbars']});
++ const pages=[];
++ const errors=[];
++ for(const pagePath of ['bio/index.html','bio/dynamic/index.html']) {
++  const page=await browser.newPage({viewport:{width:1080,height:1920},deviceScaleFactor:1});
++  page.on('pageerror',e=>errors.push(pagePath+': '+e.message));
++  await page.goto(`http://127.0.0.1:${server.address().port}/experiments/vessels-3d/${pagePath}`);
++  await page.waitForFunction(()=>window.ready===true,null,{timeout:30000});pages.push(page);
++ }
++ const results=[];
++ const times=[0,2,4,7,11,14,17,19,22,25,27,30,33,36,39,41,42];
++ for(const t of times) {
++  const shots=[];
++  for(let i=0;i<pages.length;i++) {
++   await pages[i].evaluate(t=>window.renderFrame(t),t);
++   const bytes=await pages[i].screenshot();shots.push(bytes);
++   await fs.writeFile(path.join(out,`${i===0?'approved':'candidate'}-${t}.png`),bytes);
++  }
++  const same=shots[0].equals(shots[1]);results.push({t,identical_png:same});
++  console.log(JSON.stringify({t,identical_png:same}));
++ }
++ // Seeking backwards must not retain the already-revealed answer.
++ await pages[1].evaluate(()=>{window.renderFrame(36);window.renderFrame(30);});
++ const unrevealed=await pages[1].locator('#tagAin').textContent();
++ if(unrevealed!=='? нуклеотидов') errors.push('answer leaks after seeking backwards');
++ const report={reference_commit:'2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8',
++  times:results,errors,audio_identical:createHash('sha256').update(await fs.readFile(path.join(here,'out/final.wav'))).digest('hex')==='7a996b50c52c81a0c85a464f9c77d8474822b51ce2468e46e6f954b6813ca338'};
++ await fs.writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
++ if(errors.length||results.some(r=>!r.identical_png)||!report.audio_identical) throw new Error('Reference regression failed; inspect report and frames');
++} finally {
++ if(browser) await browser.close();await new Promise(r=>server.close(r));
++}
+-- 
+2.51.1
+
