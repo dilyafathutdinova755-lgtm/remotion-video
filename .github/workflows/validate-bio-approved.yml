@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo '70f6edefac30ac49f1035beeb81237163d5f59a7cd060ae4a72b710dcef96113  ../candidate/candidate.patch' | sha256sum -c -
+          echo '86f61140a8064c215d3145e8bb67d39c2b2a332abb1614a03bce0ac1252260a9  ../candidate/candidate.patch' | sha256sum -c -
           git apply --check ../candidate/candidate.patch
           git apply ../candidate/candidate.patch
           git diff --exit-code
@@ -60,6 +60,7 @@ jobs:
           node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs approved-adapter/*.test.mjs experiments/vessels-3d/bio/lessons/contract.test.mjs
           node experiments/vessels-3d/bio/dynamic/prepare-job.mjs --reference
           python experiments/vessels-3d/bio/dynamic/make_mix.py
+          python experiments/vessels-3d/bio/dynamic/test_compare_frames.py
       - name: Compare 17 full-resolution frames and mixed audio
         working-directory: approved
         run: node experiments/vessels-3d/bio/dynamic/visual-regression.mjs
