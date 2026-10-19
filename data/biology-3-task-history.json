@@ -401,6 +401,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/46184",
       "source_task_id": "46184"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39219660701",
+      "reserved_at": "2026-10-19T08:02:34.520Z",
+      "task_number": 3,
+      "condition_text": "У мухи дрозофилы в результате мейоза образуется 4 клетки, в каждой из которых содержится 4 хромосомы. Сколько хромосом содержится в соматической клетке дрозофилы?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/68558",
+      "source_task_id": "68558"
     }
   ]
 }
