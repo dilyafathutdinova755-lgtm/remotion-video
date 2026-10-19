@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Биология · белок и ДНК</title>
+<style>
+@font-face { font-family: "Unbounded"; font-weight: 700; src: url(/experiments/vessels-3d/bio/fonts/Unbounded-700.ttf) format("truetype"); }
+@font-face { font-family: "Unbounded"; font-weight: 800; src: url(/experiments/vessels-3d/bio/fonts/Unbounded-800.ttf) format("truetype"); }
+@font-face { font-family: "Onest"; font-weight: 500; src: url(/experiments/vessels-3d/bio/fonts/Onest-500.ttf) format("truetype"); }
+@font-face { font-family: "Onest"; font-weight: 700; src: url(/experiments/vessels-3d/bio/fonts/Onest-700.ttf) format("truetype"); }
+@font-face { font-family: "Onest"; font-weight: 800; src: url(/experiments/vessels-3d/bio/fonts/Onest-800.ttf) format("truetype"); }
+@font-face { font-family: "JB"; font-weight: 600; src: url(/experiments/vessels-3d/bio/fonts/JBMono-600.ttf) format("truetype"); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Onest", sans-serif; color: #EAF7EE; -webkit-font-smoothing: antialiased;
+  background: linear-gradient(180deg, #07150F 0%, #0A2016 60%, #0C281B 100%); }
+#stage * { box-sizing: border-box; }
+.a { position: absolute; }
+#pat { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0;
+  background-image: radial-gradient(rgba(198,255,77,0.30) 2.6px, transparent 3px); background-size: 40px 40px; }
+#glow { left: 0; top: 0; width: 1100px; height: 1100px; border-radius: 50%; z-index: 1; background: radial-gradient(closest-side, rgba(198,255,77,0.2), rgba(198,255,77,0)); }
+#world, #logoc { left: 0; top: 0; width: 1080px; height: 1920px; }
+#world { z-index: 3; }
+#logoc { z-index: 30; }
+#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.95); box-shadow: 0 18px 50px rgba(0,0,0,0.3); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
+#plaque .slot { width: 80px; height: 80px; flex: none; }
+#plaque b { flex: none; font-family: "Onest"; font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
+#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
+#dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.22); }
+.hh { left: 40px; top: 314px; width: 1000px; text-align: center; z-index: 8; }
+.ey { font-family: "JB"; font-size: 30px; font-weight: 600; color: #C6FF4D; height: 48px; letter-spacing: 0.04em; }
+.t1 { font-family: "Unbounded"; font-size: 72px; line-height: 88px; font-weight: 700; letter-spacing: -0.02em; color: #EAF7EE; }
+.t2 { font-size: 36px; line-height: 50px; color: #9FC2AE; margin-top: 10px; }
+.ctr { left: 0; width: 1080px; display: flex; justify-content: center; z-index: 8; }
+.note { padding: 22px 34px; border-radius: 30px; font-family: "JB"; font-weight: 600; font-size: 36px; line-height: 1.25; color: #EAF7EE; white-space: nowrap;
+  background: linear-gradient(160deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)); box-shadow: 0 20px 50px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.18); border: 1.5px solid rgba(198,255,77,0.28); }
+.note b { color: #C6FF4D; }
+.lbl { font-family: "JB"; font-weight: 600; font-size: 32px; color: #9FC2AE; white-space: nowrap; z-index: 8; }
+.big { z-index: 8; text-shadow: 0 10px 40px rgba(0,0,0,0.6); font-family: "Unbounded"; font-weight: 800; letter-spacing: -0.04em; color: #C6FF4D; line-height: 1; text-align: center; white-space: nowrap; }
+.tag { padding: 16px 30px; border-radius: 999px; font-family: "JB"; font-weight: 600; font-size: 36px; white-space: nowrap; color: #EAF7EE;
+  background: rgba(7,21,15,0.78); border: 2px solid rgba(198,255,77,0.5); box-shadow: 0 14px 34px rgba(0,0,0,0.4); z-index: 9; }
+.tag.on { background: #C6FF4D; color: #0A1E10; border-color: #C6FF4D; }
+.ray { width: 6px; border-radius: 3px; background: linear-gradient(0deg, rgba(198,255,77,0.95), rgba(198,255,77,0)); z-index: 4; }
+.brk { height: 26px; border: 7px solid #C6FF4D; border-top: none; border-radius: 0 0 22px 22px; z-index: 8; }
+.cc { left: 70px; width: 940px; border-radius: 44px; padding: 46px 52px; font-size: 44px; line-height: 1.34; font-weight: 500; color: #EAF7EE; z-index: 10;
+  background: linear-gradient(160deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04)); box-shadow: 0 30px 80px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.16); }
+#timer { left: 70px; width: 940px; height: 196px; border-radius: 64px; display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; z-index: 10;
+  background: linear-gradient(160deg, rgba(198,255,77,0.16), rgba(198,255,77,0.05)); box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.2); }
+#timer .rg { position: relative; width: 144px; height: 144px; flex: none; }
+#timer svg { position: absolute; left: 0; top: 0; width: 144px; height: 144px; transform: rotate(-90deg); }
+#timer .rg i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-family: "Unbounded"; font-size: 76px; font-weight: 700; color: #C6FF4D; }
+#timer .pt1 { display: flex; align-items: center; gap: 22px; font-family: "Unbounded"; font-size: 44px; font-weight: 700; color: #EAF7EE; white-space: nowrap; }
+#timer .pt2 { font-size: 32px; margin-top: 6px; color: #9FC2AE; white-space: nowrap; }
+.bars { display: flex; gap: 9px; }
+.bars i { display: block; width: 14px; height: 42px; border-radius: 6px; background: #C6FF4D; }
+.cp { padding: 18px 40px; border-radius: 999px; background: #fff; color: #0E1A12; font-weight: 700; font-size: 40px; white-space: nowrap; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+.cp.blue { background: linear-gradient(135deg,#3b7bff,#1652f0); color: #fff; font-size: 48px; padding: 26px 58px; box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
+</style>
+<script type="importmap">
+{ "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <div class="a" id="pat"></div>
+  <div class="a" id="glow"></div>
+  <canvas class="a" id="world" width="1080" height="1920"></canvas>
+
+  <div class="a lbl" id="lStrip" style="left:60px;top:470px;font-size:28px">белок · 120</div>
+  <div class="a lbl" id="lTpl" style="left:60px;top:900px">матричная цепь</div>
+  <div class="a lbl" id="lDna" style="left:870px;top:900px;color:#EAF7EE">ДНК</div>
+  <div id="rays"></div>
+  <div class="a ctr" id="nBelok" style="top:1400px"><div class="note">белок</div></div>
+  <div class="a big" id="cnt" style="left:0;top:1400px;width:1080px;font-size:150px">0</div>
+  <div class="a lbl" id="lAmino" style="left:0;top:1572px;width:1080px;text-align:center">аминокислот</div>
+  <div class="a" id="nCode" style="left:640px;top:740px;z-index:9"><div class="note" style="font-size:32px;padding:16px 26px">кодирует</div></div>
+  <div class="a tag" id="tagQ" style="left:300px;top:1300px">? нуклеотидов</div>
+
+  <div class="a cc" id="cond" style="top:420px">Белок состоит из 120 аминокислот. Сколько нуклеотидов матричной цепи ДНК, кодирующей этот белок?</div>
+  <div class="a" id="timer" style="top:920px"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#C6FF4D" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и подумай над решением</div></div></div>
+
+  <div class="a hh" id="h1"><div class="ey">Шаг 1 из 3</div><div class="t1">Триплет</div></div>
+  <div class="a hh" id="h2"><div class="ey">Шаг 2 из 3</div><div class="t1">Умножаем</div></div>
+  <div class="a hh" id="h3"><div class="ey">Шаг 3 из 3</div><div class="t1">Одна цепь</div></div>
+  <div class="a hh" id="h4"><div class="ey">&nbsp;</div><div class="t1">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
+
+  <div class="a lbl" id="lOne" style="left:0;top:960px;width:1080px;text-align:center">1 аминокислота</div>
+  <div class="a brk" id="brk" style="left:366px;top:1232px;width:348px"></div>
+  <div class="a ctr" id="nTrip" style="top:1300px"><div class="note">1 аминокислота = <b>3 нуклеотида</b></div></div>
+  <div class="a ctr" id="nGrid" style="top:1420px"><div class="note" id="nGridIn"><b>120</b> аминокислот</div></div>
+  <div class="a big" id="calc1" style="left:0;top:1150px;width:1080px;font-size:120px;color:#EAF7EE">120 × 3</div>
+  <div class="a big" id="calc2" style="left:0;top:1310px;width:1080px;font-size:190px">= 360</div>
+
+  <div class="a lbl" id="lTpl2" style="left:60px;top:820px;color:#C6FF4D">матричная</div>
+  <div class="a lbl" id="lCmp2" style="left:60px;top:1160px">вторая цепь</div>
+  <div class="a ctr" id="nOne" style="top:1520px"><div class="note">одна цепь · <b>на 2 не умножаем</b></div></div>
+  <div class="a" id="tagA" style="left:0;top:690px;width:1080px;display:flex;justify-content:center;z-index:9;perspective:900px"><div class="tag" id="tagAin">? нуклеотидов</div></div>
+
+  <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="a" id="plaque"><div class="slot"></div><b>ЕГЭ Тренажёр</b></div>
+  <canvas class="a" id="logoc" width="1080" height="1920"></canvas>
+  <div class="a ctr" id="cta1" style="top:1290px;z-index:31"><div class="cp blue">Скачивай бесплатно</div></div>
+  <div class="a ctr" id="cta2" style="top:1430px;z-index:31"><div class="cp">Ссылка в профиле ↑</div></div>
+</div>
+<script type="module" src="/experiments/vessels-3d/bio/scene.js"></script>
+</body>
+</html>

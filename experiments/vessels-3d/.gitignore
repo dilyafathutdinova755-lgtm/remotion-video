@@ -6,3 +6,6 @@ ru/fonts/*.ttf
 ru/out/
 ru/assets/voice.wav
 ru/out4k/
+bio/out/
+bio/fonts/*.ttf
+bio/assets/voice.wav
