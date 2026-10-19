@@ -411,6 +411,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/68558",
       "source_task_id": "68558"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39256459071",
+      "reserved_at": "2026-10-19T13:02:29.983Z",
+      "task_number": 3,
+      "condition_text": "На заростке папоротника путем митоза образовалась яйцеклетка, содержащая 26 хромосом. Сколько хромосом содержит клетка заростка? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/69376",
+      "source_task_id": "69376"
     }
   ]
 }
