@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo 'afde89a68f5f20eadae9086717d4e9231a2046f5e314d117722cc362b8401225  ../candidate/candidate.patch' | sha256sum -c -
+          echo '361e613b94fc29d9c98bceba1241f550e446a175fabe63b417c9fb1778f9d62f  ../candidate/candidate.patch' | sha256sum -c -
           git apply --check ../candidate/candidate.patch
           git apply ../candidate/candidate.patch
           git diff --exit-code
@@ -57,7 +57,7 @@ jobs:
       - name: Check contract and reproduce reference audio
         working-directory: approved
         run: |
-          node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs
+          node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs approved-adapter/*.test.mjs
           node experiments/vessels-3d/bio/dynamic/prepare-job.mjs --reference
           python experiments/vessels-3d/bio/dynamic/make_mix.py
       - name: Compare 17 full-resolution frames and mixed audio
