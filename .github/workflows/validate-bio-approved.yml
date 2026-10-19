@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo '361e613b94fc29d9c98bceba1241f550e446a175fabe63b417c9fb1778f9d62f  ../candidate/candidate.patch' | sha256sum -c -
+          echo '70f6edefac30ac49f1035beeb81237163d5f59a7cd060ae4a72b710dcef96113  ../candidate/candidate.patch' | sha256sum -c -
           git apply --check ../candidate/candidate.patch
           git apply ../candidate/candidate.patch
           git diff --exit-code
@@ -57,34 +57,22 @@ jobs:
       - name: Check contract and reproduce reference audio
         working-directory: approved
         run: |
-          node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs approved-adapter/*.test.mjs
+          node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs approved-adapter/*.test.mjs experiments/vessels-3d/bio/lessons/contract.test.mjs
           node experiments/vessels-3d/bio/dynamic/prepare-job.mjs --reference
           python experiments/vessels-3d/bio/dynamic/make_mix.py
       - name: Compare 17 full-resolution frames and mixed audio
         working-directory: approved
-        shell: bash
-        run: |
-          status=0
-          node experiments/vessels-3d/bio/dynamic/visual-regression.mjs || status=$?
-          cat experiments/vessels-3d/bio/dynamic/out/visual-regression/report.json
-          python - <<'PYDIAG'
-          import subprocess, numpy as np
-          from pathlib import Path
-          root = Path('experiments/vessels-3d/bio/dynamic/out/visual-regression')
-          def pixels(name):
-              data = subprocess.check_output(['ffmpeg', '-v', 'error', '-i', str(root / name), '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'])
-              return np.frombuffer(data, dtype=np.uint8).reshape(1920,1080,3)
-          a, b = pixels('approved-27.png'), pixels('candidate-27.png')
-          delta = np.abs(a.astype(int)-b.astype(int))
-          ys, xs = np.where(np.any(delta,axis=2))
-          print('PIXEL_DIAGNOSTIC', {'changed_pixels':len(xs), 'max_delta':int(delta.max()), 'bounds': [int(xs.min()),int(ys.min()),int(xs.max()),int(ys.max())] if len(xs) else None})
-          PYDIAG
-          exit "$status"
+        run: node experiments/vessels-3d/bio/dynamic/visual-regression.mjs
+      - name: Check chromosome scene layout and spoken answer reveal
+        working-directory: approved
+        run: node experiments/vessels-3d/bio/lessons/visual-check.mjs
       - name: Save inspectable comparison evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bio-approved-reference-regression
-          path: approved/experiments/vessels-3d/bio/dynamic/out/visual-regression/
+          path: |
+            approved/experiments/vessels-3d/bio/dynamic/out/visual-regression/
+            approved/experiments/vessels-3d/bio/lessons/out/
           if-no-files-found: warn
           retention-days: 14
