@@ -382,14 +382,17 @@
       "published_at": "2026-10-18T12:27:46.586Z"
     },
     {
-      "state": "reserved",
+      "state": "published",
       "reservation_id": "ege_russian:ru-acceptance-987",
       "reserved_at": "2026-10-17T15:40:01.870Z",
       "task_number": 7,
       "condition_text": "прошли наиболее УСПЕШНО\nзимние МЕСЯЦА\nСЕМЬЮСТАМИ солдатами\nПРОПОЛОЩИ бельё\nв ТЫСЯЧА девятисотом году",
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84599",
-      "source_task_id": "84599"
+      "source_task_id": "84599",
+      "tiktok_post_url": "https://www.tiktok.com/@egerus1/video/7698012796159642913",
+      "tiktok_post_id": "7698012796159642913",
+      "published_at": "2026-10-19T16:22:01.904Z"
     },
     {
       "state": "reserved",
