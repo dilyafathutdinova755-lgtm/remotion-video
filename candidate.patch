@@ -1235,13 +1235,14 @@ diff --git a/experiments/vessels-3d/bio/dynamic/visual-regression.mjs b/experime
 new file mode 100644
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/visual-regression.mjs
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,63 @@
 +// Local app rendering test only. Never connects to n8n or GitHub APIs.
 +import http from 'node:http';
 +import fs from 'node:fs/promises';
 +import path from 'node:path';
 +import {fileURLToPath} from 'node:url';
 +import {createHash} from 'node:crypto';
++import {execFileSync} from 'node:child_process';
 +import {chromium} from 'playwright';
 +const here=path.dirname(fileURLToPath(import.meta.url));
 +const root=path.resolve(here,'../../../..');
@@ -1293,10 +1294,613 @@ new file mode 100644
 + const report={reference_commit:'2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8',
 +  times:results,errors,audio_identical:createHash('sha256').update(await fs.readFile(path.join(here,'out/final.wav'))).digest('hex')==='7a996b50c52c81a0c85a464f9c77d8474822b51ce2468e46e6f954b6813ca338'};
 + await fs.writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-+ if(errors.length||results.some(r=>!r.identical_png)||!report.audio_identical) throw new Error('Reference regression failed; inspect report and frames');
++ if(errors.length||!report.audio_identical) throw new Error('Reference regression failed; inspect report and frames');
++ execFileSync('python',['compare-frames.py'],{cwd:here,stdio:'inherit'});
 +} finally {
 + if(browser) await browser.close();await new Promise(r=>server.close(r));
 +}
+diff --git a/experiments/vessels-3d/bio/dynamic/compare-frames.py b/experiments/vessels-3d/bio/dynamic/compare-frames.py
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/compare-frames.py
+@@ -0,0 +1,44 @@
++#!/usr/bin/env python3
++"""Strict image gate with a same-source control for Chromium rounding noise.
++
++No perceptual similarity metric: at most one 8-bit level in 0.01% of pixels,
++and only on frames where two independent renders of the immutable source
++also differ within those same limits. Any larger change fails.
++"""
++import json
++import subprocess
++from pathlib import Path
++import numpy as np
++
++
++def stats(a,b):
++    delta=np.abs(a.astype(np.int16)-b.astype(np.int16))
++    changed=np.any(delta,axis=2)
++    return {'changed_pixels':int(np.count_nonzero(changed)), 'max_channel_delta':int(delta.max())}
++
++
++def acceptable(candidate,control,pixels):
++    limit=max(1,int(pixels*.0001))
++    exact=candidate['changed_pixels']==0
++    bounded=lambda d: 0<d['changed_pixels']<=limit and d['max_channel_delta']<=1
++    return exact or (bounded(candidate) and bounded(control))
++
++
++def main():
++    root=Path(__file__).resolve().parent/'out/visual-regression'
++    report=json.loads((root/'report.json').read_text())
++    def read(name):
++        raw=subprocess.check_output(['ffmpeg','-v','error','-i',str(root/name),'-f','rawvideo','-pix_fmt','rgb24','-'])
++        return np.frombuffer(raw,dtype=np.uint8).reshape(1920,1080,3)
++    for frame in report['times']:
++        t=frame['t'];a=read(f'approved-{t}.png')
++        c=stats(a,read(f'candidate-{t}.png'));control=stats(a,read(f'control-{t}.png'))
++        frame.update(candidate_pixels=c,control_pixels=control,pixel_gate_passed=acceptable(c,control,1920*1080))
++        print(json.dumps(frame))
++    report['pixel_gate']={'max_channel_delta':1,'max_changed_fraction':.0001,'requires_same_source_control_noise':True}
++    report['passed']=not report['errors'] and report['audio_identical'] and all(f['pixel_gate_passed'] for f in report['times'])
++    (root/'report.json').write_text(json.dumps(report,indent=2)+'\n')
++    if not report['passed']:raise SystemExit('Reference fidelity gate FAILED')
++    print('Reference fidelity gate PASSED; exact and rounding-limited frames are reported separately')
++
++if __name__=='__main__':main()
+diff --git a/experiments/vessels-3d/bio/lessons/contract.mjs b/experiments/vessels-3d/bio/lessons/contract.mjs
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/lessons/contract.mjs
+@@ -0,0 +1,22 @@
++// Bounded semantic scene: chromosome number is conserved by mitosis.
++export function validateLesson(job) {
++ const stop=m=>{throw new Error('BIO_LESSON_STOP: '+m);};
++ if(job?.version!=='bio-mitosis-lesson-v1'||job.scene_family!=='mitosis-chromosome-count')stop('unsupported family');
++ if(job.scope!=='ege_biology_3'||job.account!=='ege_biology'||job.playback_speed!==1||job.render_fps!==60)stop('scope/pacing mismatch');
++ if(!Number.isSafeInteger(job.chromosomes)||job.chromosomes<1||job.chromosomes>120||job.answer!==job.chromosomes)stop('mitosis must conserve chromosome count, 1..120');
++ for(const key of ['condition_text','parent_label','daughter_label'])if(typeof job[key]!=='string'||!job[key].trim()||job[key].length>(key==='condition_text'?700:40))stop('invalid '+key);
++ if(!/митоз/iu.test(job.condition_text))stop('condition must explicitly identify mitosis');
++ const tl=job.timeline;
++ if(!tl||tl.version!=='bio-measured-timeline-v1'||tl.playback_speed!==1||!Number.isFinite(tl.total)||tl.total>90)stop('measured timeline required');
++ if(tl.segments?.map(s=>s.id).join(',')!=='intro,task,step-1,step-2,cta')stop('two-step lesson required');
++ if(tl.pause?.duration!==5.6)stop('approved pause required');
++ let end=0;
++ for(const s of tl.segments){if(!Number.isFinite(s.start)||!Number.isFinite(s.end)||s.start<end||s.end<=s.start||s.end>tl.total)stop('invalid segment timing');end=s.end;}
++ if(tl.pause.start<tl.segments[1].end||tl.pause.end>tl.segments[2].start)stop('pause intersects speech');
++ for(const [key,id] of [['known','task'],['mitosis','step-2'],['answer','step-2']]){
++  const c=job.cues?.[key],s=tl.segments.find(s=>s.id===id);
++  if(!c||c.segment_id!==id||!Number.isFinite(c.start)||!Number.isFinite(c.end)||c.start<s.start||c.end>s.end||c.end<=c.start)stop('invalid '+key+' cue');
++ }
++ if(job.cues.answer.start<=job.cues.mitosis.start)stop('answer must follow explanation');
++ return job;
++}
+diff --git a/experiments/vessels-3d/bio/lessons/contract.test.mjs b/experiments/vessels-3d/bio/lessons/contract.test.mjs
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/lessons/contract.test.mjs
+@@ -0,0 +1,15 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import fs from 'node:fs';
++import {validateLesson} from './contract.mjs';
++const fixture=()=>JSON.parse(fs.readFileSync(new URL('./job.json',import.meta.url)));
++test('mitosis preview preserves chromosome count and measured answer time',()=>{
++ const job=validateLesson(fixture());assert.equal(job.answer,26);assert.equal(job.cues.answer.start,49.199);
++});
++for(const [name,change] of [
++ ['different answer',j=>j.answer=52],['oversized count',j=>{j.chromosomes=121;j.answer=121;}],
++ ['different biological process',j=>j.condition_text=j.condition_text.replace('митоза','мейоза')],
++ ['answer shown before explanation',j=>j.cues.answer.start=0],
++ ['changed scope',j=>j.scope='ege_russian'],['speedup',j=>j.playback_speed=1.2],
++ ['stale protein job',j=>j.scene_family='protein-template-nucleotides']
++])test('reject '+name,()=>{const j=fixture();change(j);assert.throws(()=>validateLesson(j),/BIO_LESSON_STOP/);});
+diff --git a/experiments/vessels-3d/bio/lessons/index.html b/experiments/vessels-3d/bio/lessons/index.html
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/lessons/index.html
+@@ -0,0 +1,106 @@
++<!doctype html>
++<html lang="ru">
++<head>
++<meta charset="utf-8" />
++<title>Биология · митоз · тест нового задания</title>
++<style>
++@font-face { font-family: "Unbounded"; font-weight: 700; src: url(/experiments/vessels-3d/bio/fonts/Unbounded-700.ttf) format("truetype"); }
++@font-face { font-family: "Unbounded"; font-weight: 800; src: url(/experiments/vessels-3d/bio/fonts/Unbounded-800.ttf) format("truetype"); }
++@font-face { font-family: "Onest"; font-weight: 500; src: url(/experiments/vessels-3d/bio/fonts/Onest-500.ttf) format("truetype"); }
++@font-face { font-family: "Onest"; font-weight: 700; src: url(/experiments/vessels-3d/bio/fonts/Onest-700.ttf) format("truetype"); }
++@font-face { font-family: "Onest"; font-weight: 800; src: url(/experiments/vessels-3d/bio/fonts/Onest-800.ttf) format("truetype"); }
++@font-face { font-family: "JB"; font-weight: 600; src: url(/experiments/vessels-3d/bio/fonts/JBMono-600.ttf) format("truetype"); }
++html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
++#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Onest", sans-serif; color: #EAF7EE; -webkit-font-smoothing: antialiased;
++  background: linear-gradient(180deg, #07150F 0%, #0A2016 60%, #0C281B 100%); }
++#stage * { box-sizing: border-box; }
++.a { position: absolute; }
++#pat { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0;
++  background-image: radial-gradient(rgba(198,255,77,0.30) 2.6px, transparent 3px); background-size: 40px 40px; }
++#glow { left: 0; top: 0; width: 1100px; height: 1100px; border-radius: 50%; z-index: 1; background: radial-gradient(closest-side, rgba(198,255,77,0.2), rgba(198,255,77,0)); }
++#world, #logoc { left: 0; top: 0; width: 1080px; height: 1920px; }
++#world { z-index: 3; }
++#logoc { z-index: 30; }
++#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.95); box-shadow: 0 18px 50px rgba(0,0,0,0.3); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
++#plaque .slot { width: 80px; height: 80px; flex: none; }
++#plaque b { flex: none; font-family: "Onest"; font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
++#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
++#dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.22); }
++.hh { left: 40px; top: 314px; width: 1000px; text-align: center; z-index: 8; }
++.ey { font-family: "JB"; font-size: 30px; font-weight: 600; color: #C6FF4D; height: 48px; letter-spacing: 0.04em; }
++.t1 { font-family: "Unbounded"; font-size: 72px; line-height: 88px; font-weight: 700; letter-spacing: -0.02em; color: #EAF7EE; }
++.t2 { font-size: 36px; line-height: 50px; color: #9FC2AE; margin-top: 10px; }
++.ctr { left: 0; width: 1080px; display: flex; justify-content: center; z-index: 8; }
++.note { padding: 22px 34px; border-radius: 30px; font-family: "JB"; font-weight: 600; font-size: 36px; line-height: 1.25; color: #EAF7EE; white-space: nowrap;
++  background: linear-gradient(160deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)); box-shadow: 0 20px 50px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.18); border: 1.5px solid rgba(198,255,77,0.28); }
++.note b { color: #C6FF4D; }
++.lbl { font-family: "JB"; font-weight: 600; font-size: 32px; color: #9FC2AE; white-space: nowrap; z-index: 8; }
++.big { z-index: 8; text-shadow: 0 10px 40px rgba(0,0,0,0.6); font-family: "Unbounded"; font-weight: 800; letter-spacing: -0.04em; color: #C6FF4D; line-height: 1; text-align: center; white-space: nowrap; }
++.tag { padding: 16px 30px; border-radius: 999px; font-family: "JB"; font-weight: 600; font-size: 36px; white-space: nowrap; color: #EAF7EE;
++  background: rgba(7,21,15,0.78); border: 2px solid rgba(198,255,77,0.5); box-shadow: 0 14px 34px rgba(0,0,0,0.4); z-index: 9; }
++.tag.on { background: #C6FF4D; color: #0A1E10; border-color: #C6FF4D; }
++.ray { width: 6px; border-radius: 3px; background: linear-gradient(0deg, rgba(198,255,77,0.95), rgba(198,255,77,0)); z-index: 4; }
++.brk { height: 26px; border: 7px solid #C6FF4D; border-top: none; border-radius: 0 0 22px 22px; z-index: 8; }
++.cc { left: 70px; width: 940px; border-radius: 44px; padding: 46px 52px; font-size: 44px; line-height: 1.34; font-weight: 500; color: #EAF7EE; z-index: 10;
++  background: linear-gradient(160deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04)); box-shadow: 0 30px 80px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.16); }
++#timer { left: 70px; width: 940px; height: 196px; border-radius: 64px; display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; z-index: 10;
++  background: linear-gradient(160deg, rgba(198,255,77,0.16), rgba(198,255,77,0.05)); box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.2); }
++#timer .rg { position: relative; width: 144px; height: 144px; flex: none; }
++#timer svg { position: absolute; left: 0; top: 0; width: 144px; height: 144px; transform: rotate(-90deg); }
++#timer .rg i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-family: "Unbounded"; font-size: 76px; font-weight: 700; color: #C6FF4D; }
++#timer .pt1 { display: flex; align-items: center; gap: 22px; font-family: "Unbounded"; font-size: 44px; font-weight: 700; color: #EAF7EE; white-space: nowrap; }
++#timer .pt2 { font-size: 32px; margin-top: 6px; color: #9FC2AE; white-space: nowrap; }
++.bars { display: flex; gap: 9px; }
++.bars i { display: block; width: 14px; height: 42px; border-radius: 6px; background: #C6FF4D; }
++.cp { padding: 18px 40px; border-radius: 999px; background: #fff; color: #0E1A12; font-weight: 700; font-size: 40px; white-space: nowrap; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
++.cp.blue { background: linear-gradient(135deg,#3b7bff,#1652f0); color: #fff; font-size: 48px; padding: 26px 58px; box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
++</style>
++<script type="importmap">
++{ "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }
++</script>
++</head>
++<body>
++<div id="stage">
++  <div class="a" id="pat"></div>
++  <div class="a" id="glow"></div>
++  <canvas class="a" id="world" width="1080" height="1920"></canvas>
++
++  <div class="a lbl" id="lStrip" style="left:60px;top:470px;font-size:28px">белок · 120</div>
++  <div class="a lbl" id="lTpl" style="left:60px;top:900px">матричная цепь</div>
++  <div class="a lbl" id="lDna" style="left:870px;top:900px;color:#EAF7EE">ДНК</div>
++  <div id="rays"></div>
++  <div class="a ctr" id="nBelok" style="top:1400px"><div class="note">белок</div></div>
++  <div class="a big" id="cnt" style="left:0;top:1400px;width:1080px;font-size:150px">0</div>
++  <div class="a lbl" id="lAmino" style="left:0;top:1572px;width:1080px;text-align:center">аминокислот</div>
++  <div class="a" id="nCode" style="left:640px;top:740px;z-index:9"><div class="note" style="font-size:32px;padding:16px 26px">кодирует</div></div>
++  <div class="a tag" id="tagQ" style="left:300px;top:1300px">? нуклеотидов</div>
++
++  <div class="a cc" id="cond" style="top:420px">Белок состоит из 120 аминокислот. Сколько нуклеотидов матричной цепи ДНК, кодирующей этот белок?</div>
++  <div class="a" id="timer" style="top:920px"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#C6FF4D" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и подумай над решением</div></div></div>
++
++  <div class="a hh" id="h1"><div class="ey">Шаг 1 из 3</div><div class="t1">Триплет</div></div>
++  <div class="a hh" id="h2"><div class="ey">Шаг 2 из 3</div><div class="t1">Умножаем</div></div>
++  <div class="a hh" id="h3"><div class="ey">Шаг 3 из 3</div><div class="t1">Одна цепь</div></div>
++  <div class="a hh" id="h4"><div class="ey">&nbsp;</div><div class="t1">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
++
++  <div class="a lbl" id="lOne" style="left:0;top:960px;width:1080px;text-align:center">1 аминокислота</div>
++  <div class="a brk" id="brk" style="left:366px;top:1232px;width:348px"></div>
++  <div class="a ctr" id="nTrip" style="top:1300px"><div class="note">1 аминокислота = <b>3 нуклеотида</b></div></div>
++  <div class="a ctr" id="nGrid" style="top:1420px"><div class="note" id="nGridIn"><b>120</b> аминокислот</div></div>
++  <div class="a big" id="calc1" style="left:0;top:1150px;width:1080px;font-size:120px;color:#EAF7EE">120 × 3</div>
++  <div class="a big" id="calc2" style="left:0;top:1310px;width:1080px;font-size:190px">= 360</div>
++
++  <div class="a lbl" id="lTpl2" style="left:60px;top:820px;color:#C6FF4D">матричная</div>
++  <div class="a lbl" id="lCmp2" style="left:60px;top:1160px">вторая цепь</div>
++  <div class="a ctr" id="nOne" style="top:1520px"><div class="note">одна цепь · <b>на 2 не умножаем</b></div></div>
++  <div class="a" id="tagA" style="left:0;top:690px;width:1080px;display:flex;justify-content:center;z-index:9;perspective:900px"><div class="tag" id="tagAin">? нуклеотидов</div></div>
++
++  <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
++  <div class="a" id="plaque"><div class="slot"></div><b>ЕГЭ Тренажёр</b></div>
++  <canvas class="a" id="logoc" width="1080" height="1920"></canvas>
++  <div class="a ctr" id="cta1" style="top:1290px;z-index:31"><div class="cp blue">Скачивай бесплатно</div></div>
++  <div class="a ctr" id="cta2" style="top:1430px;z-index:31"><div class="cp">Ссылка в профиле ↑</div></div>
++</div>
++<script type="module" src="/experiments/vessels-3d/bio/lessons/scene.mjs"></script>
++</body>
++</html>
+diff --git a/experiments/vessels-3d/bio/lessons/job.json b/experiments/vessels-3d/bio/lessons/job.json
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/lessons/job.json
+@@ -0,0 +1,113 @@
++{
++  "version": "bio-mitosis-lesson-v1",
++  "scene_family": "mitosis-chromosome-count",
++  "scope": "ege_biology_3",
++  "account": "ege_biology",
++  "render_fps": 60,
++  "playback_speed": 1,
++  "chromosomes": 26,
++  "answer": 26,
++  "parent_label": "Клетка заростка",
++  "daughter_label": "Яйцеклетка",
++  "condition_text": "На заростке папоротника путем митоза образовалась яйцеклетка, содержащая 26 хромосом. Сколько хромосом содержит клетка заростка? В ответе запишите только количество хромосом.",
++  "timeline": {
++    "version": "bio-measured-timeline-v1",
++    "task_id": "mitosis-26-preview",
++    "playback_speed": 1,
++    "render_fps": 60,
++    "intro_seconds": 2,
++    "total": 54.828571,
++    "audio": {
++      "sha256": "c878a1c5aa39d59919d079726a1e2cea7878b93db34daae2357e77d9e35fa8ef",
++      "duration_seconds": 46.628571,
++      "transcript_sha256": "21163a598caa188ec219b4f02b4834da20b864c1f150eae5898557f09c9896ca",
++      "timing_source": "elevenlabs-character-alignment-v1"
++    },
++    "pause": {
++      "source_seconds": 18.117,
++      "start": 20.117,
++      "duration": 5.6,
++      "end": 25.717
++    },
++    "segments": [
++      {
++        "id": "intro",
++        "kind": "intro",
++        "text": "Решаем задание три по биологии из приложения «ЕГЭ Тренажёр».",
++        "tts_text": "Решаем задание три по биологии из приложения «егэ Тренажёр».",
++        "source_start": 0,
++        "source_end": 4.423,
++        "start": 2,
++        "end": 6.423
++      },
++      {
++        "id": "task",
++        "kind": "task",
++        "text": "На заростке папоротника путем митоза образовалась яйцеклетка, содержащая 26 хромосом. Сколько хромосом содержит клетка заростка? В ответе запишите только количество хромосом.",
++        "tts_text": "На заростке папоротника путем митоза образовалась яйцеклетка, содержащая двадцать шесть хромосом. Сколько хромосом содержит клетка заростка? В ответе запишите только количество хромосом.",
++        "source_start": 4.737,
++        "source_end": 17.937,
++        "start": 6.737,
++        "end": 19.937
++      },
++      {
++        "id": "step-1",
++        "kind": "solution",
++        "step_id": "step-1",
++        "text": "Заросток папоротника представляет собой гаметофит — гаплоидную стадию с набором эн хромосом.",
++        "tts_text": "Заросток папоротника представляет собой гаметофит — гаплоидную стадию с набором эн хромосом.",
++        "source_start": 18.297,
++        "source_end": 24.613,
++        "start": 25.897,
++        "end": 32.213
++      },
++      {
++        "id": "step-2",
++        "kind": "solution",
++        "step_id": "step-2",
++        "text": "При митозе число хромосом не изменяется. Из клетки заростка с набором эн образуется яйцеклетка с тем же набором эн. Яйцеклетка содержит двадцать шесть хромосом, значит клетка заростка тоже содержит двадцать шесть хромосом. Ответ: 26.",
++        "tts_text": "При митозе число хромосом не изменяется. Из клетки заростка с набором эн образуется яйцеклетка с тем же набором эн. Яйцеклетка содержит двадцать шесть хромосом, значит клетка заростка тоже содержит двадцать шесть хромосом. Ответ: двадцать шесть.",
++        "source_start": 24.938,
++        "source_end": 43.282,
++        "start": 32.538,
++        "end": 50.882
++      },
++      {
++        "id": "cta",
++        "kind": "cta",
++        "text": "Ссылка на ЕГЭ Тренажёр в шапке профиля.",
++        "tts_text": "Ссылка на егэ Тренажёр в шапке профиля.",
++        "source_start": 43.526,
++        "source_end": 46.324,
++        "start": 51.126,
++        "end": 53.924
++      }
++    ]
++  },
++  "cues": {
++    "known": {
++      "segment_id": "task",
++      "quote": "двадцать шесть хромосом",
++      "source_start": 10.019,
++      "source_end": 11.494,
++      "start": 12.019,
++      "end": 13.494
++    },
++    "mitosis": {
++      "segment_id": "step-2",
++      "quote": "При митозе число хромосом не изменяется.",
++      "source_start": 24.938,
++      "source_end": 27.69,
++      "start": 32.538,
++      "end": 35.29
++    },
++    "answer": {
++      "segment_id": "step-2",
++      "quote": "Ответ: двадцать шесть.",
++      "source_start": 41.599,
++      "source_end": 43.282,
++      "start": 49.199,
++      "end": 50.882
++    }
++  }
++}
+diff --git a/experiments/vessels-3d/bio/lessons/scene.mjs b/experiments/vessels-3d/bio/lessons/scene.mjs
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/lessons/scene.mjs
+@@ -0,0 +1,172 @@
++// Reuses the frozen approved renderer, materials, logo choreography and CSS.
++// New semantic family only; no factory integration or publication.
++import * as THREE from 'three';
++import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
++import {createLogo3d} from '../../ru/logo3d.js';
++import {validateLesson} from './contract.mjs';
++const W = 1080, H = 1920;
++const $ = (id) => document.getElementById(id);
++const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
++const seg = (t, a, b) => clamp((t - a) / (b - a));
++const lerp = (a, b, k) => a + (b - a) * k;
++const eOut = (k) => 1 - Math.pow(1 - k, 3);
++const eIO = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
++const eBack = (k) => { const c1 = 1.70158, c3 = c1 + 1; return k <= 0 ? 0 : 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
++const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
++const fadeIO = (t, a0, a1, b0, b1) => seg(t, a0, a1) * (1 - seg(t, b0, b1));
++
++const response=await fetch('/experiments/vessels-3d/bio/lessons/job.json');
++if(!response.ok)throw new Error('Missing lesson job');
++const job=validateLesson(await response.json()), tl=job.timeline;
++const S=Object.fromEntries(tl.segments.map(s=>[s.id,s]));
++const T={cta:S.cta.start};
++window.DURATION=tl.total;
++await Promise.all(['700 40px "Unbounded"','800 40px "Unbounded"','500 40px "Onest"','800 40px "Onest"','600 40px "JB"'].map(f=>document.fonts.load(f,'АаЯя0')));
++// ---------------------------------------------------------------- 3D world
++const canvas = $("world");
++const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
++renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.setClearColor(0x000000, 0);
++renderer.toneMapping = THREE.NeutralToneMapping;
++const scene = new THREE.Scene();
++const pmrem = new THREE.PMREMGenerator(renderer);
++scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture;
++scene.environmentIntensity = 0.85;
++scene.add(new THREE.AmbientLight(0xffffff, 0.15));
++const key = new THREE.DirectionalLight(0xffffff, 1.2); key.position.set(-5, 7, 9); scene.add(key);
++const rim = new THREE.DirectionalLight(0xd8ffb0, 1.0); rim.position.set(6, 2, -5); scene.add(rim);
++const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 200);
++const CAMZ = 9.6 / Math.tan((15 * Math.PI) / 180); // 1 world unit = 100 px on the z=0 plane
++const wx = (x) => (x - 540) / 100, wy = (y) => -(y - 960) / 100;
++
++const phys = (o) => new THREE.MeshPhysicalMaterial({ roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.08, transparent: true, ...o });
++
++// ---------------------------------------------------------------- 3D logo (same as the math and Russian videos)
++const logoTex = await new THREE.TextureLoader().loadAsync("/experiments/vessels-3d/ru/logo.png");
++logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 8;
++const logo3d = createLogo3d(logoTex, 4.2, 1);
++const lctx = $("logoc").getContext("2d");
++const PW_MAX = 12 + 80 + 22 + $("plaque").lastElementChild.getBoundingClientRect().width + 38;
++const pwOf = (tt) => lerp(104, PW_MAX, eOut(seg(tt, 2.0, 2.55)) * (1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15))));
++function logoAt(tt) {
++  const slot = { x: 540 - pwOf(tt) / 2 + 52, y: 190 };
++  const c0 = T.cta - 0.05;
++  if (tt < c0) {
++    const pop = eBack(clamp(tt / 0.6)), fly = eIO(seg(tt, 1.05, 1.95)), u = seg(tt, 0, 1.95);
++    const o = { cx: lerp(540, slot.x, fly), cy: lerp(850, slot.y, fly) - Math.sin(fly * Math.PI) * 70,
++      span: lerp(560 * lerp(0.35, 1, clamp(pop, 0, 1.15)), 80, fly),
++      rotY: eOut(u) * Math.PI * 6, rotX: Math.sin(u * Math.PI) * 0.25, rotZ: Math.sin(u * Math.PI) * -0.08, shadow: tt < 1.6 ? 1 - seg(tt, 1.0, 1.6) : 0 };
++    if (tt > 1.95) { o.rotY = Math.sin((tt - 1.95) * 0.8) * 0.12 * seg(tt, 1.95, 3); o.rotX = 0; o.rotZ = 0; }
++    return o;
++  }
++  const k = eIO(seg(tt, c0, c0 + 1.15)), settle = seg(tt, c0 + 1.3, c0 + 2);
++  return { cx: lerp(slot.x, 540, k), cy: lerp(slot.y, 860, k) - Math.sin(k * Math.PI) * 90 + Math.sin(tt * 1.5) * 10 * settle,
++    span: lerp(80, 540, k),
++    rotY: eIO(seg(tt, c0, c0 + 1.3)) * Math.PI * 4 + Math.sin(Math.max(0, tt - c0 - 1.3) * 0.9) * 0.18 + Math.sin((c0 - 1.95) * 0.8) * 0.12 * (1 - seg(tt, c0, c0 + 0.4)),
++    rotX: Math.sin(k * Math.PI) * 0.2 + Math.sin(tt * 1.1) * 0.04 * settle, rotZ: 0, shadow: seg(tt, c0 + 0.6, c0 + 1.3) };
++}
++function drawLogo(t) {
++  const c0 = T.cta - 0.05;
++  const nS = (t < 2.0 || (t > c0 - 0.1 && t < c0 + 1.35)) ? 9 : 1;
++  lctx.globalCompositeOperation = "source-over"; lctx.globalAlpha = 1; lctx.clearRect(0, 0, W, H);
++  if (nS > 1) { lctx.globalCompositeOperation = "lighter"; lctx.globalAlpha = 1 / nS; }
++  for (let i = 0; i < nS; i++) {
++    logo3d.render(logoAt(nS === 1 ? t : Math.max(0, t + (1 / 60) * (i / (nS - 1) - 0.5))));
++    lctx.drawImage(logo3d.canvas, 0, 0);
++  }
++}
++
++function show(el, o, { dy = 0, sc = 1, flex = false } = {}) {
++  css(el, { display: o <= 0.001 ? "none" : flex ? "flex" : "", opacity: o, transform: `translateY(${dy}px) scale(${sc})` });
++}
++const pop = (t, t0, d = 0.4) => { const k = seg(t, t0, t0 + d); return { o: clamp(k * 2), s: k <= 0 ? 0 : eBack(k) }; };
++function popShow(el, t, t0, tOut, extra = {}) {
++  const p = pop(t, t0), out = seg(t, tOut, tOut + 0.3);
++  show(el, p.o * (1 - out), { sc: lerp(0.85, 1, clamp(p.s, 0, 1.1)), dy: (1 - p.o) * 24 - 20 * out, ...extra });
++}
++function headline(el, o) { css(el, { display: o <= 0.001 ? "none" : "", opacity: o, transform: `translateY(${(1 - o) * 26}px)`, filter: `blur(${(1 - o) * 6}px)` }); }
++
++// Retire every protein-specific overlay. No inherited 120/360/DNA labels.
++for(const id of ['lStrip','lTpl','lDna','nBelok','cnt','lAmino','nCode','tagQ','h1','h2','h3','nOne','lOne','brk','nTrip','nGrid','calc1','calc2','lTpl2','lCmp2','tagA']) $(id).remove();
++function element(id,className,style,text='') {
++ const el=document.createElement('div');el.id=id;el.className=className;css(el,style);el.textContent=text;$('stage').appendChild(el);return el;
++}
++const heading=element('lessonHeading','a hh',{});
++const eyebrow=document.createElement('div');eyebrow.className='ey';heading.appendChild(eyebrow);
++const title=document.createElement('div');title.className='t1';heading.appendChild(title);
++const leftLabel=element('parentLabel','a lbl',{left:'55px',top:'1255px',width:'450px',textAlign:'center',whiteSpace:'normal'},job.parent_label);
++const rightLabel=element('daughterLabel','a lbl',{left:'575px',top:'1255px',width:'450px',textAlign:'center',whiteSpace:'normal'},job.daughter_label);
++const parentValue=element('parentValue','a big',{left:'55px',top:'760px',width:'450px',fontSize:'95px'},'?');
++const daughterValue=element('daughterValue','a big',{left:'575px',top:'760px',width:'450px',fontSize:'95px'},String(job.chromosomes));
++const equation=element('lessonEquation','a ctr',{top:'1430px'});
++const eqNote=document.createElement('div');eqNote.className='note';equation.appendChild(eqNote);
++const arrow=element('mitosisArrow','a big',{left:'475px',top:'1000px',width:'130px',fontSize:'100px'},'→');
++const caption=element('cellCaption','a lbl',{left:'100px',top:'1350px',width:'880px',whiteSpace:'normal',textAlign:'center'},'Показана одна дочерняя клетка');
++$('cond').textContent=job.condition_text;
++$('dots').replaceChildren(...Array.from({length:3},()=>document.createElement('i')));
++const dots=[...$('dots').children];
++const conditionHeight=$('cond').getBoundingClientRect().height;
++const timerTop=Math.max(920,420+conditionHeight+60);
++if(timerTop+196>1700)throw new Error('Condition needs pagination before rendering');
++$('timer').style.top=timerTop+'px';
++// Exact count: every capsule is one single-chromatid chromosome. No sampling.
++const chromosomeMat=phys({color:'#B8F25A',emissive:0x0b2a12,envMapIntensity:1.1});
++const chromosomeGeometry=new THREE.CapsuleGeometry(.07,.25,8,16);
++const cols=Math.ceil(Math.sqrt(job.chromosomes*1.2)),rows=Math.ceil(job.chromosomes/cols);
++const spacing=Math.min(.52,2.6/Math.max(1,cols-1),2.6/Math.max(1,rows-1));
++function cell() {
++ const group=new THREE.Group();
++ const membrane=new THREE.Mesh(new THREE.TorusGeometry(2.06,.045,12,100),phys({color:'#2FA866',emissive:0x08200d}));
++ group.add(membrane);
++ const chromosomes=new THREE.InstancedMesh(chromosomeGeometry,chromosomeMat,job.chromosomes);
++ const dummy=new THREE.Object3D();
++ for(let i=0;i<job.chromosomes;i++){
++  dummy.position.set(((i%cols)-(cols-1)/2)*spacing,-(Math.floor(i/cols)-(rows-1)/2)*spacing,0);
++  dummy.rotation.z=Math.sin(i*2.399)*.25;dummy.updateMatrix();chromosomes.setMatrixAt(i,dummy.matrix);
++ }
++ chromosomes.instanceMatrix.needsUpdate=true;group.add(chromosomes);scene.add(group);return {group,chromosomes};
++}
++const parent=cell(),daughter=cell();
++function renderFrame(t) {
++ const active=t>=S['step-1'].start&&t<T.cta;
++ const second=t>=S['step-2'].start;
++ const answered=t>=job.cues.answer.start;
++ const gx=540+Math.sin(t*.23)*160,gy=1000+Math.cos(t*.31)*120;
++ css($('glow'),{transform:`translate(${gx-550}px,${gy-550}px)`,opacity:.85+.15*Math.sin(t*.9)});
++ const mask=`radial-gradient(720px 900px at ${gx}px ${gy}px, #000 0%, rgba(0,0,0,0.35) 55%, transparent 82%)`;
++ css($('pat'),{webkitMaskImage:mask,maskImage:mask,opacity:.85+.15*Math.sin(t*1.3)});
++ const pw=pwOf(t),pv=seg(t,1.85,2)*(1-seg(t,T.cta+.1,T.cta+.25));
++ css($('plaque'),{width:pw+'px',left:540-pw/2+'px',opacity:pv,display:pv<=0?'none':''});
++ $('plaque').lastElementChild.style.opacity=eOut(seg(t,2.3,2.75))*(1-seg(t,T.cta-.4,T.cta-.1));drawLogo(t);
++ const st=active?(second?2:1):0;
++ css($('dots'),{opacity:seg(t,1.9,2.4)*(1-seg(t,T.cta-.3,T.cta+.2))});
++ dots.forEach((d,i)=>css(d,{width:i===st?'46px':'14px',background:i===st?'#C6FF4D':'rgba(255,255,255,0.22)'}));
++ const p=tl.pause,exit=eIO(seg(t,p.end-.3,p.end+.15));
++ show($('cond'),seg(t,S.task.start,S.task.start+.4)*(1-exit),{dy:-160*exit});
++ const tp=pop(t,p.start+.95,.45);show($('timer'),tp.o*(1-exit),{dy:(1-tp.o)*60-160*exit,sc:lerp(.9,1,tp.o),flex:true});
++ const rem=clamp(4-(t-(p.start+1.3)),0,4);$('tnum').textContent=String(Math.max(1,Math.ceil(rem-1e-6)));
++ $('arc').setAttribute('stroke-dashoffset',String(540.4*(1-rem/4)));
++ eyebrow.textContent=second?'Шаг 2 из 2':'Шаг 1 из 2';title.textContent=second?'Митоз сохраняет набор':'Гаплоидный набор';
++ headline(heading,active?seg(t,second?S['step-2'].start:S['step-1'].start,(second?S['step-2'].start:S['step-1'].start)+.4)*(1-seg(t,T.cta-.5,T.cta-.1)):0);
++ const enter=eOut(seg(t,S['step-1'].start+.3,S['step-1'].start+.8));
++ const fade=active?enter*(1-seg(t,T.cta-.5,T.cta-.1)):0;
++ parent.group.visible=active;daughter.group.visible=active;
++ parent.group.position.set(wx(280),wy(1050),0);daughter.group.position.set(wx(800),wy(1050),0);
++ for(const obj of [parent,daughter]){obj.group.scale.setScalar(.9+.1*enter);obj.group.rotation.y=Math.sin(t*.45)*.1;}
++ parent.chromosomes.visible=answered;daughter.chromosomes.visible=active;
++ chromosomeMat.opacity=fade;
++ parentValue.textContent=answered?String(job.answer):second?'n':'?';
++ daughterValue.textContent=second?String(job.chromosomes):`n = ${job.chromosomes}`;
++ for(const el of [leftLabel,rightLabel,parentValue,daughterValue])show(el,fade);
++ show(arrow,second?fade*seg(t,job.cues.mitosis.start,job.cues.mitosis.start+.4):0);
++ show(caption,second?fade:0);
++ eqNote.textContent=answered?`${job.chromosomes} = ${job.answer}`:second?'Число хромосом не меняется':'n — один набор хромосом';
++ show(equation,fade,{sc:answered?1+.08*(1-seg(t,job.cues.answer.start,job.cues.answer.start+.45)):1,flex:true});
++ camera.position.set(0,0,CAMZ);camera.lookAt(0,0,0);renderer.render(scene,camera);
++ headline($('h4'),seg(t,T.cta+1,T.cta+1.5));
++ const c1=pop(t,T.cta+2.1,.45),c2=pop(t,T.cta+2.6,.45);
++ show($('cta1'),c1.o,{dy:(1-c1.o)*40,sc:lerp(.9,1,c1.o),flex:true});show($('cta2'),c2.o,{dy:(1-c2.o)*40,sc:lerp(.9,1,c2.o),flex:true});
++ window.LESSON_STATE={time:t,parent_count:parent.chromosomes.visible&&parent.group.visible?parent.chromosomes.count:0,daughter_count:daughter.chromosomes.visible&&daughter.group.visible?daughter.chromosomes.count:0,answer_visible:answered&&active};
++}
++window.renderFrame=renderFrame;
++window.CANDIDATE_INFO={version:job.version,task_id:tl.task_id,fps:60,scene_family:job.scene_family};
++renderFrame(0);window.ready=true;
+diff --git a/experiments/vessels-3d/bio/lessons/visual-check.mjs b/experiments/vessels-3d/bio/lessons/visual-check.mjs
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/lessons/visual-check.mjs
+@@ -0,0 +1,40 @@
++// Rendered layout and answer-reveal checks. No external network or publishing.
++import http from 'node:http';
++import fs from 'node:fs/promises';
++import path from 'node:path';
++import {fileURLToPath} from 'node:url';
++import assert from 'node:assert/strict';
++import {chromium} from 'playwright';
++const here=path.dirname(fileURLToPath(import.meta.url)),root=path.resolve(here,'../../../..');
++const job=JSON.parse(await fs.readFile(path.join(here,'job.json'),'utf8'));
++const out=path.join(here,'out');await fs.mkdir(out,{recursive:true});
++const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.ttf':'font/ttf','.png':'image/png'};
++const server=http.createServer(async(req,res)=>{try{const file=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]));if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});res.end(await fs.readFile(file));}catch{res.writeHead(404).end();}});
++await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
++try{
++ browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-color-profile=srgb','--hide-scrollbars']});
++ const page=await browser.newPage({viewport:{width:1080,height:1920},deviceScaleFactor:1});const errors=[];
++ page.on('pageerror',e=>errors.push(e.message));
++ await page.goto(`http://127.0.0.1:${server.address().port}/experiments/vessels-3d/bio/lessons/index.html`);
++ await page.waitForFunction(()=>window.ready===true,null,{timeout:30000});
++ const times=[0,4,12,22,27,34,job.cues.answer.start-.01,job.cues.answer.start+.6,53];
++ const results=[];
++ for(const t of times){
++  await page.evaluate(t=>window.renderFrame(t),t);
++  const state=await page.evaluate(()=>window.LESSON_STATE);
++  if(t<job.cues.answer.start)assert.equal(state.answer_visible,false,'answer appeared before spoken cue');
++  if(t>job.cues.answer.start&&t<job.timeline.segments.at(-1).start){assert.equal(state.parent_count,26);assert.equal(state.daughter_count,26);}
++  const overflow=await page.evaluate(()=>Array.from(document.querySelectorAll('#cond,#lessonHeading,#parentLabel,#daughterLabel,#parentValue,#daughterValue,#lessonEquation,#cellCaption,#timer')).flatMap(el=>{
++   const s=getComputedStyle(el);if(s.display==='none'||Number(s.opacity)<.1)return [];
++   const range=document.createRange();range.selectNodeContents(el);const r=range.getBoundingClientRect();
++   return r.left<35||r.right>1045||r.top<300||r.bottom>1730?[{id:el.id,left:r.left,right:r.right,top:r.top,bottom:r.bottom}]:[];
++  }));
++  assert.deepEqual(overflow,[],`visible text overflow at ${t}`);
++  await page.screenshot({path:path.join(out,`mitosis-${t}.png`)});results.push({t,...state});
++ }
++ await page.evaluate(()=>{window.renderFrame(50);window.renderFrame(34);});
++ assert.equal(await page.locator('#parentValue').textContent(),'n','backward seek leaked numeric answer');
++ assert.deepEqual(errors,[]);
++ await fs.writeFile(path.join(out,'report.json'),JSON.stringify({passed:true,results,errors},null,2));
++ console.log(JSON.stringify({mitosis_render_checks_passed:true,frames:results.length,answer_start:job.cues.answer.start}));
++}finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}
+diff --git a/approved-adapter/README.md b/approved-adapter/README.md
+new file mode 100644
+--- /dev/null
++++ b/approved-adapter/README.md
+@@ -0,0 +1,50 @@
++# Approved biology adapter — isolated validation only
++
++This branch is based on production `biology-3`; it does not modify its render
++workflow, n8n, schedules, account, histories or locks. `candidate.patch` adds
++files to an immutable checkout of approved design commit
++`2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8` in a read-only CI job.
++
++Implemented candidate families:
++- Protein coding nucleotides in one template DNA strand, 1..240 amino acids.
++- Chromosome number conserved by mitosis, 1..120 chromosomes, a two-step lesson.
++
++The mitosis preview uses the condition and measured timing from a previously
++successful job, with identifiers removed. The source audio and n8n exports are
++NOT in this public patch. Its original voice was checked locally. No new TTS
++request was made. The preview is not a universally supported factory input.
++
++`elevenlabs-timeline.mjs` validates character alignment against the exact TTS
++transcript and existing segment boundaries. It provides exact phrase cues and
++inserts 2 seconds before speech plus 5.6 seconds within the measured gap after
++the condition. Playback stays 1x. Ambiguous repeated phrases, mismatched audio,
++wrong scope and durations exceeding 90 seconds stop processing.
++
++`prepare-audio.mjs timeline.json voice.mp3 output.wav` checks the source hash,
++decodes once, and preserves every PCM sample while inserting digital silence.
++It creates a manifest; there is no network operation, paid synthesis or upload.
++This is a voice preparation stage; the general sound-effects mixer is not yet
++implemented for the mitosis family.
++
++## Validation
++
++Run `node --test approved-adapter/*.test.mjs` for timing/sample checks.
++The CI workflow also checks frozen reference assets, original sound mix,
++17 full-resolution frames, and rendered mitosis layout/reveal/backward seek.
++
++Chromium may differ by one 8-bit channel level on a few pixels even when
++rendering two identical copies of the frozen source. The image gate records
++raw PNG equality and pixel statistics separately. It permits at most 0.01%
++of pixels to differ by at most 1 level, ONLY when the same-source control
++frame itself exhibits bounded rounding noise. Larger differences always fail.
++This is visual equivalence within a stated numerical tolerance, not a claim
++that all PNGs are byte-identical.
++
++## Not deployed
++
++The new scene needs human visual inspection of its rendered evidence before
++production use. Additional families (meiosis, endosperm, ATP, nucleotide
++percentages/mass) and automatic verified semantic scene selection remain to
++be implemented. Do not route arbitrary biology tasks to these two families.
++The production dispatch, callback, formatter and pacing guards are unchanged.
++Do not merge the entire experimental design branch into production.
 diff --git a/approved-adapter/elevenlabs-timeline.mjs b/approved-adapter/elevenlabs-timeline.mjs
 new file mode 100644
 --- /dev/null
