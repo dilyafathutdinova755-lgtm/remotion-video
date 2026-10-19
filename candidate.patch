@@ -1348,11 +1348,32 @@ new file mode 100644
 +    print('Reference fidelity gate PASSED; exact and rounding-limited frames are reported separately')
 +
 +if __name__=='__main__':main()
+diff --git a/experiments/vessels-3d/bio/dynamic/test_compare_frames.py b/experiments/vessels-3d/bio/dynamic/test_compare_frames.py
+new file mode 100644
+--- /dev/null
++++ b/experiments/vessels-3d/bio/dynamic/test_compare_frames.py
+@@ -0,0 +1,16 @@
++import importlib.util
++import unittest
++from pathlib import Path
++spec=importlib.util.spec_from_file_location('compare_frames',Path(__file__).with_name('compare-frames.py'))
++module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
++
++def d(count,delta):return {'changed_pixels':count,'max_channel_delta':delta}
++
++class PixelGateTests(unittest.TestCase):
++    def test_exact_pixels_pass(self):self.assertTrue(module.acceptable(d(0,0),d(0,0),2073600))
++    def test_measured_rounding_with_control_passes(self):self.assertTrue(module.acceptable(d(122,1),d(27,1),2073600))
++    def test_no_control_noise_fails(self):self.assertFalse(module.acceptable(d(122,1),d(0,0),2073600))
++    def test_two_level_change_fails(self):self.assertFalse(module.acceptable(d(1,2),d(27,1),2073600))
++    def test_excess_area_fails(self):self.assertFalse(module.acceptable(d(208,1),d(27,1),2073600))
++
++if __name__=='__main__':unittest.main()
 diff --git a/experiments/vessels-3d/bio/lessons/contract.mjs b/experiments/vessels-3d/bio/lessons/contract.mjs
 new file mode 100644
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/lessons/contract.mjs
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,24 @@
 +// Bounded semantic scene: chromosome number is conserved by mitosis.
 +export function validateLesson(job) {
 + const stop=m=>{throw new Error('BIO_LESSON_STOP: '+m);};
@@ -1360,7 +1381,9 @@ new file mode 100644
 + if(job.scope!=='ege_biology_3'||job.account!=='ege_biology'||job.playback_speed!==1||job.render_fps!==60)stop('scope/pacing mismatch');
 + if(!Number.isSafeInteger(job.chromosomes)||job.chromosomes<1||job.chromosomes>120||job.answer!==job.chromosomes)stop('mitosis must conserve chromosome count, 1..120');
 + for(const key of ['condition_text','parent_label','daughter_label'])if(typeof job[key]!=='string'||!job[key].trim()||job[key].length>(key==='condition_text'?700:40))stop('invalid '+key);
-+ if(!/митоз/iu.test(job.condition_text))stop('condition must explicitly identify mitosis');
++ if(!/митоз/iu.test(job.condition_text)||job.ploidy!==1||!/заростк/iu.test(job.condition_text)||!/папоротник/iu.test(job.condition_text)||!/яйцеклетк/iu.test(job.condition_text))stop('this preview supports haploid fern gametophyte mitosis only');
++ const known=job.condition_text.match(/содержащ[а-яё]*\s+(\d+)\s+хромосом/iu);
++ if(!known||Number(known[1])!==job.chromosomes||!/сколько хромосом содержит клетка заростка/iu.test(job.condition_text))stop('unrecognized given quantity or target');
 + const tl=job.timeline;
 + if(!tl||tl.version!=='bio-measured-timeline-v1'||tl.playback_speed!==1||!Number.isFinite(tl.total)||tl.total>90)stop('measured timeline required');
 + if(tl.segments?.map(s=>s.id).join(',')!=='intro,task,step-1,step-2,cta')stop('two-step lesson required');
@@ -1389,7 +1412,7 @@ new file mode 100644
 + const job=validateLesson(fixture());assert.equal(job.answer,26);assert.equal(job.cues.answer.start,49.199);
 +});
 +for(const [name,change] of [
-+ ['different answer',j=>j.answer=52],['oversized count',j=>{j.chromosomes=121;j.answer=121;}],
++ ['different answer',j=>j.answer=52],['wrong ploidy',j=>j.ploidy=2],['stale source quantity',j=>{j.chromosomes=30;j.answer=30;}],['oversized count',j=>{j.chromosomes=121;j.answer=121;}],
 + ['different biological process',j=>j.condition_text=j.condition_text.replace('митоза','мейоза')],
 + ['answer shown before explanation',j=>j.cues.answer.start=0],
 + ['changed scope',j=>j.scope='ege_russian'],['speedup',j=>j.playback_speed=1.2],
@@ -1510,7 +1533,7 @@ diff --git a/experiments/vessels-3d/bio/lessons/job.json b/experiments/vessels-3
 new file mode 100644
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/lessons/job.json
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,114 @@
 +{
 +  "version": "bio-mitosis-lesson-v1",
 +  "scene_family": "mitosis-chromosome-count",
@@ -1622,7 +1645,8 @@ new file mode 100644
 +      "start": 49.199,
 +      "end": 50.882
 +    }
-+  }
++  },
++  "ploidy": 1
 +}
 diff --git a/experiments/vessels-3d/bio/lessons/scene.mjs b/experiments/vessels-3d/bio/lessons/scene.mjs
 new file mode 100644
@@ -1850,7 +1874,7 @@ diff --git a/approved-adapter/README.md b/approved-adapter/README.md
 new file mode 100644
 --- /dev/null
 +++ b/approved-adapter/README.md
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,51 @@
 +# Approved biology adapter — isolated validation only
 +
 +This branch is based on production `biology-3`; it does not modify its render
@@ -1860,7 +1884,8 @@ new file mode 100644
 +
 +Implemented candidate families:
 +- Protein coding nucleotides in one template DNA strand, 1..240 amino acids.
-+- Chromosome number conserved by mitosis, 1..120 chromosomes, a two-step lesson.
++- Chromosome number conserved by mitosis in a haploid fern gametophyte,
++  1..120 chromosomes, a two-step lesson. Other tissues/ploidies are rejected.
 +
 +The mitosis preview uses the condition and measured timing from a previously
 +successful job, with identifiers removed. The source audio and n8n exports are
