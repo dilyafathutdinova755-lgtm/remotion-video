@@ -1,36 +1,5 @@
-From af7bf1f5288a50146e15af3be03e380eb727a624 Mon Sep 17 00:00:00 2001
-From: Codex <codex@openai.com>
-Date: Mon, 19 Oct 2026 19:59:23 +0200
-Subject: [PATCH] Prepare isolated candidate adapter for approved biology scene
-
----
- experiments/vessels-3d/bio/dynamic/.gitignore |   4 +
- experiments/vessels-3d/bio/dynamic/README.md  | 111 +++++
- .../vessels-3d/bio/dynamic/VALIDATION.md      |  28 ++
- .../vessels-3d/bio/dynamic/contract.mjs       |  98 +++++
- .../vessels-3d/bio/dynamic/contract.test.mjs  |  44 ++
- experiments/vessels-3d/bio/dynamic/index.html | 106 +++++
- .../vessels-3d/bio/dynamic/make_mix.py        | 239 +++++++++++
- .../vessels-3d/bio/dynamic/prepare-job.mjs    |  31 ++
- .../bio/dynamic/render-candidate.mjs          | 135 ++++++
- experiments/vessels-3d/bio/dynamic/scene.mjs  | 387 ++++++++++++++++++
- .../bio/dynamic/visual-regression.mjs         |  56 +++
- 11 files changed, 1239 insertions(+)
- create mode 100644 experiments/vessels-3d/bio/dynamic/.gitignore
- create mode 100644 experiments/vessels-3d/bio/dynamic/README.md
- create mode 100644 experiments/vessels-3d/bio/dynamic/VALIDATION.md
- create mode 100644 experiments/vessels-3d/bio/dynamic/contract.mjs
- create mode 100644 experiments/vessels-3d/bio/dynamic/contract.test.mjs
- create mode 100644 experiments/vessels-3d/bio/dynamic/index.html
- create mode 100644 experiments/vessels-3d/bio/dynamic/make_mix.py
- create mode 100644 experiments/vessels-3d/bio/dynamic/prepare-job.mjs
- create mode 100644 experiments/vessels-3d/bio/dynamic/render-candidate.mjs
- create mode 100644 experiments/vessels-3d/bio/dynamic/scene.mjs
- create mode 100644 experiments/vessels-3d/bio/dynamic/visual-regression.mjs
-
 diff --git a/experiments/vessels-3d/bio/dynamic/.gitignore b/experiments/vessels-3d/bio/dynamic/.gitignore
 new file mode 100644
-index 0000000..7a7270c
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/.gitignore
 @@ -0,0 +1,4 @@
@@ -40,7 +9,6 @@ index 0000000..7a7270c
 +/__pycache__/
 diff --git a/experiments/vessels-3d/bio/dynamic/README.md b/experiments/vessels-3d/bio/dynamic/README.md
 new file mode 100644
-index 0000000..07e8249
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/README.md
 @@ -0,0 +1,111 @@
@@ -157,7 +125,6 @@ index 0000000..07e8249
 +integration-ветку от актуального production. Секреты не копировать.
 diff --git a/experiments/vessels-3d/bio/dynamic/VALIDATION.md b/experiments/vessels-3d/bio/dynamic/VALIDATION.md
 new file mode 100644
-index 0000000..ec9f95f
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/VALIDATION.md
 @@ -0,0 +1,28 @@
@@ -191,7 +158,6 @@ index 0000000..ec9f95f
 +Дальнейшие необходимые действия и ограничения перечислены в README.md.
 diff --git a/experiments/vessels-3d/bio/dynamic/contract.mjs b/experiments/vessels-3d/bio/dynamic/contract.mjs
 new file mode 100644
-index 0000000..b293fc5
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/contract.mjs
 @@ -0,0 +1,98 @@
@@ -295,7 +261,6 @@ index 0000000..b293fc5
 +}
 diff --git a/experiments/vessels-3d/bio/dynamic/contract.test.mjs b/experiments/vessels-3d/bio/dynamic/contract.test.mjs
 new file mode 100644
-index 0000000..f0caf24
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/contract.test.mjs
 @@ -0,0 +1,44 @@
@@ -345,7 +310,6 @@ index 0000000..f0caf24
 +});
 diff --git a/experiments/vessels-3d/bio/dynamic/index.html b/experiments/vessels-3d/bio/dynamic/index.html
 new file mode 100644
-index 0000000..7b15044
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/index.html
 @@ -0,0 +1,106 @@
@@ -457,7 +421,6 @@ index 0000000..7b15044
 +</html>
 diff --git a/experiments/vessels-3d/bio/dynamic/make_mix.py b/experiments/vessels-3d/bio/dynamic/make_mix.py
 new file mode 100644
-index 0000000..7f7a3b0
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/make_mix.py
 @@ -0,0 +1,239 @@
@@ -702,7 +665,6 @@ index 0000000..7f7a3b0
 +print("out/final.wav", round(len(final) / SR, 3), "s")
 diff --git a/experiments/vessels-3d/bio/dynamic/prepare-job.mjs b/experiments/vessels-3d/bio/dynamic/prepare-job.mjs
 new file mode 100644
-index 0000000..7989487
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/prepare-job.mjs
 @@ -0,0 +1,31 @@
@@ -739,7 +701,6 @@ index 0000000..7989487
 +console.log(JSON.stringify({candidate:true,reference_only:reference,task_id:job.task_id,audio_sha256:sha256,duration}));
 diff --git a/experiments/vessels-3d/bio/dynamic/render-candidate.mjs b/experiments/vessels-3d/bio/dynamic/render-candidate.mjs
 new file mode 100644
-index 0000000..e9e9bd9
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/render-candidate.mjs
 @@ -0,0 +1,135 @@
@@ -880,7 +841,6 @@ index 0000000..e9e9bd9
 +srv.close();
 diff --git a/experiments/vessels-3d/bio/dynamic/scene.mjs b/experiments/vessels-3d/bio/dynamic/scene.mjs
 new file mode 100644
-index 0000000..28ae2f5
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/scene.mjs
 @@ -0,0 +1,387 @@
@@ -1273,10 +1233,9 @@ index 0000000..28ae2f5
 +window.ready = true;
 diff --git a/experiments/vessels-3d/bio/dynamic/visual-regression.mjs b/experiments/vessels-3d/bio/dynamic/visual-regression.mjs
 new file mode 100644
-index 0000000..02312f8
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/dynamic/visual-regression.mjs
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,61 @@
 +// Local app rendering test only. Never connects to n8n or GitHub APIs.
 +import http from 'node:http';
 +import fs from 'node:fs/promises';
@@ -1304,7 +1263,7 @@ index 0000000..02312f8
 +  args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-color-profile=srgb','--hide-scrollbars']});
 + const pages=[];
 + const errors=[];
-+ for(const pagePath of ['bio/index.html','bio/dynamic/index.html']) {
++ for(const pagePath of ['bio/index.html','bio/dynamic/index.html','bio/index.html']) {
 +  const page=await browser.newPage({viewport:{width:1080,height:1920},deviceScaleFactor:1});
 +  page.on('pageerror',e=>errors.push(pagePath+': '+e.message));
 +  await page.goto(`http://127.0.0.1:${server.address().port}/experiments/vessels-3d/${pagePath}`);
@@ -1315,12 +1274,17 @@ index 0000000..02312f8
 + for(const t of times) {
 +  const shots=[];
 +  for(let i=0;i<pages.length;i++) {
++   await pages[i].bringToFront();
 +   await pages[i].evaluate(t=>window.renderFrame(t),t);
++   await pages[i].evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 +   const bytes=await pages[i].screenshot();shots.push(bytes);
-+   await fs.writeFile(path.join(out,`${i===0?'approved':'candidate'}-${t}.png`),bytes);
++   await fs.writeFile(path.join(out,`${['approved','candidate','control'][i]}-${t}.png`),bytes);
 +  }
-+  const same=shots[0].equals(shots[1]);results.push({t,identical_png:same});
-+  console.log(JSON.stringify({t,identical_png:same}));
++  const result={t,identical_png:shots[0].equals(shots[1]),control_identical:shots[0].equals(shots[2])};
++  results.push(result); console.log(JSON.stringify(result));
++  if (!result.identical_png) {
++   for(let i=0;i<pages.length;i++) console.log(JSON.stringify({t,page:i,layout:await pages[i].evaluate(()=>['calc2','nTrip'].map(id=>{const el=document.getElementById(id),s=getComputedStyle(el);return {id,text:el.textContent,rect:el.getBoundingClientRect().toJSON(),font:s.font,transform:s.transform,opacity:s.opacity};}))}));
++  }
 + }
 + // Seeking backwards must not retain the already-revealed answer.
 + await pages[1].evaluate(()=>{window.renderFrame(36);window.renderFrame(30);});
@@ -1333,6 +1297,212 @@ index 0000000..02312f8
 +} finally {
 + if(browser) await browser.close();await new Promise(r=>server.close(r));
 +}
--- 
-2.51.1
-
+diff --git a/approved-adapter/elevenlabs-timeline.mjs b/approved-adapter/elevenlabs-timeline.mjs
+new file mode 100644
+--- /dev/null
++++ b/approved-adapter/elevenlabs-timeline.mjs
+@@ -0,0 +1,84 @@
++// Offline bridge for the approved Three.js design. Does not dispatch or publish.
++import {createHash} from 'node:crypto';
++const stop = message => { throw new Error(`BIO_TIMING_STOP: ${message}`); };
++const finite = n => typeof n === 'number' && Number.isFinite(n);
++const round = n => Math.round(n * 1e6) / 1e6;
++const spoken = s => /[\p{L}\p{N}]/u.test(s);
++
++export function buildMeasuredTimeline({payload, alignment, audioBytes, audioDuration}) {
++  if (!payload || payload.exam !== 'ЕГЭ' || !/биолог/iu.test(payload.subject || '')
++    || payload.task_number !== 3 || payload.scope !== 'ege_biology_3' || payload.account !== 'ege_biology') stop('wrong factory scope');
++  if (typeof payload.id !== 'string' || !payload.id || !payload.condition_text?.trim()) stop('missing task identity/condition');
++  if (!(audioBytes instanceof Uint8Array) || audioBytes.length < 1000 || !finite(audioDuration) || audioDuration <= 0) stop('audio bytes/duration required');
++  const segments = payload.narration_segments;
++  const steps = payload.solution_steps;
++  if (!Array.isArray(steps) || steps.length < 1 || steps.length > 4 || !Array.isArray(segments)) stop('invalid solution structure');
++  const ids = ['intro', 'task', ...steps.map((s,i) => `step-${i+1}`), 'cta'];
++  if (segments.map(s => s.id).join(',') !== ids.join(',') || steps.some((s,i) => s.id !== ids[i+2])) stop('segment identity/order mismatch');
++  if (segments.some(s => typeof s.tts_text !== 'string' || !s.tts_text.trim())) stop('missing actual TTS text');
++  const transcript = segments.map(s => s.tts_text).join('\n\n');
++  if (transcript !== payload.voiceover_tts_text) stop('segments do not reconstruct exact submitted transcript');
++  const chars = alignment?.characters, starts = alignment?.character_start_times_seconds, ends = alignment?.character_end_times_seconds;
++  if (!Array.isArray(chars) || !chars.length || !Array.isArray(starts) || !Array.isArray(ends)
++    || chars.length !== starts.length || chars.length !== ends.length || chars.join('') !== transcript) stop('alignment transcript/array mismatch');
++  let offset = 0;
++  const ranges = chars.map((char,i) => {
++    if (typeof char !== 'string' || !char.length || !finite(starts[i]) || !finite(ends[i]) || starts[i] < 0
++      || ends[i] < starts[i] || ends[i] > audioDuration + .08 || (i && (starts[i] < starts[i-1] || ends[i] < ends[i-1]))) stop(`invalid character timing ${i}`);
++    const range = {from:offset,to:offset+char.length,index:i}; offset += char.length; return range;
++  });
++  const measure = (from,to) => {
++    const matching = ranges.filter(r => r.from >= from && r.to <= to && spoken(chars[r.index]));
++    if (!matching.length || !ranges.some(r => r.from === from) || !ranges.some(r => r.to === to)) stop('text range does not align to characters');
++    const start = starts[matching[0].index], end = ends[matching.at(-1).index];
++    if (end <= start) stop('empty spoken interval');
++    return {start,end};
++  };
++  let cursor = 0;
++  const measured = segments.map((s,i) => {
++    const from = cursor, to = from+s.tts_text.length;
++    const interval = measure(from,to); cursor = to+(i===segments.length-1?0:2);
++    return {...s,source_start:interval.start,source_end:interval.end,from,to};
++  });
++  for (let i=1;i<measured.length;i++) if (measured[i].source_start < measured[i-1].source_end) stop('overlapping spoken segments');
++  // Verify the existing factory timing instead of trusting a provenance label.
++  const existing = payload.narration_timing;
++  if (existing?.source !== 'elevenlabs-character-alignment-v1' || existing.segments?.length !== measured.length) stop('missing factory timing');
++  measured.forEach((s,i) => {
++    const old = existing.segments[i];
++    if (old.id !== s.id || old.tts_text !== s.tts_text || !finite(old.start_sec) || !finite(old.end_sec)
++      || Math.abs(old.start_sec-s.source_start) > .002 || Math.abs(old.end_sec-s.source_end) > .002) stop(`factory timing disagrees for ${s.id}`);
++  });
++  // Insert silence inside the measured gap; never trim, resynthesise or stretch speech.
++  const introSeconds = 2, pauseSeconds = 5.6;
++  const pauseSource = (measured[1].source_end + measured[2].source_start)/2;
++  if (measured[2].source_start-measured[1].source_end < .02) stop('no safe gap after condition for pause insertion');
++  const videoTime = time => round(time+introSeconds+(time >= pauseSource ? pauseSeconds : 0));
++  const ctaStart = videoTime(measured.at(-1).source_start);
++  const total = round(Math.max(audioDuration+introSeconds+pauseSeconds+.6, ctaStart+3.65));
++  if (total > 90) stop('approved pacing exceeds 90 seconds; shorten script before generating speech');
++  const timeline = {
++    version:'bio-measured-timeline-v1', task_id:payload.id,
++    playback_speed:1, render_fps:60, intro_seconds:introSeconds, total,
++    audio:{sha256:createHash('sha256').update(audioBytes).digest('hex'),duration_seconds:audioDuration,
++      transcript_sha256:createHash('sha256').update(transcript).digest('hex'),timing_source:'elevenlabs-character-alignment-v1'},
++    pause:{source_seconds:round(pauseSource),start:round(pauseSource+introSeconds),duration:pauseSeconds,end:round(pauseSource+introSeconds+pauseSeconds)},
++    segments:measured.map(({from,to,source_start,source_end,...s}) => ({...s,source_start,source_end,start:videoTime(source_start),end:videoTime(source_end)})),
++  };
++  // Explicit exact text anchors, not percentages of segment duration. Repeated
++  // phrases must name their occurrence so a result cannot silently appear early.
++  function cue(segmentId, quote, occurrence) {
++    const segment = measured.find(s => s.id === segmentId);
++    if (!segment || typeof quote !== 'string' || !quote.trim()) stop('invalid cue segment/quote');
++    const positions=[]; let at=0;
++    while ((at=segment.tts_text.indexOf(quote,at)) !== -1) {positions.push(at);at+=quote.length;}
++    if (!positions.length || (occurrence===undefined && positions.length!==1)
++      || (occurrence!==undefined && (!Number.isSafeInteger(occurrence) || occurrence<0 || occurrence>=positions.length))) stop('missing/ambiguous spoken cue');
++    const index=positions[occurrence ?? 0], from=segment.from+index, to=from+quote.length;
++    const before=segment.tts_text.slice(0,index).at(-1), after=segment.tts_text.slice(index+quote.length)[0];
++    if ((spoken(quote[0]) && before && spoken(before)) || (spoken(quote.at(-1)) && after && spoken(after))) stop('cue cuts through a spoken word');
++    const {start,end}=measure(from,to);
++    return {segment_id:segmentId,quote,source_start:start,source_end:end,start:videoTime(start),end:videoTime(end)};
++  }
++  return {timeline,cue};
++}
+diff --git a/approved-adapter/elevenlabs-timeline.test.mjs b/approved-adapter/elevenlabs-timeline.test.mjs
+new file mode 100644
+--- /dev/null
++++ b/approved-adapter/elevenlabs-timeline.test.mjs
+@@ -0,0 +1,53 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {buildMeasuredTimeline} from './elevenlabs-timeline.mjs';
++// Synthetic timing fixture only; never presented as generated speech.
++function fixture() {
++  const texts=['Начало.','Условие.','два плюс два. Ответ: четыре.','Конец.'];
++  const ids=['intro','task','step-1','cta'];
++  const transcript=texts.join('\n\n'), characters=Array.from(transcript);
++  const alignment={characters,character_start_times_seconds:characters.map((_,i)=>i*.1),character_end_times_seconds:characters.map((_,i)=>i*.1+.08)};
++  let cursor=0;
++  const segments=texts.map((tts_text,i)=>({id:ids[i],tts_text,kind:i===2?'solution':ids[i]}));
++  const timings=segments.map(s=>{
++    const start=cursor,end=cursor+s.tts_text.length;
++    const spokenIndices=Array.from({length:end-start},(_,i)=>start+i).filter(i=>/[\p{L}\p{N}]/u.test(characters[i]));
++    cursor=end+2;
++    return {...s,start_sec:alignment.character_start_times_seconds[spokenIndices[0]],end_sec:alignment.character_end_times_seconds[spokenIndices.at(-1)]};
++  });
++  return {payload:{id:'synthetic-timing-fixture',exam:'ЕГЭ',subject:'биология',task_number:3,scope:'ege_biology_3',account:'ege_biology',condition_text:'Условие.',solution_steps:[{id:'step-1'}],narration_segments:segments,voiceover_tts_text:transcript,narration_timing:{source:'elevenlabs-character-alignment-v1',segments:timings}},alignment,audioBytes:new Uint8Array(1000),audioDuration:characters.length*.1};
++}
++test('preserves speech intervals; inserts approved intro and pause without speed-up',()=>{
++ const f=fixture(), {timeline}=buildMeasuredTimeline(f);
++ assert.equal(timeline.playback_speed,1); assert.equal(timeline.render_fps,60);
++ assert.equal(timeline.pause.duration,5.6);
++ for(const s of timeline.segments) {
++   assert.ok(Math.abs((s.end-s.start)-(s.source_end-s.source_start))<1e-6);
++   assert.ok(Math.abs(s.start-s.source_start-(s.id==='intro'||s.id==='task'?2:7.6))<1e-6);
++ }
++});
++test('answer uses actual character time, not step start or proportional estimate',()=>{
++ const f=fixture(), {cue}=buildMeasuredTimeline(f);
++ const c=cue('step-1','Ответ: четыре.');
++ const expected=f.payload.voiceover_tts_text.indexOf('Ответ:');
++ assert.equal(c.source_start,expected*.1); assert.equal(c.start,Math.round((expected*.1+7.6)*1e6)/1e6);
++});
++test('rejects ambiguous repeated phrase; occurrence resolves explicitly',()=>{
++ const {cue}=buildMeasuredTimeline(fixture());
++ assert.throws(()=>cue('step-1','ва',0),/word/);
++ assert.throws(()=>cue('step-1','несуществующее'),/missing/);
++ assert.throws(()=>cue('step-1','два'),/ambiguous/);
++ assert.ok(cue('step-1','два',1).start > cue('step-1','два',0).end);
++});
++for(const [name,mutate] of [
++ ['other account',f=>f.payload.account='ege_russian'],
++ ['stale transcript',f=>f.payload.voiceover_tts_text+=' '],
++ ['stale alignment',f=>f.alignment.characters[0]='Х'],
++ ['fabricated factory timing',f=>f.payload.narration_timing.segments[2].start_sec+=.2],
++ ['overlapping segments',f=>f.alignment.character_start_times_seconds[20]=0],
++ ['audio too short',f=>f.audioDuration=1],
++ ['over 90 seconds',f=>f.audioDuration=90],
++ ['empty audio',f=>f.audioBytes=new Uint8Array(10)],
++ ['incorrect step identity',f=>f.payload.solution_steps[0].id='step-2'],
++ ['missing actual TTS text',f=>delete f.payload.narration_segments[1].tts_text],
++]) test('rejects '+name,()=>{const f=fixture();mutate(f);assert.throws(()=>buildMeasuredTimeline(f),/BIO_TIMING_STOP/);});
+diff --git a/approved-adapter/prepare-audio.mjs b/approved-adapter/prepare-audio.mjs
+new file mode 100644
+--- /dev/null
++++ b/approved-adapter/prepare-audio.mjs
+@@ -0,0 +1,33 @@
++#!/usr/bin/env node
++// Offline PCM assembly. Exact sample copies, with digital silence inserted.
++import fs from 'node:fs';
++import path from 'node:path';
++import {execFileSync} from 'node:child_process';
++import {createHash} from 'node:crypto';
++import {fileURLToPath} from 'node:url';
++export function assemblePcm(source,timeline,sampleRate=48000) {
++ if (!Buffer.isBuffer(source) || source.length%4 || timeline?.version!=='bio-measured-timeline-v1'
++   || timeline.playback_speed!==1 || timeline.pause?.duration!==5.6 || timeline.intro_seconds!==2
++   || !Number.isFinite(timeline.total) || timeline.total>90 || timeline.total<=0
++   || !Number.isFinite(timeline.pause.source_seconds)) throw new Error('Invalid measured PCM timeline');
++ const intro=Math.round(timeline.intro_seconds*sampleRate)*4;
++ const pause=Math.round(timeline.pause.duration*sampleRate)*4;
++ const split=Math.round(timeline.pause.source_seconds*sampleRate)*4;
++ const total=Math.ceil(timeline.total*sampleRate)*4;
++ if(split<0||split>source.length||total<intro+pause+source.length)throw new Error('Audio does not fit measured timeline');
++ const output=Buffer.alloc(total);
++ source.copy(output,intro,0,split); source.copy(output,intro+split+pause,split);
++ return {output,introBytes:intro,pauseBytes:pause,splitBytes:split};
++}
++if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
++ const [timelineFile,inputFile,outputFile]=process.argv.slice(2).map(p=>path.resolve(p));
++ if(!timelineFile||!inputFile||!outputFile||inputFile===outputFile)throw new Error('Use prepare-audio.mjs timeline.json input.mp3 output.wav');
++ const timeline=JSON.parse(fs.readFileSync(timelineFile,'utf8')), input=fs.readFileSync(inputFile);
++ if(createHash('sha256').update(input).digest('hex')!==timeline.audio.sha256)throw new Error('Voice bytes differ from measured input');
++ const pcm=execFileSync('ffmpeg',['-v','error','-i',inputFile,'-f','f32le','-ac','1','-ar','48000','-'],{maxBuffer:100*1024*1024});
++ const {output,...mapping}=assemblePcm(pcm,timeline);
++ if(Math.abs(pcm.length/4/48000-timeline.audio.duration_seconds)>.08)throw new Error('Decoded voice duration differs');
++ execFileSync('ffmpeg',['-v','error','-y','-f','f32le','-ar','48000','-ac','1','-i','pipe:0','-c:a','pcm_f32le',outputFile],{input:output,maxBuffer:100*1024*1024});
++ fs.writeFileSync(outputFile+'.manifest.json',JSON.stringify({version:'bio-measured-audio-v1',source_sha256:timeline.audio.sha256,output_sha256:createHash('sha256').update(fs.readFileSync(outputFile)).digest('hex'),sample_rate:48000,duration:output.length/4/48000,...mapping},null,2)+'\n');
++ console.log(JSON.stringify({sample_copy_verified:output.subarray(mapping.introBytes,mapping.introBytes+mapping.splitBytes).equals(pcm.subarray(0,mapping.splitBytes))&&output.subarray(mapping.introBytes+mapping.splitBytes+mapping.pauseBytes,mapping.introBytes+mapping.pauseBytes+pcm.length).equals(pcm.subarray(mapping.splitBytes)),duration:output.length/4/48000}));
++}
+diff --git a/approved-adapter/prepare-audio.test.mjs b/approved-adapter/prepare-audio.test.mjs
+new file mode 100644
+--- /dev/null
++++ b/approved-adapter/prepare-audio.test.mjs
+@@ -0,0 +1,19 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {assemblePcm} from './prepare-audio.mjs';
++test('copies every sample and inserts exact digital silence',()=>{
++ const source=Buffer.alloc(20*48000*4,91);
++ const timeline={version:'bio-measured-timeline-v1',playback_speed:1,intro_seconds:2,pause:{source_seconds:7.125,duration:5.6},total:28.2};
++ const {output,introBytes,pauseBytes,splitBytes}=assemblePcm(source,timeline);
++ assert.ok(output.subarray(0,introBytes).every(x=>x===0));
++ assert.ok(output.subarray(introBytes,introBytes+splitBytes).equals(source.subarray(0,splitBytes)));
++ assert.ok(output.subarray(introBytes+splitBytes,introBytes+splitBytes+pauseBytes).every(x=>x===0));
++ assert.ok(output.subarray(introBytes+splitBytes+pauseBytes,introBytes+pauseBytes+source.length).equals(source.subarray(splitBytes)));
++ assert.ok(output.subarray(introBytes+pauseBytes+source.length).every(x=>x===0));
++});
++test('rejects truncation and unintended speed changes',()=>{
++ const source=Buffer.alloc(20*48000*4);
++ const tl={version:'bio-measured-timeline-v1',playback_speed:1,intro_seconds:2,pause:{source_seconds:7,duration:5.6},total:10};
++ assert.throws(()=>assemblePcm(source,tl),/fit/);
++ tl.total=28;tl.playback_speed=1.2;assert.throws(()=>assemblePcm(source,tl),/Invalid/);
++});
