@@ -1,0 +1,71 @@
+name: Validate approved biology design (no publication)
+
+on:
+  push:
+    branches: [codex/bio-approved-validation]
+    paths:
+      - candidate.patch
+      - .github/workflows/validate-bio-approved.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bio-approved-validation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  reference-regression:
+    if: github.ref == 'refs/heads/codex/bio-approved-validation'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: candidate
+      - name: Checkout immutable approved design
+        uses: actions/checkout@v4
+        with:
+          ref: 2a03f2954c379e5d9ef0d09ac616d8bcb560f5a8
+          persist-credentials: false
+          path: approved
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply only the isolated candidate
+        working-directory: approved
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'afde89a68f5f20eadae9086717d4e9231a2046f5e314d117722cc362b8401225  ../candidate/candidate.patch' | sha256sum -c -
+          git apply --check ../candidate/candidate.patch
+          git apply ../candidate/candidate.patch
+          git diff --exit-code
+      - name: Install rendering dependencies
+        working-directory: approved/experiments/vessels-3d
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+          python -m pip install numpy==2.2.6
+      - name: Check contract and reproduce reference audio
+        working-directory: approved
+        run: |
+          node --test experiments/vessels-3d/bio/dynamic/contract.test.mjs
+          node experiments/vessels-3d/bio/dynamic/prepare-job.mjs --reference
+          python experiments/vessels-3d/bio/dynamic/make_mix.py
+      - name: Compare 17 full-resolution frames and mixed audio
+        working-directory: approved
+        run: node experiments/vessels-3d/bio/dynamic/visual-regression.mjs
+      - name: Save inspectable comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bio-approved-reference-regression
+          path: approved/experiments/vessels-3d/bio/dynamic/out/visual-regression/
+          if-no-files-found: warn
+          retention-days: 14
