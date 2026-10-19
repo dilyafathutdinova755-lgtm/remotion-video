@@ -421,6 +421,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/69376",
       "source_task_id": "69376"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39282085820",
+      "reserved_at": "2026-10-19T16:02:22.378Z",
+      "task_number": 3,
+      "condition_text": "Какое число Х-хромосом содержит яйцеклетка? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/46178",
+      "source_task_id": "46178"
     }
   ]
 }
