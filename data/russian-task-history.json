@@ -390,6 +390,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84599",
       "source_task_id": "84599"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-v14-quality-1352",
+      "reserved_at": "2026-10-19T16:14:57.668Z",
+      "task_number": 7,
+      "condition_text": "ПОЕЗЖАЙ прямо\nСЕМЬЮДЕСЯТЬЮ рублями\nя встретил группу МОНГОЛ \nболее СИЛЬНЫЙ соперник\nизвестные ДОКТОРА",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84601",
+      "source_task_id": "84601"
     }
   ]
 }
