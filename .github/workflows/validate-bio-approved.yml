@@ -62,7 +62,24 @@ jobs:
           python experiments/vessels-3d/bio/dynamic/make_mix.py
       - name: Compare 17 full-resolution frames and mixed audio
         working-directory: approved
-        run: node experiments/vessels-3d/bio/dynamic/visual-regression.mjs
+        shell: bash
+        run: |
+          status=0
+          node experiments/vessels-3d/bio/dynamic/visual-regression.mjs || status=$?
+          cat experiments/vessels-3d/bio/dynamic/out/visual-regression/report.json
+          python - <<'PYDIAG'
+          import subprocess, numpy as np
+          from pathlib import Path
+          root = Path('experiments/vessels-3d/bio/dynamic/out/visual-regression')
+          def pixels(name):
+              data = subprocess.check_output(['ffmpeg', '-v', 'error', '-i', str(root / name), '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'])
+              return np.frombuffer(data, dtype=np.uint8).reshape(1920,1080,3)
+          a, b = pixels('approved-27.png'), pixels('candidate-27.png')
+          delta = np.abs(a.astype(int)-b.astype(int))
+          ys, xs = np.where(np.any(delta,axis=2))
+          print('PIXEL_DIAGNOSTIC', {'changed_pixels':len(xs), 'max_delta':int(delta.max()), 'bounds': [int(xs.min()),int(ys.min()),int(xs.max()),int(ys.max())] if len(xs) else None})
+          PYDIAG
+          exit "$status"
       - name: Save inspectable comparison evidence
         if: always()
         uses: actions/upload-artifact@v4
