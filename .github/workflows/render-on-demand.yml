@@ -516,7 +516,7 @@ jobs:
       - name: Render actual n8n job at native 60 FPS
         working-directory: source
         run: |
-          node biology-three-v2/render.mjs video --workers 3 --fps 60
+          node biology-three-v2/render.mjs video --workers 1 --fps 60
           node biology-three-v2/finalize.mjs
       - uses: actions/upload-artifact@v4
         if: always()
