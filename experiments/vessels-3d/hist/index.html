@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>История · баскак</title>
+<style>
+@font-face { font-family: "Ruslan"; src: url(/experiments/vessels-3d/hist/fonts/RuslanDisplay.ttf) format("truetype"); }
+@font-face { font-family: "Manrope"; font-weight: 600; src: url(/experiments/vessels-3d/hist/fonts/Manrope-600.ttf) format("truetype"); }
+@font-face { font-family: "Manrope"; font-weight: 700; src: url(/experiments/vessels-3d/hist/fonts/Manrope-700.ttf) format("truetype"); }
+@font-face { font-family: "Manrope"; font-weight: 800; src: url(/experiments/vessels-3d/hist/fonts/Manrope-800.ttf) format("truetype"); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Manrope", sans-serif; color: #FFF0F5; -webkit-font-smoothing: antialiased;
+  background: linear-gradient(180deg, #1C0812 0%, #2A0B1C 55%, #3A0F27 100%); }
+#stage * { box-sizing: border-box; }
+.a { position: absolute; }
+.rings { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0;
+  background: repeating-radial-gradient(circle at 540px 780px, rgba(255,92,154,0.13) 0 3px, transparent 3px 74px);
+  -webkit-mask-image: radial-gradient(760px 760px at 540px 780px, #000 0%, rgba(0,0,0,0.4) 60%, transparent 85%); mask-image: radial-gradient(760px 760px at 540px 780px, #000 0%, rgba(0,0,0,0.4) 60%, transparent 85%); }
+#glow { left: 0; top: 0; width: 900px; height: 900px; border-radius: 50%; z-index: 1; background: radial-gradient(closest-side, rgba(255,92,154,0.32), rgba(255,92,154,0)); }
+#logoc { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 30; }
+#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.96); box-shadow: 0 18px 50px rgba(40,0,20,0.3); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
+#plaque .slot { width: 80px; height: 80px; flex: none; }
+#plaque b { flex: none; font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
+#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
+#dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.25); }
+.hh { left: 40px; top: 314px; width: 1000px; text-align: center; z-index: 8; }
+.ey { font-size: 30px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #FF5C9A; height: 48px; }
+.t1 { font-family: "Ruslan"; font-size: 84px; line-height: 96px; color: #FFF0F5; letter-spacing: 0.02em; }
+.t2 { font-size: 36px; line-height: 50px; color: #E2AFC5; margin-top: 10px; font-weight: 600; }
+.cw { left: 0; width: 1080px; text-align: center; font-family: "Ruslan"; color: #FFF0F5; letter-spacing: 0.05em; line-height: 1; white-space: nowrap; z-index: 6;
+  text-shadow: 0 0 50px rgba(255,92,154,0.55), 0 12px 0 rgba(0,0,0,0.18); }
+.qst { left: 0; width: 1080px; text-align: center; font-size: 34px; font-weight: 700; color: #E2AFC5; letter-spacing: 0.02em; z-index: 6; }
+.ctr { left: 0; width: 1080px; display: flex; justify-content: center; z-index: 7; }
+.note { padding: 22px 34px; border-radius: 30px; font-size: 36px; line-height: 1.3; font-weight: 700; color: #FFF0F5; white-space: nowrap;
+  background: rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(30,0,15,0.35), inset 0 2px 0 rgba(255,255,255,0.18); border: 1.5px solid rgba(255,92,154,0.35); }
+.note b { color: #FF5C9A; }
+.lbl { font-size: 32px; font-weight: 700; color: #E2AFC5; white-space: nowrap; z-index: 6; }
+.big { font-family: "Ruslan"; color: #FF5C9A; line-height: 1; letter-spacing: 0.02em; text-align: center; white-space: nowrap; text-shadow: 0 0 60px rgba(255,92,154,0.5); z-index: 6; }
+.ic { border-radius: 44px; padding: 34px 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center;
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,92,154,0.35); box-shadow: 0 24px 60px rgba(30,0,15,0.35); font-size: 34px; line-height: 1.25; font-weight: 700; color: #FFF0F5; z-index: 6; }
+.ic svg { width: 150px; height: 150px; overflow: visible; }
+.dfn { left: 70px; width: 940px; border-radius: 44px; padding: 44px 50px; font-size: 44px; line-height: 1.36; font-weight: 600; color: #FFF0F5; z-index: 7;
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,92,154,0.35); box-shadow: 0 30px 80px rgba(30,0,15,0.4); }
+.dfn b { color: #FF5C9A; font-weight: 800; }
+.tline { height: 10px; border-radius: 5px; background: linear-gradient(90deg, rgba(255,92,154,0.15), #FF5C9A, rgba(255,92,154,0.15)); z-index: 6; }
+.tdot { width: 44px; height: 44px; border-radius: 50%; background: #FF5C9A; box-shadow: 0 0 0 10px rgba(255,92,154,0.22), 0 0 40px rgba(255,92,154,0.7); z-index: 7; }
+.tlab { font-size: 32px; line-height: 1.25; font-weight: 700; color: #FFF0F5; text-align: center; z-index: 7; }
+.tlab small { display: block; font-size: 28px; font-weight: 600; color: #E2AFC5; }
+#timer { left: 70px; width: 940px; height: 196px; border-radius: 64px; display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; z-index: 9;
+  background: rgba(60,12,36,0.85); border: 1.5px solid rgba(255,92,154,0.4); box-shadow: 0 30px 80px rgba(30,0,15,0.45); }
+#timer .rg { position: relative; width: 144px; height: 144px; flex: none; }
+#timer svg { position: absolute; left: 0; top: 0; width: 144px; height: 144px; transform: rotate(-90deg); }
+#timer .rg i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-family: "Ruslan"; font-size: 84px; color: #FF5C9A; }
+#timer .pt1 { display: flex; align-items: center; gap: 22px; font-size: 46px; font-weight: 800; color: #FFF0F5; white-space: nowrap; }
+#timer .pt2 { font-size: 32px; margin-top: 6px; color: #E2AFC5; white-space: nowrap; }
+.bars { display: flex; gap: 9px; }
+.bars i { display: block; width: 14px; height: 42px; border-radius: 6px; background: #FF5C9A; }
+.cp { padding: 18px 40px; border-radius: 999px; background: #fff; color: #2A0715; font-weight: 800; font-size: 40px; white-space: nowrap; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+.cp.blue { background: linear-gradient(135deg,#3b7bff,#1652f0); color: #fff; font-size: 48px; padding: 26px 58px; box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
+.fig { position: absolute; transform-origin: 50% 100%; filter: drop-shadow(6px 0 0 #fff) drop-shadow(-6px 0 0 #fff) drop-shadow(0 6px 0 #fff) drop-shadow(0 -6px 0 #fff) drop-shadow(0 24px 30px rgba(20,0,10,0.45)); }
+.stk { filter: drop-shadow(5px 0 0 #fff) drop-shadow(-5px 0 0 #fff) drop-shadow(0 5px 0 #fff) drop-shadow(0 -5px 0 #fff) drop-shadow(0 20px 26px rgba(20,0,10,0.45)); }
+</style>
+<script type="importmap">
+{ "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <div class="a rings" id="ringsA"></div>
+  <div class="a rings" id="ringsB"></div>
+  <div class="a" id="glow"></div>
+
+  <!-- condition -->
+  <div class="a qst" id="qst" style="top:560px">Раскройте смысл понятия</div>
+  <div class="a cw" id="word" style="top:650px;font-size:170px">Баскак</div>
+  <div class="a" id="timer" style="top:830px"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#FF5C9A" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и вспомни, кто это</div></div></div>
+
+  <!-- headlines -->
+  <div class="a hh" id="h1"><div class="ey">Шаг 1 из 3</div><div class="t1">Кто</div></div>
+  <div class="a hh" id="h2"><div class="ey">Шаг 2 из 3</div><div class="t1">Когда</div></div>
+  <div class="a hh" id="h3"><div class="ey">Шаг 3 из 3</div><div class="t1">Что делал</div></div>
+  <div class="a hh" id="h4"><div class="ey">&nbsp;</div><div class="t1" style="font-size:76px">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
+
+  <!-- step 1: who -->
+  <svg class="a" id="orda" style="left:60px;top:760px;z-index:6;overflow:visible" width="340" height="340" viewBox="0 0 340 340">
+    <path d="M40 300 L40 190 C40 120 100 70 170 70 C240 70 300 120 300 190 L300 300 Z" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M40 190 C90 210 250 210 300 190" fill="none" stroke="#FFF0F5" stroke-width="8"/>
+    <path d="M70 230 L270 230 M70 262 L270 262" stroke="#FFB3CF" stroke-width="6" stroke-dasharray="14 12"/>
+    <path d="M140 300 L140 240 C140 222 200 222 200 240 L200 300 Z" fill="#3A0F27" stroke="#FFF0F5" stroke-width="6"/>
+    <path d="M170 70 L170 20" stroke="#FFF0F5" stroke-width="6" stroke-linecap="round"/>
+    <path id="flag" d="M170 22 L214 34 L170 46 Z" fill="#FFB3CF" stroke="#FFF0F5" stroke-width="5" stroke-linejoin="round"/>
+  </svg>
+  <div class="a lbl" id="lOrda" style="left:60px;top:1110px;width:340px;text-align:center;font-size:34px;font-weight:800;color:#FFF0F5">Золотая Орда</div>
+  <svg class="a" id="rus" style="left:680px;top:760px;z-index:6;overflow:visible" width="340" height="340" viewBox="0 0 340 340">
+    <path d="M60 300 L60 190 L280 190 L280 300 Z" fill="#FFB3CF" stroke="#FFF0F5" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M150 300 L150 240 C150 222 190 222 190 240 L190 300 Z" fill="#3A0F27" stroke="#FFF0F5" stroke-width="6"/>
+    <path d="M120 190 L120 140 L220 140 L220 190" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M170 140 C130 120 140 80 170 60 C200 80 210 120 170 140 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="7"/>
+    <path d="M95 190 C70 176 76 150 95 136 C114 150 120 176 95 190 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="6"/>
+    <path d="M245 190 C220 176 226 150 245 136 C264 150 270 176 245 190 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="6"/>
+    <path d="M170 60 L170 26 M158 38 L182 38" stroke="#FFF0F5" stroke-width="6" stroke-linecap="round"/>
+  </svg>
+  <div class="a lbl" id="lRus" style="left:680px;top:1110px;width:340px;text-align:center;font-size:34px;font-weight:800;color:#FFF0F5">Русь</div>
+  <svg class="a" id="arcSvg" style="left:300px;top:640px;z-index:5" width="480" height="200" viewBox="0 0 480 200">
+    <path id="arcPath" d="M20 180 C120 20 360 20 460 180" fill="none" stroke="#FF5C9A" stroke-width="8" stroke-dasharray="18 16" stroke-linecap="round"/>
+    <path id="arcHead" d="M432 150 L460 182 L420 178" fill="none" stroke="#FF5C9A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div class="a stk" id="baskak" style="left:0;top:0;width:300px;height:330px;z-index:8">
+    <svg viewBox="0 0 300 330" width="300" height="330">
+      <path d="M20 330 L20 270 C20 222 70 196 150 192 C230 196 280 222 280 270 L280 330 Z" fill="#8E2A5A" stroke="#3A1222" stroke-width="5"/>
+      <path d="M150 196 L104 330 L130 330 L170 210 Z" fill="#F2C14E"/>
+      <rect x="126" y="160" width="48" height="44" rx="16" fill="#E3A585"/>
+      <ellipse cx="150" cy="120" rx="74" ry="80" fill="#F2BE98" stroke="#3A1222" stroke-width="5"/>
+      <path d="M70 92 C70 40 110 14 150 14 C190 14 230 40 230 92 Z" fill="#C2303C" stroke="#3A1222" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M62 96 C62 78 238 78 238 96 C238 112 62 112 62 96 Z" fill="#6B4A3A" stroke="#3A1222" stroke-width="5"/>
+      <circle cx="150" cy="12" r="10" fill="#F2C14E" stroke="#3A1222" stroke-width="4"/>
+      <path d="M104 130 Q120 122 136 130 M164 130 Q180 122 196 130" fill="none" stroke="#2A1712" stroke-width="6" stroke-linecap="round"/>
+      <g id="bEyes"><circle cx="122" cy="144" r="7" fill="#2A1712"/><circle cx="178" cy="144" r="7" fill="#2A1712"/></g>
+      <path d="M118 170 C132 162 146 164 150 170 C154 164 168 162 182 170 C172 184 160 182 150 176 C140 182 128 184 118 170 Z" fill="#2A1712"/>
+    </svg>
+  </div>
+  <div class="a" id="tagB" style="z-index:9"><div class="note">баскак</div></div>
+  <div class="a ctr" id="nRep" style="top:1300px"><div class="note" style="white-space:normal;width:880px;text-align:center;font-size:40px">представитель <b>хана Золотой Орды</b> на Руси</div></div>
+
+  <!-- step 2: when -->
+  <div class="a big" id="cent" style="left:0;width:1080px;top:700px;font-size:210px">XIII–XIV</div>
+  <div class="a lbl" id="vek" style="left:0;width:1080px;text-align:center;top:930px;font-size:40px;font-weight:800">века</div>
+  <div class="a tline" id="tline" style="left:90px;top:1180px;width:900px"></div>
+  <div class="a" id="tseg" style="left:346px;top:1172px;width:0;height:26px;border-radius:13px;background:#FF5C9A;box-shadow:0 0 40px rgba(255,92,154,0.8);z-index:6"></div>
+  <div class="a lbl" id="t1200" style="left:40px;top:1222px;width:100px;text-align:center">1200</div>
+  <div class="a lbl" id="t1300" style="left:490px;top:1222px;width:100px;text-align:center">1300</div>
+  <div class="a lbl" id="t1400" style="left:940px;top:1222px;width:100px;text-align:center">1400</div>
+  <div class="a tdot" id="dot1" style="left:325px;top:1163px"></div>
+  <div class="a tlab" id="lab1" style="left:166px;top:1300px;width:360px"><span style="font-family:'Ruslan';font-size:64px;color:#FF5C9A">1257</span><small>перепись: Орда считает,<br>с кого брать дань</small></div>
+  <div class="a tdot" id="dot2" style="left:609px;top:1163px"></div>
+  <div class="a tlab" id="lab2" style="left:560px;top:1300px;width:420px"><span style="font-family:'Ruslan';font-size:56px;color:#FF5C9A">нач. XIV</span><small>дань собирают<br>русские князья — баскаков нет</small></div>
+
+  <!-- step 3: what -->
+  <div class="a ic" id="card1" style="left:51px;top:640px;width:310px;height:560px">
+    <svg viewBox="0 0 150 150">
+      <path d="M44 56 C30 70 22 92 26 112 C30 132 50 140 75 140 C100 140 120 132 124 112 C128 92 120 70 106 56 Z" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M52 56 L98 56 L108 34 C96 40 86 30 75 30 C64 30 54 40 42 34 Z" fill="#FFB3CF" stroke="#FFF0F5" stroke-width="6" stroke-linejoin="round"/>
+      <ellipse cx="75" cy="98" rx="20" ry="22" fill="#F2C14E" stroke="#FFF0F5" stroke-width="5"/>
+      <g id="coins"><circle cx="118" cy="124" r="14" fill="#F2C14E" stroke="#FFF0F5" stroke-width="5"/><circle cx="132" cy="104" r="11" fill="#F2C14E" stroke="#FFF0F5" stroke-width="5"/></g>
+    </svg>
+    <div>следил за сбором дани — <b style="color:#FF5C9A">«ордынского выхода»</b></div>
+  </div>
+  <div class="a ic" id="card2" style="left:385px;top:640px;width:310px;height:560px">
+    <svg viewBox="0 0 150 150">
+      <path d="M12 75 C34 38 116 38 138 75 C116 112 34 112 12 75 Z" fill="#FFB3CF" stroke="#FFF0F5" stroke-width="6" stroke-linejoin="round"/>
+      <g id="iris"><circle cx="75" cy="75" r="26" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="6"/><circle cx="75" cy="75" r="11" fill="#3A0F27"/><circle cx="83" cy="67" r="5" fill="#FFFFFF"/></g>
+      <path d="M50 30 L60 44 M75 24 L75 40 M100 30 L90 44" stroke="#FFF0F5" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <div>присматривал за <b style="color:#FF5C9A">русскими князьями</b></div>
+  </div>
+  <div class="a ic" id="card3" style="left:719px;top:640px;width:310px;height:560px">
+    <svg viewBox="0 0 150 150">
+      <g id="spear"><path d="M36 18 L132 114" stroke="#FFF0F5" stroke-width="8" stroke-linecap="round"/><path d="M26 8 L48 18 L36 30 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="5" stroke-linejoin="round"/></g>
+      <path d="M75 46 C96 54 112 54 120 52 C122 92 104 122 75 138 C46 122 28 92 30 52 C38 54 54 54 75 46 Z" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M75 62 L75 120 M50 80 L100 80" stroke="#FFB3CF" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <div>держал при себе <b style="color:#FF5C9A">вооружённый отряд</b></div>
+  </div>
+
+  <!-- summary -->
+  <div class="a qst" id="sumQ" style="top:330px">так и пишем в ответе</div>
+  <div class="a cw" id="sumW" style="top:400px;font-size:130px">Баскак</div>
+  <div class="a dfn" id="dfn" style="top:590px">— <b>представитель хана</b> Золотой Орды на Руси в XIII–XIV веках, <b>контролировал сбор дани</b> и князей.</div>
+
+  <!-- the trio -->
+  <div class="a" id="trio" style="left:0;top:1060px;width:1080px;height:860px;z-index:10">
+    <div class="fig" id="figP" style="left:290px;top:0;width:500px;height:875px">
+      <svg viewBox="0 0 400 700" width="500" height="875">
+        <g id="P_headB">
+          <path d="M84 230 C60 120 130 70 200 70 C270 70 340 120 316 230 C340 300 330 360 300 392 L262 360 C282 320 286 280 284 236 L116 236 C114 280 118 320 138 360 L100 392 C70 360 60 300 84 230 Z" fill="#2A1712"/>
+          <circle cx="96" cy="300" r="28" fill="#2A1712"/><circle cx="304" cy="300" r="28" fill="#2A1712"/>
+          <circle cx="110" cy="352" r="26" fill="#2A1712"/><circle cx="290" cy="352" r="26" fill="#2A1712"/>
+        </g>
+        <path d="M30 700 L30 520 C30 430 90 382 200 376 C310 382 370 430 370 520 L370 700 Z" fill="#2E6B45" stroke="#3A1222" stroke-width="5"/>
+        <path d="M200 404 L146 386 L124 540 L200 474 Z" fill="#B3262E"/>
+        <path d="M200 404 L254 386 L276 540 L200 474 Z" fill="#B3262E"/>
+        <path d="M344 452 L124 700 L62 700 L304 420 Z" fill="#3F6FD8"/>
+        <circle cx="200" cy="500" r="9" fill="#F2C14E"/><circle cx="200" cy="550" r="9" fill="#F2C14E"/><circle cx="200" cy="600" r="9" fill="#F2C14E"/><circle cx="200" cy="650" r="9" fill="#F2C14E"/>
+        <rect x="168" y="300" width="64" height="90" rx="22" fill="#E3A585"/>
+        <path d="M176 372 L224 372 L214 420 L200 434 L186 420 Z" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+        <g id="P_head">
+          <ellipse cx="94" cy="228" rx="16" ry="24" fill="#F4C4A1" stroke="#3A1222" stroke-width="4"/>
+          <ellipse cx="306" cy="228" rx="16" ry="24" fill="#F4C4A1" stroke="#3A1222" stroke-width="4"/>
+          <ellipse cx="200" cy="215" rx="108" ry="122" fill="#F4C4A1" stroke="#3A1222" stroke-width="5"/>
+          <path d="M96 200 C102 120 150 92 200 94 C252 92 300 120 304 200 C286 168 252 150 214 160 C190 140 140 150 96 200 Z" fill="#2A1712"/>
+          <ellipse cx="146" cy="262" rx="20" ry="13" fill="#FF8FB0" opacity="0.55"/><ellipse cx="254" cy="262" rx="20" ry="13" fill="#FF8FB0" opacity="0.55"/>
+          <path d="M134 188 Q158 174 182 186" fill="none" stroke="#2A1712" stroke-width="9" stroke-linecap="round"/>
+          <path d="M218 186 Q242 174 266 188" fill="none" stroke="#2A1712" stroke-width="9" stroke-linecap="round"/>
+          <g id="P_eyes">
+            <ellipse cx="160" cy="220" rx="20" ry="24" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+            <ellipse cx="240" cy="220" rx="20" ry="24" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+            <g id="P_pup"><circle cx="160" cy="220" r="11" fill="#2A1712"/><circle cx="240" cy="220" r="11" fill="#2A1712"/><circle cx="164" cy="215" r="4" fill="#FFFFFF"/><circle cx="244" cy="215" r="4" fill="#FFFFFF"/></g>
+          </g>
+          <path d="M196 236 Q204 252 194 258" fill="none" stroke="#C98665" stroke-width="5" stroke-linecap="round"/>
+          <path d="M166 268 C180 258 194 260 200 268 C206 260 220 258 234 268 C220 276 208 274 200 272 C192 274 180 276 166 268 Z" fill="#2A1712"/>
+          <path d="M182 290 Q200 304 218 290" fill="none" stroke="#3A1222" stroke-width="5" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="fig" id="figE" style="left:10px;top:230px;width:400px;height:700px">
+      <svg viewBox="0 0 400 700" width="400" height="700">
+        <path d="M30 700 L30 520 C30 430 90 382 200 376 C310 382 370 430 370 520 L370 700 Z" fill="#FFF4EA" stroke="#3A1222" stroke-width="5"/>
+        <path d="M30 520 C30 430 90 382 200 376 C310 382 370 430 370 520 L370 572 C330 482 270 452 200 452 C130 452 70 482 30 572 Z" fill="#FFFFFF" stroke="#3A1222" stroke-width="4"/>
+        <path d="M70 470 l6 16 l6 -16 Z M120 430 l6 16 l6 -16 Z M180 412 l6 16 l6 -16 Z M240 418 l6 16 l6 -16 Z M296 436 l6 16 l6 -16 Z M340 474 l6 16 l6 -16 Z" fill="#2A1722"/>
+        <path d="M56 470 L276 700 L336 700 L96 444 Z" fill="#4A78D6"/>
+        <path d="M150 452 Q200 486 250 452" fill="none" stroke="#F2C14E" stroke-width="6"/>
+        <rect x="168" y="300" width="64" height="90" rx="22" fill="#E3A585"/>
+        <g id="E_head">
+          <ellipse cx="200" cy="150" rx="122" ry="104" fill="#EDE8F1" stroke="#3A1222" stroke-width="5"/>
+          <circle cx="98" cy="250" r="32" fill="#EDE8F1" stroke="#3A1222" stroke-width="4"/><circle cx="302" cy="250" r="32" fill="#EDE8F1" stroke="#3A1222" stroke-width="4"/>
+          <circle cx="106" cy="304" r="26" fill="#EDE8F1" stroke="#3A1222" stroke-width="4"/><circle cx="294" cy="304" r="26" fill="#EDE8F1" stroke="#3A1222" stroke-width="4"/>
+          <path d="M150 64 L168 22 L188 56 L200 12 L212 56 L232 22 L250 64 Z" fill="#F2C14E" stroke="#3A1222" stroke-width="4" stroke-linejoin="round"/>
+          <circle cx="200" cy="46" r="8" fill="#FF5C9A"/>
+          <ellipse cx="200" cy="215" rx="104" ry="118" fill="#F6CBAA" stroke="#3A1222" stroke-width="5"/>
+          <path d="M94 212 C100 124 160 98 200 100 C240 98 300 124 306 212 C280 172 240 160 200 164 C160 160 120 172 94 212 Z" fill="#EDE8F1" stroke="#3A1222" stroke-width="4"/>
+          <ellipse cx="146" cy="262" rx="22" ry="14" fill="#FF7FA6" opacity="0.6"/><ellipse cx="254" cy="262" rx="22" ry="14" fill="#FF7FA6" opacity="0.6"/>
+          <path d="M136 190 Q158 180 180 190" fill="none" stroke="#9C8A93" stroke-width="6" stroke-linecap="round"/>
+          <path d="M220 190 Q242 180 264 190" fill="none" stroke="#9C8A93" stroke-width="6" stroke-linecap="round"/>
+          <g id="E_eyes">
+            <ellipse cx="160" cy="222" rx="20" ry="24" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+            <ellipse cx="240" cy="222" rx="20" ry="24" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+            <g id="E_pup"><circle cx="160" cy="222" r="11" fill="#3B2A55"/><circle cx="240" cy="222" r="11" fill="#3B2A55"/><circle cx="163" cy="217" r="4" fill="#FFFFFF"/><circle cx="243" cy="217" r="4" fill="#FFFFFF"/></g>
+            <path d="M140 204 l-8 -8 M180 204 l6 -8 M220 204 l-6 -8 M260 204 l8 -8" stroke="#3A1222" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <path d="M198 240 Q204 252 196 256" fill="none" stroke="#D08E6E" stroke-width="5" stroke-linecap="round"/>
+          <path d="M180 284 Q200 300 220 284" fill="none" stroke="#D9467A" stroke-width="7" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="fig" id="figA" style="left:670px;top:230px;width:400px;height:700px">
+      <svg viewBox="0 0 400 700" width="400" height="700">
+        <path d="M30 700 L30 520 C30 430 90 382 200 376 C310 382 370 430 370 520 L370 700 Z" fill="#1E4433" stroke="#3A1222" stroke-width="5"/>
+        <path d="M70 446 L304 700 L340 700 L96 424 Z" fill="#F7F1E8"/>
+        <circle cx="200" cy="480" r="9" fill="#F2C14E"/><circle cx="200" cy="530" r="9" fill="#F2C14E"/><circle cx="200" cy="580" r="9" fill="#F2C14E"/><circle cx="200" cy="630" r="9" fill="#F2C14E"/>
+        <ellipse cx="82" cy="440" rx="60" ry="22" fill="#F2C14E" stroke="#3A1222" stroke-width="4"/>
+        <ellipse cx="318" cy="440" rx="60" ry="22" fill="#F2C14E" stroke="#3A1222" stroke-width="4"/>
+        <path d="M36 458 v26 M52 462 v28 M68 464 v28 M84 464 v28 M100 462 v28 M116 458 v24 M284 458 v24 M300 462 v28 M316 464 v28 M332 464 v28 M348 462 v28 M364 458 v26" stroke="#E0A93A" stroke-width="6" stroke-linecap="round"/>
+        <rect x="168" y="300" width="64" height="90" rx="22" fill="#E3A585"/>
+        <path d="M146 368 L254 368 L264 422 L200 434 L136 422 Z" fill="#C2303C" stroke="#3A1222" stroke-width="4"/>
+        <g id="A_head">
+          <path d="M88 236 C76 170 104 122 150 108 L152 140 C126 160 118 200 122 250 Z" fill="#B07A45"/>
+          <path d="M312 236 C324 170 296 122 250 108 L248 140 C274 160 282 200 278 250 Z" fill="#B07A45"/>
+          <ellipse cx="94" cy="230" rx="16" ry="24" fill="#F4C4A1" stroke="#3A1222" stroke-width="4"/>
+          <ellipse cx="306" cy="230" rx="16" ry="24" fill="#F4C4A1" stroke="#3A1222" stroke-width="4"/>
+          <ellipse cx="200" cy="215" rx="106" ry="122" fill="#F4C4A1" stroke="#3A1222" stroke-width="5"/>
+          <path d="M100 196 C104 150 120 124 146 112 C132 140 128 170 128 214 Z" fill="#B07A45"/>
+          <path d="M300 196 C296 150 280 124 254 112 C268 140 272 170 272 214 Z" fill="#B07A45"/>
+          <path d="M176 106 C188 82 216 82 226 100 C214 96 206 104 204 118 C196 106 186 104 176 106 Z" fill="#B07A45"/>
+          <path d="M100 214 C100 270 112 304 128 320 L138 302 C128 280 124 250 124 216 Z" fill="#B07A45"/>
+          <path d="M300 214 C300 270 288 304 272 320 L262 302 C272 280 276 250 276 216 Z" fill="#B07A45"/>
+          <ellipse cx="148" cy="264" rx="20" ry="13" fill="#FF8FB0" opacity="0.5"/><ellipse cx="252" cy="264" rx="20" ry="13" fill="#FF8FB0" opacity="0.5"/>
+          <path d="M136 192 Q158 182 180 192" fill="none" stroke="#8A5A30" stroke-width="7" stroke-linecap="round"/>
+          <path d="M220 192 Q242 182 264 192" fill="none" stroke="#8A5A30" stroke-width="7" stroke-linecap="round"/>
+          <g id="A_eyes">
+            <ellipse cx="160" cy="222" rx="20" ry="24" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+            <ellipse cx="240" cy="222" rx="20" ry="24" fill="#FFFFFF" stroke="#3A1222" stroke-width="3"/>
+            <g id="A_pup"><circle cx="160" cy="222" r="11" fill="#2F4A6B"/><circle cx="240" cy="222" r="11" fill="#2F4A6B"/><circle cx="163" cy="217" r="4" fill="#FFFFFF"/><circle cx="243" cy="217" r="4" fill="#FFFFFF"/></g>
+          </g>
+          <path d="M202 238 Q210 254 198 260" fill="none" stroke="#C98665" stroke-width="5" stroke-linecap="round"/>
+          <path d="M178 286 Q200 302 222 286" fill="none" stroke="#3A1222" stroke-width="5" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="a" id="plaque"><div class="slot"></div><b>ЕГЭ Тренажёр</b></div>
+  <canvas class="a" id="logoc" width="1080" height="1920"></canvas>
+  <div class="a ctr" id="cta1" style="top:1290px;z-index:31"><div class="cp blue">Скачивай бесплатно</div></div>
+  <div class="a ctr" id="cta2" style="top:1430px;z-index:31"><div class="cp">Ссылка в профиле ↑</div></div>
+</div>
+<script type="module" src="/experiments/vessels-3d/hist/scene.js"></script>
+</body>
+</html>
