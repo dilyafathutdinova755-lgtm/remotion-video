@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сцена 5 · Когда</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="hist.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="card" style="width:1700px;height:760px">
+  <div class="hd"><div class="num">5</div><div class="ttl">Шаг 2 из 3 · Когда: века крупно и лента времени</div><div class="tm">15,5 – 22,5 с · голос</div></div>
+
+  <sc-for list="{{frames}}" as="f" hint-placeholder-count="3">
+    <div class="fr" style="left:{{f.left}}px"><div class="scr"><div class="u">
+      <div class="rings" style="opacity:0.6"></div>
+      <div class="glw" style="left:140px;top:420px;width:800px;height:800px"></div>
+      <div class="pl"><img src="/_blob/5a4fd2f8a03dc0a59ab16167dc4b496b" alt=""><b>ЕГЭ Тренажёр</b></div>
+      <div class="dt"><i></i><i></i><i class="on"></i><i></i></div>
+      <div class="hh"><div class="ey">Шаг 2 из 3</div><div class="t1">Когда</div></div>
+
+      <div class="big" style="left:0;width:1080px;top:{{f.bigTop}}px;font-size:{{f.bigSize}}px">XIII–XIV</div>
+      <div class="lbl" style="left:0;width:1080px;text-align:center;top:{{f.vekTop}}px;font-size:40px;font-weight:800;color:var(--sub)">века</div>
+
+      <sc-if value="{{f.line}}" hint-placeholder-val="{{false}}">
+        <div class="tline" style="left:90px;top:1180px;width:900px"></div>
+        <div style="left:346px;top:1172px;width:{{f.segW}}px;height:26px;border-radius:13px;background:#FF5C9A;box-shadow:0 0 40px rgba(255,92,154,0.8)"></div>
+        <div class="lbl" style="left:40px;top:1222px;width:100px;text-align:center">1200</div>
+        <div class="lbl" style="left:490px;top:1222px;width:100px;text-align:center">1300</div>
+        <div class="lbl" style="left:940px;top:1222px;width:100px;text-align:center">1400</div>
+        <div class="tdot" style="left:325px;top:1163px"></div>
+        <div class="tlab" style="left:166px;top:1300px;width:360px"><span style="font-family:'Ruslan Display',serif;font-size:64px;color:var(--acc)">1257</span><small>перепись: Орда считает,<br>с кого брать дань</small></div>
+      </sc-if>
+      <sc-if value="{{f.end}}" hint-placeholder-val="{{false}}">
+        <div class="tdot" style="left:609px;top:1163px"></div>
+        <div class="tlab" style="left:560px;top:1300px;width:420px"><span style="font-family:'Ruslan Display',serif;font-size:56px;color:var(--acc)">нач. XIV</span><small>дань собирают<br>русские князья — баскаков нет</small></div>
+      </sc-if>
+    </div></div></div>
+    <div class="fc" style="left:{{f.left}}px">{{f.cap}}</div>
+  </sc-for>
+
+  <svg class="arr" width="60" height="24" viewBox="0 0 60 24" style="left:334px" aria-hidden="true"><path d="M2 12h50M42 3l10 9-10 9" fill="none" stroke="#FF5C9A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  <svg class="arr" width="60" height="24" viewBox="0 0 60 24" style="left:694px" aria-hidden="true"><path d="M2 12h50M42 3l10 9-10 9" fill="none" stroke="#FF5C9A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+  <div class="pn" style="left:1130px;width:530px">
+    <div>
+      <div class="lb">Голос</div>
+      <div class="tx v">«Когда? Тринадцатый — четырнадцатый века. Баскаки появились после ордынской переписи тысяча двести пятьдесят седьмого года, а к началу четырнадцатого века дань стали собирать сами князья.»</div>
+    </div>
+    <div>
+      <div class="lb">Что происходит</div>
+      <ul class="tx">
+        <li>«XIII–XIV» вылетает огромным, буквы встают по одной. Подпись «века».</li>
+        <li>Века уменьшаются и уезжают вверх, снизу рисуется лента времени 1200–1400. На «тысяча двести пятьдесят седьмого» загорается точка и крупное «1257» с короткой подписью.</li>
+        <li>Розовый отрезок «тянется» вправо, пока говорится про время баскаков, и останавливается на «нач. XIV» — второй точке с подписью.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="lb">Звук</div>
+      <div class="tx">Тяжёлый «бум» веков, «щелчки» отметок на ленте, «динь» каждой точки.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1700,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      frames: [
+        { left: 40, bigTop: 700, bigSize: 210, vekTop: 930, cap: '≈ 16 с «тринадцатый — четырнадцатый» — века крупно' },
+        { left: 400, bigTop: 620, bigSize: 150, vekTop: 790, line: true, segW: 40, cap: '≈ 18,5 с «1257» — лента, первая точка' },
+        { left: 760, bigTop: 620, bigSize: 150, vekTop: 790, line: true, segW: 284, end: true, cap: '≈ 21 с «к началу XIV века» — вторая точка' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

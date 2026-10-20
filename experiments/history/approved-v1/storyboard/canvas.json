@@ -1,0 +1,35 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-20T09:00:00Z" },
+  "title": "Раскадровка: история, понятие «баскак»",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1280, "h": 1440, "title": "Обзор" },
+    "Trio.dc.html": { "x": 0, "y": 1560, "w": 1080, "h": 860, "title": "Персонажи: Екатерина II · Пётр I · Александр I" },
+    "looks.dc.html": { "x": 0, "y": 2540, "w": 1480, "h": 1080, "title": "4 варианта розового" },
+    "s1-intro.dc.html": { "x": 0, "y": 3740, "w": 1280, "h": 760, "title": "1 · Заставка (база)" },
+    "s2-cond.dc.html": { "x": 0, "y": 4620, "w": 1700, "h": 760, "title": "2 · Условие: трио и понятие" },
+    "s3-pause.dc.html": { "x": 0, "y": 5500, "w": 1280, "h": 760, "title": "3 · Пауза на том же кадре" },
+    "s4-who.dc.html": { "x": 0, "y": 6380, "w": 1700, "h": 760, "title": "4 · Кто: представитель хана" },
+    "s5-when.dc.html": { "x": 0, "y": 7260, "w": 1700, "h": 760, "title": "5 · Когда: XIII–XIV века" },
+    "s6-what.dc.html": { "x": 0, "y": 8140, "w": 1700, "h": 760, "title": "6 · Что делал" },
+    "s7-sum.dc.html": { "x": 0, "y": 9020, "w": 1280, "h": 760, "title": "7 · Итог: определение для ответа" },
+    "s8-cta.dc.html": { "x": 0, "y": 9900, "w": 1280, "h": 760, "title": "8 · Финал (база)" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Trio.dc.html",
+    "looks.dc.html",
+    "s1-intro.dc.html",
+    "s2-cond.dc.html",
+    "s3-pause.dc.html",
+    "s4-who.dc.html",
+    "s5-when.dc.html",
+    "s6-what.dc.html",
+    "s7-sum.dc.html",
+    "s8-cta.dc.html"
+  ],
+  "notes": {},
+  "designSystems": []
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Варианты розового</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="hist.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="card" style="width:1480px;height:1080px">
+  <div class="hd"><div class="num">A–D</div><div class="ttl">Четыре варианта розового на главном кадре</div><div class="tm">кадр «условие + герои»</div></div>
+
+  <sc-for list="{{looks}}" as="lk" hint-placeholder-count="4">
+    <div class="fr" style="left:{{lk.left}}px"><div class="scr"><div class="u {{lk.cls}}">
+      <div class="rings"></div>
+      <div class="glw" style="left:140px;top:380px;width:800px;height:800px"></div>
+      <div class="pl"><img src="/_blob/5a4fd2f8a03dc0a59ab16167dc4b496b" alt=""><b>ЕГЭ Тренажёр</b></div>
+      <div class="dt"><i class="on"></i><i></i><i></i><i></i></div>
+      <div class="qst" style="top:560px">Раскройте смысл понятия</div>
+      <div class="cw" style="top:650px;font-size:170px">Баскак</div>
+      <dc-import name="Trio" hint-size="1080px,860px" style="left:0;top:1060px"></dc-import>
+    </div></div></div>
+    <div class="fc" style="left:{{lk.left}}px;height:110px"><b style="color:#FF5C9A">{{lk.name}}</b><br>{{lk.desc}}</div>
+  </sc-for>
+
+  <div class="pn3" style="top:790px;width:1400px">
+    <div>
+      <div class="lb">Чем отличаются</div>
+      <div class="tx">Меняются только фон, кольца за понятием и акцент. Герои, шрифты, кадры и тайминг одни и те же — вариант переключается сразу на весь ролик.</div>
+    </div>
+    <div>
+      <div class="lb">Фон без клише</div>
+      <div class="tx">Никаких свитков, пергамента и гербов. За понятием — тонкие кольца, как свет прожектора на сцене: герои «выходят» к слову. Кольца медленно расходятся, пока идёт пауза.</div>
+    </div>
+    <div>
+      <div class="lb">Рекомендация</div>
+      <div class="tx">A «Бордо-ночь» — герои в белой обводке-стикере на тёмном читаются лучше всего. Если нужен светлый — B «Пудра». D «Розовое золото» — самый «исторический», с золотыми акцентами.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1480,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      looks: [
+        { cls: '', name: 'A · Бордо-ночь', desc: 'тёмный, розовый акцент; основной вариант', left: 40 },
+        { cls: 'powder', name: 'B · Пудра', desc: 'светлый, малиновые акценты', left: 400 },
+        { cls: 'fuchsia', name: 'C · Фуксия-поп', desc: 'яркий, белый текст, лимонный акцент', left: 760 },
+        { cls: 'gold', name: 'D · Розовое золото', desc: 'светлый румянец и золото', left: 1120 },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

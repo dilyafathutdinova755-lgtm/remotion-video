@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сцена 4 · Кто</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="hist.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="card" style="width:1700px;height:760px">
+  <div class="hd"><div class="num">4</div><div class="ttl">Шаг 1 из 3 · Кто: человек хана, которого прислали на Русь</div><div class="tm">10,5 – 15,5 с · голос</div></div>
+
+  <sc-for list="{{frames}}" as="f" hint-placeholder-count="3">
+    <div class="fr" style="left:{{f.left}}px"><div class="scr"><div class="u">
+      <div class="rings" style="opacity:0.6"></div>
+      <div class="glw" style="left:140px;top:600px;width:800px;height:800px"></div>
+      <div class="pl"><img src="/_blob/5a4fd2f8a03dc0a59ab16167dc4b496b" alt=""><b>ЕГЭ Тренажёр</b></div>
+      <div class="dt"><i></i><i class="on"></i><i></i><i></i></div>
+      <div class="hh"><div class="ey">Шаг 1 из 3</div><div class="t1">Кто</div></div>
+
+      <svg style="left:60px;top:760px" width="340" height="340" viewBox="0 0 340 340" role="img" aria-label="Золотая Орда — шатёр">
+        <path d="M40 300 L40 190 C40 120 100 70 170 70 C240 70 300 120 300 190 L300 300 Z" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="8" stroke-linejoin="round"></path>
+        <path d="M40 190 C90 210 250 210 300 190" fill="none" stroke="#FFF0F5" stroke-width="8"></path>
+        <path d="M70 230 L270 230 M70 262 L270 262" stroke="#FFB3CF" stroke-width="6" stroke-dasharray="14 12"></path>
+        <path d="M140 300 L140 240 C140 222 200 222 200 240 L200 300 Z" fill="#3A0F27" stroke="#FFF0F5" stroke-width="6"></path>
+        <path d="M170 70 L170 20 M170 22 L214 34 L170 46" fill="#FFB3CF" stroke="#FFF0F5" stroke-width="6" stroke-linejoin="round"></path>
+      </svg>
+      <div class="lbl" style="left:60px;top:1110px;width:340px;text-align:center;font-size:34px;font-weight:800;color:var(--ink)">Золотая Орда</div>
+
+      <svg style="left:680px;top:760px" width="340" height="340" viewBox="0 0 340 340" role="img" aria-label="Русь — храм с куполами">
+        <path d="M60 300 L60 190 L280 190 L280 300 Z" fill="#FFB3CF" stroke="#FFF0F5" stroke-width="8" stroke-linejoin="round"></path>
+        <path d="M150 300 L150 240 C150 222 190 222 190 240 L190 300 Z" fill="#3A0F27" stroke="#FFF0F5" stroke-width="6"></path>
+        <path d="M120 190 L120 140 L220 140 L220 190" fill="#FF5C9A" stroke="#FFF0F5" stroke-width="8" stroke-linejoin="round"></path>
+        <path d="M170 140 C130 120 140 80 170 60 C200 80 210 120 170 140 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="7"></path>
+        <path d="M95 190 C70 176 76 150 95 136 C114 150 120 176 95 190 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="6"></path>
+        <path d="M245 190 C220 176 226 150 245 136 C264 150 270 176 245 190 Z" fill="#F2C14E" stroke="#FFF0F5" stroke-width="6"></path>
+        <path d="M170 60 L170 26 M158 38 L182 38" stroke="#FFF0F5" stroke-width="6" stroke-linecap="round"></path>
+      </svg>
+      <div class="lbl" style="left:680px;top:1110px;width:340px;text-align:center;font-size:34px;font-weight:800;color:var(--ink)">Русь</div>
+
+      <svg style="left:300px;top:640px" width="480" height="200" viewBox="0 0 480 200" aria-hidden="true">
+        <path d="M20 180 C120 20 360 20 460 180" fill="none" stroke="#FF5C9A" stroke-width="8" stroke-dasharray="18 16" stroke-linecap="round"></path>
+        <path d="M432 150 L460 182 L420 178" fill="none" stroke="#FF5C9A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+
+      <sc-if value="{{f.baskak}}" hint-placeholder-val="{{false}}">
+        <div style="left:{{f.bx}}px;top:{{f.by}}px;width:300px;height:330px;filter:drop-shadow(5px 0 0 #fff) drop-shadow(-5px 0 0 #fff) drop-shadow(0 5px 0 #fff) drop-shadow(0 -5px 0 #fff) drop-shadow(0 20px 26px rgba(20,0,10,0.45))">
+          <svg viewBox="0 0 300 330" width="300" height="330" role="img" aria-label="Баскак">
+            <path d="M20 330 L20 270 C20 222 70 196 150 192 C230 196 280 222 280 270 L280 330 Z" fill="#8E2A5A" stroke="#3A1222" stroke-width="5"></path>
+            <path d="M150 196 L104 330 L130 330 L170 210 Z" fill="#F2C14E"></path>
+            <rect x="126" y="160" width="48" height="44" rx="16" fill="#E3A585"></rect>
+            <ellipse cx="150" cy="120" rx="74" ry="80" fill="#F2BE98" stroke="#3A1222" stroke-width="5"></ellipse>
+            <path d="M70 92 C70 40 110 14 150 14 C190 14 230 40 230 92 Z" fill="#C2303C" stroke="#3A1222" stroke-width="5" stroke-linejoin="round"></path>
+            <path d="M62 96 C62 78 238 78 238 96 C238 112 62 112 62 96 Z" fill="#6B4A3A" stroke="#3A1222" stroke-width="5"></path>
+            <circle cx="150" cy="12" r="10" fill="#F2C14E" stroke="#3A1222" stroke-width="4"></circle>
+            <path d="M104 130 Q120 122 136 130 M164 130 Q180 122 196 130" fill="none" stroke="#2A1712" stroke-width="6" stroke-linecap="round"></path>
+            <circle cx="122" cy="144" r="7" fill="#2A1712"></circle><circle cx="178" cy="144" r="7" fill="#2A1712"></circle>
+            <path d="M118 170 C132 162 146 164 150 170 C154 164 168 162 182 170 C172 184 160 182 150 176 C140 182 128 184 118 170 Z" fill="#2A1712"></path>
+          </svg>
+        </div>
+        <div style="left:{{f.tx}}px;top:{{f.ty}}px;z-index:6" class="note">баскак</div>
+      </sc-if>
+
+      <sc-if value="{{f.def}}" hint-placeholder-val="{{false}}">
+        <div class="ctr" style="top:1300px;z-index:6"><div class="note" style="white-space:normal;width:880px;text-align:center;font-size:40px">представитель <b>хана Золотой Орды</b> на Руси</div></div>
+      </sc-if>
+    </div></div></div>
+    <div class="fc" style="left:{{f.left}}px">{{f.cap}}</div>
+  </sc-for>
+
+  <svg class="arr" width="60" height="24" viewBox="0 0 60 24" style="left:334px" aria-hidden="true"><path d="M2 12h50M42 3l10 9-10 9" fill="none" stroke="#FF5C9A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  <svg class="arr" width="60" height="24" viewBox="0 0 60 24" style="left:694px" aria-hidden="true"><path d="M2 12h50M42 3l10 9-10 9" fill="none" stroke="#FF5C9A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+  <div class="pn" style="left:1130px;width:530px">
+    <div>
+      <div class="lb">Голос</div>
+      <div class="tx v">«Кто это? Баскак — представитель хана Золотой Орды на Руси.»</div>
+    </div>
+    <div>
+      <div class="lb">Что происходит</div>
+      <ul class="tx">
+        <li>Герои уезжают вниз, сверху — «Шаг 1 из 3 · Кто», загорается вторая точка.</li>
+        <li>Слева выпрыгивает шатёр «Золотая Орда», справа — храм «Русь». Между ними рисуется пунктирная дуга со стрелкой.</li>
+        <li>На «баскак» из шатра по дуге едет мультяшный баскак (такой же стиль, как у трёх героев) и встаёт над Русью. Рядом плашка «баскак».</li>
+        <li>На «представитель хана» внизу — спокойная плашка с главными словами.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="lb">Звук</div>
+      <div class="tx">Два «попа» иконок, «шурх» дуги, «вжух» переезда, «динь» плашки.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1700,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      frames: [
+        { left: 40, cap: '≈ 11 с — шатёр и храм, между ними дуга' },
+        { left: 400, baskak: true, bx: 340, by: 520, tx: 640, ty: 560, cap: '≈ 12,5 с «баскак» — едет из Орды по дуге' },
+        { left: 760, baskak: true, def: true, bx: 700, by: 450, tx: 380, ty: 560, cap: '≈ 14 с «представитель хана» — плашка внизу' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

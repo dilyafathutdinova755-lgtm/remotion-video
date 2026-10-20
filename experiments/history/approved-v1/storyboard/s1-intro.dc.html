@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Сцена 1 · Заставка</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="hist.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="card" style="width:1280px;height:760px">
+  <div class="hd"><div class="num">1</div><div class="ttl">Заставка — база: объёмная иконка вращается и садится в плашку</div><div class="tm">0,0 – 2,0 с · без голоса</div></div>
+
+  <div class="fr" style="left:40px"><div class="scr"><div class="u">
+    <div class="rings"></div>
+    <div class="glw" style="left:140px;top:500px;width:800px;height:800px"></div>
+    <div class="sh" style="left:200px;top:1240px;width:680px;height:90px"></div>
+    <img src="/_blob/5a4fd2f8a03dc0a59ab16167dc4b496b" alt="" style="left:290px;top:600px;width:500px;height:500px;border-radius:125px;opacity:0.25;filter:blur(12px);transform:perspective(1600px) rotateY(24deg)">
+    <div class="lg3" style="left:290px;top:600px;transform:perspective(1800px) rotateY(54deg) rotateX(10deg) rotateZ(-4deg)"><sc-for list="{{layers}}" as="l" hint-placeholder-count="0"><div class="ly" style="transform:translateZ(-{{l.z}}px);background:{{l.bg}}"></div></sc-for><img class="fimg" src="/_blob/5a4fd2f8a03dc0a59ab16167dc4b496b" alt="Иконка ЕГЭ Тренажёр"><div class="gloss"></div></div>
+  </div></div></div>
+
+  <svg class="arr" width="60" height="24" viewBox="0 0 60 24" style="left:338px" aria-hidden="true"><path d="M2 12h50M42 3l10 9-10 9" fill="none" stroke="#FF5C9A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+  <div class="fr" style="left:408px"><div class="scr"><div class="u">
+    <div class="rings"></div>
+    <div class="glw" style="left:140px;top:500px;width:800px;height:800px"></div>
+    <div class="pl"><img src="/_blob/5a4fd2f8a03dc0a59ab16167dc4b496b" alt=""><b>ЕГЭ Тренажёр</b></div>
+    <div class="dt"><i class="on"></i><i></i><i></i><i></i></div>
+  </div></div></div>
+
+  <div class="fc" style="left:40px">≈ 0,5 с — три оборота с размытием движения</div>
+  <div class="fc" style="left:408px">≈ 2,0 с — иконка в плашке, точки шагов</div>
+
+  <div class="pn" style="left:740px;width:500px">
+    <div>
+      <div class="lb">Голос</div>
+      <div class="tx v">Тишина.</div>
+    </div>
+    <div>
+      <div class="lb">Что происходит</div>
+      <ul class="tx">
+        <li>Без изменений, как в математике, русском и биологии: настоящая иконка — толстый глянцевый 3D-блок с фаской.</li>
+        <li>Три быстрых оборота с размытием и тенью, дугой вверх — в белую плашку «ЕГЭ ТРЕНАЖЁР».</li>
+        <li>Под плашкой четыре точки: условие и три шага объяснения.</li>
+        <li>Меняется только фон: тёмно-бордовый с розовыми кольцами.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="lb">Звук</div>
+      <div class="tx">«Вжух» вращения, «поп» при посадке.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const layers = [];
+    for (let k = 1; k <= 22; k++) {
+      const d = k / 22;
+      const c1 = Math.round(23 - 13 * d), c2 = Math.round(103 - 50 * d), c3 = Math.round(255 - 85 * d);
+      layers.push({ z: k * 3, bg: 'rgb(' + c1 + ',' + c2 + ',' + c3 + ')' });
+    }
+    return { layers };
+  }
+}
+</script>
+</body>
+</html>
