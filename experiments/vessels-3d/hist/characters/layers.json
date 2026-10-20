@@ -1,0 +1,51 @@
+{
+ "P": {
+  "w": 500,
+  "h": 875,
+  "left": 290,
+  "top": 0,
+  "eyes": "<g id=\"P_eyes\">\n            <ellipse cx=\"160\" cy=\"220\" rx=\"20\" ry=\"24\" fill=\"#FFFFFF\" stroke=\"#3A1222\" stroke-width=\"3\"></ellipse>\n            <ellipse cx=\"240\" cy=\"220\" rx=\"20\" ry=\"24\" fill=\"#FFFFFF\" stroke=\"#3A1222\" stroke-width=\"3\"></ellipse>\n            <g id=\"P_pup\"><circle cx=\"160\" cy=\"220\" r=\"11\" fill=\"#2A1712\"></circle><circle cx=\"240\" cy=\"220\" r=\"11\" fill=\"#2A1712\"></circle><circle cx=\"164\" cy=\"215\" r=\"4\" fill=\"#FFFFFF\"></circle><circle cx=\"244\" cy=\"215\" r=\"4\" fill=\"#FFFFFF\"></circle></g>\n          </g>",
+  "hasHeadB": true,
+  "layers": [
+   "oBody",
+   "oHead",
+   "body",
+   "head",
+   "headB"
+  ],
+  "pad": 90,
+  "scale": 1.25
+ },
+ "E": {
+  "w": 400,
+  "h": 700,
+  "left": 10,
+  "top": 230,
+  "eyes": "<g id=\"E_eyes\">\n            <ellipse cx=\"160\" cy=\"222\" rx=\"20\" ry=\"24\" fill=\"#FFFFFF\" stroke=\"#3A1222\" stroke-width=\"3\"></ellipse>\n            <ellipse cx=\"240\" cy=\"222\" rx=\"20\" ry=\"24\" fill=\"#FFFFFF\" stroke=\"#3A1222\" stroke-width=\"3\"></ellipse>\n            <g id=\"E_pup\"><circle cx=\"160\" cy=\"222\" r=\"11\" fill=\"#3B2A55\"></circle><circle cx=\"240\" cy=\"222\" r=\"11\" fill=\"#3B2A55\"></circle><circle cx=\"163\" cy=\"217\" r=\"4\" fill=\"#FFFFFF\"></circle><circle cx=\"243\" cy=\"217\" r=\"4\" fill=\"#FFFFFF\"></circle></g>\n            <path d=\"M140 204 l-8 -8 M180 204 l6 -8 M220 204 l-6 -8 M260 204 l8 -8\" stroke=\"#3A1222\" stroke-width=\"4\" stroke-linecap=\"round\"></path>\n          </g>",
+  "hasHeadB": false,
+  "layers": [
+   "oBody",
+   "oHead",
+   "body",
+   "head"
+  ],
+  "pad": 90,
+  "scale": 1
+ },
+ "A": {
+  "w": 400,
+  "h": 700,
+  "left": 670,
+  "top": 230,
+  "eyes": "<g id=\"A_eyes\">\n            <ellipse cx=\"160\" cy=\"222\" rx=\"20\" ry=\"24\" fill=\"#FFFFFF\" stroke=\"#3A1222\" stroke-width=\"3\"></ellipse>\n            <ellipse cx=\"240\" cy=\"222\" rx=\"20\" ry=\"24\" fill=\"#FFFFFF\" stroke=\"#3A1222\" stroke-width=\"3\"></ellipse>\n            <g id=\"A_pup\"><circle cx=\"160\" cy=\"222\" r=\"11\" fill=\"#2F4A6B\"></circle><circle cx=\"240\" cy=\"222\" r=\"11\" fill=\"#2F4A6B\"></circle><circle cx=\"163\" cy=\"217\" r=\"4\" fill=\"#FFFFFF\"></circle><circle cx=\"243\" cy=\"217\" r=\"4\" fill=\"#FFFFFF\"></circle></g>\n          </g>",
+  "hasHeadB": false,
+  "layers": [
+   "oBody",
+   "oHead",
+   "body",
+   "head"
+  ],
+  "pad": 90,
+  "scale": 1
+ }
+}

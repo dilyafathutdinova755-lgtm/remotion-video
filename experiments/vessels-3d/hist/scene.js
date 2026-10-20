@@ -92,28 +92,92 @@ function trioOffset(t) {
   y = lerp(y, 900, final);
   return y;
 }
+// heroes: baked layers from hist/characters, composed on a 2D canvas (fast); eyes are drawn live
+const LAY = await (await fetch("/experiments/vessels-3d/hist/characters/layers.json")).json();
+const IMG = {};
+await Promise.all(Object.entries(LAY).flatMap(([X, m]) => m.layers.map((L) => new Promise((res, rej) => {
+  const im = new Image(); im.onload = () => { IMG[X + "_" + L] = im; res(); }; im.onerror = rej;
+  im.src = `/experiments/vessels-3d/hist/characters/${X}_${L}.png`;
+}))));
+const tctx = $("trioc").getContext("2d");
+const EYE = {
+  P: { cy: 220, pupil: "#2A1712", hl: [4, -5], lashes: false },
+  E: { cy: 222, pupil: "#3B2A55", hl: [3, -5], lashes: true },
+  A: { cy: 222, pupil: "#2F4A6B", hl: [3, -5], lashes: false },
+};
+function drawEyes(ctx, X, s, gx, gy) {
+  const e = EYE[X];
+  ctx.save();
+  ctx.translate(0, 222); ctx.scale(1, s); ctx.translate(0, -222);
+  for (const x of [160, 240]) {
+    ctx.beginPath(); ctx.ellipse(x, e.cy, 20, 24, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#FFFFFF"; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = "#3A1222"; ctx.stroke();
+  }
+  for (const x of [160, 240]) {
+    ctx.beginPath(); ctx.arc(x + gx, e.cy + gy, 11, 0, Math.PI * 2); ctx.fillStyle = e.pupil; ctx.fill();
+    ctx.beginPath(); ctx.arc(x + gx + e.hl[0], e.cy + gy + e.hl[1], 4, 0, Math.PI * 2); ctx.fillStyle = "#FFFFFF"; ctx.fill();
+  }
+  if (e.lashes) {
+    ctx.beginPath();
+    for (const [x0, dx] of [[140, -8], [180, 6], [220, -6], [260, 8]]) { ctx.moveTo(x0, 204); ctx.lineTo(x0 + dx, 196); }
+    ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.strokeStyle = "#3A1222"; ctx.stroke();
+  }
+  ctx.restore();
+}
 function updateTrio(t) {
   const base = trioOffset(t);
+  tctx.setTransform(1, 0, 0, 1, 0, 0); tctx.clearRect(0, 0, W, H);
+  if (base > 880 && t > 3) return;
   const rise = (d) => (1 - clamp(eBack(seg(t, 2.05 + d, 2.8 + d)), 0, 1.1)) * 900;
   const gaze = eIO(seg(t, T.word - 0.1, T.word + 0.35));
   const nodK = seg(t, T.fin, T.fin + 1.0), nod = Math.sin(nodK * Math.PI * 2) * 12 * (1 - nodK);
   const think = Math.sin(seg(t, P0 + 1.2, T_EX) * Math.PI) * 4;
-  const figs = [
-    { el: $("figP"), rot: 0, d: 0, ph: 0, head: ["P_headB", "P_head"], eyes: "P_eyes", pup: "P_pup", gx: 0, gy: -9, hr: think, blinks: [3.1, 6.3, 8.6, 35.4], per: 4.7, bph: 1.3 },
-    { el: $("figE"), rot: -7, d: 0.12, ph: 1.7, head: ["E_head"], eyes: "E_eyes", pup: "E_pup", gx: 9, gy: -6, hr: 6, blinks: [3.6, 7.1, 36.1], per: 5.3, bph: 2.9 },
-    { el: $("figA"), rot: 7, d: 0.2, ph: 3.1, head: ["A_head"], eyes: "A_eyes", pup: "A_pup", gx: -9, gy: -6, hr: -6, blinks: [4.3, 7.7, 35.8], per: 4.1, bph: 0.4 },
+  const figs = [  // draw order: Peter (behind), then Catherine and Alexander in front
+    { X: "P", rot: 0, d: 0, ph: 0, gx: 0, gy: -9, hr: think, blinks: [3.1, 6.3, 8.6, 35.4], per: 4.7, bph: 1.3 },
+    { X: "E", rot: -7, d: 0.12, ph: 1.7, gx: 9, gy: -6, hr: 6, blinks: [3.6, 7.1, 36.1], per: 5.3, bph: 2.9 },
+    { X: "A", rot: 7, d: 0.2, ph: 3.1, gx: -9, gy: -6, hr: -6, blinks: [4.3, 7.7, 35.8], per: 4.1, bph: 0.4 },
   ];
+  const ctx = tctx;
   for (const f of figs) {
+    const m = LAY[f.X], p = m.pad, sc = m.scale;
     const bob = Math.sin(t * 1.6 + f.ph) * 4;
-    css(f.el, { transform: `translateY(${base + rise(f.d) + bob}px) rotate(${f.rot}deg)` });
-    const hr = f.hr * gaze + (f.el === figs[0].el ? 0 : Math.sin(t * 0.9 + f.ph) * 1.2);
-    const tr = `translate(0 ${nod}) rotate(${hr} 200 330)`;
-    for (const id of f.head) setT(id, tr);
-    setT(f.pup, `translate(${f.gx * gaze} ${f.gy * gaze})`);
-    const s = blink(t, f.blinks, f.per, f.bph);
-    setT(f.eyes, `translate(0 ${222 * (1 - s)}) scale(1 ${s})`);
+    const hr = (f.hr * gaze + (f.X === "P" ? 0 : Math.sin(t * 0.9 + f.ph) * 1.2)) * Math.PI / 180;
+    const pvx = p + 200 * sc, pvy = p + 330 * sc;
+    ctx.save();
+    ctx.translate(m.left - p, 1060 + m.top - p + base + rise(f.d) + bob);
+    const ox = p + m.w / 2, oy = p + m.h;
+    ctx.translate(ox, oy); ctx.rotate(f.rot * Math.PI / 180); ctx.translate(-ox, -oy);
+    const headT = () => { ctx.translate(pvx, pvy + nod * sc); ctx.rotate(hr); ctx.translate(-pvx, -pvy); };
+    ctx.drawImage(IMG[f.X + "_oBody"], 0, 0);
+    ctx.save(); headT(); ctx.drawImage(IMG[f.X + "_oHead"], 0, 0); if (IMG[f.X + "_headB"]) ctx.drawImage(IMG[f.X + "_headB"], 0, 0); ctx.restore();
+    ctx.drawImage(IMG[f.X + "_body"], 0, 0);
+    ctx.save(); headT(); ctx.drawImage(IMG[f.X + "_head"], 0, 0);
+    ctx.translate(p, p); ctx.scale(sc, sc);
+    drawEyes(ctx, f.X, blink(t, f.blinks, f.per, f.bph), f.gx * gaze, f.gy * gaze);
+    ctx.restore();
+    ctx.restore();
   }
-  $("trio").style.display = base > 880 && t > 3 ? "none" : "";
+}
+
+// background: stage rings slowly spread from the concept (fade-out mask baked into the alpha), glow follows the action
+const bctx = $("bgc").getContext("2d");
+const ringMask = (r) => (r < 456 ? lerp(1, 0.4, r / 456) : r < 646 ? lerp(0.4, 0, (r - 456) / 190) : 0);
+function drawBg(t) {
+  bctx.clearRect(0, 0, W, H);
+  for (let i = 0; i < 2; i++) {
+    const ph = (t * 0.09 + i * 0.5) % 1, sc = 1 + ph * 0.3, op = Math.sin(ph * Math.PI) * 0.9;
+    for (let k = 1; k <= 9; k++) {
+      const r = 74 * k, a = ringMask(r) * 0.13 * op;
+      if (a <= 0.002) continue;
+      bctx.beginPath(); bctx.arc(540, 780, r * sc, 0, Math.PI * 2);
+      bctx.lineWidth = 3 * sc; bctx.strokeStyle = `rgba(255,92,154,${a.toFixed(4)})`; bctx.stroke();
+    }
+  }
+  const gy = t < T.h1 ? 760 : t < T.sum ? 960 : 700;
+  const cx = 540 + Math.sin(t * 0.3) * 80, cy = gy + Math.cos(t * 0.4) * 60, go = 0.8 + 0.2 * Math.sin(t * 0.8);
+  const g = bctx.createRadialGradient(cx, cy, 0, cx, cy, 450);
+  g.addColorStop(0, `rgba(255,92,154,${(0.32 * go).toFixed(4)})`); g.addColorStop(1, "rgba(255,92,154,0)");
+  bctx.fillStyle = g; bctx.fillRect(cx - 450, cy - 450, 900, 900);
 }
 
 // ---------------------------------------------------------------- frame
@@ -124,13 +188,7 @@ function bez(p0, p1, p2, p3, u) {
 }
 
 function renderFrame(t) {
-  // background: stage rings slowly spread from the concept; glow follows the action
-  [$("ringsA"), $("ringsB")].forEach((r, i) => {
-    const ph = (t * 0.09 + i * 0.5) % 1;
-    css(r, { transformOrigin: "540px 780px", transform: `scale(${1 + ph * 0.3})`, opacity: Math.sin(ph * Math.PI) * 0.9 });
-  });
-  const gy = t < T.h1 ? 760 : t < T.sum ? 960 : 700;
-  css($("glow"), { transform: `translate(${90 + Math.sin(t * 0.3) * 80}px, ${gy - 450 + Math.cos(t * 0.4) * 60}px)`, opacity: 0.8 + 0.2 * Math.sin(t * 0.8) });
+  drawBg(t);
 
   // plaque + logo
   const pw = pwOf(t);
