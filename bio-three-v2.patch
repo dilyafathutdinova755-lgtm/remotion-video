@@ -29317,11 +29317,11 @@ HcmV?d00001
 
 diff --git a/biology-three-v2/benchmark.mjs b/biology-three-v2/benchmark.mjs
 new file mode 100644
-index 0000000..a6dd64c
+index 0000000..cf3a671
 --- /dev/null
 +++ b/biology-three-v2/benchmark.mjs
-@@ -0,0 +1,26 @@
-+import fs from 'node:fs';import path from 'node:path';import http from 'node:http';import{fileURLToPath}from'node:url';import{chromium}from'playwright';import{PNG}from'pngjs';
+@@ -0,0 +1,27 @@
++import {execFileSync} from 'node:child_process';import fs from 'node:fs';import path from 'node:path';import http from 'node:http';import{fileURLToPath}from'node:url';import{chromium}from'playwright';import{PNG}from'pngjs';
 +const HERE=path.dirname(fileURLToPath(import.meta.url)),ROOT=path.dirname(HERE),job=JSON.parse(fs.readFileSync(path.join(HERE,'job.json')));
 +const server=http.createServer((req,res)=>{const p=path.join(ROOT,decodeURIComponent(req.url.split('?')[0]));if(!p.startsWith(ROOT+path.sep)){res.writeHead(403);return res.end();}fs.readFile(p,(e,b)=>{if(e){res.writeHead(404);return res.end();}const ex=path.extname(p);res.setHeader('Content-Type',['.js','.mjs'].includes(ex)?'text/javascript':ex==='.html'?'text/html':ex==='.json'?'application/json':'application/octet-stream');res.end(b);});});
 +await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -29346,6 +29346,7 @@ index 0000000..a6dd64c
 + console.log(JSON.stringify({accepted,diffs},null,2));
 + if(!accepted[1].pixel_regression_passed||!accepted[2].pixel_regression_passed)throw Error('Native crop changed pixels beyond tolerance');
 + fs.mkdirSync(path.join(HERE,'out'),{recursive:true});fs.writeFileSync(path.join(HERE,'out','raster-benchmark.json'),JSON.stringify({accepted,diffs},null,2));
++ execFileSync(process.execPath,['render.mjs','video','--workers','1','--fps','60','--from','0','--to','0.1'],{cwd:HERE,stdio:'inherit'});
 +}finally{server.close();}
 diff --git a/biology-three-v2/contract.mjs b/biology-three-v2/contract.mjs
 new file mode 100644
@@ -29731,10 +29732,10 @@ index 0000000..20d6c05
 +});
 diff --git a/biology-three-v2/render.mjs b/biology-three-v2/render.mjs
 new file mode 100644
-index 0000000..32008c2
+index 0000000..49a59cc
 --- /dev/null
 +++ b/biology-three-v2/render.mjs
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,139 @@
 +#!/usr/bin/env node
 +// Own renderer (no Remotion): serves the page, steps time deterministically
 +// via window.renderFrame(t), captures each frame from headless Chromium
@@ -29759,6 +29760,7 @@ index 0000000..32008c2
 +function serve() {
 +  return new Promise((resolve) => {
 +    const srv = http.createServer((req, res) => {
++      if (req.url.split("?")[0] === "/favicon.ico") { res.writeHead(204); res.end(); return; }
 +      const p = path.join(ROOT, decodeURIComponent(req.url.split("?")[0]));
 +      if (p !== ROOT && !p.startsWith(ROOT + path.sep)) { res.writeHead(403); res.end(); return; }
 +      fs.readFile(p, (err, data) => {
@@ -29779,7 +29781,8 @@ index 0000000..32008c2
 +  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: Number(process.env.SCALE || 1) });
 +  const errors = [];
 +  page.on("pageerror", (e) => errors.push(String(e)));
-+  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
++  page.on("response", r => { if(r.status() >= 400) errors.push("HTTP "+r.status()+" "+r.url()); });
++  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()+" at "+m.location().url); });
 +  await page.goto(`http://127.0.0.1:${port}/${process.env.PAGE || "biology-three-v2/index.html"}${process.env.SCALE ? "?s=" + process.env.SCALE : ""}`);
 +  try {
 +    await page.waitForFunction("window.ready === true", null, { timeout: 60000 });
@@ -29787,6 +29790,7 @@ index 0000000..32008c2
 +    console.error("page failed to init:", errors.join("\n"));
 +    throw e;
 +  }
++  if(errors.length) throw new Error(errors.join("\n"));
 +  const cdp = await page.context().newCDPSession(page);
 +  return { browser, page, cdp, errors };
 +}
@@ -29847,6 +29851,7 @@ index 0000000..32008c2
 +      { stdio: ["pipe", "inherit", "inherit"] });
 +    for (let f = a; f < b; f++) {
 +      const buf = await shot(ctx, f / fps);
++      if (ctx.errors.length) throw new Error(ctx.errors.join("\n"));
 +      if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once("drain", r));
 +      done++;
 +      if (done % 60 === 0) {
