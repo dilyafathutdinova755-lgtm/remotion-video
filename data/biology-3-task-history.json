@@ -431,6 +431,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/46178",
       "source_task_id": "46178"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39390270710",
+      "reserved_at": "2026-10-20T08:02:12.351Z",
+      "task_number": 3,
+      "condition_text": "Сколько хромосом содержит ядро клетки после мейоза, если в исходной клетке содержится 48 хромосом? В ответе запиши те только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/70171",
+      "source_task_id": "70171"
     }
   ]
 }
