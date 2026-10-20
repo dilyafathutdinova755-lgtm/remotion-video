@@ -485,7 +485,7 @@ jobs:
           const job=validateStoryboard(JSON.parse(process.env.TASK_DATA));
           const url=new URL(process.env.AUDIO_URL);
           if(url.protocol!=='https:'||url.hostname!=='drive.google.com'||url.username||url.password)throw Error('Drive audio URL required');
-          if(job.id!==process.env.TASK_ID||!job.id.startsWith('bio3-v2-')||job.run_mode!=='production'||job.publication_allowed!==true)throw Error('Production identity');
+          if(job.id!==process.env.TASK_ID||!((job.id.startsWith('bio3-v2-')&&job.run_mode==='production'&&job.publication_allowed===true)||(job.id.startsWith('bio3-test-')&&job.run_mode==='test'&&job.publication_allowed===false)))throw Error('Explicit job identity/mode');
           fs.writeFileSync('biology-three-v2/input.json',JSON.stringify(job));
           JS
           python -m gdown --fuzzy "$AUDIO_URL" -O biology-three-v2/input.mp3
@@ -525,6 +525,7 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_OUTPUT,'link='+d.webViewLink+'\n');
           JS
       - name: Загрузить MP4 в Postmypost (upload/init)
+        if: fromJSON(inputs.task_data).run_mode == 'production'
         id: postmypost_init
         env:
           POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
@@ -583,6 +584,7 @@ jobs:
           "
 
       - name: Отправить MP4 в Postmypost (multipart upload)
+        if: fromJSON(inputs.task_data).run_mode == 'production'
         working-directory: source
         run: |
           ACTION_URL=$(cat postmypost_action_url.txt)
@@ -612,6 +614,7 @@ jobs:
             "$ACTION_URL"
 
       - name: Завершить upload в Postmypost (upload/complete)
+        if: fromJSON(inputs.task_data).run_mode == 'production'
         env:
           POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
         working-directory: source
@@ -623,6 +626,7 @@ jobs:
             "https://api.postmypost.io/v4.1/upload/complete?id=${UPLOAD_ID}"
 
       - name: Notify original n8n only after verified render and completed upload
+        if: fromJSON(inputs.task_data).run_mode == 'production'
         working-directory: source
         env:
           N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL }}
@@ -637,3 +641,17 @@ jobs:
           fs.writeFileSync('callback-v2.json',JSON.stringify({...result,video_url:process.env.VIDEO_URL,postmypost_upload_id:uploadId,video_status:'ready'}));
           JS
           curl -sS --fail-with-body --retry 3 --retry-delay 3 --retry-all-errors -X POST -H 'Content-Type: application/json' --data-binary @callback-v2.json "$N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL"
+      - name: Return unpublished verification result to isolated n8n callback
+        if: fromJSON(inputs.task_data).run_mode == 'test'
+        working-directory: source
+        env:
+          VIDEO_URL: ${{ steps.drive_v2.outputs.link }}
+          TASK_ID: ${{ inputs.task_id }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const result=JSON.parse(fs.readFileSync('biology-three-v2/out/result.json'));
+          if(result.task_id!==process.env.TASK_ID||result.run_mode!=='test'||result.publication_allowed!==false||!process.env.VIDEO_URL)throw Error('Test callback identity/output');
+          fs.writeFileSync('callback-v2.json',JSON.stringify({...result,video_url:process.env.VIDEO_URL,video_status:'ready'}));
+          JS
+          curl -sS --fail-with-body --retry 3 --retry-delay 3 --retry-all-errors -X POST -H 'Content-Type: application/json' --data-binary @callback-v2.json 'https://dilyafathutdinova755.app.n8n.cloud/webhook/bio-three-v2-test-result'
