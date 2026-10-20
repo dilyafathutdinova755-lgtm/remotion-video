@@ -19,7 +19,7 @@ jobs:
   reference-regression:
     if: github.ref == 'refs/heads/codex/bio-approved-validation'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo '86f61140a8064c215d3145e8bb67d39c2b2a332abb1614a03bce0ac1252260a9  ../candidate/candidate.patch' | sha256sum -c -
+          echo 'd5062be5d0240ec84fd6e772e71219b439de0d399e86a9d1f917586e6f4eef2d  ../candidate/candidate.patch' | sha256sum -c -
           git apply --check ../candidate/candidate.patch
           git apply ../candidate/candidate.patch
           git diff --exit-code
@@ -67,6 +67,16 @@ jobs:
       - name: Check chromosome scene layout and spoken answer reveal
         working-directory: approved
         run: node experiments/vessels-3d/bio/lessons/visual-check.mjs
+      - name: Render complete isolated chromosome preview at 60 FPS
+        working-directory: approved
+        env:
+          PAGE: experiments/vessels-3d/bio/lessons/index.html
+          OUT: experiments/vessels-3d/bio/lessons/out/video
+          X264PRESET: fast
+        run: |
+          node experiments/vessels-3d/bio/dynamic/render-candidate.mjs video --workers 2 --fps 60
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,nb_frames -show_entries format=duration -of json experiments/vessels-3d/bio/lessons/out/video/video-silent.mp4 > experiments/vessels-3d/bio/lessons/out/video/probe.json
+          rm experiments/vessels-3d/bio/lessons/out/video/seg-*.mp4 experiments/vessels-3d/bio/lessons/out/video/segs.txt
       - name: Save inspectable comparison evidence
         if: always()
         uses: actions/upload-artifact@v4
