@@ -1652,7 +1652,7 @@ diff --git a/experiments/vessels-3d/bio/lessons/scene.mjs b/experiments/vessels-
 new file mode 100644
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/lessons/scene.mjs
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,177 @@
 +// Reuses the frozen approved renderer, materials, logo choreography and CSS.
 +// New semantic family only; no factory integration or publication.
 +import * as THREE from 'three';
@@ -1745,6 +1745,9 @@ new file mode 100644
 +function element(id,className,style,text='') {
 + const el=document.createElement('div');el.id=id;el.className=className;css(el,style);el.textContent=text;$('stage').appendChild(el);return el;
 +}
++const introHeading=element('introHeading','a hh',{top:'680px'});
++const introEy=document.createElement('div');introEy.className='ey';introEy.textContent='Биология';introHeading.appendChild(introEy);
++const introTitle=document.createElement('div');introTitle.className='t1';introTitle.textContent='Задание 3';introHeading.appendChild(introTitle);
 +const heading=element('lessonHeading','a hh',{});
 +const eyebrow=document.createElement('div');eyebrow.className='ey';heading.appendChild(eyebrow);
 +const title=document.createElement('div');title.className='t1';heading.appendChild(title);
@@ -1795,6 +1798,8 @@ new file mode 100644
 + const st=active?(second?2:1):0;
 + css($('dots'),{opacity:seg(t,1.9,2.4)*(1-seg(t,T.cta-.3,T.cta+.2))});
 + dots.forEach((d,i)=>css(d,{width:i===st?'46px':'14px',background:i===st?'#C6FF4D':'rgba(255,255,255,0.22)'}));
++ // Keep the spoken introduction visible until the measured task begins.
++ headline(introHeading,fadeIO(t,S.intro.start,S.intro.start+.4,S.task.start-.35,S.task.start));
 + const p=tl.pause,exit=eIO(seg(t,p.end-.3,p.end+.15));
 + show($('cond'),seg(t,S.task.start,S.task.start+.4)*(1-exit),{dy:-160*exit});
 + const tp=pop(t,p.start+.95,.45);show($('timer'),tp.o*(1-exit),{dy:(1-tp.o)*60-160*exit,sc:lerp(.9,1,tp.o),flex:true});
@@ -1829,7 +1834,7 @@ diff --git a/experiments/vessels-3d/bio/lessons/visual-check.mjs b/experiments/v
 new file mode 100644
 --- /dev/null
 +++ b/experiments/vessels-3d/bio/lessons/visual-check.mjs
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,44 @@
 +// Rendered layout and answer-reveal checks. No external network or publishing.
 +import http from 'node:http';
 +import fs from 'node:fs/promises';
@@ -1854,9 +1859,13 @@ new file mode 100644
 + for(const t of times){
 +  await page.evaluate(t=>window.renderFrame(t),t);
 +  const state=await page.evaluate(()=>window.LESSON_STATE);
++  if(t===4){
++   assert.equal(await page.locator('#introHeading').innerText(),'Биология\nЗадание 3');
++   assert.equal(await page.locator('#introHeading').isVisible(),true,'spoken intro must not leave an empty screen');
++  }
 +  if(t<job.cues.answer.start)assert.equal(state.answer_visible,false,'answer appeared before spoken cue');
 +  if(t>job.cues.answer.start&&t<job.timeline.segments.at(-1).start){assert.equal(state.parent_count,26);assert.equal(state.daughter_count,26);}
-+  const overflow=await page.evaluate(()=>Array.from(document.querySelectorAll('#cond,#lessonHeading,#parentLabel,#daughterLabel,#parentValue,#daughterValue,#lessonEquation,#cellCaption,#timer')).flatMap(el=>{
++  const overflow=await page.evaluate(()=>Array.from(document.querySelectorAll('#introHeading,#cond,#lessonHeading,#parentLabel,#daughterLabel,#parentValue,#daughterValue,#lessonEquation,#cellCaption,#timer')).flatMap(el=>{
 +   const s=getComputedStyle(el);if(s.display==='none'||Number(s.opacity)<.1)return [];
 +   const range=document.createRange();range.selectNodeContents(el);const r=range.getBoundingClientRect();
 +   return r.left<35||r.right>1045||r.top<300||r.bottom>1730?[{id:el.id,left:r.left,right:r.right,top:r.top,bottom:r.bottom}]:[];
