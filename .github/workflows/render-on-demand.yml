@@ -1,439 +1,102 @@
-name: Render on demand
-
-# Рендер одного ролика по запросу n8n: n8n сам дёргает
-# POST /repos/{owner}/{repo}/actions/workflows/render-on-demand.yml/dispatches
-# с этими тремя полями, когда озвучка для очередной задачи готова.
+name: Render biology Three.js v2 (test, no publication)
 on:
+  push:
+    branches: [codex/bio-three-v2]
+    paths: [bio-three-v2.patch, .github/workflows/render-on-demand.yml]
   workflow_dispatch:
     inputs:
       task_id:
-        description: "Идентификатор задачи (строка/id строки в таблице n8n)"
         required: true
         type: string
       task_data:
-        description: >
-          JSON строкой: {exam, subject, task_number, condition_text, answer,
-          voiceover_text, account}
         required: true
         type: string
       audio_url:
-        description: "Прямая или веб-ссылка на mp3 в Google Drive"
         required: true
         type: string
-
+      run_mode:
+        required: true
+        default: test
+        type: choice
+        options: [test]
+permissions:
+  contents: read
+concurrency:
+  group: bio-three-v2-${{ github.event.inputs.task_id || github.sha }}
+  cancel-in-progress: false
 jobs:
-  render:
-    if: github.ref == 'refs/heads/biology-3'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+  validate-and-render:
+    if: github.ref == 'refs/heads/codex/bio-three-v2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          persist-credentials: false
+          path: candidate
+      - uses: actions/checkout@v4
+        with:
+          ref: c5254c11c5a4f7d18c03c9e0b32fd7393fd9e9f8
+          persist-credentials: false
+          path: source
+      - name: Install isolated renderer source
+        working-directory: source
+        run: git apply --check ../candidate/bio-three-v2.patch && git apply ../candidate/bio-three-v2.patch
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
-
+          node-version: '22'
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
-      - name: Установить зависимости
+          python-version: '3.12'
+      - name: Dependencies
+        working-directory: source/biology-three-v2
         run: |
-          npm ci
-          # Версия зафиксирована: --fuzzy появился в gdown 4.4, но раннер может
-          # найти в PATH другой, более старый gdown раньше pip-версии — поэтому
-          # ниже вызываем через "python3 -m gdown" тем же интерпретатором.
-          pip install --quiet "gdown==5.2.0"
-
-      - name: Сохранить task_data во временный файл
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+          python -m pip install gdown==5.2.0
+      - name: Audio speed contract test
+        working-directory: source/biology-three-v2
+        run: node --test prepare.test.mjs
+      - name: Read and validate n8n job
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: source
         env:
           TASK_DATA: ${{ inputs.task_data }}
-        run: printf '%s' "$TASK_DATA" > task_data.json
-
-      - name: Проверить task_data и вычислить безопасный id файла
-        id: prep
-        env:
           TASK_ID: ${{ inputs.task_id }}
-        run: |
-          # video_structure_version="four-slides-v1"/"biology-steps-v1"
-          # — у каждого совсем другой набор обязательных полей (см.
-          # scripts/dynamic-task/four-slides.mjs и
-          # scripts/dynamic-task/profile-math-steps.mjs), а не condition_text/
-          # voiceover_text старой модели. Полная fail-fast проверка
-          # происходит позже, в build-dynamic-task.mjs
-          # (validateFourSlidesTaskData/validateProfileMathStepsTaskData) —
-          # здесь только минимум, без которого не собрать даже safe_id/
-          # дальнейшие шаги.
-          node -e "
-            const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
-            if (d.exam !== 'ЕГЭ' || d.subject !== 'биология' || Number(d.task_number) !== 3 || d.account !== 'ege_biology' || d.video_structure_version !== 'biology-steps-v1') { throw new Error('Wrong biology scope'); }
-            const fields = (d.video_structure_version === 'four-slides-v1' || d.video_structure_version === 'biology-steps-v1')
-              ? ['exam','subject','task_number']
-              : ['exam','subject','task_number','condition_text','answer','voiceover_text'];
-            for (const f of fields) {
-              if (!d[f] && d[f] !== 0) { console.error('В task_data нет поля ' + f); process.exit(1); }
-            }
-          "
-          SAFE_ID=$(printf '%s' "$TASK_ID" | tr -c 'a-zA-Z0-9' '-' | sed -E 's/-+/-/g; s/^-|-$//g')
-          if [ -z "$SAFE_ID" ]; then SAFE_ID="task"; fi
-          echo "safe_id=$SAFE_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Скачать озвучку с Google Drive
-        env:
+          RUN_MODE: ${{ inputs.run_mode }}
           AUDIO_URL: ${{ inputs.audio_url }}
-        run: python3 -m gdown --fuzzy "$AUDIO_URL" -O audio_raw.mp3
-
-      - name: Разметить тайминг по озвучке (align.py)
         run: |
-          # video_structure_version="four-slides-v1" размечается совсем
-          # иначе (см. align.py: run_four_slides_v1) — n8n присылает не один
-          # блок текста с маркерами "Ответ:"/CTA, а четыре готовых для TTS
-          # текста отдельными полями, и аудио уже физически содержит паузу
-          # (align.py сам её вставляет через ffmpeg). Старая ветка ниже (else)
-          # не тронута ни на строку — полная обратная совместимость.
-          #
-          # Багфикс: раньше intro_text/answer_voiceover_text/cta_text и
-          # т. п. вычитывались здесь по одному через `node -e` в переменные
-          # и передавались align.py длинными CLI-флагами (--intro-text и
-          # т. д.) — align.py теперь читает --task-data task_data.json
-          # напрямую, одним куском, без единого текстового поля в bash-
-          # аргументах: intro_text/task_voiceover_text/answer_voiceover_text/
-          # cta_text/read_task_aloud/pause_seconds и reveal_seconds (из
-          # condition_text) align.py сам достаёт из task_data.json.
-          VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).video_structure_version || '')")
-
-          if [ "$VERSION" = "four-slides-v1" ]; then
-            python3 scripts/dynamic-task/align.py \
-              --mode four-slides-v1 \
-              --task-data task_data.json \
-              --audio-in audio_raw.mp3 \
-              --audio-out audio_spliced.mp3 \
-              --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
-              > align.json
-            cat align.json
-            exit 0
-          fi
-
-          # biology-steps-v1 (биология №3) — N spoken-
-          # сегментов (intro/task/шаги решения/cta), explicit список в
-          # task_data.narration_segments; align.py находит РЕАЛЬНУЮ границу
-          # между КАЖДОЙ парой сегментов и физически вставляет pause_seconds
-          # тишины сразу после "task" (см. align.py: run_profile_math_steps_v2).
-          # Нормализацию произношения этот шаг не делает и не трогает —
-          # narration_segments[].tts_text уже готов (отдельный узел n8n +
-          # ChatGPT, затем ElevenLabs).
-          if [ "$VERSION" = "biology-steps-v1" ]; then
-            if ! command -v ffmpeg >/dev/null 2>&1; then
-              sudo apt-get update
-              sudo apt-get install -y ffmpeg
-            fi
-            python3 scripts/dynamic-task/align.py \
-              --mode biology-steps-v1 \
-              --task-data task_data.json \
-              --audio-in audio_raw.mp3 \
-              --audio-out audio_spliced.mp3 \
-              --ffmpeg "$(command -v ffmpeg)" \
-              > align.json
-            cat align.json
-            exit 0
-          fi
-
-          TASK_TEXT=$(node scripts/dynamic-task/print-normalized-voiceover.mjs task_data.json)
-          RAW_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).voiceover_text)")
-          CONDITION_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).condition_text)")
-          SUBJECT_TEXT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).subject)")
-
-          python3 scripts/dynamic-task/align.py \
-            --text "$TASK_TEXT" \
-            --display-text "$RAW_TEXT" \
-            --condition-text "$CONDITION_TEXT" \
-            --subject "$SUBJECT_TEXT" \
-            --audio audio_raw.mp3 \
-            --ffmpeg node_modules/@remotion/compositor-linux-x64-gnu/ffmpeg \
-            > align.json
-
-          cat align.json
-
-      - name: Положить аудио в public/ и собрать TaskDef
-        env:
-          TASK_ID: ${{ inputs.task_id }}
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';import {validateStoryboard} from './biology-three-v2/contract.mjs';
+          if(Buffer.byteLength(process.env.TASK_DATA)>60000)throw Error('Job too large');
+          const job=validateStoryboard(JSON.parse(process.env.TASK_DATA));
+          const url=new URL(process.env.AUDIO_URL);
+          if(url.protocol!=='https:'||url.hostname!=='drive.google.com'||url.username||url.password)throw Error('Drive audio URL required');
+          if(job.id!==process.env.TASK_ID||process.env.RUN_MODE!=='test'||job.run_mode!=='test'||job.publication_allowed!==false)throw Error('Test identity');
+          fs.writeFileSync('biology-three-v2/input.json',JSON.stringify(job));
+          JS
+          python -m gdown --fuzzy "$AUDIO_URL" -O biology-three-v2/input.mp3
+          node biology-three-v2/prepare.mjs biology-three-v2/input.json biology-three-v2/input.mp3
+      - name: Verify layout, object-first opening, hidden unknown and scene timings
+        working-directory: source
+        run: node biology-three-v2/visual-check.mjs
+      - name: Render actual n8n job at native 60 FPS
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: source
         run: |
-          mkdir -p public/audio
-
-          AUDIO_REL="audio/dynamic-${{ steps.prep.outputs.safe_id }}.mp3"
-
-          AUDIO_SRC_FILE=$(node -e "
-            const a = JSON.parse(require('fs').readFileSync('align.json', 'utf8'));
-            console.log(a.audioOut || 'audio_raw.mp3');
-          ")
-
-          cp "$AUDIO_SRC_FILE" "public/$AUDIO_REL"
-
-          node scripts/dynamic-task/build-dynamic-task.mjs \
-            --task-id "$TASK_ID" \
-            --task-data task_data.json \
-            --align align.json \
-            --audio-src "$AUDIO_REL" \
-            --out src/ege/tasks/_dynamic.generated.tsx \
-            --id-out composition_id.txt
-
-          cat src/ege/tasks/_dynamic.generated.tsx
-
-      - name: Рендер видео
-        id: render
-        run: |
-          node -e '
-            const fs=require("fs"),d=JSON.parse(fs.readFileSync("task_data.json")),a=JSON.parse(fs.readFileSync("align.json"));
-            if(d.video_structure_version==="biology-steps-v1" && (d.playback_speed!==1.2 || d.max_video_seconds!==90 || (a.totalSec-2)/1.2+2>89.9)) throw Error("Shorten biology script before render: maximum 90 seconds, fixed 1.2x pace");
-          '
-          COMPOSITION_ID=$(cat composition_id.txt)
-
-          echo "composition_id=$COMPOSITION_ID" >> "$GITHUB_OUTPUT"
-
-          npx remotion render "$COMPOSITION_ID" out/dynamic.mp4
-
-      - name: Проверить FPS и длительность биологического видео
-        run: |
-          VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('task_data.json','utf8')).video_structure_version || '')")
-          if [ "$VERSION" != "biology-steps-v1" ]; then exit 0; fi
-          ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate,avg_frame_rate,nb_frames,duration -of json out/dynamic.mp4 > out/video-probe.json
-          node -e '
-            const fs=require("fs");
-            const v=JSON.parse(fs.readFileSync("out/video-probe.json")).streams[0];
-            const a=JSON.parse(fs.readFileSync("align.json"));
-            if(v.r_frame_rate!=="120/1" || v.avg_frame_rate!=="120/1") throw Error("Expected actual CFR 120 FPS");
-            if(Math.abs(Number(v.nb_frames)/120-a.totalSec)>0.1) throw Error("Video/audio duration mismatch");
-            if(a._debug.timingSource!=="elevenlabs-character-alignment-v1") throw Error("Missing measured speech timestamps");
-            console.log(JSON.stringify({fps:v.avg_frame_rate,frames:v.nb_frames,duration:v.duration,timingSource:a._debug.timingSource,pauseSeconds:a.pauseSeconds}));
-          '
-
-      - name: Ускорить готовое видео 1.2x без изменения высоты голоса; ориентир около минуты, защитный предел 90 секунд
-        run: |
-          python3 - <<'PY'
-          import json, math, pathlib, subprocess
-          
-          def finish(task_path='task_data.json', align_path='align.json', video_path='out/dynamic.mp4'):
-              d=json.load(open(task_path)); a=json.load(open(align_path))
-              if d.get('video_structure_version')!='biology-steps-v1': return
-              if d.get('playback_speed')!=1.2 or d.get('max_video_seconds')!=90:
-                  raise ValueError('Missing explicit 1.2x / 90 second safety contract')
-              if a.get('pauseSeconds')!=2: raise ValueError('Expected two second pause')
-              fps=120; speed=1.2
-              task=next(s for s in a['segments'] if s['kind']=='task')
-              end_pause=round(task['endSec']*fps); start_pause=end_pause-240
-              total=round(a['totalSec']*fps)
-              ranges=[(0,start_pause,speed),(start_pause,end_pause,1),(end_pause,total,speed)]
-              out_frames=[math.ceil((hi-lo)/rate-1e-9) for lo,hi,rate in ranges]
-              expected=sum(out_frames)/fps
-              if expected>90 or expected<=2: raise ValueError(f'Video exceeds 90 seconds: {expected:.3f}; shorten script, never truncate or speed up excessively')
-              filters=[]
-              for i,((lo,hi,rate),frames) in enumerate(zip(ranges,out_frames)):
-                  duration=frames/fps
-                  filters.append(f'[0:v]trim=start_frame={lo}:end_frame={hi},setpts=(PTS-STARTPTS)/{rate},fps=120,tpad=stop_mode=clone:stop_duration=0.1,trim=end_frame={frames},setpts=PTS-STARTPTS[v{i}]')
-                  # Pitch-preserving tempo adjustment of the finished soundtrack, NOT TTS.
-                  # Keep pause audio digitally silent and exactly 2 seconds.
-                  if i==1:
-                      filters.append(f'anullsrc=r=48000:cl=stereo,atrim=duration=2,asetpts=PTS-STARTPTS[a{i}]')
-                  else:
-                      filters.append(f'[0:a]atrim=start={lo/fps:.9f}:end={hi/fps:.9f},asetpts=PTS-STARTPTS,atempo={rate},aresample=48000,aformat=channel_layouts=stereo,apad,atrim=duration={duration:.9f},asetpts=PTS-STARTPTS[a{i}]')
-              filters.append('[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]')
-              source=pathlib.Path(video_path); target=source.with_name('dynamic-paced.mp4')
-              subprocess.run(['ffmpeg','-v','error','-y','-i',str(source),'-filter_complex',';'.join(filters),'-map','[v]','-map','[a]','-c:v','libx264','-preset','fast','-crf','18','-r','120','-fps_mode','cfr','-c:a','aac','-b:a','192k','-movflags','+faststart',str(target)],check=True)
-              probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(target)]))
-              v=next(s for s in probe['streams'] if s['codec_type']=='video'); audio=next(s for s in probe['streams'] if s['codec_type']=='audio')
-              if v['avg_frame_rate']!='120/1' or v['r_frame_rate']!='120/1' or float(probe['format']['duration'])>90: raise ValueError('Final FPS/duration failure')
-              if abs(float(v['duration'])-expected)>1/fps+0.001 or abs(float(audio['duration'])-float(v['duration']))>0.08: raise ValueError('Final AV timing mismatch')
-              target.replace(source)
-              proof={'playbackSpeed':speed,'ttsSpeed':1,'pitchPreserved':True,'pauseSeconds':2,'pauseStartSeconds':out_frames[0]/fps,'expectedSeconds':expected,'fps':v['avg_frame_rate'],'frames':v['nb_frames'],'duration':probe['format']['duration']}
-              source.with_name('pacing-check.json').write_text(json.dumps(proof,indent=2))
-              print(json.dumps(proof))
-          
-          if __name__=='__main__': finish()
-          PY
-
+          node biology-three-v2/render.mjs video --workers 3 --fps 60
+          node biology-three-v2/finalize.mjs
       - uses: actions/upload-artifact@v4
-        id: video_artifact
+        if: always()
         with:
-          name: video-${{ steps.prep.outputs.safe_id }}
+          name: biology-three-v2-${{ github.run_id }}
           path: |
-            out/dynamic.mp4
-            out/video-probe.json
-            out/pacing-check.json
-            align.json
-            task_data.json
-            audio_raw.mp3
-            audio_spliced.mp3
-          retention-days: 30
-
-      - name: Проверить наличие секретов для Google Drive
-        id: drive_check
-        env:
-          HAS_SA: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON != '' }}
-          HAS_FOLDER: ${{ secrets.GDRIVE_FOLDER_ID != '' }}
-        run: |
-          if [ "$HAS_SA" = "true" ] && [ "$HAS_FOLDER" = "true" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::GDRIVE_SERVICE_ACCOUNT_JSON и/или GDRIVE_FOLDER_ID не заданы в секретах репозитория — видео на Google Drive не загружено, video_url в вебхуке будет ссылкой на артефакт GitHub Actions."
-          fi
-
-      - name: Загрузить видео на Google Drive
-        id: drive_upload
-        if: steps.drive_check.outputs.enabled == 'true'
-        env:
-          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-        run: |
-          RESULT=$(node scripts/dynamic-task/gdrive-upload.mjs \
-            --file out/dynamic.mp4 \
-            --name "${{ steps.render.outputs.composition_id }}.mp4")
-
-          echo "$RESULT"
-
-          echo "link=$(node -e "console.log(JSON.parse(process.argv[1]).webViewLink)" "$RESULT")" >> "$GITHUB_OUTPUT"
-
-      - name: Загрузить MP4 в Postmypost (upload/init)
-        id: postmypost_init
-        env:
-          POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
-        run: |
-          MP4_PATH="out/dynamic.mp4"
-
-          if [ ! -f "$MP4_PATH" ]; then
-            echo "::error::$MP4_PATH не найден после шага рендера — грузить в Postmypost нечего."
-            exit 1
-          fi
-
-          FILE_NAME=$(basename "$MP4_PATH")
-          FILE_SIZE=$(stat -c%s "$MP4_PATH")
-
-          echo "Postmypost upload/init: name=$FILE_NAME, size=$FILE_SIZE bytes"
-
-          BODY=$(FILE_NAME="$FILE_NAME" FILE_SIZE="$FILE_SIZE" node -e "
-            console.log(JSON.stringify({
-              project_id: 351182,
-              name: process.env.FILE_NAME,
-              size: Number(process.env.FILE_SIZE),
-            }));
-          ")
-
-          curl -sS --fail-with-body -X POST \
-            -H "Authorization: Bearer $POSTMYPOST_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "$BODY" \
-            "https://api.postmypost.io/v4.1/upload/init" > postmypost_init_response.json
-
-          node -e "
-            const r = JSON.parse(require('fs').readFileSync('postmypost_init_response.json', 'utf8'));
-
-            if (r.id === undefined || r.id === null || !r.action || !Array.isArray(r.fields)) {
-              console.error('ОШИБКА: ответ Postmypost upload/init не содержит id/action/fields.');
-              process.exit(1);
-            }
-
-            const fs = require('fs');
-
-            fs.writeFileSync('postmypost_upload_id.json', JSON.stringify(r.id));
-            fs.writeFileSync('postmypost_upload_id.txt', String(r.id));
-            fs.writeFileSync('postmypost_action_url.txt', r.action);
-            fs.writeFileSync('postmypost_fields.json', JSON.stringify(r.fields));
-
-            console.error(
-              'Postmypost upload_id=' +
-              JSON.stringify(r.id) +
-              ', полей в fields: ' +
-              r.fields.length +
-              ' (' +
-              r.fields.map(f => f.key).join(', ') +
-              ')'
-            );
-          "
-
-      - name: Отправить MP4 в Postmypost (multipart upload)
-        run: |
-          ACTION_URL=$(cat postmypost_action_url.txt)
-          MP4_PATH="out/dynamic.mp4"
-
-          node -e "
-            const fields = JSON.parse(require('fs').readFileSync('postmypost_fields.json', 'utf8'));
-            const out = [];
-
-            for (const f of fields) {
-              out.push('--form-string');
-              out.push(f.key + '=' + f.value);
-            }
-
-            process.stdout.write(out.join('\u0000') + '\u0000');
-          " > postmypost_form_args.bin
-
-          FORM_ARGS=()
-
-          while IFS= read -r -d '' arg; do
-            FORM_ARGS+=("$arg")
-          done < postmypost_form_args.bin
-
-          curl -sS --fail-with-body -X POST \
-            "${FORM_ARGS[@]}" \
-            -F "file=@${MP4_PATH}" \
-            "$ACTION_URL"
-
-      - name: Завершить upload в Postmypost (upload/complete)
-        env:
-          POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
-        run: |
-          UPLOAD_ID=$(cat postmypost_upload_id.txt)
-
-          curl -sS --fail-with-body -X POST \
-            -H "Authorization: Bearer $POSTMYPOST_API_KEY" \
-            "https://api.postmypost.io/v4.1/upload/complete?id=${UPLOAD_ID}"
-
-      - name: Сообщить n8n, что видео готово
-        env:
-          TASK_ID: ${{ inputs.task_id }}
-          N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL }}
-          VIDEO_URL: ${{ steps.drive_upload.outputs.link || steps.video_artifact.outputs.artifact-url }}
-        run: |
-          ACCOUNT=$(node -e "
-            const d = JSON.parse(require('fs').readFileSync('task_data.json', 'utf8'));
-            console.log(d.account || '');
-          ")
-
-          BODY=$(TASK_ID="$TASK_ID" ACCOUNT="$ACCOUNT" node -e "
-            const uploadId =
-              JSON.parse(
-                require('fs').readFileSync(
-                  'postmypost_upload_id.json',
-                  'utf8'
-                )
-              );
-
-            console.log(
-              JSON.stringify({
-                task_id:
-                  process.env.TASK_ID,
-
-                postmypost_upload_id:
-                  uploadId,
-
-                account:
-                  process.env.ACCOUNT,
-
-                video_url:
-                  process.env.VIDEO_URL,
-
-                video_status:
-                  'ready',
-              })
-            );
-          ")
-
-          curl -sS --fail-with-body \
-            --retry 5 \
-            --retry-delay 3 \
-            --retry-all-errors \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -d "$BODY" \
-            "$N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL"
+            source/biology-three-v2/out/qa/
+            source/biology-three-v2/out/video.mp4
+            source/biology-three-v2/out/prepared-job.json
+            source/biology-three-v2/out/probe.json
+            source/biology-three-v2/out/result.json
+          if-no-files-found: warn
+          retention-days: 14
