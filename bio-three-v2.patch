@@ -29317,7 +29317,7 @@ HcmV?d00001
 
 diff --git a/biology-three-v2/benchmark.mjs b/biology-three-v2/benchmark.mjs
 new file mode 100644
-index 0000000..b23cb6b
+index 0000000..a6dd64c
 --- /dev/null
 +++ b/biology-three-v2/benchmark.mjs
 @@ -0,0 +1,26 @@
@@ -29344,7 +29344,7 @@ index 0000000..b23cb6b
 + const diffs=screens.map((frames,j)=>({mode:variants[j].name,scenes:frames.map((b,i)=>{const a=screens[0][i];if(a.width!==b.width||a.height!==b.height)return{scene:i,dimensions:false};let total=0,bad=0;for(let p=0;p<a.data.length;p+=4){let max=0;for(let c=0;c<3;c++){const d=Math.abs(a.data[p+c]-b.data[p+c]);total+=d;max=Math.max(max,d);}if(max>8)bad++;}return{scene:i,mean_rgb_difference:total/(1080*1920*3),pixels_over_8_fraction:bad/(1080*1920)};})}));
 + const accepted=diffs.map((d,i)=>({...results[i],pixel_regression_passed:d.scenes.every(s=>s.dimensions!==false&&s.mean_rgb_difference<=.5&&s.pixels_over_8_fraction<=.003)}));
 + console.log(JSON.stringify({accepted,diffs},null,2));
-+ if(!accepted[1].pixel_regression_passed)throw Error('Native crop changed pixels beyond tolerance');
++ if(!accepted[1].pixel_regression_passed||!accepted[2].pixel_regression_passed)throw Error('Native crop changed pixels beyond tolerance');
 + fs.mkdirSync(path.join(HERE,'out'),{recursive:true});fs.writeFileSync(path.join(HERE,'out','raster-benchmark.json'),JSON.stringify({accepted,diffs},null,2));
 +}finally{server.close();}
 diff --git a/biology-three-v2/contract.mjs b/biology-three-v2/contract.mjs
@@ -29731,7 +29731,7 @@ index 0000000..20d6c05
 +});
 diff --git a/biology-three-v2/render.mjs b/biology-three-v2/render.mjs
 new file mode 100644
-index 0000000..ac7ea15
+index 0000000..32008c2
 --- /dev/null
 +++ b/biology-three-v2/render.mjs
 @@ -0,0 +1,135 @@
@@ -29774,7 +29774,7 @@ index 0000000..ac7ea15
 +async function openPage(port) {
 +  const browser = await chromium.launch({
 +    executablePath: EXE,
-+    args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--force-color-profile=srgb", "--hide-scrollbars"],
++    args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--force-color-profile=srgb", "--hide-scrollbars", "--disable-gpu-compositing"],
 +  });
 +  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: Number(process.env.SCALE || 1) });
 +  const errors = [];
@@ -30222,7 +30222,7 @@ index 0000000..a0ee9a3
 \ No newline at end of file
 diff --git a/biology-three-v2/visual-check.mjs b/biology-three-v2/visual-check.mjs
 new file mode 100644
-index 0000000..70404e4
+index 0000000..f42d061
 --- /dev/null
 +++ b/biology-three-v2/visual-check.mjs
 @@ -0,0 +1,23 @@
@@ -30232,7 +30232,7 @@ index 0000000..70404e4
 +const job=JSON.parse(fs.readFileSync(path.join(HERE,'job.json')));
 +const server=http.createServer((req,res)=>{const p=path.join(ROOT,decodeURIComponent(req.url.split('?')[0]));if(!p.startsWith(ROOT+path.sep)){res.writeHead(403);return res.end();}fs.readFile(p,(err,data)=>{if(err){res.writeHead(404);return res.end();}const ext=path.extname(p);res.setHeader('Content-Type',['.mjs','.js'].includes(ext)?'text/javascript':ext==='.html'?'text/html':ext==='.json'?'application/json':'application/octet-stream');res.end(data);});});
 +await new Promise(r=>server.listen(0,'127.0.0.1',r));
-+const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-color-profile=srgb']});
++const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-color-profile=srgb','--disable-gpu-compositing']});
 +try{
 + const page=await browser.newPage({viewport:{width:1080,height:1920}}),errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 + await page.goto(`http://127.0.0.1:${server.address().port}/biology-three-v2/index.html`);await page.waitForFunction(()=>window.ready===true,null,{timeout:60000});
