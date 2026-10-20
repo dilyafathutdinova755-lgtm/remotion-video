@@ -4,6 +4,7 @@ on:
     branches: [biology-3]
     paths:
       - 'src/ege/scenes/profile-math-steps/**'
+      - 'bio-three-v2.patch'
       - '.github/workflows/render-on-demand.yml'
       - '.github/workflows/check-biology-render.yml'
   workflow_dispatch:
@@ -37,3 +38,38 @@ jobs:
           mapfile -t tests < <(find scripts -type f \( -name 'test_align_profile_math_steps.py' -o -name 'test_align_four_slides.py' \))
           if [ "${#tests[@]}" -lt 2 ]; then echo 'Required audio suites missing'; exit 1; fi
           for test in "${tests[@]}"; do python3 "$test"; done
+
+  native-raster-regression:
+    if: github.ref == 'refs/heads/biology-3'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: candidate
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: c5254c11c5a4f7d18c03c9e0b32fd7393fd9e9f8
+          path: source
+      - name: Apply native renderer
+        working-directory: source
+        run: git apply --check ../candidate/bio-three-v2.patch && git apply ../candidate/bio-three-v2.patch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install benchmark dependencies
+        working-directory: source/biology-three-v2
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          npm ci --ignore-scripts
+          npm install --no-save pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Prepare synthetic timed fixture and verify audio-only speed
+        working-directory: source/biology-three-v2
+        run: node --test prepare.test.mjs
+      - name: Compare exact native pixels and measure render cost
+        working-directory: source/biology-three-v2
+        run: node benchmark.mjs
