@@ -441,6 +441,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/70171",
       "source_task_id": "70171"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39426702726",
+      "reserved_at": "2026-10-20T13:02:32.860Z",
+      "task_number": 3,
+      "condition_text": "Сколько молекул ДНК содержится в ядре клетки в конце телофазы второго деления мейоза, если в диплоидном наборе содержится 44 хромосомы? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/72769",
+      "source_task_id": "72769"
     }
   ]
 }
