@@ -23,7 +23,7 @@ on:
 
 jobs:
   render:
-    if: github.ref == 'refs/heads/biology-3'
+    if: github.ref == 'refs/heads/biology-3' && fromJSON(inputs.task_data).video_structure_version != 'biology-three-v2'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -437,3 +437,203 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$BODY" \
             "$N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL"
+
+  biology-three-v2:
+    if: github.ref == 'refs/heads/biology-3' && fromJSON(inputs.task_data).video_structure_version == 'biology-three-v2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: candidate
+      - uses: actions/checkout@v4
+        with:
+          ref: c5254c11c5a4f7d18c03c9e0b32fd7393fd9e9f8
+          persist-credentials: false
+          path: source
+      - name: Install isolated renderer source
+        working-directory: source
+        run: git apply --check ../candidate/bio-three-v2.patch && git apply ../candidate/bio-three-v2.patch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencies
+        working-directory: source/biology-three-v2
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+          python -m pip install gdown==5.2.0
+      - name: Audio speed contract test
+        working-directory: source/biology-three-v2
+        run: node --test prepare.test.mjs
+      - name: Read and validate n8n job
+        working-directory: source
+        env:
+          TASK_DATA: ${{ inputs.task_data }}
+          TASK_ID: ${{ inputs.task_id }}
+          AUDIO_URL: ${{ inputs.audio_url }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';import {validateStoryboard} from './biology-three-v2/contract.mjs';
+          if(Buffer.byteLength(process.env.TASK_DATA)>60000)throw Error('Job too large');
+          const job=validateStoryboard(JSON.parse(process.env.TASK_DATA));
+          const url=new URL(process.env.AUDIO_URL);
+          if(url.protocol!=='https:'||url.hostname!=='drive.google.com'||url.username||url.password)throw Error('Drive audio URL required');
+          if(job.id!==process.env.TASK_ID||!job.id.startsWith('bio3-v2-')||job.run_mode!=='production'||job.publication_allowed!==true)throw Error('Production identity');
+          fs.writeFileSync('biology-three-v2/input.json',JSON.stringify(job));
+          JS
+          python -m gdown --fuzzy "$AUDIO_URL" -O biology-three-v2/input.mp3
+          node biology-three-v2/prepare.mjs biology-three-v2/input.json biology-three-v2/input.mp3
+      - name: Verify layout, object-first opening, hidden unknown and scene timings
+        working-directory: source
+        run: node biology-three-v2/visual-check.mjs
+      - name: Render actual n8n job at native 60 FPS
+        working-directory: source
+        run: |
+          node biology-three-v2/render.mjs video --workers 3 --fps 60
+          node biology-three-v2/finalize.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: biology-three-v2-${{ github.run_id }}
+          path: |
+            source/biology-three-v2/out/qa/
+            source/biology-three-v2/out/video.mp4
+            source/biology-three-v2/out/prepared-job.json
+            source/biology-three-v2/out/probe.json
+            source/biology-three-v2/out/result.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload verified MP4 to existing Google Drive folder
+        id: drive_v2
+        working-directory: source
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          node scripts/dynamic-task/gdrive-upload.mjs --file biology-three-v2/out/video.mp4 --name "biology-three-v2-${GITHUB_RUN_ID}.mp4" > drive-v2.json
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const d=JSON.parse(fs.readFileSync('drive-v2.json'));
+          if(!d.id||!/^https:\/\/drive\.google\.com\//.test(d.webViewLink??''))throw Error('No final Drive MP4');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'link='+d.webViewLink+'\n');
+          JS
+      - name: Загрузить MP4 в Postmypost (upload/init)
+        id: postmypost_init
+        env:
+          POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
+        working-directory: source
+        run: |
+          MP4_PATH="biology-three-v2/out/video.mp4"
+
+          if [ ! -f "$MP4_PATH" ]; then
+            echo "::error::$MP4_PATH не найден после шага рендера — грузить в Postmypost нечего."
+            exit 1
+          fi
+
+          FILE_NAME=$(basename "$MP4_PATH")
+          FILE_SIZE=$(stat -c%s "$MP4_PATH")
+
+          echo "Postmypost upload/init: name=$FILE_NAME, size=$FILE_SIZE bytes"
+
+          BODY=$(FILE_NAME="$FILE_NAME" FILE_SIZE="$FILE_SIZE" node -e "
+            console.log(JSON.stringify({
+              project_id: 351182,
+              name: process.env.FILE_NAME,
+              size: Number(process.env.FILE_SIZE),
+            }));
+          ")
+
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer $POSTMYPOST_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            "https://api.postmypost.io/v4.1/upload/init" > postmypost_init_response.json
+
+          node -e "
+            const r = JSON.parse(require('fs').readFileSync('postmypost_init_response.json', 'utf8'));
+
+            if (r.id === undefined || r.id === null || !r.action || !Array.isArray(r.fields)) {
+              console.error('ОШИБКА: ответ Postmypost upload/init не содержит id/action/fields.');
+              process.exit(1);
+            }
+
+            const fs = require('fs');
+
+            fs.writeFileSync('postmypost_upload_id.json', JSON.stringify(r.id));
+            fs.writeFileSync('postmypost_upload_id.txt', String(r.id));
+            fs.writeFileSync('postmypost_action_url.txt', r.action);
+            fs.writeFileSync('postmypost_fields.json', JSON.stringify(r.fields));
+
+            console.error(
+              'Postmypost upload_id=' +
+              JSON.stringify(r.id) +
+              ', полей в fields: ' +
+              r.fields.length +
+              ' (' +
+              r.fields.map(f => f.key).join(', ') +
+              ')'
+            );
+          "
+
+      - name: Отправить MP4 в Postmypost (multipart upload)
+        working-directory: source
+        run: |
+          ACTION_URL=$(cat postmypost_action_url.txt)
+          MP4_PATH="biology-three-v2/out/video.mp4"
+
+          node -e "
+            const fields = JSON.parse(require('fs').readFileSync('postmypost_fields.json', 'utf8'));
+            const out = [];
+
+            for (const f of fields) {
+              out.push('--form-string');
+              out.push(f.key + '=' + f.value);
+            }
+
+            process.stdout.write(out.join('\u0000') + '\u0000');
+          " > postmypost_form_args.bin
+
+          FORM_ARGS=()
+
+          while IFS= read -r -d '' arg; do
+            FORM_ARGS+=("$arg")
+          done < postmypost_form_args.bin
+
+          curl -sS --fail-with-body -X POST \
+            "${FORM_ARGS[@]}" \
+            -F "file=@${MP4_PATH}" \
+            "$ACTION_URL"
+
+      - name: Завершить upload в Postmypost (upload/complete)
+        env:
+          POSTMYPOST_API_KEY: ${{ secrets.POSTMYPOST_API_KEY }}
+        working-directory: source
+        run: |
+          UPLOAD_ID=$(cat postmypost_upload_id.txt)
+
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer $POSTMYPOST_API_KEY" \
+            "https://api.postmypost.io/v4.1/upload/complete?id=${UPLOAD_ID}"
+
+      - name: Notify original n8n only after verified render and completed upload
+        working-directory: source
+        env:
+          N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL: ${{ secrets.N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL }}
+          VIDEO_URL: ${{ steps.drive_v2.outputs.link }}
+          TASK_ID: ${{ inputs.task_id }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const result=JSON.parse(fs.readFileSync('biology-three-v2/out/result.json'));
+          const uploadId=JSON.parse(fs.readFileSync('postmypost_upload_id.json'));
+          if(result.task_id!==process.env.TASK_ID||result.run_mode!=='production'||result.publication_allowed!==true||!uploadId||!process.env.N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL)throw Error('Callback identity/output');
+          fs.writeFileSync('callback-v2.json',JSON.stringify({...result,video_url:process.env.VIDEO_URL,postmypost_upload_id:uploadId,video_status:'ready'}));
+          JS
+          curl -sS --fail-with-body --retry 3 --retry-delay 3 --retry-all-errors -X POST -H 'Content-Type: application/json' --data-binary @callback-v2.json "$N8N_BIOLOGY_VIDEO_READY_WEBHOOK_URL"
