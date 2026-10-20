@@ -29315,6 +29315,34 @@ dV?Sp5{{a0fK7$s>t1tin002ovPDHLkV1hUq!pQ&t
 literal 0
 HcmV?d00001
 
+diff --git a/biology-three-v2/benchmark.mjs b/biology-three-v2/benchmark.mjs
+new file mode 100644
+index 0000000..dc73090
+--- /dev/null
++++ b/biology-three-v2/benchmark.mjs
+@@ -0,0 +1,22 @@
++import fs from 'node:fs';import path from 'node:path';import http from 'node:http';import{fileURLToPath}from'node:url';import{chromium}from'playwright';import{PNG}from'pngjs';
++const HERE=path.dirname(fileURLToPath(import.meta.url)),ROOT=path.dirname(HERE);
++const job=JSON.parse(fs.readFileSync(path.join(HERE,'job.json')));
++const server=http.createServer((req,res)=>{const p=path.join(ROOT,decodeURIComponent(req.url.split('?')[0]));if(!p.startsWith(ROOT+path.sep)){res.writeHead(403);return res.end();}fs.readFile(p,(e,b)=>{if(e){res.writeHead(404);return res.end();}const ex=path.extname(p);res.setHeader('Content-Type',['.js','.mjs'].includes(ex)?'text/javascript':ex==='.html'?'text/html':ex==='.json'?'application/json':'application/octet-stream');res.end(b);});});
++await new Promise(r=>server.listen(0,'127.0.0.1',r));
++const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-color-profile=srgb']});
++const times=[0,...job.narration_timing.segments.map(s=>s.start_sec+.45)],screens=[];
++try{
++ const results=[];
++ for(const full of [true,false]){
++  const page=await browser.newPage({viewport:{width:1080,height:1920},deviceScaleFactor:1});
++  await page.goto(`http://127.0.0.1:${server.address().port}/biology-three-v2/index.html${full?'?fullViewport=1':''}`);await page.waitForFunction(()=>window.ready===true,null,{timeout:60000});
++  const frames=[];for(const t of times){await page.evaluate(t=>window.renderFrame(t),t);frames.push(PNG.sync.read(await page.screenshot()));}
++  screens.push(frames);const start=performance.now();
++  for(let i=0;i<20;i++){await page.evaluate(t=>window.renderFrame(t),.7+i/60);await page.screenshot({type:'jpeg',quality:94});}
++  results.push({mode:full?'full-viewport':'native-cropped',seconds:(performance.now()-start)/1000,frames:20});await page.close();
++ }
++ const differences=screens[0].map((a,i)=>{const b=screens[1][i];let total=0,bad=0;for(let p=0;p<a.data.length;p+=4){let max=0;for(let c=0;c<3;c++){const d=Math.abs(a.data[p+c]-b.data[p+c]);total+=d;max=Math.max(max,d);}if(max>8)bad++;}return{scene:i,mean_rgb_difference:total/(1080*1920*3),pixels_over_8_fraction:bad/(1080*1920)};});
++ console.log(JSON.stringify({results,speedup:results[0].seconds/results[1].seconds,differences},null,2));
++ if(differences.some(d=>d.mean_rgb_difference>.5||d.pixels_over_8_fraction>.003))throw Error('Native crop changed pixels beyond tolerance');
++ fs.writeFileSync(path.join(HERE,'out','raster-benchmark.json'),JSON.stringify({results,differences},null,2));
++}finally{await browser.close();server.close();}
 diff --git a/biology-three-v2/contract.mjs b/biology-three-v2/contract.mjs
 new file mode 100644
 index 0000000..1e58f75
@@ -29460,10 +29488,10 @@ index 0000000..f0f2a18
 \ No newline at end of file
 diff --git a/biology-three-v2/logo3d.js b/biology-three-v2/logo3d.js
 new file mode 100644
-index 0000000..78b9841
+index 0000000..9156370
 --- /dev/null
 +++ b/biology-three-v2/logo3d.js
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,98 @@
 +// Real 3D app logo: thick glossy slab (extruded superellipse with bevel), same look and
 +// camera as the math video's logo. Rendered in its own WebGL canvas; scene.js drives it.
 +import * as THREE from "three";
@@ -29493,7 +29521,7 @@ index 0000000..78b9841
 +  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 +}
 +
-+export function createLogo3d(logoTexture, n = 4.2, S = 1) {
++export function createLogo3d(logoTexture, n = 4.2, S = 1, cropped = false) {
 +  const canvas = document.createElement("canvas");
 +  canvas.width = W * S; canvas.height = H * S;
 +  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -29540,7 +29568,9 @@ index 0000000..78b9841
 +  };
 +
 +  /** st: { cx, cy, span (px), rotX, rotY, rotZ, shadow (0..1) } */
++  let bounds = {x:0,y:0,width:W,height:H};
 +  function render(st) {
++    if(cropped)camera.clearViewOffset();
 +    const p = screenToWorld(st.cx, st.cy, 2.2);
 +    const s = scaleForPx(p, st.span);
 +    g.position.copy(p); g.scale.setScalar(s); g.rotation.set(st.rotX, st.rotY, st.rotZ);
@@ -29548,9 +29578,17 @@ index 0000000..78b9841
 +    shadow.position.set(p.x, p.y - 1.35 * s - 0.35, p.z);
 +    shadow.scale.set(2.8 * s, 1.2 * s, 1);
 +    shadowMat.opacity = st.shadow * 0.5;
++    if(cropped){
++      // Exact camera sub-frustum: same native pixels, no scaling.
++      const margin=st.shadow>0.01?2.8:1.6;
++      const x=Math.max(0,Math.floor(st.cx-st.span*margin)),y=Math.max(0,Math.floor(st.cy-st.span*margin));
++      const width=Math.min(W-x,Math.ceil(st.span*margin*2)),height=Math.min(H-y,Math.ceil(st.span*margin*2));
++      bounds={x,y,width,height};camera.setViewOffset(W,H,x,y,width,height);
++      if(canvas.width!==width*S||canvas.height!==height*S)renderer.setSize(width*S,height*S,false);
++    }
 +    renderer.render(scene, camera);
 +  }
-+  return { canvas, render };
++  return { canvas, render, get bounds(){return bounds;} };
 +}
 diff --git a/biology-three-v2/package-lock.json b/biology-three-v2/package-lock.json
 new file mode 100644
@@ -29830,15 +29868,16 @@ index 0000000..ac7ea15
 +srv.close();
 diff --git a/biology-three-v2/scene.mjs b/biology-three-v2/scene.mjs
 new file mode 100644
-index 0000000..4ce6771
+index 0000000..49f9d7d
 --- /dev/null
 +++ b/biology-three-v2/scene.mjs
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,95 @@
 +import * as THREE from 'three';
 +import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 +import {createLogo3d} from './logo3d.js';
 +import {validateStoryboard} from './contract.mjs';
 +const job=validateStoryboard(await (await fetch('./job.json')).json());
++const FULL_VIEWPORT=new URLSearchParams(location.search).has('fullViewport');
 +const W=1080,H=1920,$=id=>document.getElementById(id),clamp=x=>Math.max(0,Math.min(1,x));
 +const timings=job.narration_timing.segments;
 +if(job.narration_timing.source!=='elevenlabs-character-alignment-v2'||job.narration_timing.speech_speed!==1.3)throw new Error('Measured v2 timeline required');
@@ -29851,11 +29890,16 @@ index 0000000..4ce6771
 +const scene=new THREE.Scene(),pmrem=new THREE.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(new RoomEnvironment(),.03).texture;scene.environmentIntensity=.85;
 +scene.add(new THREE.AmbientLight(0xffffff,.15));const key=new THREE.DirectionalLight(0xffffff,1.2);key.position.set(-5,7,9);scene.add(key);const rim=new THREE.DirectionalLight(0xd8ffb0,1);rim.position.set(6,2,-5);scene.add(rim);
 +const camera=new THREE.PerspectiveCamera(30,W/H,.1,200);camera.position.set(0,0,9.6/Math.tan(Math.PI/12));camera.lookAt(0,0,0);
++if(!FULL_VIEWPORT){
++ const y=680,height=760;
++ renderer.setSize(W,height,false);$('world').style.top=y+'px';$('world').style.height=height+'px';
++ camera.setViewOffset(W,H,0,y,W,height);
++}
 +const wx=x=>(x-540)/100,wy=y=>-(y-960)/100;
 +const phys=(color)=>new THREE.MeshPhysicalMaterial({color,roughness:.24,clearcoat:1,clearcoatRoughness:.08,emissive:0x0b2a12,envMapIntensity:1.1});
 +const lime=phys('#B8F25A'),green=phys('#2FA866'),white=phys('#EAF7EE'),purple=phys('#A998FF');
 +const logoTex=await new THREE.TextureLoader().loadAsync('./assets/logo.png');logoTex.colorSpace=THREE.SRGBColorSpace;logoTex.anisotropy=8;
-+const logo=createLogo3d(logoTex,4.2,1),lc=$('logoc').getContext('2d');
++const logo=createLogo3d(logoTex,4.2,1,!FULL_VIEWPORT),lc=$('logoc').getContext('2d');
 +const plaqueWidth=12+80+22+$('plaque').lastElementChild.getBoundingClientRect().width+38;
 +$('plaque').style.width=plaqueWidth+'px';$('plaque').style.left=(540-plaqueWidth/2)+'px';
 +function mesh(g,geometry,material,x=0,y=0,z=0){const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);g.add(m);return m;}
@@ -29897,6 +29941,7 @@ index 0000000..4ce6771
 + labels.push(ls);root.visible=false;
 +}
 +$('cond').textContent=job.condition_text;
++let previousLogoBounds={x:0,y:0,width:W,height:H};
 +let condSize=44;while($('cond').scrollHeight>1100&&condSize>29){$('cond').style.fontSize=(--condSize)+'px';}if($('cond').scrollHeight>1100)throw new Error('Condition overflows: pagination needed');
 +$('dots').replaceChildren(...job.storyboard.scenes.map(()=>document.createElement('i')));
 +function renderFrame(t){
@@ -29916,7 +29961,7 @@ index 0000000..4ce6771
 + const gx=540+Math.sin(t*.23)*160,gy=1000+Math.cos(t*.31)*120;$('glow').style.transform=`translate(${gx-550}px,${gy-550}px)`;
 + const mask=`radial-gradient(720px 900px at ${gx}px ${gy}px,#000 0%,rgba(0,0,0,.35) 55%,transparent 82%)`;$('pat').style.webkitMaskImage=mask;$('pat').style.maskImage=mask;
 + // The logo starts in its header slot: zero title frames and no opening fly-in.
-+ logo.render({cx:540-plaqueWidth/2+52,cy:190,span:80,rotY:Math.sin(t*.8)*.12,rotX:0,rotZ:0,shadow:0});lc.clearRect(0,0,W,H);lc.drawImage(logo.canvas,0,0);
++ logo.render({cx:540-plaqueWidth/2+52,cy:190,span:80,rotY:Math.sin(t*.8)*.12,rotX:0,rotZ:0,shadow:0});const lb=logo.bounds;lc.clearRect(previousLogoBounds.x,previousLogoBounds.y,previousLogoBounds.width,previousLogoBounds.height);lc.drawImage(logo.canvas,lb.x,lb.y,lb.width,lb.height);previousLogoBounds={...lb};
 + [...$('dots').children].forEach((d,i)=>{d.style.width=i===index?'46px':'14px';d.style.background=i===index?'#C6FF4D':'rgba(255,255,255,.22)';});
 + camera.lookAt(0,0,0);renderer.render(scene,camera);
 + window.BIO_V2_STATE={time:t,scene_id:s.id,kind:s.kind,object_ids:(s.objects||[]).map(o=>o.id),unknown_value:(s.objects||[]).find(o=>o.id===job.storyboard.unknown_object_id)?.value??null,overflow:[...document.querySelectorAll('.object-label,.object-value,#heading,#relation')].filter(e=>e.style.display!=='none'&&(e.getBoundingClientRect().right>1080||e.getBoundingClientRect().bottom>1750)).map(e=>e.textContent)};
