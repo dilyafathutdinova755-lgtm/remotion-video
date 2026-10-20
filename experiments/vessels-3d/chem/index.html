@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Химия · масса соли</title>
+<style>
+@font-face { font-family: "Geologica"; font-weight: 700; src: url(/experiments/vessels-3d/chem/fonts/Geologica-700.ttf) format("truetype"); }
+@font-face { font-family: "Geologica"; font-weight: 800; src: url(/experiments/vessels-3d/chem/fonts/Geologica-800.ttf) format("truetype"); }
+@font-face { font-family: "Golos"; font-weight: 500; src: url(/experiments/vessels-3d/chem/fonts/Golos-500.ttf) format("truetype"); }
+@font-face { font-family: "Golos"; font-weight: 600; src: url(/experiments/vessels-3d/chem/fonts/Golos-600.ttf) format("truetype"); }
+@font-face { font-family: "Golos"; font-weight: 700; src: url(/experiments/vessels-3d/chem/fonts/Golos-700.ttf) format("truetype"); }
+@font-face { font-family: "JB"; font-weight: 600; src: url(/experiments/vessels-3d/chem/fonts/JBMono-600.ttf) format("truetype"); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Golos", sans-serif; color: #EAF4FF; -webkit-font-smoothing: antialiased;
+  background: linear-gradient(180deg, #06101F 0%, #0A1C36 100%); }
+#stage * { box-sizing: border-box; }
+.a { position: absolute; }
+#grid { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0;
+  background-image: linear-gradient(90deg, rgba(79,195,255,0.16) 2px, transparent 2px), linear-gradient(rgba(79,195,255,0.16) 2px, transparent 2px);
+  background-size: 66px 66px; background-position: 12px 30px;
+  -webkit-mask-image: radial-gradient(760px 900px at 50% 45%, #000 0%, rgba(0,0,0,0.35) 60%, transparent 85%); mask-image: radial-gradient(760px 900px at 50% 45%, #000 0%, rgba(0,0,0,0.35) 60%, transparent 85%); }
+#bgc, #world, #logoc { left: 0; top: 0; width: 1080px; height: 1920px; }
+#bgc { z-index: 1; }
+#world { z-index: 3; }
+#logoc { z-index: 30; }
+#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.96); box-shadow: 0 18px 50px rgba(0,10,30,0.3); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
+#plaque .slot { width: 80px; height: 80px; flex: none; }
+#plaque b { flex: none; font-weight: 700; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
+#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
+#dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.24); }
+.hh { left: 40px; top: 314px; width: 1000px; text-align: center; z-index: 8; }
+.ey { font-family: "JB"; font-size: 30px; font-weight: 600; color: #4FC3FF; height: 48px; letter-spacing: 0.04em; }
+.t1 { font-family: "Geologica"; font-size: 78px; line-height: 92px; font-weight: 800; letter-spacing: -0.02em; color: #EAF4FF; }
+.t2 { font-size: 36px; line-height: 50px; color: #9DB8D9; margin-top: 10px; font-weight: 600; }
+.ctr { left: 0; width: 1080px; display: flex; justify-content: center; z-index: 8; }
+.note { padding: 22px 34px; border-radius: 30px; font-family: "JB"; font-size: 36px; line-height: 1.25; font-weight: 600; color: #EAF4FF; white-space: nowrap;
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(79,195,255,0.35); box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.16); }
+.note b { color: #4FC3FF; }
+.tag { padding: 14px 28px; border-radius: 999px; font-family: "JB"; font-size: 34px; font-weight: 600; white-space: nowrap; color: #EAF4FF;
+  background: rgba(8,20,40,0.78); border: 2px solid rgba(79,195,255,0.5); box-shadow: 0 14px 34px rgba(0,0,0,0.35); }
+.tag b { color: #4FC3FF; }
+.tag.on { background: #4FC3FF; color: #04121F; border-color: #4FC3FF; }
+.tag.on b { color: #04121F; }
+.big { font-family: "Geologica"; font-weight: 800; letter-spacing: -0.03em; color: #4FC3FF; line-height: 1; text-align: center; white-space: nowrap; z-index: 8; text-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.eq { left: 0; width: 1080px; display: flex; justify-content: center; align-items: center; gap: 14px; font-family: "Geologica"; font-weight: 700; font-size: 50px; color: #EAF4FF; white-space: nowrap; z-index: 8; }
+.eq span { display: inline-block; }
+.eq span.t { padding: 14px 22px; border-radius: 22px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(79,195,255,0.35); }
+.eq span.t.hl { border-color: #4FC3FF; box-shadow: 0 0 0 4px rgba(79,195,255,0.25); }
+.eq sub { font-size: 0.6em; }
+.coef { font-family: "JB"; font-size: 40px; font-weight: 600; color: #4FC3FF; z-index: 8; }
+.cc { left: 70px; width: 940px; border-radius: 44px; padding: 44px 50px; font-size: 42px; line-height: 1.36; font-weight: 500; color: #EAF4FF; z-index: 10;
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(79,195,255,0.3); box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
+#timer { left: 70px; width: 940px; height: 196px; border-radius: 64px; display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; z-index: 10;
+  background: rgba(14,32,60,0.9); border: 1.5px solid rgba(79,195,255,0.4); box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
+#timer .rg { position: relative; width: 144px; height: 144px; flex: none; }
+#timer svg { position: absolute; left: 0; top: 0; width: 144px; height: 144px; transform: rotate(-90deg); }
+#timer .rg i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-family: "Geologica"; font-size: 80px; font-weight: 800; color: #4FC3FF; }
+#timer .pt1 { display: flex; align-items: center; gap: 22px; font-family: "Geologica"; font-size: 46px; font-weight: 800; color: #EAF4FF; white-space: nowrap; }
+#timer .pt2 { font-size: 32px; margin-top: 6px; color: #9DB8D9; white-space: nowrap; }
+.bars { display: flex; gap: 9px; }
+.bars i { display: block; width: 14px; height: 42px; border-radius: 6px; background: #4FC3FF; }
+.steam { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(closest-side, rgba(220,240,255,0.55), rgba(220,240,255,0)); z-index: 6; }
+.cp { padding: 18px 40px; border-radius: 999px; background: #fff; color: #0A1424; font-weight: 700; font-size: 40px; white-space: nowrap; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+.cp.blue { background: linear-gradient(135deg,#3b7bff,#1652f0); color: #fff; font-size: 48px; padding: 26px 58px; box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
+</style>
+<script type="importmap">
+{ "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <div class="a" id="grid"></div>
+  <canvas class="a" id="bgc" width="1080" height="1920"></canvas>
+  <canvas class="a" id="world" width="1080" height="1920"></canvas>
+  <div class="a steam" id="st0"></div><div class="a steam" id="st1"></div><div class="a steam" id="st2"></div>
+
+  <!-- condition -->
+  <div class="a" id="tNaoh" style="z-index:9"><div class="tag">NaOH · <b>20 г</b></div></div>
+  <div class="a" id="tHcl" style="z-index:9"><div class="tag">HCl · <b>избыток</b></div></div>
+  <div class="a ctr" id="tSalt" style="top:1310px"><div class="tag" id="tSaltIn">NaCl · <b>? г</b></div></div>
+  <div class="a cc" id="cond" style="top:400px">Вычислите массу соли, которая образуется при взаимодействии 20 г гидроксида натрия с избытком соляной кислоты.</div>
+  <div class="a" id="timer" style="top:920px"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#4FC3FF" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и посчитай сам</div></div></div>
+
+  <!-- headlines -->
+  <div class="a hh" id="h1"><div class="ey">Шаг 1 из 3</div><div class="t1">Моли</div></div>
+  <div class="a hh" id="h2"><div class="ey">Шаг 2 из 3</div><div class="t1">Уравнение</div></div>
+  <div class="a hh" id="h3"><div class="ey">Шаг 3 из 3</div><div class="t1">Масса</div></div>
+  <div class="a hh" id="h4"><div class="ey">&nbsp;</div><div class="t1">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
+
+  <!-- step 1 -->
+  <div class="a ctr" id="t1tag" style="top:610px"><div class="tag" id="t1tagIn">NaOH · 20 г</div></div>
+  <div class="a ctr" id="nM1" style="top:1160px"><div class="note">M(NaOH) = 23 + 16 + 1 = <b>40 г/моль</b></div></div>
+  <div class="a big" id="b20" style="left:0;width:1080px;top:1290px;font-size:84px;color:#EAF4FF">20 : 40 =</div>
+  <div class="a big" id="b05" style="left:0;width:1080px;top:1400px;font-size:170px">0,5 моль</div>
+
+  <!-- step 2 -->
+  <div class="a eq" id="eq" style="top:700px"><span class="t hl" id="e0">NaOH</span><span id="e1">+</span><span class="t" id="e2">HCl</span><span id="e3">→</span><span class="t hl" id="e4">NaCl</span><span id="e5">+</span><span class="t" id="e6">H<sub>2</sub>O</span></div>
+  <div class="a coef" id="k1">1</div>
+  <div class="a coef" id="k2">1</div>
+  <svg class="a" id="arrow" style="left:400px;top:1020px;z-index:6" width="200" height="80" viewBox="0 0 200 80"><path d="M10 40 H180 M150 14 L182 40 L150 66" fill="none" stroke="#4FC3FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="a" id="mA" style="z-index:9"><div class="tag">0,5 моль</div></div>
+  <div class="a" id="mB" style="z-index:9"><div class="tag on">0,5 моль</div></div>
+  <div class="a ctr" id="n11" style="top:1440px"><div class="note">1 : 1 — <b>соли столько же</b></div></div>
+
+  <!-- step 3 -->
+  <div class="a ctr" id="nM2" style="top:620px"><div class="note">M(NaCl) = 23 + 35,5 = <b>58,5 г/моль</b></div></div>
+  <div class="a big" id="bMul" style="left:0;width:1080px;top:780px;font-size:92px;color:#EAF4FF">0,5 · 58,5</div>
+  <div class="a big" id="bRes" style="left:0;width:1080px;top:900px;font-size:150px">= 29,25</div>
+  <div class="a ctr" id="nRnd" style="top:700px"><div class="note">29,25 ≈ <b>29,3</b> — до десятых</div></div>
+
+  <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="a" id="plaque"><div class="slot"></div><b>ЕГЭ Тренажёр</b></div>
+  <canvas class="a" id="logoc" width="1080" height="1920"></canvas>
+  <div class="a ctr" id="cta1" style="top:1290px;z-index:31"><div class="cp blue">Скачивай бесплатно</div></div>
+  <div class="a ctr" id="cta2" style="top:1430px;z-index:31"><div class="cp">Ссылка в профиле ↑</div></div>
+</div>
+<script type="module" src="/experiments/vessels-3d/chem/scene.js"></script>
+</body>
+</html>

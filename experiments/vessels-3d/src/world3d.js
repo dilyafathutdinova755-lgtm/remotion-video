@@ -595,3 +595,6 @@ export function createWorld({ canvas, logoTexture, logoN, story }) {
     heapSticker: (i, t) => new THREE.Vector3(...choreo.heapSticker(i, t, lastStates)),
   };
 }
+
+// reused by other subjects (chemistry): glass beaker with level-correct liquid, soft radial texture
+export { makeVessel, radialTexture };

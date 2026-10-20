@@ -12,3 +12,6 @@ bio/assets/voice.wav
 hist/out/
 hist/fonts/*.ttf
 hist/assets/voice.wav
+chem/out/
+chem/fonts/*.ttf
+chem/assets/voice.wav
