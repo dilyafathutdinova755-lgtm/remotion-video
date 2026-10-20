@@ -472,6 +472,15 @@ jobs:
       - name: Audio speed contract test
         working-directory: source/biology-three-v2
         run: node --test prepare.test.mjs
+      - name: Mask ephemeral job access before processing any input
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const event=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH));
+          const job=JSON.parse(event.inputs.task_data);
+          if(typeof job.media_access?.token!=='string'||!/^[a-f0-9]{64}$/.test(job.media_access.token))throw Error('Scoped render access required');
+          console.log('::add-mask::'+job.media_access.token);
+          JS
       - name: Read and validate n8n job
         working-directory: source
         env:
@@ -484,11 +493,22 @@ jobs:
           if(Buffer.byteLength(process.env.TASK_DATA)>60000)throw Error('Job too large');
           const job=validateStoryboard(JSON.parse(process.env.TASK_DATA));
           const url=new URL(process.env.AUDIO_URL);
-          if(url.protocol!=='https:'||url.hostname!=='drive.google.com'||url.username||url.password)throw Error('Drive audio URL required');
+          if(url.protocol!=='https:'||url.hostname!=='dilyafathutdinova755.app.n8n.cloud'||url.pathname!=='/webhook/biology-3-render-audio'||url.searchParams.get('task_id')!==job.id||url.username||url.password)throw Error('Scoped n8n audio endpoint required');
           if(job.id!==process.env.TASK_ID||!((job.id.startsWith('bio3-v2-')&&job.run_mode==='production'&&job.publication_allowed===true)||(job.id.startsWith('bio3-test-')&&job.run_mode==='test'&&job.publication_allowed===false)))throw Error('Explicit job identity/mode');
+          if(!job.media_access||job.media_access.expires_at<=Date.now()||!/^[a-f0-9]{64}$/.test(job.media_access.token))throw Error('Expired/missing scoped access');
+          fs.writeFileSync('biology-three-v2/access.json',JSON.stringify({task_id:job.id,token:job.media_access.token,audio_url:url.href}));
+          delete job.media_access;
           fs.writeFileSync('biology-three-v2/input.json',JSON.stringify(job));
           JS
-          python -m gdown --fuzzy "$AUDIO_URL" -O biology-three-v2/input.mp3
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const access=JSON.parse(fs.readFileSync('biology-three-v2/access.json'));
+          const r=await fetch(access.audio_url,{headers:{'X-Render-Token':access.token},redirect:'error'});
+          if(!r.ok)throw Error('Scoped n8n audio download HTTP '+r.status);
+          const bytes=Buffer.from(await r.arrayBuffer());
+          if(bytes.length<1000||bytes.length>15*1024*1024)throw Error('Audio size');
+          fs.writeFileSync('biology-three-v2/input.mp3',bytes);
+          JS
           node biology-three-v2/prepare.mjs biology-three-v2/input.json biology-three-v2/input.mp3
       - name: Verify layout, object-first opening, hidden unknown and scene timings
         working-directory: source
@@ -510,19 +530,23 @@ jobs:
             source/biology-three-v2/out/result.json
           if-no-files-found: warn
           retention-days: 14
-      - name: Upload verified MP4 to existing Google Drive folder
+      - name: Store verified MP4 through existing n8n Drive connection
         id: drive_v2
         working-directory: source
-        env:
-          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
         run: |
-          node scripts/dynamic-task/gdrive-upload.mjs --file biology-three-v2/out/video.mp4 --name "biology-three-v2-${GITHUB_RUN_ID}.mp4" > drive-v2.json
           node --input-type=module <<'JS'
           import fs from 'node:fs';
-          const d=JSON.parse(fs.readFileSync('drive-v2.json'));
-          if(!d.id||!/^https:\/\/drive\.google\.com\//.test(d.webViewLink??''))throw Error('No final Drive MP4');
-          fs.appendFileSync(process.env.GITHUB_OUTPUT,'link='+d.webViewLink+'\n');
+          const access=JSON.parse(fs.readFileSync('biology-three-v2/access.json'));
+          const proof=JSON.parse(fs.readFileSync('biology-three-v2/out/result.json'));
+          const bytes=fs.readFileSync('biology-three-v2/out/video.mp4');
+          if(bytes.length>190*1024*1024||proof.task_id!==access.task_id)throw Error('MP4 upload identity/size');
+          const form=new FormData();form.append('metadata',JSON.stringify(proof));form.append('video',new Blob([bytes],{type:'video/mp4'}),'video.mp4');
+          const r=await fetch('https://dilyafathutdinova755.app.n8n.cloud/webhook/biology-3-render-file',{method:'POST',headers:{'X-Render-Token':access.token},body:form,redirect:'error'});
+          if(!r.ok)throw Error('n8n MP4 storage HTTP '+r.status);
+          const body=await r.json();
+          if(body.task_id!==proof.task_id||body.render_sha256!==proof.render_sha256||body.status!=='uploaded'||!/^https:\/\/drive\.google\.com\//.test(body.video_url??''))throw Error('n8n final MP4 proof');
+          fs.writeFileSync('drive-v2.json',JSON.stringify(body));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'link='+body.video_url+'\n');
           JS
       - name: Загрузить MP4 в Postmypost (upload/init)
         if: fromJSON(inputs.task_data).run_mode == 'production'
