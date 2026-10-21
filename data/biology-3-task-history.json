@@ -471,6 +471,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/37224",
       "source_task_id": "37224"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39604160918",
+      "reserved_at": "2026-10-21T13:01:53.868Z",
+      "task_number": 3,
+      "condition_text": "В половой клетке гориллы 24 хромосомы. Какой набор хромосом имеют клетки кожи этого организма? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/36634",
+      "source_task_id": "36634"
     }
   ]
 }
