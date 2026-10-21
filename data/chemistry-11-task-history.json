@@ -31,6 +31,34 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84531",
       "source_task_id": "84531"
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "59558",
+      "source_url": "https://thenewschool.ru/trainer/task/59558",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются изомерами углеродного скелета. 1) бутановая кислота 2) диэтиловый эфир 3) этилацетат 4) 2-метилпропановая кислота 5) 2-метилбутановая кислота Запишите номера выбранных ответов.",
+      "source_html": "<p>Из предложенного перечня выберите два вещества, которые являются изомерами углеродного скелета.</p>\n<p>&nbsp;</p>\n<table style=\"width: 50.3356%;\" width=\"100%\">\n<tbody>\n<tr>\n<td style=\"width: 3.44261%;\" width=\"0\">&nbsp;1)&nbsp;</td>\n<td style=\"width: 96.5695%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">бутановая кислота</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 3.44261%;\" width=\"0\">&nbsp;2)&nbsp;</td>\n<td style=\"width: 96.5695%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">диэтиловый эфир</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 3.44261%;\" width=\"0\">&nbsp;3)&nbsp;</td>\n<td style=\"width: 96.5695%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">этилацетат</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 3.44261%;\" width=\"0\">&nbsp;4)&nbsp;</td>\n<td style=\"width: 96.5695%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">2-метилпропановая кислота</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 3.44261%;\" width=\"0\">&nbsp;5)&nbsp;</td>\n<td style=\"width: 96.5695%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">2-метилбутановая кислота</p>\n</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p>Запишите номера выбранных ответов.</p>",
+      "source_html_sha256": "2894645f62d1ab413c6d193c4ad2ded61300a1d2aeba5cd1c732b9e2d4328c89",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "41",
+        "14"
+      ],
+      "official_solution_html": "<p>Изомеры углеродного скелета - вещества, имеющие одинаковый состав и принадлежащие к одному классу, но отличающиеся строением углеродной цепи.</p>\n<p>Изомерами углеродного скелета являются бутановая кислота и 2-метилпропановая кислота.</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-1630",
+      "selected_before_visual_plan": true
     }
   ]
 }
