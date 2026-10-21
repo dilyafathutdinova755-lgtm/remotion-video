@@ -461,6 +461,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/58933",
       "source_task_id": "58933"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39565981206",
+      "reserved_at": "2026-10-21T08:02:28.978Z",
+      "task_number": 3,
+      "condition_text": "В ядре соматической клетки тела человека в норме содержится 46 хромосом. Сколько хромосом содержится в оплодотворённой яйцеклетке? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/37224",
+      "source_task_id": "37224"
     }
   ]
 }
