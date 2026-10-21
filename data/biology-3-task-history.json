@@ -491,6 +491,33 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84448",
       "source_task_id": "84448"
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "биология",
+      "subject_key": "biology",
+      "scope": "ege_biology_3",
+      "task_number": 3,
+      "source": "Новая школа",
+      "source_task_id": "37199",
+      "source_url": "https://thenewschool.ru/trainer/task/37199",
+      "condition_text": "Определите число аминокислот в белке, если в процессе трансляции участвовало 38 молекул тРНК. В ответе запишите только соответствующее число аминокислот.",
+      "source_html": "<p><span>Определите число аминокислот в белке, если в процессе трансляции участвовало 38 молекул тРНК. В ответе запишите только соответствующее число аминокислот.</span></p>",
+      "source_html_sha256": "329d873e094920b779b28fba43481932585ef829f1174cb03b9ed746891777e1",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "38"
+      ],
+      "official_solution_html": "<p>Одна молекула тРНК транспортирует только одну аминокислоту. Если молекул тРНК 38, то аминокислот тоже 38.&nbsp;</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-1635",
+      "selected_before_visual_plan": true
     }
   ]
 }
