@@ -538,6 +538,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/61534",
       "source_task_id": "61534"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39810068248",
+      "reserved_at": "2026-10-22T16:01:56.645Z",
+      "task_number": 3,
+      "condition_text": "Какой антикодон транспортной РНК соответствует триплету АЦГ в молекуле ДНК? В ответ запишите только последовательность нуклеотидов в антикодоне.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/39964",
+      "source_task_id": "39964"
     }
   ]
 }
