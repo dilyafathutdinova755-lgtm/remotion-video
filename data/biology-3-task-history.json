@@ -518,6 +518,16 @@
       "state": "reserved",
       "reservation_id": "subject-source-1635",
       "selected_before_visual_plan": true
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39744487533",
+      "reserved_at": "2026-10-22T08:02:19.600Z",
+      "task_number": 3,
+      "condition_text": "Сколько половых хромосом содержит соматическая клетка мухи дрозофилы, если в этой клетке содержится 8 хромосом? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/14186",
+      "source_task_id": "14186"
     }
   ]
 }
