@@ -528,6 +528,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/14186",
       "source_task_id": "14186"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39783024132",
+      "reserved_at": "2026-10-22T13:02:27.579Z",
+      "task_number": 3,
+      "condition_text": "В зиготе ржи 14 хромосом. Сколько хромосом в яйцеклетке ржи?",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/61534",
+      "source_task_id": "61534"
     }
   ]
 }
