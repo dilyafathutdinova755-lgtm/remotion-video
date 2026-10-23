@@ -548,6 +548,33 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/39964",
       "source_task_id": "39964"
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "биология",
+      "subject_key": "biology",
+      "scope": "ege_biology_3",
+      "task_number": 3,
+      "source": "Новая школа",
+      "source_task_id": "15685",
+      "source_url": "https://thenewschool.ru/trainer/task/15685",
+      "condition_text": "Сколько нуклеотидов во фрагменте матричной цепи ДНК кодируют 55 аминокислот во фрагменте полипептида? В ответе запишите только соответствующее число.",
+      "source_html": "<p>Сколько нуклеотидов во фрагменте матричной цепи ДНК кодируют 55 аминокислот во фрагменте полипептида? В ответе запишите только соответствующее число.</p>",
+      "source_html_sha256": "cb180db993a66a75344e242e9354da94c7409efd816a857bd40f983fac34581d",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "165"
+      ],
+      "official_solution_html": "<p class=\"left_margin\">Одну аминокислоту&nbsp;в полипептиде&nbsp;кодируют&nbsp;три нуклеотида&nbsp;в матричной цепи ДНК.</p>\n<p class=\"left_margin\">1 аминокислоту кодируют 3 нуклеотида, 55 аминокислот кодируют 165 нуклеотидов (<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mn>55</mn><mo>&#215;</mo><mn>3</mn><mo>=</mo><mn>165</mn></math>).</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-1839",
+      "selected_before_visual_plan": true
     }
   ]
 }
