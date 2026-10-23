@@ -575,6 +575,16 @@
       "state": "reserved",
       "reservation_id": "subject-source-1839",
       "selected_before_visual_plan": true
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39921556177",
+      "reserved_at": "2026-10-23T08:02:01.943Z",
+      "task_number": 3,
+      "condition_text": "Сперматозоид краба содержит 127 хромосом. Какой набор хромосом имеет соматическая клетка краба? В ответе запишите только количество хромосом.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84367",
+      "source_task_id": "84367"
     }
   ]
 }
