@@ -585,6 +585,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/84367",
       "source_task_id": "84367"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39957616455",
+      "reserved_at": "2026-10-23T13:13:21.653Z",
+      "task_number": 3,
+      "condition_text": "Сколько аутосом содержится в половых клетках человека? В ответ запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/38105",
+      "source_task_id": "38105"
     }
   ]
 }
