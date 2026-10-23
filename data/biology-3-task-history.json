@@ -595,6 +595,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/38105",
       "source_task_id": "38105"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_biology_3:github-run:39983058274",
+      "reserved_at": "2026-10-23T16:01:16.022Z",
+      "task_number": 3,
+      "condition_text": "Сколько нуклеотидов содержит двухцепочечная молекула ДНК, если в ходе репликации одной из ее цепей образуется цепь, содержащая 50 нуклеотидов? В ответе запишите только соответствующее число.",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/57657",
+      "source_task_id": "57657"
     }
   ]
 }
