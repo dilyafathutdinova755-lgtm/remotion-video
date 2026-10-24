@@ -406,6 +406,16 @@
       "tiktok_post_url": "https://www.tiktok.com/@egerus1/video/7699837293485395232",
       "tiktok_post_id": "7699837293485395232",
       "published_at": "2026-10-23T20:54:28.142Z"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-factory-2161",
+      "reserved_at": "2026-10-24T05:00:06.842Z",
+      "task_number": 7,
+      "condition_text": "с СЕМЬЮСТАМИ жителями\nСЕРЬЁЗНЕЙШЕЕ испытанне\nИХ игрушки\nЧЕТВЕРЫМ подругам\nпять БЛЮДЕЦ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/84602",
+      "source_task_id": "84602"
     }
   ]
 }
