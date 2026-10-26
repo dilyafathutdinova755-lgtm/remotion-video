@@ -419,6 +419,16 @@
       "tiktok_post_url": "https://www.tiktok.com/@egerus1/video/7700625850152127776",
       "tiktok_post_id": "7700625850152127776",
       "published_at": "2026-10-25T18:39:58.355Z"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-manual-20261026-ru1",
+      "reserved_at": "2026-10-26T04:50:48.642Z",
+      "task_number": 7,
+      "condition_text": "ЧЕТЫРЬМЯСТАМИ отзывами\nземные НЕДРА\nпомыть ШАМПУНЕМ\nМЕЛИТЬ зерно на мельнице\nПОСКОЛЬЗНУЛСЯ на льду",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/57408",
+      "source_task_id": "57408"
     }
   ]
 }
