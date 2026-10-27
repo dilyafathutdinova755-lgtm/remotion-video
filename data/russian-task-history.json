@@ -429,6 +429,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/57408",
       "source_task_id": "57408"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-manual-20261027-ru1",
+      "reserved_at": "2026-10-27T18:16:20.115Z",
+      "task_number": 7,
+      "condition_text": "молодые БУХГАЛТЕРЫ\nИХНЕЙ работой\nв течение ТРИДЦАТИ ПЯТИ минут\nдамских ТУФЕЛЬ\nпять ГРАММОВ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/50023",
+      "source_task_id": "50023"
     }
   ]
 }
