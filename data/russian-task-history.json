@@ -449,6 +449,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/3821",
       "source_task_id": "3821"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-manual-20261028-ru2",
+      "reserved_at": "2026-10-28T15:18:44.596Z",
+      "task_number": 7,
+      "condition_text": "опытные КОНСТРУКТОРЫ\nЗАМЁРЗ на снегу\nк ДВУХ тысячи двадцать первому году\nкилограмм БАКЛАЖАНОВ\nвыглядел ВЕСЕЛЕЕ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/59995",
+      "source_task_id": "59995"
     }
   ]
 }
