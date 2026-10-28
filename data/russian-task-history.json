@@ -459,6 +459,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/59995",
       "source_task_id": "59995"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-manual-20261028-ru3",
+      "reserved_at": "2026-10-28T18:01:01.972Z",
+      "task_number": 7,
+      "condition_text": "более ВЫСОКО подвешен\nбанка КОНСЕРВОВ\nв ТРЁХСТАХ регионах\nвоздух там более ЧИЩЕ\nПОЛОЩУЩИЙ одежду",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/49525",
+      "source_task_id": "49525"
     }
   ]
 }
