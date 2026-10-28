@@ -439,6 +439,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/50023",
       "source_task_id": "50023"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-manual-20261028-ru1",
+      "reserved_at": "2026-10-28T09:52:58.507Z",
+      "task_number": 7,
+      "condition_text": "вырос и ОКРЕПНУЛ\nПРОМОК под дождём\nРАЗОЖЖЁМ огонь\nПОЛОЩИ\nСМОГУ ПОБЕДИТЬ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/3821",
+      "source_task_id": "3821"
     }
   ]
 }
