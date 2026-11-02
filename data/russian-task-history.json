@@ -469,6 +469,16 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/49525",
       "source_task_id": "49525"
+    },
+    {
+      "state": "reserved",
+      "reservation_id": "ege_russian:ru-manual-20261102-ru1",
+      "reserved_at": "2026-11-02T17:09:31.736Z",
+      "task_number": 7,
+      "condition_text": "килограмм ЯБЛОК\nСЕМЬЮДЕСЯТЬЮ процентами\nПОЕЗЖАЙ в Подмосковье\nголос более ЗВУЧНЕЕ\nязыки ПЛАМЕНИ",
+      "source": "Новая школа",
+      "source_url": "https://thenewschool.ru/trainer/task/49572",
+      "source_task_id": "49572"
     }
   ]
 }
