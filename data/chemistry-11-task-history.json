@@ -59,6 +59,27 @@
       "state": "reserved",
       "reservation_id": "subject-source-1630",
       "selected_before_visual_plan": true
+    },
+    {
+      "subject_key": "chemistry",
+      "subject": "химия",
+      "scope": "ege_chemistry_11",
+      "exam": "ЕГЭ",
+      "task_number": 11,
+      "source_task_id": "42253",
+      "condition_text": "Из предложенного перечня выберите 2 вещества, которые являются изомерами бутена-2. 1) бутан 2) циклобутан 3) бутин-1 4) 1,2-диметилциклопропан 5) метилциклопропан Запишите номера выбранных ответов.",
+      "source_html": "<p>Из предложенного перечня выберите 2 вещества, которые являются изомерами бутена-2.</p>\n<p>&nbsp;</p>\n<p>1) бутан&nbsp;<br />2) циклобутан&nbsp;<br />3) бутин-1<br />4) 1,2-диметилциклопропан<br />5) метилциклопропан</p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">Запишите номера выбранных ответов.</span></p>",
+      "source_html_sha256": "98b11f580bfe830911e01e40af3d555054d1330125d0f894d7af82c9efb46ee4",
+      "official_answers": [
+        "25"
+      ],
+      "official_solution_html": "<p>Изомеры - вещества одинакового состава. Молекулярная формула бутена-2 - C4H8, точно такая же молекулярная формула у циклобутана и метилциклопропана. Остальные вещества не являются изомерами.&nbsp;</p>",
+      "source_url": "https://thenewschool.ru/trainer/task/42253",
+      "selection_reason": "new source chosen before visualization",
+      "state": "reserved",
+      "reservation_id": "chemistry42253-continuous-stress-v1-20261103",
+      "selected_before_visual_plan": true,
+      "visual_plan": null
     }
   ]
 }
