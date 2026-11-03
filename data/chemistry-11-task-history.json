@@ -80,6 +80,34 @@
       "reservation_id": "chemistry42253-continuous-stress-v1-20261103",
       "selected_before_visual_plan": true,
       "visual_plan": null
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "70771",
+      "source_url": "https://thenewschool.ru/trainer/task/70771",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются гомологами аминоуксусной кислоты. 1) СН3–СООН 2) CH3–CH2–C(O)–NH2 3) CH3–CH(NH2)–COOH 4) CH3–CH(NH2)–CH3 5) CH3–CH2–CH(NH2)–COOH Запишите номера выбранных ответов.",
+      "source_html": "<div class=\"question-body mb-6\">\n<p>Из предложенного перечня выберите два вещества, которые являются гомологами аминоуксусной кислоты.</p>\n<p>&nbsp;</p>\n</div>\n<form class=\"js-question-form\" action=\"https://stepenin.ru/test1394/question62883/answer\" method=\"post\" name=\"questionForm\">\n<p><label class=\"inline-block py-2 px-4 rounded-xl bg-slate-100 cursor-pointer\n                    hover:bg-slate-200 peer-checked:text-blue-500 peer-checked:border-blue-400 border-2 border-slate-200 duration-200\" for=\"211319\">1) СН<sub>3</sub>&ndash;СООН</label></p>\n<p><label class=\"inline-block py-2 px-4 rounded-xl bg-slate-100 cursor-pointer\n                    hover:bg-slate-200 peer-checked:text-blue-500 peer-checked:border-blue-400 border-2 border-slate-200 duration-200\" for=\"211320\">2) CH<sub>3</sub>&ndash;CH<sub>2</sub>&ndash;C(O)&ndash;NH<sub>2</sub></label></p>\n<p><label class=\"inline-block py-2 px-4 rounded-xl bg-slate-100 cursor-pointer\n                    hover:bg-slate-200 peer-checked:text-blue-500 peer-checked:border-blue-400 border-2 border-slate-200 duration-200\" for=\"211322\">3) CH<sub>3</sub>&ndash;CH(NH<sub>2</sub>)&ndash;COOH</label></p>\n<p><label class=\"inline-block py-2 px-4 rounded-xl bg-slate-100 cursor-pointer\n                    hover:bg-slate-200 peer-checked:text-blue-500 peer-checked:border-blue-400 border-2 border-slate-200 duration-200\" for=\"211323\">4) CH<sub>3</sub>&ndash;CH(NH<sub>2</sub>)&ndash;CH<sub>3</sub></label></p>\n<p><label class=\"inline-block py-2 px-4 rounded-xl bg-slate-100 cursor-pointer\n                    hover:bg-slate-200 peer-checked:text-blue-500 peer-checked:border-blue-400 border-2 border-slate-200 duration-200\" for=\"211321\">5) CH<sub>3</sub>&ndash;CH<sub>2</sub>&ndash;CH(NH<sub>2</sub>)&ndash;COOH</label></p>\n<p>&nbsp;</p>\n<p>Запишите номера выбранных ответов.</p>\n</form>",
+      "source_html_sha256": "5e1c8d8b04ff643cb8cfce2eae684d6d1fce03bfde93070fe112141820913320",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "35",
+        "53"
+      ],
+      "official_solution_html": "<p>Гомологи - вещества, относящиеся к одному классу и отличающиеся на одну или несколько -CH2-групп.</p>\n<p>Гомологами аминоуксусной кислоты являются 2-аминопропановая кислота и 2-аминобутановая кислота.</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-9357",
+      "selected_before_visual_plan": true
     }
   ]
 }
