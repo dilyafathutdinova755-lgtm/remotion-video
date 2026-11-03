@@ -605,6 +605,33 @@
       "source": "Новая школа",
       "source_url": "https://thenewschool.ru/trainer/task/57657",
       "source_task_id": "57657"
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "биология",
+      "subject_key": "biology",
+      "scope": "ege_biology_3",
+      "task_number": 3,
+      "source": "Новая школа",
+      "source_task_id": "19901",
+      "source_url": "https://thenewschool.ru/trainer/task/19901",
+      "condition_text": "Сколько аминокислот необходимо для синтеза полипептида, если кодирующая его часть иРНК содержит 108 нуклеотидов? В ответе запишите только соответствующее число.",
+      "source_html": "<p><span style=\"font-weight: 400;\">Сколько аминокислот необходимо для синтеза полипептида, если кодирующая его часть иРНК содержит 108 нуклеотидов? В ответе запишите только соответствующее число.</span></p>",
+      "source_html_sha256": "d4c2e212e28cffdff924fd672a9e76602f6bb50ea63782b3340c3da1a081029b",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "36"
+      ],
+      "official_solution_html": "<p>Одну аминокислоту&nbsp;кодирует один кодон.&nbsp;Кодон &mdash; три нуклеотида (триплет) на иРНК.</p>\n<p>Соответственно, <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mn>108</mn><mo>&#247;</mo><mn>3</mn><mo>=</mo><mn>36</mn></math> кодонов, которые кодируют<strong> 36</strong> аминокислот.</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-9330",
+      "selected_before_visual_plan": true
     }
   ]
 }
