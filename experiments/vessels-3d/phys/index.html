@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Физика · второй закон Ньютона</title>
+<style>
+@font-face { font-family: "Exo2"; font-weight: 700; src: url(/experiments/vessels-3d/phys/fonts/Exo2-700.ttf) format("truetype"); }
+@font-face { font-family: "Exo2"; font-weight: 800; src: url(/experiments/vessels-3d/phys/fonts/Exo2-800.ttf) format("truetype"); }
+@font-face { font-family: "Exo2"; font-weight: 800; font-style: italic; src: url(/experiments/vessels-3d/phys/fonts/Exo2-800i.ttf) format("truetype"); }
+@font-face { font-family: "Golos"; font-weight: 500; src: url(/experiments/vessels-3d/phys/fonts/Golos-500.ttf) format("truetype"); }
+@font-face { font-family: "Golos"; font-weight: 600; src: url(/experiments/vessels-3d/phys/fonts/Golos-600.ttf) format("truetype"); }
+@font-face { font-family: "Golos"; font-weight: 700; src: url(/experiments/vessels-3d/phys/fonts/Golos-700.ttf) format("truetype"); }
+@font-face { font-family: "JB"; font-weight: 600; src: url(/experiments/vessels-3d/phys/fonts/JBMono-600.ttf) format("truetype"); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "Golos", sans-serif; color: #EEEAFF; -webkit-font-smoothing: antialiased;
+  background: linear-gradient(180deg, #0A0A26 0%, #1A1350 100%); }
+#stage * { box-sizing: border-box; }
+.a { position: absolute; }
+#grid { left: 0; top: 0; width: 1080px; height: 1920px; z-index: 0;
+  background-image: radial-gradient(rgba(169,139,255,0.22) 3px, transparent 3.5px); background-size: 60px 60px; background-position: 0 20px;
+  -webkit-mask-image: radial-gradient(760px 900px at 50% 48%, #000 0%, rgba(0,0,0,0.35) 60%, transparent 86%); mask-image: radial-gradient(760px 900px at 50% 48%, #000 0%, rgba(0,0,0,0.35) 60%, transparent 86%); }
+#bgc, #world, #logoc { left: 0; top: 0; width: 1080px; height: 1920px; }
+#bgc { z-index: 1; }
+#world { z-index: 3; }
+#logoc { z-index: 30; }
+#plaque { left: 488px; top: 138px; width: 104px; height: 104px; border-radius: 52px; background: rgba(255,255,255,0.96); box-shadow: 0 18px 50px rgba(10,0,40,0.32); display: flex; align-items: center; padding-left: 12px; gap: 22px; z-index: 20; overflow: hidden; }
+#plaque .slot { width: 80px; height: 80px; flex: none; }
+#plaque b { flex: none; font-weight: 700; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase; color: #10162f; white-space: nowrap; }
+#dots { left: 0; top: 272px; width: 1080px; display: flex; justify-content: center; gap: 12px; z-index: 20; }
+#dots i { display: block; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.24); }
+.hh { left: 40px; top: 314px; width: 1000px; text-align: center; z-index: 8; }
+.ey { font-family: "JB"; font-size: 30px; font-weight: 600; color: #A98BFF; height: 48px; letter-spacing: 0.04em; }
+.t1 { font-family: "Exo2"; font-size: 80px; line-height: 92px; font-weight: 800; letter-spacing: -0.01em; color: #EEEAFF; }
+.t2 { font-size: 36px; line-height: 50px; color: #A9A3D6; margin-top: 10px; font-weight: 600; }
+.ctr { left: 0; width: 1080px; display: flex; justify-content: center; z-index: 8; }
+.note { padding: 22px 34px; border-radius: 30px; font-family: "JB"; font-size: 36px; line-height: 1.25; font-weight: 600; color: #EEEAFF; white-space: nowrap;
+  background: rgba(255,255,255,0.07); border: 1.5px solid rgba(169,139,255,0.42); box-shadow: 0 20px 50px rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.14); }
+.note b { color: #A98BFF; }
+.tag { padding: 14px 28px; border-radius: 999px; font-family: "JB"; font-size: 34px; font-weight: 600; white-space: nowrap; color: #EEEAFF;
+  background: rgba(16,12,48,0.82); border: 2px solid rgba(169,139,255,0.5); box-shadow: 0 14px 34px rgba(0,0,0,0.3); }
+.tag.a { color: #62D4FF; border-color: #62D4FF; }
+.tag.on { background: #A98BFF; color: #0B0826; border-color: #A98BFF; }
+.tag.ans { background: #62D4FF; color: #04121F; border-color: #62D4FF; }
+.big { font-family: "Exo2"; font-weight: 800; letter-spacing: -0.02em; color: #A98BFF; line-height: 1; text-align: center; white-space: nowrap; z-index: 8; text-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.cF { color: #A98BFF; } .cm { color: #EEEAFF; } .ca { color: #62D4FF; }
+.vl { font-family: "Exo2"; font-style: italic; font-weight: 800; font-size: 68px; line-height: 1; color: #C9B6FF; white-space: nowrap; z-index: 9; text-shadow: 0 0 24px rgba(169,139,255,0.8); }
+.fm { padding: 26px 64px; border-radius: 40px; font-family: "Exo2"; font-style: italic; font-weight: 800; font-size: 128px; line-height: 1; white-space: nowrap; color: #EEEAFF;
+  background: rgba(255,255,255,0.07); border: 1.5px solid rgba(169,139,255,0.42); box-shadow: 0 30px 70px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.14); }
+.fm span { display: inline-block; }
+.chips { left: 0; width: 1080px; display: flex; justify-content: center; gap: 18px; z-index: 8; }
+.chips span { padding: 12px 22px; border-radius: 999px; font-family: "JB"; font-size: 28px; font-weight: 600; color: #A9A3D6; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(169,139,255,0.42); white-space: nowrap; }
+.chips b { font-family: "Exo2"; font-style: italic; font-size: 34px; }
+.cc { left: 70px; width: 940px; border-radius: 44px; padding: 44px 50px; font-size: 38px; line-height: 1.38; font-weight: 500; color: #EEEAFF; z-index: 10;
+  background: rgba(255,255,255,0.07); border: 1.5px solid rgba(169,139,255,0.36); box-shadow: 0 30px 80px rgba(0,0,0,0.3); }
+#timer { left: 70px; width: 940px; height: 196px; border-radius: 64px; display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; z-index: 10;
+  background: rgba(26,20,72,0.92); border: 1.5px solid rgba(169,139,255,0.45); box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
+#timer .rg { position: relative; width: 144px; height: 144px; flex: none; }
+#timer svg { position: absolute; left: 0; top: 0; width: 144px; height: 144px; transform: rotate(-90deg); }
+#timer .rg i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-family: "Exo2"; font-size: 80px; font-weight: 800; color: #A98BFF; }
+#timer .pt1 { display: flex; align-items: center; gap: 22px; font-family: "Exo2"; font-size: 46px; font-weight: 800; color: #EEEAFF; white-space: nowrap; }
+#timer .pt2 { font-size: 32px; margin-top: 6px; color: #A9A3D6; white-space: nowrap; }
+.bars { display: flex; gap: 9px; }
+.bars i { display: block; width: 14px; height: 42px; border-radius: 6px; background: #A98BFF; }
+.cp { padding: 18px 40px; border-radius: 999px; background: #fff; color: #0A1424; font-weight: 700; font-size: 40px; white-space: nowrap; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+.cp.blue { background: linear-gradient(135deg,#3b7bff,#1652f0); color: #fff; font-size: 48px; padding: 26px 58px; box-shadow: 0 22px 54px rgba(22,82,240,0.45); }
+.anc { z-index: 9; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "/experiments/vessels-3d/node_modules/three/build/three.module.js", "three/addons/": "/experiments/vessels-3d/node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <div class="a" id="grid"></div>
+  <canvas class="a" id="bgc" width="1080" height="1920"></canvas>
+  <canvas class="a" id="world" width="1080" height="1920"></canvas>
+
+  <!-- labels that follow the 3D scene -->
+  <div class="a anc vl" id="lF">F</div>
+  <div class="a anc" id="tV"><div class="tag">покоится · v = 0</div></div>
+  <div class="a anc" id="tA"><div class="tag a">a₁ = 1,8 м/с²</div></div>
+  <div class="a anc" id="tQ"><div class="tag a" id="tQin">a₂ = ?</div></div>
+  <div class="a anc" id="tF"><div class="tag on">F = 0,9 Н</div></div>
+
+  <!-- condition notes -->
+  <div class="a ctr" id="nStrobe" style="top:1620px"><div class="note">кадры через 1 с — <b>шаг растёт</b></div></div>
+  <div class="a ctr" id="nSmooth" style="top:1620px"><div class="note">стол гладкий — <b>трения нет</b></div></div>
+  <div class="a cc" id="cond" style="top:360px">Одна и та же горизонтальная сила F действует вначале на тело 1 массой 0,5 кг, а затем на тело 2 массой 3 кг. Оба тела до начала действия силы покоились на гладком горизонтальном столе. С каким по модулю ускорением будет двигаться тело 2 под действием силы F, если тело 1 движется с ускорением, модуль которого равен 1,8 м/с²?</div>
+  <div class="a" id="timer" style="top:1080px"><div class="rg"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="14"/><circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="#A98BFF" stroke-width="14" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="0"/></svg><i id="tnum">4</i></div><div><div class="pt1"><span class="bars"><i></i><i></i></span>Ставь на паузу</div><div class="pt2">и посчитай сам</div></div></div>
+
+  <!-- headlines -->
+  <div class="a hh" id="h1"><div class="ey">Шаг 1 из 3</div><div class="t1">Закон Ньютона</div></div>
+  <div class="a hh" id="h2"><div class="ey">Шаг 2 из 3</div><div class="t1">Сила</div></div>
+  <div class="a hh" id="h3"><div class="ey">Шаг 3 из 3</div><div class="t1">Ускорение</div></div>
+  <div class="a hh" id="h4"><div class="ey">&nbsp;</div><div class="t1">Больше заданий</div><div class="t2">в приложении — бесплатно</div></div>
+
+  <!-- step 1 -->
+  <div class="a ctr" id="fm" style="top:520px"><div class="fm"><span class="cF" id="fmF">F</span> <span id="fmEq">=</span> <span class="cm" id="fmM">m</span> <span id="fmDot">·</span> <span class="ca" id="fmA">a</span></div></div>
+  <div class="a chips" id="chips" style="top:740px"><span id="c0"><b class="cF">F</b> сила</span><span id="c1"><b class="cm">m</b> масса</span><span id="c2"><b class="ca">a</b> ускорение</span></div>
+  <div class="a ctr" id="nFr" style="top:1440px"><div class="note">трения нет — <b>действует только F</b></div></div>
+
+  <!-- step 2 -->
+  <div class="a ctr" id="n2" style="top:520px"><div class="note"><span class="cF">F</span> = m₁ · <span class="ca">a₁</span></div></div>
+  <div class="a big" id="b2a" style="left:0;width:1080px;top:1450px;font-size:84px;color:#EEEAFF">0,5 · <span class="ca">1,8</span> =</div>
+  <div class="a big" id="b2b" style="left:0;width:1080px;top:1560px;font-size:170px">0,9 Н</div>
+
+  <!-- step 3 -->
+  <div class="a ctr" id="n3" style="top:520px"><div class="note"><span class="ca">a₂</span> = <span class="cF">F</span> : m₂</div></div>
+  <div class="a ctr" id="t6" style="top:660px"><div class="tag">3 кг = 6 × 0,5 кг</div></div>
+  <div class="a big" id="b3a" style="left:0;width:1080px;top:1450px;font-size:84px;color:#EEEAFF"><span class="cF">0,9</span> : 3 =</div>
+  <div class="a big" id="b3b" style="left:0;width:1080px;top:1560px;font-size:150px;color:#62D4FF">0,3 м/с²</div>
+  <div class="a ctr" id="nSix" style="top:1470px"><div class="note">масса × 6 → <b>ускорение : 6</b></div></div>
+  <div class="a ctr" id="nChk" style="top:1590px"><div class="note">1,8 : 6 = <b style="color:#62D4FF">0,3</b></div></div>
+
+  <div class="a" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="a" id="plaque"><div class="slot"></div><b>ЕГЭ Тренажёр</b></div>
+  <canvas class="a" id="logoc" width="1080" height="1920"></canvas>
+  <div class="a ctr" id="cta1" style="top:1290px;z-index:31"><div class="cp blue">Скачивай бесплатно</div></div>
+  <div class="a ctr" id="cta2" style="top:1430px;z-index:31"><div class="cp">Ссылка в профиле ↑</div></div>
+</div>
+<script type="module" src="/experiments/vessels-3d/phys/scene.js"></script>
+</body>
+</html>

@@ -15,3 +15,6 @@ hist/assets/voice.wav
 chem/out/
 chem/fonts/*.ttf
 chem/assets/voice.wav
+phys/out/
+phys/fonts/*.ttf
+phys/assets/voice.wav

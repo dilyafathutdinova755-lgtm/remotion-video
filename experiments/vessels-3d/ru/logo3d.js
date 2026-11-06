@@ -27,7 +27,7 @@ function radialTexture(size = 256) {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-export function createLogo3d(logoTexture, n = 4.2, S = 1) {
+export function createLogo3d(logoTexture, n = 4.2, S = 1, shadowRGB = [90, 20, 50]) {
   const canvas = document.createElement("canvas");
   canvas.width = W * S; canvas.height = H * S;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -57,7 +57,7 @@ export function createLogo3d(logoTexture, n = 4.2, S = 1) {
   const front = new THREE.Mesh(face, faceMat); front.position.z = zFace; g.add(front);
   const back = new THREE.Mesh(face, faceMat); back.rotation.y = Math.PI; back.position.z = -zFace; g.add(back);
   scene.add(g);
-  const shadowMat = new THREE.MeshBasicMaterial({ map: radialTexture(), transparent: true, depthWrite: false, color: new THREE.Color(90 / 255, 20 / 255, 50 / 255) });
+  const shadowMat = new THREE.MeshBasicMaterial({ map: radialTexture(), transparent: true, depthWrite: false, color: new THREE.Color(shadowRGB[0] / 255, shadowRGB[1] / 255, shadowRGB[2] / 255) });
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMat);
   shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
 
