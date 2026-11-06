@@ -7,6 +7,8 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { createLogo3d } from "../ru/logo3d.js";
 
 const W = 1080, H = 1920;
+// exam · subject · task number, shown under the plaque and the step dots (factory rule, see ../CLAUDE.md)
+const TASK = { exam: "ЕГЭ", subject: "физика", number: 2 };
 const $ = (id) => document.getElementById(id);
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
@@ -307,6 +309,7 @@ function drawLogo(t) {
 
 // ---------------------------------------------------------------- overlay helpers
 const dots = [...$("dots").children];
+$("examIn").innerHTML = `${TASK.exam} · ${TASK.subject} <i>·</i> задание ${TASK.number}`;
 function show(el, o, { dy = 0, dx = 0, sc = 1, flex = false } = {}) {
   css(el, { display: o <= 0.001 ? "none" : flex ? "flex" : "", opacity: o, transform: `translate(${dx}px, ${dy}px) scale(${sc})` });
 }
@@ -348,6 +351,7 @@ function renderFrame(t) {
 
   const st = t < T.h1 - 0.3 ? 0 : t < T.h2 ? 1 : t < T.h3 ? 2 : 3;
   css($("dots"), { opacity: 1 - seg(t, T.cta - 0.3, T.cta + 0.2) });
+  css($("exam"), { opacity: 1 - seg(t, T.cta - 0.3, T.cta + 0.2) });
   dots.forEach((d, i) => css(d, { width: i === st ? "46px" : "14px", background: i === st ? VI : "rgba(255,255,255,0.24)" }));
 
   updateWorld(t);
