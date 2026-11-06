@@ -108,6 +108,34 @@
       "state": "reserved",
       "reservation_id": "subject-source-9357",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "85730",
+      "source_url": "https://thenewschool.ru/trainer/task/85730",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются межклассовыми изомерами. 1) глицин 2) пропаналь 3) пропановая кислота 4) нитроэтан 5) уксусная кислота Запишите номера выбранных ответов.",
+      "source_html": "<table style=\"font-weight: 400;\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">Из предложенного перечня выберите два вещества, которые являются межклассовыми изомерами.</p>\n<p style=\"font-weight: 400;\">&nbsp;</p>\n</td>\n</tr>\n<tr>\n<td>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;1)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">глицин</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;2)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">пропаналь</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;3)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">пропановая кислота</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;4)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">нитроэтан</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;5)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">уксусная кислота</p>\n</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p>Запишите номера выбранных ответов.</p>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>",
+      "source_html_sha256": "0a893e6d6a58264bd003dbd6c4d9982eeb24491afa31ba71ed921cd048efd561",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "14",
+        "41"
+      ],
+      "official_solution_html": "<p style=\"font-weight: 400;\">Межклассовые изомеры &ndash; вещества, имеющие одинаковую молекулярную формулу, но разные структурные формулы и относящиеся к различным классам органических соединений.</p>\n<p style=\"font-weight: 400;\">Межклассовыми изомерами по отношению друг к другу являются глицин (NH<sub>2</sub>&ndash;CH<sub>2</sub>&ndash;COOH) и нитроэтан (CH<sub>3</sub>&ndash;CH<sub>2</sub>&ndash;NO<sub>2</sub>)</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-11183",
+      "selected_before_visual_plan": true
     }
   ]
 }
