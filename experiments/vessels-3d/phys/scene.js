@@ -280,7 +280,9 @@ function updateWorld(t) {
 }
 
 // ---------------------------------------------------------------- 3D logo (same as the other subjects)
-const logoTex = await new THREE.TextureLoader().loadAsync("/experiments/vessels-3d/ru/logo.png");
+// ЕГЭ and ОГЭ are different app brands: the icon and the plaque name follow TASK.exam
+const logoTex = await new THREE.TextureLoader().loadAsync(TASK.exam === "ОГЭ" ? "/experiments/vessels-3d/assets/logo-oge.png" : "/experiments/vessels-3d/ru/logo.png");
+$("plaque").lastElementChild.textContent = `${TASK.exam} Тренажёр`;
 logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 8;
 const logo3d = createLogo3d(logoTex, 4.2, 1, [6, 4, 24]);
 const lctx = $("logoc").getContext("2d");
