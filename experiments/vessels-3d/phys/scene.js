@@ -8,7 +8,7 @@ import { createLogo3d } from "../ru/logo3d.js";
 
 const W = 1080, H = 1920;
 // exam · subject · task number, shown under the plaque and the step dots (factory rule, see ../CLAUDE.md)
-const TASK = { exam: "ЕГЭ", subject: "физика", number: 2 };
+const TASK = { exam: "ОГЭ", subject: "физика", number: 6 };
 const $ = (id) => document.getElementById(id);
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
