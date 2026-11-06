@@ -7,6 +7,8 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { createLogo3d } from "../ru/logo3d.js";
 
 const W = 1080, H = 1920;
+// exam · subject · task number, shown under the plaque and the step dots (factory rule, see ../CLAUDE.md)
+const TASK = { exam: "ОГЭ", subject: "физика", number: 6 };
 const $ = (id) => document.getElementById(id);
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
@@ -194,7 +196,7 @@ function dropY(t, t0, h = 6) {   // falls under gravity, small bounce
   return 0.22 * Math.sin(b * Math.PI);
 }
 function worldY(t) {
-  const enter = eBack(seg(t, T.f1 - 0.6, T.f1 + 0.2));
+  const enter = eBack(seg(t, T.f1 - 1.0, T.f1));
   const exit1 = eIO(seg(t, P0, P0 + 0.6)), back = eOut(seg(t, T.h1 - 0.4, T.h1 + 0.35)), exit2 = eIO(seg(t, T.cta - 0.6, T.cta - 0.1));
   let off = lerp(-14, 0, clamp(enter, 0, 1.08));
   if (t > P0) off = lerp(0, -22, exit1);
@@ -278,32 +280,27 @@ function updateWorld(t) {
 }
 
 // ---------------------------------------------------------------- 3D logo (same as the other subjects)
-const logoTex = await new THREE.TextureLoader().loadAsync("/experiments/vessels-3d/ru/logo.png");
+// ЕГЭ and ОГЭ are different app brands: the icon and the plaque name follow TASK.exam
+const logoTex = await new THREE.TextureLoader().loadAsync(TASK.exam === "ОГЭ" ? "/experiments/vessels-3d/assets/logo-oge.png" : "/experiments/vessels-3d/ru/logo.png");
+$("plaque").lastElementChild.textContent = `${TASK.exam} Тренажёр`;
 logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 8;
 const logo3d = createLogo3d(logoTex, 4.2, 1, [6, 4, 24]);
 const lctx = $("logoc").getContext("2d");
 const PW_MAX = 12 + 80 + 22 + $("plaque").lastElementChild.getBoundingClientRect().width + 38;
-const pwOf = (tt) => lerp(104, PW_MAX, eOut(seg(tt, 2.0, 2.55)) * (1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15))));
+const pwOf = (tt) => lerp(104, PW_MAX, 1 - eIO(seg(tt, T.cta - 0.35, T.cta + 0.15)));   // plaque is open from the first frame
 function logoAt(tt) {
   const slot = { x: 540 - pwOf(tt) / 2 + 52, y: 190 };
   const c0 = T.cta - 0.05;
-  if (tt < c0) {
-    const pop = eBack(clamp(tt / 0.6)), fly = eIO(seg(tt, 1.05, 1.95)), u = seg(tt, 0, 1.95);
-    const o = { cx: lerp(540, slot.x, fly), cy: lerp(850, slot.y, fly) - Math.sin(fly * Math.PI) * 70,
-      span: lerp(560 * lerp(0.35, 1, clamp(pop, 0, 1.15)), 80, fly),
-      rotY: eOut(u) * Math.PI * 6, rotX: Math.sin(u * Math.PI) * 0.25, rotZ: Math.sin(u * Math.PI) * -0.08, shadow: tt < 1.6 ? 1 - seg(tt, 1.0, 1.6) : 0 };
-    if (tt > 1.95) { o.rotY = Math.sin((tt - 1.95) * 0.8) * 0.12 * seg(tt, 1.95, 3); o.rotX = 0; o.rotZ = 0; }
-    return o;
-  }
+  if (tt < c0) return { cx: slot.x, cy: slot.y, span: 80, rotY: Math.sin(tt * 0.8) * 0.12, rotX: 0, rotZ: 0, shadow: 0 };   // no spin intro: sits in the plaque
   const k = eIO(seg(tt, c0, c0 + 1.15)), settle = seg(tt, c0 + 1.3, c0 + 2);
   return { cx: lerp(slot.x, 540, k), cy: lerp(slot.y, 860, k) - Math.sin(k * Math.PI) * 90 + Math.sin(tt * 1.5) * 10 * settle,
     span: lerp(80, 540, k),
-    rotY: eIO(seg(tt, c0, c0 + 1.3)) * Math.PI * 4 + Math.sin(Math.max(0, tt - c0 - 1.3) * 0.9) * 0.18 + Math.sin((c0 - 1.95) * 0.8) * 0.12 * (1 - seg(tt, c0, c0 + 0.4)),
+    rotY: eIO(seg(tt, c0, c0 + 1.3)) * Math.PI * 4 + Math.sin(Math.max(0, tt - c0 - 1.3) * 0.9) * 0.18 + Math.sin(c0 * 0.8) * 0.12 * (1 - seg(tt, c0, c0 + 0.4)),
     rotX: Math.sin(k * Math.PI) * 0.2 + Math.sin(tt * 1.1) * 0.04 * settle, rotZ: 0, shadow: seg(tt, c0 + 0.6, c0 + 1.3) };
 }
 function drawLogo(t) {
   const c0 = T.cta - 0.05;
-  const nS = (t < 2.0 || (t > c0 - 0.1 && t < c0 + 1.35)) ? 9 : 1;
+  const nS = (t > c0 - 0.1 && t < c0 + 1.35) ? 9 : 1;
   lctx.globalCompositeOperation = "source-over"; lctx.globalAlpha = 1; lctx.clearRect(0, 0, W, H);
   if (nS > 1) { lctx.globalCompositeOperation = "lighter"; lctx.globalAlpha = 1 / nS; }
   for (let i = 0; i < nS; i++) {
@@ -314,6 +311,7 @@ function drawLogo(t) {
 
 // ---------------------------------------------------------------- overlay helpers
 const dots = [...$("dots").children];
+$("examIn").innerHTML = `${TASK.exam} · ${TASK.subject} <i>·</i> задание ${TASK.number}`;
 function show(el, o, { dy = 0, dx = 0, sc = 1, flex = false } = {}) {
   css(el, { display: o <= 0.001 ? "none" : flex ? "flex" : "", opacity: o, transform: `translate(${dx}px, ${dy}px) scale(${sc})` });
 }
@@ -348,13 +346,14 @@ const flipSx = (t, t0) => { const f = seg(t, t0 - 0.25, t0 + 0.25); return f > 0
 function renderFrame(t) {
   drawBg(t);
   const pw = pwOf(t);
-  const pv = seg(t, 1.85, 2.0) * (1 - seg(t, T.cta + 0.1, T.cta + 0.25));
+  const pv = 1 - seg(t, T.cta + 0.1, T.cta + 0.25);
   css($("plaque"), { width: pw + "px", left: 540 - pw / 2 + "px", opacity: pv, display: pv <= 0 ? "none" : "" });
-  $("plaque").lastElementChild.style.opacity = eOut(seg(t, 2.3, 2.75)) * (1 - seg(t, T.cta - 0.4, T.cta - 0.1));
+  $("plaque").lastElementChild.style.opacity = 1 - seg(t, T.cta - 0.4, T.cta - 0.1);
   drawLogo(t);
 
   const st = t < T.h1 - 0.3 ? 0 : t < T.h2 ? 1 : t < T.h3 ? 2 : 3;
-  css($("dots"), { opacity: seg(t, 1.9, 2.4) * (1 - seg(t, T.cta - 0.3, T.cta + 0.2)) });
+  css($("dots"), { opacity: 1 - seg(t, T.cta - 0.3, T.cta + 0.2) });
+  css($("exam"), { opacity: 1 - seg(t, T.cta - 0.3, T.cta + 0.2) });
   dots.forEach((d, i) => css(d, { width: i === st ? "46px" : "14px", background: i === st ? VI : "rgba(255,255,255,0.24)" }));
 
   updateWorld(t);
