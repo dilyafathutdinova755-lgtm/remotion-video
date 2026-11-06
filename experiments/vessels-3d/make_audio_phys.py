@@ -8,7 +8,7 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent / "phys"
 VOICE, RATE, SR = "tatiana", "108", 24000
-INTRO_SEC = 2.0
+INTRO_SEC = 0.2   # no logo intro: the condition starts right away
 
 SCRIPT = [
     ("c1", 0.6, "|f1|Одна и та же сила толкает сначала |b1|тело массой ноль пять килограмма — |a1|оно разгоняется с ускорением один и восемь метра в секунду в квадрате."),

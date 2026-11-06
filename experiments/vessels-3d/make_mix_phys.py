@@ -135,9 +135,7 @@ def push(t0, D, n=1):
             put(pop(1500 + 120 * k, 1300 + 120 * k, 0.06, 0.32), t0 + k * D / 4 + j * 0.03)   # strobe ticks
 
 
-put(whoosh(1.7, 200, 5000, 0.55), 0.0)                  # logo spin
-put(pop(1200, 600, 0.12, 0.45), 1.95)                   # logo lands
-put(whoosh(0.8, 200, 2200, 0.35), T["f1"] - 0.6)        # glass table rises
+put(whoosh(0.8, 200, 2200, 0.35), max(0.0, T["f1"] - 0.8))   # glass table rises (from the first frame)
 put(clink(3400, 0.18), T["f1"] + 0.15)
 put(whoosh(0.6, 400, 3200, 0.3), T["f1"] + 0.1)         # force arrow slides in
 put(thud(0.55), T["b1"] + 0.35); put(clink(4200, 0.16), T["b1"] + 0.35)   # body 1 lands on glass
