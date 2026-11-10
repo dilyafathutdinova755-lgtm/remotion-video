@@ -358,6 +358,39 @@
       "state": "reserved",
       "reservation_id": "subject-source-14368",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "28499",
+      "source_url": "https://thenewschool.ru/trainer/task/28499",
+      "condition_text": "Из предложенного перечня выберите два вещества, в составе которых присутствует атом углерода в состоянии sp-гибридизации. 1) [SOURCE_IMAGE:91cc24ee95417f868e72e17ed91a049390420c55169e5a941b5134cb767e9c52] 2) [SOURCE_IMAGE:9eee7218be8b7331172a737892ef8090a02ea737819b88fe9a3d4690d0d98a07] 3) [SOURCE_IMAGE:d4e43084db97377aea0c927b06ecdde6609d1a49afe47e08c0df2531771ac2c6] 4) [SOURCE_IMAGE:33dfd986536df2a4cf1d009fc2f62a9de9b6d57dab52f2d1e0bef3157d1f3663] 5) [SOURCE_IMAGE:d7636c9de8fe5414ff844d2e0ff428c178eb2d9112a8a2c72a7baa22b989b9bb] Запишите номера выбранных ответов.",
+      "source_html": "<p><span style=\"font-weight: 400;\">Из предложенного перечня выберите два вещества, в составе которых присутствует атом углерода в состоянии </span><span style=\"font-weight: 400;\">sp-гибридизации.</span></p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">1)</span></p>\n<p><span style=\"font-weight: 400;\"><img src=\"https://media.thenewschool.ru/task/files/325c259d-c0cd-40b3-807b-1a0bd12bc96c.png\" width=\"109\" height=\"65\" data-id=\"9109\" /></span></p>\n<p><span style=\"font-weight: 400;\">2)</span></p>\n<p><span style=\"font-weight: 400;\"> <img src=\"https://media.thenewschool.ru/task/files/c9136260-9b9f-454b-8d17-67ed4f4a053e.png\" width=\"191\" height=\"28\" data-id=\"9110\" /></span></p>\n<p><span style=\"font-weight: 400;\">3)</span></p>\n<p><span style=\"font-weight: 400;\"> <img src=\"https://media.thenewschool.ru/task/files/b2eb4241-0a76-4123-820c-b443b2780427.png\" width=\"157\" height=\"53\" data-id=\"9111\" /></span></p>\n<p><span style=\"font-weight: 400;\">4)</span></p>\n<p><span style=\"font-weight: 400;\"> <img src=\"https://media.thenewschool.ru/task/files/31181322-c0c0-47bb-bd31-f93ba60df74b.png\" width=\"138\" height=\"80\" data-id=\"9112\" /></span></p>\n<p><span style=\"font-weight: 400;\">5)</span></p>\n<p><span style=\"font-weight: 400;\"> <img src=\"https://media.thenewschool.ru/task/files/4f0019af-807f-4be8-8676-ce9f35d0d1a5.png\" width=\"83\" height=\"27\" data-id=\"9113\" /></span></p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">Запишите номера выбранных ответов.</span></p>",
+      "source_html_sha256": "3bf9ff7464da97051f19ea116dfc0f5fddd351488ca6f22e3b6be92d065dd9e1",
+      "source_image_references": [
+        "https://media.thenewschool.ru/task/files/325c259d-c0cd-40b3-807b-1a0bd12bc96c.png",
+        "https://media.thenewschool.ru/task/files/c9136260-9b9f-454b-8d17-67ed4f4a053e.png",
+        "https://media.thenewschool.ru/task/files/b2eb4241-0a76-4123-820c-b443b2780427.png",
+        "https://media.thenewschool.ru/task/files/31181322-c0c0-47bb-bd31-f93ba60df74b.png",
+        "https://media.thenewschool.ru/task/files/4f0019af-807f-4be8-8676-ce9f35d0d1a5.png"
+      ],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "24"
+      ],
+      "official_solution_html": "<p><span style=\"font-weight: 400;\">В</span><span style=\"font-weight: 400;\"> состоянии </span><span style=\"font-weight: 400;\">sp-гибридизации будут находиться те атомы углерода, от которых отходит одна тройная или две двойные связи.</span><span style=\"font-weight: 400;\"><br /></span></p>\n<p><span style=\"font-weight: 400;\">Подходят ответы 2 (кумулированный диен, атом углерода с двумя двойными связями будет иметь sp-гибридизацию, а соседние с ним углероды &ndash; обычную </span><math xmlns=\"http://www.w3.org/1998/Math/MathML\" class=\"wrs_chemistry\"><msup><mi>sp</mi><mn>2</mn></msup></math><span style=\"font-weight: 400;\">-гибридизацию) и 4 (производное алкина, содержит тройную связь).&nbsp;&nbsp;</span></p>\n<p><span style=\"font-weight: 400;\">В соединениях 1,3,5 нет ни одного атома в состоянии sp-гибридизации.</span></p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-14570",
+      "selected_before_visual_plan": true
     }
   ]
 }
