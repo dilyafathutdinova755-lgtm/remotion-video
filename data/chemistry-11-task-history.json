@@ -391,6 +391,33 @@
       "state": "reserved",
       "reservation_id": "subject-source-14570",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "47979",
+      "source_url": "https://thenewschool.ru/trainer/task/47979",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются изомерами валериановой кислоты. 1) бутановая кислота 2) 2-метилбутановая кислота 3) 2-метилпропановая кислота 4) 2,2-диметилбутановая кислота 5) этилпропионат Запишите номера выбранных ответов.",
+      "source_html": "<p>Из предложенного перечня выберите два вещества, которые являются изомерами валериановой кислоты.&nbsp;<br /><br />1) бутановая кислота<br />2) 2-метилбутановая кислота<br />3) 2-метилпропановая кислота<br />4) 2,2-диметилбутановая кислота<br />5) этилпропионат&nbsp;</p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">Запишите номера выбранных ответов.</span></p>",
+      "source_html_sha256": "14cb320016987c9e6b01c1ad129c28ea8b36dbbe6044e00060932e3635a63633",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "25"
+      ],
+      "official_solution_html": "<p>У валериановой кислоты 5 атомов углерода. Такое же число атомов углерода будет у 2-метилбутановой кислоты и этилпропионат - сложного эфира пропионовой кислоты и этанола.&nbsp;</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-14797",
+      "selected_before_visual_plan": true
     }
   ]
 }
