@@ -472,6 +472,34 @@
       "state": "reserved",
       "reservation_id": "subject-source-14821",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "58711",
+      "source_url": "https://thenewschool.ru/trainer/task/58711",
+      "condition_text": "Из предложенного перечня веществ выберите два вещества, которые являются изомерами по отношению друг к другу. 1) глицин 2) глицерин 3) пропандиол-1,2 4) нитроэтан 5) этиленгликоль Запишите в поле ответа номера выбранных веществ.",
+      "source_html": "<p>Из предложенного перечня веществ выберите два вещества, которые являются изомерами по отношению друг к другу.</p>\n<p>&nbsp;</p>\n<p>1)&nbsp;глицин</p>\n<p>2)&nbsp;глицерин</p>\n<p>3)&nbsp;пропандиол-1,2</p>\n<p>4)&nbsp;нитроэтан</p>\n<p>5)&nbsp;этиленгликоль</p>\n<p>&nbsp;</p>\n<p>Запишите в поле ответа номера выбранных веществ.</p>",
+      "source_html_sha256": "012b42a57894746c537a03a78525262124f2c76077c762ceb8f0e94076d6c10b",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "14",
+        "41"
+      ],
+      "official_solution_html": "<p>Изомеры - вещества, имеющий одинаковый состав, но разное строение.</p>\n<p>Изомерами являются глицин( 2-аминоэтановая кислота) и нитроэтан.</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-15232",
+      "selected_before_visual_plan": true
     }
   ]
 }
