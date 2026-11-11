@@ -500,6 +500,33 @@
       "state": "reserved",
       "reservation_id": "subject-source-15232",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "28878",
+      "source_url": "https://thenewschool.ru/trainer/task/28878",
+      "condition_text": "Из предложенного перечня выберите все вещества, которые являются изомерами транс-бутена-2. 1) Цис-бутен-2 2) Пропен 3) Бутен-1 4) Циклобутен 5) Циклобутан Запишите номера выбранных ответов.",
+      "source_html": "<p><span style=\"font-weight: 400;\">Из предложенного перечня выберите все вещества, которые являются изомерами транс-бутена-2.&nbsp;</span></p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">1) Цис-бутен-2</span></p>\n<p><span style=\"font-weight: 400;\">2) Пропен</span></p>\n<p><span style=\"font-weight: 400;\">3) Бутен-1</span></p>\n<p><span style=\"font-weight: 400;\">4) Циклобутен</span></p>\n<p><span style=\"font-weight: 400;\">5) Циклобутан</span></p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">Запишите номера выбранных ответов.</span></p>",
+      "source_html_sha256": "bcff3150576a85b0e1b9ee48f286bb9dc360de6b675a64342ccbf5a4fe4447e3",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "135"
+      ],
+      "official_solution_html": "<p><span style=\"font-weight: 400;\">1) Цис-бутен-2 является геометрическим изомером транс-бутена-2, так как у них отличается положение заместителей у атомов углерода относительно двойной связи.</span></p>\n<p><span style=\"font-weight: 400;\">2) Пропен имеет на один атом углерода меньше, поэтому не будет являться изомером транс-бутена-2.</span></p>\n<p><span style=\"font-weight: 400;\">3) Бутен-1 отличается от транс-бутена-2 только положением кратной связи, поэтому будет его изомером.</span></p>\n<p><span style=\"font-weight: 400;\">4) Циклобутен имеет на два атома водорода меньше, чем транс-бутен-2, поэтому не является его изомером, так как изомеры имеют одинаковый качественный состав.</span></p>\n<p><span style=\"font-weight: 400;\">5) Циклобутан имеет такой же состав, как и транс-бутен-2, но принадлежит к классу циклоалканов. Поэтому они будут межклассовыми изомерами.</span></p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-15242",
+      "selected_before_visual_plan": true
     }
   ]
 }
