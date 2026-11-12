@@ -610,6 +610,34 @@
       "state": "reserved",
       "reservation_id": "subject-source-15776",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "84540",
+      "source_url": "https://thenewschool.ru/trainer/task/84540",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются межклассовыми изомерами по отношению друг к другу. 1) бутин-1 2) бутин-2 3) диэтиловый эфир 4) бутанол-1 5) бутанон Запишите в поле ответа номера выбранных веществ.",
+      "source_html": "<table style=\"font-weight: 400;\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">Из предложенного перечня выберите два вещества, которые являются межклассовыми изомерами по отношению друг к другу.</p>\n<p style=\"font-weight: 400;\">&nbsp;</p>\n</td>\n</tr>\n<tr>\n<td>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td>\n<table style=\"width: 100.131%;\" width=\"100%\">\n<tbody>\n<tr>\n<td style=\"width: 0.267253%;\" width=\"0\">&nbsp;</td>\n<td style=\"width: 2.31619%;\" width=\"0\">&nbsp;1)&nbsp;</td>\n<td style=\"width: 97.369%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">бутин-1</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 0.267253%;\" width=\"0\">&nbsp;</td>\n<td style=\"width: 2.31619%;\" width=\"0\">&nbsp;2)&nbsp;</td>\n<td style=\"width: 97.369%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">бутин-2</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 0.267253%;\" width=\"0\">&nbsp;</td>\n<td style=\"width: 2.31619%;\" width=\"0\">&nbsp;3)&nbsp;</td>\n<td style=\"width: 97.369%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">диэтиловый эфир</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 0.267253%;\" width=\"0\">&nbsp;</td>\n<td style=\"width: 2.31619%;\" width=\"0\">&nbsp;4)&nbsp;</td>\n<td style=\"width: 97.369%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">бутанол-1</p>\n</td>\n</tr>\n<tr>\n<td style=\"width: 0.267253%;\" width=\"0\">&nbsp;</td>\n<td style=\"width: 2.31619%;\" width=\"0\">&nbsp;5)&nbsp;</td>\n<td style=\"width: 97.369%;\" width=\"100%\">\n<p style=\"font-weight: 400;\">бутанон</p>\n</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p>Запишите в поле ответа номера выбранных веществ.</p>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>",
+      "source_html_sha256": "6797466ab09f5e3e6d52f79fcee593111bc9a8d904587cf0ae13ba3bc2946f41",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "34",
+        "43"
+      ],
+      "official_solution_html": "<div class=\"ds-virtual-list-items _6f2c522\">\n<div class=\"ds-virtual-list-visible-items\">\n<div class=\"_4f9bf79 d7dc56a8 _43c05b5\" data-virtual-list-item-key=\"906\">\n<div class=\"ds-message _63c77b1\">\n<div class=\"ds-markdown ds-assistant-message-main-content\">\n<p class=\"ds-markdown-paragraph\"><span class=\"\">Межклассовые изомеры &mdash; это вещества с одинаковой молекулярной формулой, но относящиеся к разным классам. Диэтиловый эфир (3) и бутанол-1 (4) имеют одинаковую формулу C4H10O, но относятся к разным классам (простой эфир и спирт). Бутин-1 (C4H6) и бутанол-1 (C4H10O) имеют разные формулы, поэтому не являются изомерами.</span></p>\n<p class=\"ds-markdown-paragraph\">&nbsp;</p>\n<p class=\"ds-markdown-paragraph\"><strong><span class=\"\">Ответ: 34</span></strong></p>\n</div>\n</div>\n</div>\n</div>\n</div>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-16184",
+      "selected_before_visual_plan": true
     }
   ]
 }
