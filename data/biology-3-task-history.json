@@ -659,6 +659,33 @@
       "state": "reserved",
       "reservation_id": "subject-source-9632",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "биология",
+      "subject_key": "biology",
+      "scope": "ege_biology_3",
+      "task_number": 3,
+      "source": "Новая школа",
+      "source_task_id": "36156",
+      "source_url": "https://thenewschool.ru/trainer/task/36156",
+      "condition_text": "Участок молекулы белка содержит 3 аминокислоты. Сколько потребовалось нуклеотидов иРНК, триплетов иРНК, транспортных РНК для синтеза этого участка? Ответ запишите в виде последовательности цифр в порядке их убывания.",
+      "source_html": "<p>Участок молекулы белка содержит 3 аминокислоты. Сколько потребовалось нуклеотидов иРНК, триплетов иРНК, транспортных РНК для синтеза этого участка? Ответ запишите в виде последовательности цифр в порядке их убывания.</p>",
+      "source_html_sha256": "7ed2f17b2c17cb0d6b84521d35461521671e314c31143ce66231134ab6c00bbf",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "933"
+      ],
+      "official_solution_html": "<p>1. Девять нуклеотидов иРНК, т.к. одна аминокислота кодируется одним триплетом, а один триплет - это три нуклеотида<br />2. Три триплета иРНК, т.к. одна аминокислота кодируется одним триплетом иРНК<br />3. Три молекулы тРНК, т.к. одна молекула тРНК переносит одну аминокислоту</p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-17506",
+      "selected_before_visual_plan": true
     }
   ]
 }
