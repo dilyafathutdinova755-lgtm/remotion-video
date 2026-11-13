@@ -722,6 +722,34 @@
       "state": "reserved",
       "reservation_id": "subject-source-16845",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "28877",
+      "source_url": "https://thenewschool.ru/trainer/task/28877",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются межклассовыми изомерами по отношению друг к другу. 1) Циклобутан 2) Бутен-2 3) Бутин-2 4) Бутан 5) Бутин-1 Запишите номера выбранных ответов.",
+      "source_html": "<p><span style=\"font-weight: 400;\">Из предложенного перечня выберите два вещества, которые являются межклассовыми изомерами по отношению друг к другу.</span></p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">1) Циклобутан</span></p>\n<p><span style=\"font-weight: 400;\">2) Бутен-2</span></p>\n<p><span style=\"font-weight: 400;\">3) Бутин-2</span></p>\n<p><span style=\"font-weight: 400;\">4) Бутан</span></p>\n<p><span style=\"font-weight: 400;\">5) Бутин-1</span></p>\n<p>&nbsp;</p>\n<p><span style=\"font-weight: 400;\">Запишите номера выбранных ответов.</span></p>",
+      "source_html_sha256": "d67ae9816b665ed609202ccd07094c51d4f009cb37cea73a3c73bc1d940d1f18",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "12",
+        "21"
+      ],
+      "official_solution_html": "<p><span style=\"font-weight: 400;\">Межклассовые изомеры - вещества, принадлежащие к разным классам, но имеющие одинаковую молекулярную формулу. Как следствие, общая формула у них тоже будет одинаковая.</span></p>\n<p><span style=\"font-weight: 400;\">1) Циклобутан принадлежит к классу циклоалканов, их общая формула </span><math xmlns=\"http://www.w3.org/1998/Math/MathML\" class=\"wrs_chemistry\"><msub><mi mathvariant=\"normal\">C</mi><mi mathvariant=\"normal\">n</mi></msub><msub><mi mathvariant=\"normal\">H</mi><mrow><mn>2</mn><mi mathvariant=\"normal\">n</mi></mrow></msub></math><span style=\"font-weight: 400;\"></span><span style=\"font-weight: 400;\">.</span></p>\n<p><span style=\"font-weight: 400;\">2) Бутен-2 является алкеном, их общая формула </span><math xmlns=\"http://www.w3.org/1998/Math/MathML\" class=\"wrs_chemistry\"><msub><mi mathvariant=\"normal\">C</mi><mi mathvariant=\"normal\">n</mi></msub><msub><mi mathvariant=\"normal\">H</mi><mrow><mn>2</mn><mi mathvariant=\"normal\">n</mi></mrow></msub></math><span style=\"font-weight: 400;\"></span><span style=\"font-weight: 400;\">.</span></p>\n<p><span style=\"font-weight: 400;\">3) Бутин-2 принадлежит к классу алкинов, их общая формула </span><math xmlns=\"http://www.w3.org/1998/Math/MathML\" class=\"wrs_chemistry\"><msub><mi mathvariant=\"normal\">C</mi><mi mathvariant=\"normal\">n</mi></msub><msub><mi mathvariant=\"normal\">H</mi><mrow><mn>2</mn><mi mathvariant=\"normal\">n</mi><mo>-</mo><mn>2</mn></mrow></msub></math><span style=\"font-weight: 400;\"></span><span style=\"font-weight: 400;\">.</span></p>\n<p><span style=\"font-weight: 400;\">4) Бутан - это алкан, их общая формула </span><math xmlns=\"http://www.w3.org/1998/Math/MathML\" class=\"wrs_chemistry\"><msub><mi mathvariant=\"normal\">C</mi><mi mathvariant=\"normal\">n</mi></msub><msub><mi mathvariant=\"normal\">H</mi><mrow><mn>2</mn><mi mathvariant=\"normal\">n</mi><mo>+</mo><mn>2</mn></mrow></msub></math><span style=\"font-weight: 400;\"></span><span style=\"font-weight: 400;\">.</span></p>\n<p><span style=\"font-weight: 400;\">5) Бутин-1 принадлежит к классу алкинов, их общая формула </span><math xmlns=\"http://www.w3.org/1998/Math/MathML\" class=\"wrs_chemistry\"><msub><mi mathvariant=\"normal\">C</mi><mi mathvariant=\"normal\">n</mi></msub><msub><mi mathvariant=\"normal\">H</mi><mrow><mn>2</mn><mi mathvariant=\"normal\">n</mi><mo>-</mo><mn>2</mn></mrow></msub></math><span style=\"font-weight: 400;\"></span><span style=\"font-weight: 400;\">.</span></p>\n<p><span style=\"font-weight: 400;\">Одинаковую формулу имеют циклобутан и бутен-2, и они относятся к разным классам.</span></p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-17373",
+      "selected_before_visual_plan": true
     }
   ]
 }
