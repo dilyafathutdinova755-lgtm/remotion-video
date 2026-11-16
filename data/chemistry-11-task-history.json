@@ -917,6 +917,34 @@
       "state": "reserved",
       "reservation_id": "subject-source-21448",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "85737",
+      "source_url": "https://thenewschool.ru/trainer/task/85737",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются изомерами циклогександиола-1,2. 1) 2-метилпентановая кислота 2) циклогексанон 3) бензойная кислота 4) этилбутират 5) гександиол-1,3 Запишите номера выбранных ответов.",
+      "source_html": "<table style=\"font-weight: 400;\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">Из предложенного перечня выберите два вещества, которые являются изомерами циклогександиола-1,2.</p>\n<p style=\"font-weight: 400;\">&nbsp;</p>\n</td>\n</tr>\n<tr>\n<td>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;1)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">2-метилпентановая кислота</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;2)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">циклогексанон</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;3)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">бензойная кислота</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;4)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">этилбутират</p>\n</td>\n</tr>\n<tr>\n<td width=\"0\">&nbsp;</td>\n<td width=\"0\">&nbsp;5)&nbsp;</td>\n<td width=\"100%\">\n<p style=\"font-weight: 400;\">гександиол-1,3</p>\n</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p>Запишите номера выбранных ответов.</p>\n</td>\n</tr>\n</tbody>\n</table>\n</td>\n</tr>\n</tbody>\n</table>",
+      "source_html_sha256": "be7a49454ebb96f9327ccd1ad76aa042d9c9ee3a14c94c35ccfb5a502c034eb5",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "14",
+        "41"
+      ],
+      "official_solution_html": "<p class=\"ds-markdown-paragraph\"><span class=\"\">Циклогександиол-1,2 имеет молекулярную формулу C6H12O2. Изомеры должны иметь такую же формулу.</span></p>\n<p class=\"ds-markdown-paragraph\"><span class=\"\">2-метилпентановая кислота &mdash; C6H12O2 (подходит).</span></p>\n<p class=\"ds-markdown-paragraph\"><span class=\"\">Этилбутират &mdash; C6H12O2 (подходит).</span></p>\n<p class=\"ds-markdown-paragraph\"><br /><span class=\"\">Циклогексанон (C6H10O), бензойная кислота (C7H6O2) и гександиол-1,3 (C6H14O2) не являются изомерами.</span></p>\n<p class=\"ds-markdown-paragraph\">&nbsp;</p>\n<p class=\"ds-markdown-paragraph\"><strong><span class=\"\">Ответ: 14</span></strong></p>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-21776",
+      "selected_before_visual_plan": true
     }
   ]
 }
