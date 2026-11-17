@@ -972,6 +972,33 @@
       "state": "reserved",
       "reservation_id": "subject-source-22124",
       "selected_before_visual_plan": true
+    },
+    {
+      "exam": "ЕГЭ",
+      "subject": "химия",
+      "subject_key": "chemistry",
+      "scope": "ege_chemistry_11",
+      "task_number": 11,
+      "source": "Новая школа",
+      "source_task_id": "52933",
+      "source_url": "https://thenewschool.ru/trainer/task/52933",
+      "condition_text": "Из предложенного перечня выберите два вещества, которые являются структурными изомерами пентена-1. 1) циклопентан 2) пентадиен-1,3 3) 2-метилбутан 4) 2-метилбутен-2 5) 3-метилбутин-1 Запишите номера выбранных ответов.",
+      "source_html": "<div id=\"collapseExample-25987\" class=\"text-2 mt-2 mt-sm-3 question-formula collapse show\">\n<div>Из предложенного перечня выберите два вещества, которые являются структурными изомерами пентена-1.</div>\n<div>&nbsp;</div>\n</div>\n<div class=\"options-wrap question-formula\">\n<div class=\"form-check mt-2 mb-3 pl-2\">\n<div class=\"text-2 mb-0\">1) циклопентан</div>\n</div>\n<div class=\"form-check mt-2 mb-3 pl-2\">\n<div class=\"text-2 mb-0\">2) пентадиен-1,3</div>\n</div>\n<div class=\"form-check mt-2 mb-3 pl-2\">\n<div class=\"text-2 mb-0\">3) 2-метилбутан</div>\n</div>\n<div class=\"form-check mt-2 mb-3 pl-2\">\n<div class=\"text-2 mb-0\">4) 2-метилбутен-2</div>\n</div>\n<div class=\"form-check mt-2 mb-3 pl-2\">\n<div class=\"text-2 mb-0\">5) 3-метилбутин-1</div>\n<div class=\"text-2 mb-0\">&nbsp;</div>\n<div class=\"text-2 mb-0\">Запишите номера выбранных ответов.</div>\n</div>\n</div>",
+      "source_html_sha256": "55b7be38687a0b3f38750095fb654e66cdbefc4c4039f8b94702d27b9b5da269",
+      "source_image_references": [],
+      "source_contains_mathml": false,
+      "official_answers": [
+        "14"
+      ],
+      "official_solution_html": "<div class=\"CbirOcr-TextBox CbirOcr-TextBox_size_0\">Структурные изомеры - соединения одинакового качественного и количественного состава, отличающиеся порядком связывания атомов, то есть химическим строением. Следовательно, структурные изомеры имеют одну и ту же молекулярную формулу, но различные структурные формулы. Молекулярная формула пентена-1: C₅H₁₀</div>\n<div class=\"CbirOcr-TextBox CbirOcr-TextBox_size_0\">Молекулярные формулы веществ в перечене:</div>\n<div class=\"CbirOcr-TextBox CbirOcr-TextBox_size_0\">&nbsp;</div>\n<div class=\"CbirOcr-TextBox CbirOcr-TextBox_size_0\">1) C₅H₁₀</div>\n<div class=\"CbirOcr-TextBox CbirOcr-TextBox_size_0\">\n<p>2) C₅H₈</p>\n<p>3) C₅H₁₂</p>\n<p>4) C₅H₁₀</p>\n<p>5) C₅H₈.</p>\n</div>",
+      "official_reference_available": true,
+      "official_answer_metadata_warning": false,
+      "source_representation": "immutable_html_with_original_formulas_and_image_references",
+      "visual_plan": null,
+      "selection_reason": "new_unused_official_task_before_visual_planning",
+      "state": "reserved",
+      "reservation_id": "subject-source-22705",
+      "selected_before_visual_plan": true
     }
   ]
 }
